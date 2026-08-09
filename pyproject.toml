@@ -1,0 +1,22 @@
+[project]
+name = "frenchtutor"
+version = "0.1.0"
+description = "Interactive Gradio web application for learning French tailored for Spanish speakers"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "gradio",
+    "torch",
+    "transformers",
+    "sentence-transformers",
+    "fasttext",
+    "huggingface_hub",
+    "numpy<2",
+    "sentencepiece",
+    "sacremoses",
+    "pyspellchecker>=0.9.0",
+    "language-tool-python",
+]
+
+[tool.uv]
+package = false

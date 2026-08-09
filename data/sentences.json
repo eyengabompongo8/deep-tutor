@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "es": "Hola, ¿cómo estás?",
+    "fr": "Bonjour, comment ça va ?"
+  },
+  {
+    "id": 2,
+    "es": "Me gusta mucho leer libros.",
+    "fr": "J'aime beaucoup lire des livres."
+  },
+  {
+    "id": 3,
+    "es": "El gato duerme en el sofá.",
+    "fr": "Le chat dort sur le canapé."
+  },
+  {
+    "id": 4,
+    "es": "Vamos a la playa mañana.",
+    "fr": "Nous allons à la plage demain."
+  },
+  {
+    "id": 5,
+    "es": "Quiero una manzana roja.",
+    "fr": "Je veux une pomme rouge."
+  },
+  {
+    "id": 6,
+    "es": "Mi hermano vive en París.",
+    "fr": "Mon frère habite à Paris."
+  },
+  {
+    "id": 7,
+    "es": "Ella habla francés muy bien.",
+    "fr": "Elle parle très bien français."
+  },
+  {
+    "id": 8,
+    "es": "Necesito ayuda con mi tarea.",
+    "fr": "J'ai besoin d'aide pour mes devoirs."
+  },
+  {
+    "id": 9,
+    "es": "¿Dónde está la estación de tren?",
+    "fr": "Où est la gare ?"
+  },
+  {
+    "id": 10,
+    "es": "El cielo es de color azul oscuro.",
+    "fr": "Le ciel est d'un bleu foncé."
+  },
+  {
+    "id": 11,
+    "es": "Tengo que irme ahora.",
+    "fr": "Je dois partir maintenant."
+  },
+  {
+    "id": 12,
+    "es": "Es un hermoso día soleado.",
+    "fr": "C'est une belle journée ensoleillée."
+  },
+  {
+    "id": 13,
+    "es": "Me encanta escuchar música clásica.",
+    "fr": "J'adore écouter de la musique classique."
+  },
+  {
+    "id": 14,
+    "es": "¿Qué hora es?",
+    "fr": "Quelle heure est-il ?"
+  },
+  {
+    "id": 15,
+    "es": "El perro corre en el parque.",
+    "fr": "Le chien court dans le parc."
+  },
+  {
+    "id": 16,
+    "es": "No entiendo lo que dices.",
+    "fr": "Je ne comprends pas ce que tu dis."
+  },
+  {
+    "id": 17,
+    "es": "Esta comida es muy deliciosa.",
+    "fr": "Ce repas est très délicieux."
+  },
+  {
+    "id": 18,
+    "es": "Por favor, cierra la puerta.",
+    "fr": "S'il te plaît, ferme la porte."
+  },
+  {
+    "id": 19,
+    "es": "Estoy aprendiendo un nuevo idioma.",
+    "fr": "J'apprends une nouvelle langue."
+  },
+  {
+    "id": 20,
+    "es": "Nos vemos el próximo lunes.",
+    "fr": "On se voit lundi prochain."
+  }
+]
