@@ -1,0 +1,570 @@
+{
+  "id": "A2.1",
+  "name": "Reflexive Verbs & Imperative",
+  "topics": [
+    {
+      "id": "A2.1.1",
+      "title": "Present Tense Reflexive Verbs (*Verbes pronominaux au présent*)",
+      "objective": "",
+      "spacy_pattern": "# spaCy Matcher Pattern for Present Tense Reflexive Verbs\npattern_reflexive_present = [\n    {\n        \"POS\": \"PRON\",\n        \"LEMMA\": {\"IN\": [\"me\", \"te\", \"se\", \"nous\", \"vous\"]},\n        \"MORPH\": {\"IN\": [\"PronType=Prs\", \"Reflex=Yes\"]}\n    },\n    {\n        \"POS\": \"VERB\",\n        \"MORPH\": {\"IN\": [\"Mood=Ind\", \"Tense=Pres\", \"VerbForm=Fin\"]}\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "A2.1.2",
+      "title": "Daily Routine Reflexive Expressions (*Verbes pronominaux de la routine quotidienne*)",
+      "objective": "",
+      "spacy_pattern": "# spaCy Matcher Pattern for Daily Routine Reflexive Expressions with Body Parts\npattern_routine_bodypart = [\n    {\n        \"POS\": \"PRON\",\n        \"LEMMA\": {\"IN\": [\"me\", \"te\", \"se\", \"nous\", \"vous\"]}\n    },\n    {\n        \"POS\": \"VERB\"\n    },\n    {\n        \"POS\": \"DET\",\n        \"LEMMA\": {\"IN\": [\"le\", \"la\", \"les\", \"l'\"]}\n    },\n    {\n        \"POS\": \"NOUN\"\n    }\n]",
+      "exercises": [
+        {
+          "id": 94,
+          "es": "Me tomaría una eternidad explicarte todo.",
+          "fr": "Ça me prendrait l'éternité pour tout expliquer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 583,
+          "es": "Si usted no dispone de este programa puede descargarlo ahora.",
+          "fr": "Si vous ne disposez pas de ce programme vous pouvez le télécharger maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1034,
+          "es": "¿Acepta tarjeta de crédito?",
+          "fr": "Vous acceptez les cartes de crédit ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1991,
+          "es": "¿Podría usted indicarme dónde queda la estación de metro más próxima?",
+          "fr": "Pouvez-vous m'indiquer la station de métro la plus proche ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2401,
+          "es": "Cada vez más parejas casadas comparten las tareas del hogar.",
+          "fr": "De plus en plus de couples mariés se partagent les tâches ménagères.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2432,
+          "es": "¿Les gusta oír música o cantar canciones?",
+          "fr": "Aimez-vous écouter la musique ou chanter des chansons ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2466,
+          "es": "¿Puede usted indicarme el camino hasta la estación?",
+          "fr": "Pouvez-vous m'indiquer le chemin jusqu'à la gare ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2720,
+          "es": "¿Tú sabes cómo cocinar pescado?",
+          "fr": "Savez-vous cuisiner le poisson ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2941,
+          "es": "Perdone que le moleste, ¿le importaría indicarme el camino hasta la estación?",
+          "fr": "Désolé de vous déranger, pourriez-vous me montrer le chemin jusqu'à la gare ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2942,
+          "es": "Perdone que le moleste, ¿le importaría indicarme el camino hasta la estación?",
+          "fr": "Excusez-moi de vous déranger, pourriez-vous m'indiquer le chemin vers la gare ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3130,
+          "es": "Jimmy a menudo viene a verme los fines de semana.",
+          "fr": "Jimmy vient souvent me voir le week-end.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3228,
+          "es": "Ve por esta calle y encontrarás el cine.",
+          "fr": "Longez cette avenue, et vous trouverez le cinéma.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3229,
+          "es": "¿Pueden ver el cuadro?",
+          "fr": "Pouvez-vous voir l'image ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3247,
+          "es": "¿Cómo se pronuncia esa palabra?",
+          "fr": "Comment se prononce le mot ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3248,
+          "es": "¿Cómo se pronuncia esta palabra?",
+          "fr": "Comment se prononce le mot ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3445,
+          "es": "La señorita Thomas nos enseña historia.",
+          "fr": "Mme Thomas nous apprend l'Histoire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3544,
+          "es": "Ben metió las manos en sus bolsillos.",
+          "fr": "Ben se mit les mains dans les poches.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3939,
+          "es": "¿Reconoce al hombre de la foto?",
+          "fr": "Est-ce que vous reconnaissez l'homme sur cette photo ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4614,
+          "es": "Vemos la televisión todas las tardes.",
+          "fr": "Nous regardons la télévision tous les soirs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4825,
+          "es": "¿Podría usted rellenar el certificado médico para la escuela de mi hijo?",
+          "fr": "Pourriez-vous remplir le certificat médical pour l'école de mon fils ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4878,
+          "es": "¿Podría usted decirme donde se encuentra la entrada del metro?",
+          "fr": "Pouvez-vous m'indiquer où se trouve l'entrée du métro ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 573,
+          "es": "Mientras comíamos el postre crecía el deseo por viajar a este país.",
+          "fr": "Pendant que nous mangions le dessert, le désir de voyager vers ce pays grandissait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.606403232289698
+        },
+        {
+          "id": 592,
+          "es": "¿Tiene dificultades para comprender lo que le dicen mujeres o niños pequeños?",
+          "fr": "Avez-vous des difficultés à comprendre ce que vous disent les femmes ou les petits enfants ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 765,
+          "es": "Conocen la frase, cosechamos lo que sembramos. He sembrado el viento y aquí está mi tempestad.",
+          "fr": "Vous connaissez la phrase, « on récolte ce que l’on sème. » Moi, j’ai semé le vent, maintenant voilà ma tempête.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 951,
+          "es": "¿Tenéis dificultades para comprender lo que os dicen mujeres o niños pequeños?",
+          "fr": "Avez-vous des difficultés à comprendre ce que vous disent les femmes ou les petits enfants ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3026,
+          "es": "¿Os gustó la película?",
+          "fr": "Avez-vous aimé le film ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3240,
+          "es": "¿Ha recibido usted la carta?",
+          "fr": "Avez-vous reçu la lettre ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4688,
+          "es": "Una mujer fue tan amable de indicarme el camino.",
+          "fr": "Une femme a été assez bonne pour m'indiquer le chemin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 399,
+          "es": "¿Puedes marcarme el número? El teléfono está muy alto.",
+          "fr": "Pourriez-vous composer le numéro pour moi ? Le téléphone est placé trop haut.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 760,
+          "es": "Odio a esas arañas, siempre están ahí para sacarme de quicio cuando hago limpieza.",
+          "fr": "Je déteste ces araignées, elles sont toujours là pour me ficher la trouille quand j'fais le ménage.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 820,
+          "es": "¡No puedo cortarme las uñas y planchar al mismo tiempo!",
+          "fr": "Je ne peux pas me couper les ongles et faire le repassage en même temps !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2041,
+          "es": "Te enseñaré a andar en monopatín el domingo que viene.",
+          "fr": "Je t'enseignerai le skate dimanche prochain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2228,
+          "es": "Esperaré hasta que hayas escrito la carta.",
+          "fr": "J'attendrai jusqu'à ce que vous écriviez la lettre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2229,
+          "es": "Esperaré hasta que terminéis de escribir la carta.",
+          "fr": "J'attendrai jusqu'à ce que vous écriviez la lettre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2686,
+          "es": "Te voy a contar la historia de mi vida.",
+          "fr": "Je vais vous raconter l'histoire de ma vie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "A2.1.3",
+      "title": "Negation of Reflexive Verbs (*Négation des verbes pronominaux*)",
+      "objective": "",
+      "spacy_pattern": "# spaCy Matcher Pattern for Negation of Reflexive Verbs\npattern_negation_reflexive = [\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": \"ne\"\n    },\n    {\n        \"POS\": \"PRON\",\n        \"LEMMA\": {\"IN\": [\"me\", \"te\", \"se\", \"nous\", \"vous\"]}\n    },\n    {\n        \"POS\": \"VERB\"\n    },\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": {\"IN\": [\"pas\", \"jamais\", \"plus\", \"rien\"]}\n    }\n]",
+      "exercises": [
+        {
+          "id": 76,
+          "es": "No me sorprende.",
+          "fr": "Ça ne me surprend pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 603,
+          "es": "¡No te olvides de nosotros!",
+          "fr": "Ne nous oublie pas !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 612,
+          "es": "Esto me gusta menos que cuidar niños.",
+          "fr": "Ça ne me plaît pas autant que de m'occuper des enfants.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 681,
+          "es": "Eso no me sorprende.",
+          "fr": "Ça ne me surprend pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 690,
+          "es": "Si no me conocías así, entonces simplemente no me conocías.",
+          "fr": "Si tu ne me connaissais pas comme ça alors tu ne me connaissais pas tout court.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 954,
+          "es": "¡No nos olvides!",
+          "fr": "Ne nous oublie pas !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1264,
+          "es": "No me interesa el arte moderno.",
+          "fr": "L'art moderne ne m'intéresse pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1890,
+          "es": "No me hagas tantas preguntas, usá la cabeza.",
+          "fr": "Ne me posez pas tant de questions, servez-vous de votre tête.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1893,
+          "es": "No me mientas.",
+          "fr": "Ne me mens pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2268,
+          "es": "¡No me asustes así!",
+          "fr": "Ne m'effraie pas comme ça !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2984,
+          "es": "Entre tú y yo, la idea de Tom no me atrae demasiado.",
+          "fr": "Entre toi et moi, l'idée de Tom ne m'attire pas beaucoup.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3223,
+          "es": "No me mires así.",
+          "fr": "Ne me regarde pas de cette façon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3233,
+          "es": "Asegúrese de que el perro no se escape.",
+          "fr": "Assurez-vous que le chien ne s'échappe pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3339,
+          "es": "No me importa si fumas.",
+          "fr": "Cela ne me dérange pas si vous fumez.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4008,
+          "es": "¡No me respondas!",
+          "fr": "Ne me réponds pas !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4009,
+          "es": "No me respondas.",
+          "fr": "Ne me réponds pas !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4487,
+          "es": "Él no me cree en absoluto.",
+          "fr": "Il ne me croit pas du tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4611,
+          "es": "No os preocupéis por nosotros.",
+          "fr": "Ne vous inquiétez pas pour nous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4831,
+          "es": "No os burléis de los otros.",
+          "fr": "Ne vous moquez pas des autres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3620,
+          "es": "Mary no tiene a nadie con quien hablar, pero no se siente sola.",
+          "fr": "Mary n'a personne à qui parler, mais elle ne se sent pas seule.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2255,
+          "es": "No porque un hombre sea rico tiene que ser necesariamente feliz.",
+          "fr": "Juste parce qu'un homme est riche, il ne s'ensuit pas nécessairement qu'il est heureux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2354,
+          "es": "Estoy seguro de haberle visto en alguna parte, pero no me acuerdo de quién es.",
+          "fr": "Je suis sûr que je l'ai rencontré quelque part, mais je ne me rappelle plus qui il est.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.368437679389049
+        },
+        {
+          "id": 613,
+          "es": "No me gustan estas tazas, las de la mesa me gustan más.",
+          "fr": "Ces tasses ne me plaisent pas, je préfère celles qui sont sur la table.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 107,
+          "es": "Yo seré infeliz, pero no me suicidaría.",
+          "fr": "Je serais malheureux, mais je ne me suiciderais pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 652,
+          "es": "No le conozco.",
+          "fr": "Je ne vous connais pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 771,
+          "es": "No me siento bien.",
+          "fr": "Je ne me sens pas bien.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1659,
+          "es": "No os conozco.",
+          "fr": "Je ne vous connais pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1660,
+          "es": "No les conozco.",
+          "fr": "Je ne vous connais pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4425,
+          "es": "No me lavo la cabeza por la mañana.",
+          "fr": "Je ne me lave pas les cheveux le matin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4849,
+          "es": "Hable en voz alta, por favor. No le he oído.",
+          "fr": "Pouvez-vous parler plus fort je ne vous entends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "A2.1.4",
+      "title": "Affirmative Imperative Mood (*L'impératif affirmatif*)",
+      "objective": "",
+      "spacy_pattern": "# spaCy Matcher Pattern for Affirmative Imperative\npattern_affirmative_imperative = [\n    {\n        \"POS\": \"VERB\",\n        \"MORPH\": {\"IN\": [\"Mood=Imp\", \"VerbForm=Fin\"]}\n    },\n    {\n        \"POS\": {\"IN\": [\"DET\", \"NOUN\", \"ADV\", \"ADP\", \"PRON\"]}\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "A2.1.5",
+      "title": "Negative Imperative Mood (*L'impératif négatif*)",
+      "objective": "",
+      "spacy_pattern": "# spaCy Matcher Pattern for Negative Imperative\npattern_negative_imperative = [\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": \"ne\"\n    },\n    {\n        \"POS\": \"VERB\",\n        \"MORPH\": {\"IN\": [\"Mood=Imp\", \"VerbForm=Fin\"]}\n    },\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": {\"IN\": [\"pas\", \"plus\", \"jamais\", \"rien\"]}\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "A2.1.6",
+      "title": "Imperative of Reflexive Verbs (*L'impératif des verbes pronominaux*)",
+      "objective": "",
+      "spacy_pattern": "# spaCy Matcher Pattern for Affirmative Imperative of Reflexive Verbs\npattern_imperative_reflexive_affirmative = [\n    {\n        \"POS\": \"VERB\",\n        \"MORPH\": {\"IN\": [\"Mood=Imp\", \"VerbForm=Fin\"]}\n    },\n    {\n        \"ORTH\": \"-\"\n    },\n    {\n        \"POS\": \"PRON\",\n        \"LEMMA\": {\"IN\": [\"toi\", \"nous\", \"vous\"]}\n    }\n]\n\n# spaCy Matcher Pattern for Negative Imperative of Reflexive Verbs\npattern_imperative_reflexive_negative = [\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": \"ne\"\n    },\n    {\n        \"POS\": \"PRON\",\n        \"LEMMA\": {\"IN\": [\"me\", \"te\", \"se\", \"nous\", \"vous\"]}\n    },\n    {\n        \"POS\": \"VERB\"\n    },\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": {\"IN\": [\"pas\", \"plus\", \"jamais\"]}\n    }\n]",
+      "exercises": []
+    }
+  ]
+}

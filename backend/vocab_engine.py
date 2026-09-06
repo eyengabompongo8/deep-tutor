@@ -1,0 +1,415 @@
+import os
+import sys
+import csv
+import spacy
+import urllib.request
+import zipfile
+import io
+from typing import List, Dict, Any, Optional, Set, Tuple
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(ROOT_DIR, 'data')
+FLELEX_PATH = os.path.join(DATA_DIR, 'flelex_beacco.tsv')
+LEXIQUE_DIR = os.path.join(DATA_DIR, 'lexique')
+LEXIQUE_FILE = os.path.join(LEXIQUE_DIR, 'Lexique383.tsv')
+
+# CEFR level mappings
+LEVELS_VAL = {'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6}
+VAL_TO_LEVEL = {1: 'A1', 2: 'A2', 3: 'B1', 4: 'B2', 5: 'C1', 6: 'C2'}
+
+# Standard A1 vocabulary and common functional words
+A1_WORDS = {
+    'le', 'la', 'les', 'un', 'une', 'des', 'du', 'au', 'aux', 'ce', 'cet', 'cette', 'ces',
+    'je', 'tu', 'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles', 'me', 'te', 'se', 'moi', 'toi', 'lui',
+    'y', 'en', 'mon', 'ma', 'mes', 'ton', 'ta', 'tes', 'son', 'sa', 'ses', 'notre', 'nos', 'votre', 'vos', 'leur', 'leurs',
+    'à', 'de', 'pour', 'dans', 'sur', 'avec', 'sans', 'sous', 'chez', 'vers', 'par', 'entre',
+    'et', 'ou', 'mais', 'car', 'si', 'que', 'qui', 'quand', 'où', 'comme', 'donc',
+    'être', 'avoir', 'aller', 'faire', 'dire', 'pouvoir', 'vouloir', 'savoir', 'voir', 'devoir', 'venir', 'falloir',
+    'ne', 'pas', 'plus', 'très', 'bien', 'oui', 'non', 'merci', 'bonjour', 'bonsoir', 'au revoir', 'salut',
+    'm\'', 't\'', 's\'', 'c\'', 'j\'', 'l\'', 'd\'', 'n\'', 'qu\'', 'aujourd\'hui', 'hier', 'demain'
+}
+
+# POS Tag mapping from spaCy POS to Lexique383 cgram
+SPACY_TO_LEXIQUE_POS = {
+    'VERB': ['VER', 'AUX'],
+    'AUX': ['AUX', 'VER'],
+    'NOUN': ['NOM'],
+    'ADJ': ['ADJ', 'ADJ:num', 'ADJ:pos', 'ADJ:dem', 'ADJ:ind'],
+    'ADV': ['ADV'],
+    'PRON': ['PRO:per', 'PRO:pos', 'PRO:dem', 'PRO:ind', 'PRO:rel', 'PRO'],
+    'DET': ['ART:def', 'ART:ind', 'ART', 'ADJ:pos', 'ADJ:dem'],
+    'ADP': ['PRE'],
+    'CCONJ': ['CON'],
+    'SCONJ': ['CON'],
+    'NUM': ['ADJ:num', 'NOM']
+}
+
+
+class VocabEngine:
+    def __init__(self):
+        self.flelex_data = {}        # lemma -> {'level': str, 'score': int, 'freq': float}
+        self.lexique_pos_lemma = {}  # (ortho, cgram) -> (lemme, freq)
+        self.lexique_best_lemma = {} # ortho -> (lemme, freq)
+
+        self._ensure_resources()
+        self._load_lexique()
+        self._load_flelex()
+
+        try:
+            self.nlp = spacy.load('fr_core_news_sm')
+        except OSError:
+            print("Downloading spaCy fr_core_news_sm model...")
+            os.system(f'{sys.executable} -m spacy download fr_core_news_sm')
+            self.nlp = spacy.load('fr_core_news_sm')
+
+    def _ensure_resources(self):
+        os.makedirs(DATA_DIR, exist_ok=True)
+        os.makedirs(LEXIQUE_DIR, exist_ok=True)
+
+        if not os.path.exists(FLELEX_PATH):
+            print("Downloading FLELex / CEFRLex (Beacco)...")
+            url = 'https://cental.uclouvain.be/cefrlex/static/resources/fr/FleLex_TT_Beacco.tsv'
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req) as resp, open(FLELEX_PATH, 'wb') as f:
+                f.write(resp.read())
+            print("FLELex dataset downloaded.")
+
+        if not os.path.exists(LEXIQUE_FILE):
+            print("Downloading Lexique383 dataset...")
+            url = 'http://www.lexique.org/databases/Lexique383/Lexique383.zip'
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req) as resp:
+                with zipfile.ZipFile(io.BytesIO(resp.read())) as z:
+                    z.extractall(LEXIQUE_DIR)
+            print("Lexique383 dataset downloaded and extracted.")
+
+    def _load_lexique(self):
+        if not os.path.exists(LEXIQUE_FILE):
+            return
+
+        with open(LEXIQUE_FILE, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f, delimiter='\t')
+            for row in reader:
+                ortho = row['ortho'].lower()
+                lemme = row['lemme'].lower()
+                cgram = row['cgram']
+                try:
+                    freq = float(row.get('freqlemlivres', 0) or 0)
+                except (ValueError, TypeError):
+                    freq = 0.0
+
+                key = (ortho, cgram)
+                if key not in self.lexique_pos_lemma or freq > self.lexique_pos_lemma[key][1]:
+                    self.lexique_pos_lemma[key] = (lemme, freq)
+
+                if ortho not in self.lexique_best_lemma or freq > self.lexique_best_lemma[ortho][1]:
+                    self.lexique_best_lemma[ortho] = (lemme, freq)
+
+    def _load_flelex(self):
+        if not os.path.exists(FLELEX_PATH):
+            return
+
+        with open(FLELEX_PATH, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f, delimiter='\t')
+            for row in reader:
+                word = row['word'].lower()
+                lvl = row.get('level', 'C2').upper()
+                if lvl not in LEVELS_VAL:
+                    lvl = 'C2'
+                try:
+                    freq = float(row.get('freq_total', 0) or 0)
+                except (ValueError, TypeError):
+                    freq = 0.0
+
+                self.flelex_data[word] = {
+                    'level': lvl,
+                    'score': LEVELS_VAL[lvl],
+                    'freq': freq
+                }
+
+    def get_word_level(self, tok):
+        """
+        Computes the CEFR level for an individual spaCy token.
+        Returns: (cefr_level: str, score_val: int, lemma: str)
+        """
+        if tok.is_punct or tok.is_space or tok.is_digit:
+            return None, None, None
+
+        text_lower = tok.text.lower()
+        if text_lower in A1_WORDS or tok.pos_ == 'PROPN':
+            return 'A1', 1, text_lower
+
+        # Find lemma using POS matching
+        target_cgrams = SPACY_TO_LEXIQUE_POS.get(tok.pos_, [])
+        lemma = None
+        for cg in target_cgrams:
+            if (text_lower, cg) in self.lexique_pos_lemma:
+                lemma = self.lexique_pos_lemma[(text_lower, cg)][0]
+                break
+
+        if not lemma:
+            if text_lower in self.lexique_best_lemma:
+                lemma = self.lexique_best_lemma[text_lower][0]
+            else:
+                lemma = tok.lemma_.lower()
+
+        if lemma in A1_WORDS:
+            return 'A1', 1, lemma
+
+        # Check FLELex by lemma
+        if lemma in self.flelex_data:
+            info = self.flelex_data[lemma]
+            return info['level'], info['score'], lemma
+
+        # Check FLELex by surface text
+        if text_lower in self.flelex_data:
+            info = self.flelex_data[text_lower]
+            return info['level'], info['score'], text_lower
+
+        # Check spaCy's native lemma
+        spacy_lemma = tok.lemma_.lower()
+        if spacy_lemma in self.flelex_data:
+            info = self.flelex_data[spacy_lemma]
+            return info['level'], info['score'], spacy_lemma
+
+        # Word not found in FLELex dictionary or A1 list: ignore the word
+        return None, None, None
+
+    def score_sentence(self, fr_text):
+        """
+        Scores a French sentence according to FLELex / CEFRLex.
+        The sentence score is the MAXIMUM score that a word from the sentence has.
+        Returns:
+            final_level (str): 'A1', 'A2', 'B1', 'B2', 'C1', or 'C2'
+            max_score (int): 1 to 6
+            word_breakdown (list[dict]): Per-word diagnostics
+        """
+        if not fr_text or not fr_text.strip():
+            return 'A1', 1, []
+
+        doc = self.nlp(fr_text.strip())
+        max_score = 1
+        word_breakdown = []
+
+        for tok in doc:
+            lvl, score, lemma = self.get_word_level(tok)
+            if lvl is None:
+                continue
+
+            if score > max_score:
+                max_score = score
+
+            word_breakdown.append({
+                'word': tok.text,
+                'lemma': lemma,
+                'pos': tok.pos_,
+                'level': lvl,
+                'score': score
+            })
+
+        final_level = VAL_TO_LEVEL.get(max_score, 'C2')
+        return final_level, max_score, word_breakdown
+
+    def extract_sentence_lexemas(self, fr_text: str) -> List[Dict[str, Any]]:
+        """
+        Extracts canonical word roots (lexemas) from a French sentence text.
+        Returns a list of unique lexema dicts:
+        [{'lemma': str, 'pos': str, 'level': str, 'freq': float, 'is_base': bool}]
+        """
+        if not fr_text or not fr_text.strip():
+            return []
+
+        doc = self.nlp(fr_text.strip())
+        seen = set()
+        lexemas = []
+
+        for tok in doc:
+            if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
+                continue
+
+            lvl, score, lemma = self.get_word_level(tok)
+            if not lemma:
+                lemma = tok.lemma_.lower().strip()
+            lemma = lemma.lower().strip()
+
+            # Clean contractions like l', d', j' from lemma
+            if lemma.endswith("'") or lemma.endswith("’"):
+                continue
+
+            pos = tok.pos_
+            key = (lemma, pos)
+            if key in seen:
+                continue
+            seen.add(key)
+
+            # Determine level
+            if not lvl or lvl not in LEVELS_VAL:
+                if lemma in self.flelex_data:
+                    lvl = self.flelex_data[lemma]['level']
+                else:
+                    lvl = 'A1' if lemma in A1_WORDS else 'A2'
+
+            # Determine frequency from Lexique / FLELex
+            freq = 0.0
+            if lemma in self.lexique_best_lemma:
+                freq = self.lexique_best_lemma[lemma][1]
+            elif lemma in self.flelex_data:
+                freq = self.flelex_data[lemma]['freq']
+
+            # Determine if foundational base word (unlocked by default)
+            is_base = (
+                lemma in A1_WORDS or
+                pos in ('DET', 'PRON', 'ADP', 'CCONJ', 'SCONJ', 'AUX') or
+                (lvl == 'A1' and lemma in ('être', 'avoir', 'aller', 'faire', 'dire', 'pouvoir', 'vouloir', 'voir', 'savoir'))
+            )
+
+            lexemas.append({
+                'lemma': lemma,
+                'pos': pos,
+                'level': lvl,
+                'freq': freq,
+                'is_base': bool(is_base)
+            })
+
+        return lexemas
+
+    def index_database_lexemas(self, data_manager, batch_size: int = 500, verbose: bool = True):
+        """
+        Indexes all sentences in the database:
+        - Extracts lexemas using spaCy + Lexique + FLELex
+        - Populates the 'lexemas' table
+        - Links sentences to their lexemas in 'sentence_lexemas'
+        - Seeds base foundational A1 words
+        """
+        # 1. Seed base foundational words in lexemas table
+        base_words_to_seed = []
+        for w in A1_WORDS:
+            cleaned = w.strip().rstrip("'’")
+            if cleaned and not cleaned.endswith("'"):
+                base_words_to_seed.append({
+                    'lemma': cleaned,
+                    'pos': None,
+                    'level': 'A1',
+                    'frequency': 1000.0,
+                    'is_base': True
+                })
+        data_manager.bulk_upsert_lexemas(base_words_to_seed)
+
+        # 2. Find sentences that need indexing
+        with data_manager._get_connection() as conn:
+            cursor = conn.execute("SELECT DISTINCT sentence_id FROM sentence_lexemas;")
+            indexed_sentence_ids = {r[0] for r in cursor.fetchall()}
+
+        all_sentences = data_manager.get_all_sentences()
+        unindexed = [s for s in all_sentences if s['id'] not in indexed_sentence_ids]
+
+        if verbose:
+            print(f"Total sentences: {len(all_sentences)}, already indexed: {len(indexed_sentence_ids)}, to index: {len(unindexed)}")
+
+        if not unindexed:
+            return
+
+        # 3. Process unindexed sentences in batches using nlp.pipe
+        for i in range(0, len(unindexed), batch_size):
+            chunk = unindexed[i:i + batch_size]
+            texts = [s['fr'] for s in chunk]
+            docs = list(self.nlp.pipe(texts, batch_size=batch_size))
+
+            chunk_lexemas = []
+            sentence_links = []
+
+            for s_dict, doc in zip(chunk, docs):
+                s_id = s_dict['id']
+                # Extract lexemas for this doc
+                seen_in_sent = set()
+                sent_lex_items = []
+                for tok in doc:
+                    if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
+                        continue
+                    lvl, score, lemma = self.get_word_level(tok)
+                    if not lemma:
+                        lemma = tok.lemma_.lower().strip()
+                    lemma = lemma.lower().strip()
+                    if lemma.endswith("'") or lemma.endswith("’"):
+                        continue
+                    pos = tok.pos_
+                    k = (lemma, pos)
+                    if k in seen_in_sent:
+                        continue
+                    seen_in_sent.add(k)
+
+                    if not lvl or lvl not in LEVELS_VAL:
+                        lvl = self.flelex_data.get(lemma, {}).get('level', 'A1' if lemma in A1_WORDS else 'A2')
+
+                    freq = 0.0
+                    if lemma in self.lexique_best_lemma:
+                        freq = self.lexique_best_lemma[lemma][1]
+                    elif lemma in self.flelex_data:
+                        freq = self.flelex_data[lemma]['freq']
+
+                    is_base = (
+                        lemma in A1_WORDS or
+                        pos in ('DET', 'PRON', 'ADP', 'CCONJ', 'SCONJ', 'AUX') or
+                        (lvl == 'A1' and lemma in ('être', 'avoir', 'aller', 'faire', 'dire', 'pouvoir', 'vouloir', 'voir', 'savoir'))
+                    )
+
+                    sent_lex_items.append({
+                        'lemma': lemma,
+                        'pos': pos,
+                        'level': lvl,
+                        'frequency': freq,
+                        'is_base': is_base
+                    })
+                    chunk_lexemas.append({
+                        'lemma': lemma,
+                        'pos': pos,
+                        'level': lvl,
+                        'frequency': freq,
+                        'is_base': is_base
+                    })
+
+                # Store temporary tuple for linking after upsert
+                chunk_lexemas.extend(sent_lex_items)
+
+            # Upsert all discovered lexemas
+            lemma_id_map = data_manager.bulk_upsert_lexemas(chunk_lexemas)
+
+            # Now build sentence_lexemas links
+            for s_dict, doc in zip(chunk, docs):
+                s_id = s_dict['id']
+                sent_links = []
+                seen_lids = set()
+                for tok in doc:
+                    if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
+                        continue
+                    _, _, lemma = self.get_word_level(tok)
+                    if not lemma:
+                        lemma = tok.lemma_.lower().strip()
+                    lemma = lemma.lower().strip()
+                    if lemma.endswith("'") or lemma.endswith("’"):
+                        continue
+                    pos = tok.pos_
+                    lid = lemma_id_map.get((lemma, pos)) or lemma_id_map.get((lemma, None))
+                    if lid and lid not in seen_lids:
+                        seen_lids.add(lid)
+                        sent_links.append((s_id, lid))
+                data_manager.bulk_link_sentence_lexemas(sent_links)
+
+            if verbose:
+                print(f"Indexed batch {min(i + batch_size, len(unindexed))}/{len(unindexed)}")
+
+
+if __name__ == "__main__":
+    engine = VocabEngine()
+    print("VocabEngine loaded successfully!")
+    test_sentences = [
+        "Bonjour, je m'appelle Marie et j'habite à Paris.",
+        "Le chat noir dort sur la table de la cuisine.",
+        "Quand j'étais enfant, nous partions souvent en vacances à la mer.",
+        "Bien que cette décision paraisse opportune, elle suscite de vives controverses parmi les spécialistes.",
+        "L'épistémologie cartésienne postule l'indubitabilité du cogito comme fondement ontologique."
+    ]
+    for s in test_sentences:
+        lvl, score, breakdown = engine.score_sentence(s)
+        print(f"\n[{lvl} - Score {score}] {s}")
+        print("  Words:", " ".join(f"{b['word']}({b['level']})" for b in breakdown))

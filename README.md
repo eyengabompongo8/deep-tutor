@@ -21,13 +21,21 @@ The system evaluates a given French translation based on the following pipeline:
 
 ## Project Structure
 
-*   `app.py`: Main Gradio application. Contains the UI layout, state management, and custom HTML mapping visualization.
-*   `models.py`: The `MLEngine` class. Handles model loading, tokenizer management, and implements the math behind the evaluation metrics and attention extraction.
-*   `data_manager.py`: Handles CRUD operations for the sentence dataset.
-*   `data/sentences.json`: Preloaded dataset of 20 Spanish-French sentence pairs.
-*   `app.css`: Custom styling to render the sentence mapping tokens as inline elements instead of standard block elements.
+*   `backend/`: Python backend application code:
+    *   `server.py`: FastAPI application serving the API and React frontend.
+    *   `app.py`: Gradio application interface and state management.
+    *   `data_manager.py`: SQLite database operations and sentence repository CRUD.
+    *   `models.py`: Natural Language Processing and translation evaluation engine (`MLEngine`).
+    *   `scoring_engine.py`: Adaptive CEFR score calculation and transcription diff evaluation.
+    *   `tts_engine.py`: Neural French Text-to-Speech synthesis and caching.
+    *   `vocab_engine.py`: CEFRLex / FLELex vocabulary engine for CEFR level estimation.
+*   `frontend/`: React + Vite single page application.
+*   `scripts/`: Harvest, mining, rescoring, and migration utilities (`generate_dataset.py`, `rescore_dataset.py`, `translate_sentences.py`, `migrate_json_to_db.py`).
+*   `curriculum/`: CEFR levels curriculum definitions, module units, and parsing tools.
+*   `data/`: Processed SQLite database (`sentences.db`), lexicons (`flelex_beacco.tsv`), and audio cache.
+*   `tests/`: Standardized Pytest test suite with isolated fixtures.
+*   `run_tests.py`: Fast test runner script with automated categorization.
 *   `pyproject.toml`: Modern project specification and dependencies managed by `uv`.
-*   `requirements.txt`: Python dependencies fallback.
 *   `uv.lock`: Deterministic lockfile for dependencies.
 
 ## Installation & Execution
@@ -36,12 +44,24 @@ The system evaluates a given French translation based on the following pipeline:
     ```bash
     uv sync
     ```
-2. Run the Gradio application:
+2. Run the application:
     ```bash
-    uv run python app.py
+    # Run FastAPI web server with frontend
+    uv run python -m backend.server
+
+    # Or run the legacy Gradio application
+    uv run python -m backend.app
     ```
     or run the test suite:
     ```bash
-    uv run python test_app.py
+    # Run fast unit & API tests (default)
+    uv run pytest
+    # or
+    python run_tests.py
+
+    # Run all tests including heavy ML models
+    python run_tests.py --all
+    # or
+    uv run pytest -m ""
     ```
-3. *Note: The first run will take several minutes to download the PyTorch models from the Hugging Face Hub (approx. ~3-4 GB).*
+3. *Note: The first run with ML models will take several minutes to download the PyTorch models from the Hugging Face Hub (approx. ~3-4 GB).*

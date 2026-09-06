@@ -1,0 +1,539 @@
+{
+  "id": "C1_C2.3",
+  "name": "Advanced Syntax, Discourse Markers & N'importe/Quelque Expressions",
+  "topics": [
+    {
+      "id": "C1_C2.3_EXPRESSIONS_NIMPORTE",
+      "title": "Indefinite Expressions with N'importe (N'importe quel / qui / quoi / où / quand / comment)",
+      "objective": "Accurately form and deploy all indefinite expressions with *n'importe* to express complete indifference or universal selection (\"any\", \"whoever\", \"whatever\", \"anywhere\").",
+      "spacy_pattern": "pattern = [\n    {\"LOWER\": \"n'\"},\n    {\"LOWER\": \"importe\"},\n    {\"LOWER\": {\"IN\": [\"quoi\", \"qui\", \"où\", \"quand\", \"comment\", \"quel\", \"quelle\", \"quels\", \"quelles\"]}}\n]",
+      "exercises": [
+        {
+          "id": 4034,
+          "es": "¡Pregúntame lo que quieras!",
+          "fr": "Demande-moi n'importe quoi !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4174,
+          "es": "Ella estudia tanto como cualquier otro alumno de la clase.",
+          "fr": "Elle étudie autant que n'importe quel autre élève de la classe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 211,
+          "es": "No es algo que pueda hacer cualquiera.",
+          "fr": "Ce n'est pas quelque chose que n'importe qui peut faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2821,
+          "es": "No importa cómo, la fiesta deberá ser cancelada.",
+          "fr": "N'importe comment, la fête devra être annulée.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4921,
+          "es": "Da igual el piso mientras el alquiler sea razonable.",
+          "fr": "N'importe quel appartement ira tant que le loyer est raisonnable.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 64,
+          "es": "Si el mundo no fuera como es, yo podría confiar en cualquiera.",
+          "fr": "Si le monde n'était pas dans l'état où il est maintenant, je pourrais faire confiance à n'importe qui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.350390318665248
+        },
+        {
+          "id": 3424,
+          "es": "Tengo que coger un autobús para ir adonde sea.",
+          "fr": "Je dois prendre un autocar pour aller n'importe où.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "C1_C2.3_EXPRESSIONS_QUELQUE",
+      "title": "Advanced Indefinite Structures with Quelque (Quelque... que + Subjunctive, Quelconque, Quelque part)",
+      "objective": "Master advanced indefinite constructions with *quelque*, including concession clauses (*quelque + adj + que + subj*) and indefinite pronouns.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": \"quelque\"},\n    {\"POS\": \"ADJ\"},\n    {\"LOWER\": \"que\"},\n    {\"OP\": \"*\"},\n    {\"POS\": {\"IN\": [\"VERB\", \"AUX\"]}, \"MORPH\": {\"IS_SUBSET\": [\"Mood=Sub\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "C1_C2.3_PARTICIPLE_GERUND_STRUCTURES",
+      "title": "Participial Clauses, Present Participles & Gerunds (Participe Présent, Gérondif & Participe Passé Absolu)",
+      "objective": "Form and utilize non-finite participial clauses (*participe présent*, *gérondif*, *participe absolu*) to condense subordinate clauses in formal academic French.",
+      "spacy_pattern": "pattern = [\n    {\"POS\": \"ADP\", \"LOWER\": \"en\", \"OP\": \"?\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IS_SUBSET\": [\"Tense=Pres\", \"VerbForm=Part\"]}}\n]",
+      "exercises": [
+        {
+          "id": 492,
+          "es": "¡Afronta la vida con una sonrisa!",
+          "fr": "Affronte la vie en souriant !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 583,
+          "es": "Si usted no dispone de este programa puede descargarlo ahora.",
+          "fr": "Si vous ne disposez pas de ce programme vous pouvez le télécharger maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 784,
+          "es": "El tren proveniente de Ginebra va a entrar en la estación.",
+          "fr": "Le train venant de Genève va entrer en gare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 858,
+          "es": "El estudiante decidió acortar su reporte quitando detalles innecesarios.",
+          "fr": "L'étudiant décida d'abréger son rapport en enlevant les détails inutiles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1821,
+          "es": "Mi perro a menudo finge estar dormido.",
+          "fr": "Mon chien fait souvent semblant de dormir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1890,
+          "es": "No me hagas tantas preguntas, usá la cabeza.",
+          "fr": "Ne me posez pas tant de questions, servez-vous de votre tête.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2446,
+          "es": "No toques mis libros con las manos sucias.",
+          "fr": "Ne touchez pas mes livres avec des mains sales.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2618,
+          "es": "Cualquiera con un CI de al menos dos dígitos sabe que ha habido intereses políticos tras esta elección.",
+          "fr": "Quiconque disposant d'un QI comportant au moins deux chiffres sait qu'il s'agissait d'un choix pour raisons politiques.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2743,
+          "es": "¿Puedo llamarte Bob?",
+          "fr": "Puis-je t'appeler Bob ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3110,
+          "es": "No te vayas sin despedirte.",
+          "fr": "Ne sors pas sans dire au revoir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3443,
+          "es": "Cada estudiante tiene una taquilla.",
+          "fr": "Chaque étudiant dispose d'un casier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3788,
+          "es": "Cede siempre el paso a los vehículos que se aproximen por la derecha.",
+          "fr": "Laissez toujours la priorité aux véhicules venant de droite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3912,
+          "es": "Ella se volvía más y más bella con los años.",
+          "fr": "Les années passant, elle devenait de plus en plus belle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4269,
+          "es": "\"Hola\", dijo Tom, sonriendo.",
+          "fr": "\"Salut\", dit Tom, souriant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4650,
+          "es": "No pise el césped.",
+          "fr": "Ne marchez pas sur la pelouse.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1814,
+          "es": "No se lee mientras se come.",
+          "fr": "On ne lit pas en mangeant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.606403232289698
+        },
+        {
+          "id": 765,
+          "es": "Conocen la frase, cosechamos lo que sembramos. He sembrado el viento y aquí está mi tempestad.",
+          "fr": "Vous connaissez la phrase, « on récolte ce que l’on sème. » Moi, j’ai semé le vent, maintenant voilà ma tempête.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 586,
+          "es": "Completa el siguiente formulario para saber quién pudiste haber sido en tu anterior vida.",
+          "fr": "Remplis le formulaire suivant pour savoir qui tu as pu être dans ta vie antérieure.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 1904,
+          "es": "Un artículo acerca de nuestra escuela apareció en el periódico.",
+          "fr": "Un article concernant notre école a été publié dans le journal.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 453,
+          "es": "Se está haciendo la dormida, por eso no ronca.",
+          "fr": "Elle fait semblant de dormir, c'est pour ça qu'elle ne ronfle pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 460,
+          "es": "Cuando el cuerpo es tocado, los receptores en la piel envían mensajes al cerebro causando la liberación de sustancias químicas como las endorfinas.",
+          "fr": "Quand le corps est touché, des récepteurs dans la peau envoient des messages au cerveau causant la libération de produits chimiques tels que l'endorphine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 736,
+          "es": "Sería divertido ver cómo las cosas cambian a través de los años.",
+          "fr": "Ça serait marrant de voir comment les choses changent au fil des ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 945,
+          "es": "Les elefantes son los mayores animales terrestres vivos actualmente.",
+          "fr": "Les éléphants sont les plus gros animaux terrestres vivant actuellement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1969,
+          "es": "A mi hermana le robaron el bolso cuando volvía a casa anoche.",
+          "fr": "Ma sœur s'est fait voler son sac en rentrant chez elle hier soir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2297,
+          "es": "Dese prisa, es urgente.",
+          "fr": "Dépêchez-vous, c'est urgent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3058,
+          "es": "Está justo al bajar la calle a mano izquierda.",
+          "fr": "C'est juste en descendant la rue, sur votre gauche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3162,
+          "es": "Jon es mucho más atractivo que Tom.",
+          "fr": "Jon est beaucoup plus attirant que Tom.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3485,
+          "es": "El baloncesto es muy divertido.",
+          "fr": "Le basket-ball est très distrayant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3508,
+          "es": "Un pedazo de pan no bastó para saciar su hambre.",
+          "fr": "Un morceau de pain n'était pas suffisant pour apaiser sa faim.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3702,
+          "es": "El Rin es la frontera que separa a Francia de Alemania.",
+          "fr": "Le Rhin est la limite séparant la France et l'Allemagne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4274,
+          "es": "Es un libro acerca de las estrellas.",
+          "fr": "C'est un livre concernant les étoiles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4671,
+          "es": "Mi tío ha avalado mis deudas.",
+          "fr": "Mon oncle s'est porté garant de mes dettes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 274,
+          "es": "Hazme saber si hay algo que yo pueda hacer.",
+          "fr": "Fais-moi savoir s'il y a quoi que ce soit que je puisse faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 302,
+          "es": "Al salir de la estación vi a un hombre.",
+          "fr": "En quittant la gare, j'ai vu un homme.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 352,
+          "es": "Hazme saber si necesito hacer cambios.",
+          "fr": "Faites-moi savoir si j'ai besoin de faire des changements.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 742,
+          "es": "Comunicadme si tengo que hacer algún cambio.",
+          "fr": "Faites-moi savoir si j'ai besoin de faire des changements.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1209,
+          "es": "Me encontré con mi profesor en el restaurante por casualidad ayer por la noche.",
+          "fr": "J'avais rencontré mon professeur par hasard au restaurant la nuit dernière.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1351,
+          "es": "Al no saber qué hacer, le pedí consejo.",
+          "fr": "Ne sachant pas quoi faire, je lui ai demandé conseil.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2337,
+          "es": "Me encontré con Tom de camino a la escuela.",
+          "fr": "J'ai rencontré Tom en allant à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2464,
+          "es": "Tuve éxito en abordar el autobús de las 8, corriendo a lo largo del camino hasta la estación.",
+          "fr": "J'ai réussi à attraper le train de 8h en courant tout au long du chemin jusqu'à la gare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3410,
+          "es": "Sin saber qué hacer, le pedí consejo al profesor.",
+          "fr": "Ne sachant que faire, j'ai demandé l'avis du professeur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3960,
+          "es": "No dudo de su sinceridad.",
+          "fr": "Je n'ai aucun doute concernant sa sincérité.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 250,
+          "es": "¡No vale la pena que hagas como que me haces creer que creo cosas que tú no crees!",
+          "fr": "Ce n'est pas la peine de faire semblant de me faire croire que je crois des choses que tu ne crois pas !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1363,
+          "es": "Me encontré con mi profesor camino a la estación.",
+          "fr": "Je suis tombé sur mon professeur en allant à la gare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2067,
+          "es": "Le agradecería mucho que los enviase por avión.",
+          "fr": "Je vous serais très reconnaissant de les envoyer par avion.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2896,
+          "es": "Le estaría enormemente agradecido si me ayudara.",
+          "fr": "Je te serais très reconnaissant si tu voulais bien m'aider.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3499,
+          "es": "Me torcí el dedo mientras jugaba voleibol.",
+          "fr": "Je me suis foulé le doigt en jouant au volley-ball.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 78,
+          "es": "Por alguna razón, me siento más vivo por la noche.",
+          "fr": "Pour une certaine raison je me sens plus vivant la nuit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 340,
+          "es": "\"No puedo pensar con ese ruido,\" dijo ella, mirando fijamente su máquina de escribir.",
+          "fr": "\"Je ne peux pas réfléchir avec ce bruit\", dit-elle, en fixant des yeux la machine à écrire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 640,
+          "es": "En primer lugar quiero expresar especial gratitud a mi director de tesis el Dr. Juan Pisto por su paciencia, esfuerzo y dedicación.",
+          "fr": "En premier lieu je voudrais exprimer particulièrement ma gratitude envers mon directeur de thèse le Dr. Juan Pisto pour sa patience, son effort et son dévouement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1356,
+          "es": "A menudo estudio mientras estoy escuchando música.",
+          "fr": "J'étudie souvent en écoutant de la musique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2513,
+          "es": "Desearía poder nadar.",
+          "fr": "J'aimerais savoir nager.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2555,
+          "es": "\"Te quiero\", murmuró ella cerrando los ojos.",
+          "fr": "«Je t'aime», murmura-t-elle en fermant les yeux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4446,
+          "es": "Yo querría un libro que trata los costumbres de Japón.",
+          "fr": "J'aimerais un livre parlant des coutumes japonaises.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4598,
+          "es": "Yo no pude darme a entender.",
+          "fr": "Je ne pouvais pas me faire comprendre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "C1_C2.3_ADVANCED_MODAL_HYPOTHETICALS",
+      "title": "Nuanced Modals & Inverted Conditionals (Would, Could, Should & Inverted Hypotheticals)",
+      "objective": "Express subtle shades of obligation, possibility, regret, and hypothetical inversion using advanced modal verbs (*devoir*, *pouvoir*, *vouloir*) and literary inverted conditionals.",
+      "spacy_pattern": "pattern = [\n    {\"POS\": \"AUX\", \"LEMMA\": {\"IN\": [\"avoir\", \"être\"]}},\n    {\"POS\": \"ADV\", \"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"LEMMA\": {\"IN\": [\"devoir\", \"pouvoir\", \"vouloir\"]}, \"MORPH\": {\"IS_SUBSET\": [\"VerbForm=Part\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "C1_C2.3_ADVANCED_DISCOURSE_MARKERS",
+      "title": "Sophisticated Discourse Markers & Logical Connectors",
+      "objective": "Use complex discourse connectors (*alors que*, *tandis que*, *ne... que*, *tant que*, *d'autant plus que*, *or*, *en revanche*) to structure formal argumentation.",
+      "spacy_pattern": "pattern = [\n    {\"LOWER\": \"d'\"},\n    {\"LOWER\": \"autant\"},\n    {\"LOWER\": \"plus\"},\n    {\"LOWER\": \"que\"}\n]",
+      "exercises": []
+    }
+  ]
+}

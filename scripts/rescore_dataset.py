@@ -1,0 +1,71 @@
+import json
+import os
+import sys
+import sqlite3
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, os.path.join(BASE_DIR, 'backend'))
+
+from tqdm import tqdm
+from vocab_engine import VocabEngine
+from data_manager import DataManager, DB_PATH
+from collections import Counter
+
+JSON_BACKUP_PATH = os.path.join(BASE_DIR, 'data', 'sentences.json')
+
+def rescore_dataset(db_path=DB_PATH, json_backup=True):
+    dm = DataManager(db_path=db_path)
+    sentences = dm.get_all_sentences()
+
+    if not sentences:
+        print(f"Error: No sentences found in database at {db_path}.")
+        return
+
+    print("Loading VocabEngine...")
+    engine = VocabEngine()
+
+    print(f"Loaded {len(sentences)} sentence pairs from database.")
+    old_levels = Counter(s.get('level', 'Unknown') for s in sentences)
+    print("Previous level distribution:", dict(old_levels))
+
+    changed_count = 0
+    new_levels = Counter()
+    updates = []
+
+    for item in tqdm(sentences, desc="Rescoring sentences in SQLite"):
+        fr_text = item.get('fr', '')
+        old_level = item.get('level')
+        new_lvl, new_score, _ = engine.score_sentence(fr_text)
+
+        if new_lvl != old_level:
+            changed_count += 1
+
+        item['level'] = new_lvl
+        item['score_lexical'] = float(new_score)
+        item['score'] = float(new_score)
+        new_levels[new_lvl] += 1
+        updates.append((new_lvl, float(new_score), item['id']))
+
+    # Bulk update in SQLite
+    with dm._get_connection() as conn:
+        conn.executemany(
+            "UPDATE sentences SET level = ?, score_lexical = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?;",
+            updates
+        )
+
+    if json_backup:
+        try:
+            with open(JSON_BACKUP_PATH, 'w', encoding='utf-8') as f:
+                json.dump(sentences, f, ensure_ascii=False, indent=2)
+            print(f"JSON backup updated at {JSON_BACKUP_PATH}")
+        except Exception as e:
+            print(f"Warning: Could not write JSON backup: {e}")
+
+    print(f"\n✅ Rescoring complete! {changed_count} of {len(sentences)} sentences updated in database.")
+    print("New level distribution:")
+    for lvl in ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']:
+        print(f"  {lvl}: {new_levels[lvl]}")
+
+if __name__ == "__main__":
+    rescore_dataset()

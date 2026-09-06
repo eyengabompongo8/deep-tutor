@@ -1,0 +1,3813 @@
+{
+  "id": "B1.3",
+  "name": "Pronouns & Prepositional Structures",
+  "topics": [
+    {
+      "id": "B1.3_DIRECT_INDIRECT_OBJECT_PRONOUNS",
+      "title": "Direct (COD) and Indirect (COI) Object Pronouns",
+      "objective": "Identify, substitute, and correctly position direct object pronouns (*me, te, le, la, nous, vous, les*) and indirect object pronouns (*lui, leur*) in simple and compound tenses.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"PRON\",\n        \"MORPH\": {\"IS_SUBSET\": [\"PronType=Prs\"]},\n        \"DEP\": {\"IN\": [\"obj\", \"iobj\", \"expl:pv\"]}\n    },\n    {\"OP\": \"?\"},\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]}\n    }\n]",
+      "exercises": [
+        {
+          "id": 2427,
+          "es": "Si él hubiera sabido lo que estaba a punto de pasar, habría modificado su plan.",
+          "fr": "S'il avait su ce qui était sur le point de se passer, il aurait modifié son plan.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.11940340900644
+        },
+        {
+          "id": 3408,
+          "es": "Me pregunto qué le habrá hecho cambiar de idea.",
+          "fr": "Je me demande ce qui a pu le faire changer d'avis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 466,
+          "es": "Me gustaría darle un regalo por su cumpleaños.",
+          "fr": "Je voudrais lui offrir un cadeau pour son anniversaire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2700,
+          "es": "Te daré lo que quieras.",
+          "fr": "Je te donnerai tout ce que tu veux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B1.3_ADVERBIAL_PRONOUNS_Y_EN",
+      "title": "Adverbial Pronouns Y (Location/À + Noun) and EN (Quantity/De + Noun)",
+      "objective": "Substitute prepositional phrases of location/destination (*à, en, dans, sur* + place) with *y*, and expressions of quantity/indefinite items (*de, du, de la, des* + noun) with *en*.",
+      "spacy_pattern": "pattern = [\n    {\n        \"LEMMA\": {\"IN\": [\"y\", \"en\"]},\n        \"POS\": {\"IN\": [\"PRON\", \"ADV\"]}\n    },\n    {\"OP\": \"?\"},\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]}\n    }\n]",
+      "exercises": [
+        {
+          "id": 3769,
+          "es": "Dejadme ir con vosotros.",
+          "fr": "Laissez-moi y aller avec vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2082,
+          "es": "¿Hay muchos árboles en el parque?",
+          "fr": "Y a-t-il beaucoup d’arbres dans le parc ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 4.283372485122743
+        },
+        {
+          "id": 2776,
+          "es": "Hay una biblioteca en cada ciudad de Estados Unidos.",
+          "fr": "Il y a une bibliothèque dans chaque ville étatsunienne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 4.283372485122743
+        },
+        {
+          "id": 2777,
+          "es": "Hay una biblioteca en todas las ciudades de Estados Unidos.",
+          "fr": "Il y a une bibliothèque dans chaque ville étatsunienne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 4.283372485122743
+        },
+        {
+          "id": 919,
+          "es": "Estoy harto de comer comida rápida.",
+          "fr": "J'en ai marre de manger du fast-food.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.404450155197886
+        },
+        {
+          "id": 73,
+          "es": "Entonces tenemos un problema...",
+          "fr": "Alors il y a un problème...",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 74,
+          "es": "¡Ah, allí hay una mariposa!",
+          "fr": "Oh, il y a un papillon !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 139,
+          "es": "Hay un problema que no ves.",
+          "fr": "Il y a un problème que tu ne vois pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 268,
+          "es": "\"Gracias por ayudarme.\" \"No hay de qué.\"",
+          "fr": "« Merci de m'aider. » « Il n'y a pas de quoi. »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 400,
+          "es": "¿Hay algún albergue juvenil cerca de aquí?",
+          "fr": "Est-ce qu'il y a une auberge de jeunesse près d'ici ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 415,
+          "es": "¡Hay demasiadas cosas que hacer!",
+          "fr": "Il y a trop de choses à faire !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 478,
+          "es": "No hay visiones verdaderas.",
+          "fr": "Il n'y a pas de visions réelles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 482,
+          "es": "Querer es poder.",
+          "fr": "Là où il y a une volonté, il y a un chemin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 487,
+          "es": "Hay 10 tipos de personas en el mundo: las que entienden binario y las que no.",
+          "fr": "Il y a 10 sortes de gens dans le monde : ceux qui comprennent le binaire et ceux qui ne le comprennent pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 579,
+          "es": "Hay muchas cosas que no sabes sobre mi personalidad.",
+          "fr": "Il y a beaucoup de choses que tu ne sais pas sur ma personnalité.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 588,
+          "es": "Hay 1000 películas que hay que ver antes de morir.",
+          "fr": "Il y a 1000 films qu’il faut voir avant de mourir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 608,
+          "es": "Hay también clubs nocturnos donde se baila flamenco.",
+          "fr": "Il y a aussi des boîtes de nuit où l'on danse le flamenco.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 619,
+          "es": "A esta hora hay un tráfico increíble.",
+          "fr": "À cette heure il y a un trafic incroyable.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 627,
+          "es": "Por favor, díganos dónde hay una tienda de comestibles.",
+          "fr": "S'il vous plaît, dites-nous où il y a une épicerie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 829,
+          "es": "En el mundo hay gente tan hambrienta que Dios no se les puede aparecer más que en forma de pan.",
+          "fr": "Il y a des gens dans le monde si affamés que Dieu ne peut pas leur apparaître, sauf sous forme de pain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 897,
+          "es": "A la izquierda hay un pasadizo secreto.",
+          "fr": "Il y a un passage secret à gauche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1001,
+          "es": "La vida no es fácil.",
+          "fr": "Dans la vie il y a des hauts et des bas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1010,
+          "es": "No hay ninguna duda.",
+          "fr": "Il n'y a aucun doute.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1011,
+          "es": "No hay ninguna solución.",
+          "fr": "Il n'y a aucune solution.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1046,
+          "es": "Hay tantos museos como iglesias.",
+          "fr": "Il y a autant de musées que d'églises.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1081,
+          "es": "Cierra las contraventanas y corre las cortinas. Debe haber tan poca luz como sea posible.",
+          "fr": "Ferme les volets et tire les rideaux. Il faut qu'il y ait le moins de lumière possible.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1315,
+          "es": "Me encontré con un accidente de tráfico en mi camino de vuelta.",
+          "fr": "Il y avait un accident de la route sur le chemin du retour.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1696,
+          "es": "Dejé de fumar hace dos años.",
+          "fr": "J’ai arrêté de fumer il y a deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2018,
+          "es": "Hoy hace viento.",
+          "fr": "Il y a du vent aujourd'hui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2332,
+          "es": "Estaba frío y, además, había viento.",
+          "fr": "Il faisait froid, et en plus, il y avait du vent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2377,
+          "es": "¿Hay otros universos fuera del nuestro?",
+          "fr": "Y a-t-il d'autres univers en dehors du nôtre ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2870,
+          "es": "Él dejó de fumar hace dos años.",
+          "fr": "Il a arrêté de fumer il y a deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2974,
+          "es": "¿Qué distancia hay hasta el mar?",
+          "fr": "Quelle distance y a-t-il d'ici à la mer ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2977,
+          "es": "¿Qué tan lejos de aquí está el museo?",
+          "fr": "Quelle distance y a-t-il entre ici et le musée ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2978,
+          "es": "¿A qué distancia está el museo?",
+          "fr": "Quelle distance y a-t-il entre ici et le musée ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2979,
+          "es": "¿Qué distancia hay hasta el museo?",
+          "fr": "Quelle distance y a-t-il entre ici et le musée ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2980,
+          "es": "¿Cómo de lejos está el museo?",
+          "fr": "Quelle distance y a-t-il entre ici et le musée ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3039,
+          "es": "En este país hay cuatro estaciones.",
+          "fr": "Dans ce pays il y a quatre saisons.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3194,
+          "es": "Hace tres años, el señor Smith vivía en Kioto.",
+          "fr": "Mr Smith vivait à Kyoto il y a trois ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3377,
+          "es": "Había un gato sobre la mesa.",
+          "fr": "Il y avait un chat sur la table.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3423,
+          "es": "En mi barrio hay un gran supermercado.",
+          "fr": "Il y a un grand supermarché dans mon quartier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3480,
+          "es": "Sólo había seis personas en la fiesta.",
+          "fr": "Il n'y avait que six personnes à la fête.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3555,
+          "es": "Hay botones en el abrigo.",
+          "fr": "Il y a des boutons sur le manteau.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3571,
+          "es": "Bob le dio a Tina casi toda su colección de sellos, y solo se quedó con algunos.",
+          "fr": "Bob a donné à Tina presque toute sa collection de timbres, et n'en a gardé que quelques-uns pour lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3697,
+          "es": "¿Hay en Europa muchas personas que aún creen en fantasmas?",
+          "fr": "Y a-t-il beaucoup de gens en Europe qui croient encore aux fantômes ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4202,
+          "es": "Le ha recomendado que no vaya solo.",
+          "fr": "Elle lui a conseillé de ne pas y aller seul.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4250,
+          "es": "Hay una paloma blanca en el tejado.",
+          "fr": "Il y a une colombe blanche sur le toit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4286,
+          "es": "Hay un hecho importante que ignoras.",
+          "fr": "Il y a un fait important que tu ignores.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4309,
+          "es": "Hay muchos barrios bajos en México.",
+          "fr": "Au Mexique, il y a beaucoup de bidonvilles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4354,
+          "es": "Había un número pequeño de extranjeros entre los visitantes del museo.",
+          "fr": "Il y avait un petit nombre d'étrangers parmi les visiteurs du musée.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4363,
+          "es": "¿Cuántos libros hay sobre la mesa?",
+          "fr": "Combien de livres y a-t-il sur la table ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4369,
+          "es": "Hay plantas que ahuyentan los insectos.",
+          "fr": "Il y a des plantes qui repoussent les insectes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4370,
+          "es": "Algunas personas creen en los fantasmas.",
+          "fr": "Il y a des gens qui croient aux fantômes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4711,
+          "es": "Un magnífico postre puso el broche a la comida.",
+          "fr": "Il y eut un superbe dessert à la fin du repas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4927,
+          "es": "¿Hay muchas flores en el jardín?",
+          "fr": "Y a-t-il beaucoup de fleurs dans le jardin ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 333,
+          "es": "No es pobre quien tiene muy poco, sino quien ansía demasiado.",
+          "fr": "N'est pas pauvre celui qui a peu, mais celui qui en veut trop.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 334,
+          "es": "No es pobre quien tiene muy poco, sino quien ansía demasiado.",
+          "fr": "Le pauvre n'est pas celui qui a peu, mais celui qui en veut toujours plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 949,
+          "es": "Esta canción es tan conmovedora que tengo lágrimas en los ojos.",
+          "fr": "Cette chanson est si émouvante que j’en ai les larmes aux yeux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 960,
+          "es": "Hay cosas en este mundo que simplemente no pueden expresarse con palabras.",
+          "fr": "Il y a des choses dans ce monde qui ne peuvent simplement pas être exprimées sous forme de mots.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 2596,
+          "es": "Se fue hace una hora.",
+          "fr": "Il est parti il y a une heure.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 2597,
+          "es": "Él se fue hace una hora.",
+          "fr": "Il est parti il y a une heure.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 3813,
+          "es": "Es el único que hay en la tienda.",
+          "fr": "C'est le seul qu'il y ait en magasin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4170,
+          "es": "Ella se enfermó hace una semana.",
+          "fr": "Elle est tombée malade il y a une semaine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4807,
+          "es": "Mi abuelo murió hace tres años.",
+          "fr": "Mon grand-père est mort il y a trois ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4840,
+          "es": "Taro murió dos años atrás.",
+          "fr": "Taro est mort il y a deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4774,
+          "es": "Yo oí que hubo un terremoto en Shizuoka.",
+          "fr": "J'ai entendu qu'il y a eu un séisme à Shizuoka.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.178956481460675
+        },
+        {
+          "id": 4775,
+          "es": "Yo oí que hubo un temblor en Shizuoka.",
+          "fr": "J'ai entendu qu'il y a eu un séisme à Shizuoka.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.178956481460675
+        },
+        {
+          "id": 881,
+          "es": "¿Qué ha pasado? Hay agua por todo el apartamento.",
+          "fr": "Qu'est-ce qu'il s'est passé ? Il y a de l'eau partout dans l'appartement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.184367471743509
+        },
+        {
+          "id": 920,
+          "es": "Estoy harto de estar harto.",
+          "fr": "J'en ai marre d'en avoir marre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 921,
+          "es": "Estoy harta de estar harta.",
+          "fr": "J'en ai marre d'en avoir marre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 1563,
+          "es": "Visité Kioto hace mucho tiempo.",
+          "fr": "J'ai visité Kyoto il y a longtemps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 1691,
+          "es": "Yo leí 60 páginas, mientras que él apenas leyó 10.",
+          "fr": "J'ai lu soixante pages, pendant qu'il en a seulement lues dix.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 1695,
+          "es": "Me encontré con él por primera vez hace tres años.",
+          "fr": "Je l'ai rencontré pour la première fois il y a 3 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 294,
+          "es": "Vine a Tokio hace tres años y he estado viviendo aquí desde entonces.",
+          "fr": "Je suis venu à Tokyo il y a trois ans et ai vécu ici depuis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.227679528513477
+        },
+        {
+          "id": 828,
+          "es": "Aceptémoslo, es imposible. Nunca lo vamos a lograr.",
+          "fr": "Soyons réalistes, c'est impossible. On va jamais y arriver.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2317,
+          "es": "Él estaba tan triste que casi se volvió loco.",
+          "fr": "Il était si triste qu'il en est presque devenu fou.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3034,
+          "es": "Por el aspecto del cielo, parece que va a llover.",
+          "fr": "À en croire l'état du ciel, il est probable qu'il pleuve.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3482,
+          "es": "Aquí estamos.",
+          "fr": "On y est.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 825,
+          "es": "Los números primos son como la vida: son totalmente lógicos, pero es imposible descubrir sus reglas, aunque te pases todo el tiempo pensando en ellos.",
+          "fr": "Les nombres premiers sont comme la vie, ils sont tout à fait logiques, mais il est impossible d'en trouver les règles, même si on consacre tout son temps à y réfléchir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480578
+        },
+        {
+          "id": 274,
+          "es": "Hazme saber si hay algo que yo pueda hacer.",
+          "fr": "Fais-moi savoir s'il y a quoi que ce soit que je puisse faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 454,
+          "es": "Mis zapatos son muy pequeños, necesito otros nuevos.",
+          "fr": "Mes chaussures sont trop petites, j'en ai besoin de nouvelles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 255,
+          "es": "Siempre habrá cosas que nunca aprenderé, ¡no tengo toda la eternidad ante mí!",
+          "fr": "Il y aura toujours des choses que je n'apprendrai jamais, je n'ai pas l'éternité devant moi !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 143,
+          "es": "Odio cuando hay mucha gente.",
+          "fr": "Je déteste ça quand il y a trop de gens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 162,
+          "es": "Hay muchas palabras que no entiendo.",
+          "fr": "Il y a beaucoup de mots que je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 163,
+          "es": "Hay muchas palabras que no entiendo.",
+          "fr": "Il y a de nombreux mots que je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 210,
+          "es": "\"Yo nunca pensé en eso\", dijo el hombre mayor. \"¿Qué deberíamos hacer?\"",
+          "fr": "« Je n'y ai jamais pensé », dit le vieil homme. « Que devrions-nous faire ? »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 246,
+          "es": "Supongo que detrás de cada cosa que tenemos que hacer, hay algo que queremos hacer...",
+          "fr": "Je suppose que derrière chaque chose que l'on doit faire, il y a quelque chose que l'on veut faire...",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 934,
+          "es": "No, no puedo dejaros entrar, hay una persona de más.",
+          "fr": "Non, je ne peux pas vous laisser entrer, il y a une personne de trop.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1368,
+          "es": "Estoy harto del inglés.",
+          "fr": "J'en ai marre de l'anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1369,
+          "es": "Estoy harta del inglés.",
+          "fr": "J'en ai marre de l'anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1553,
+          "es": "Se lo dije por teléfono.",
+          "fr": "Je lui en ai parlé au téléphone.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2365,
+          "es": "No tengo ni la más remota idea.",
+          "fr": "Je n'en ai pas la moindre idée.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2999,
+          "es": "Sé que antes había una gran iglesia aquí.",
+          "fr": "Je sais qu'il y avait une grande église ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4979,
+          "es": "En cuanto a mi vida en Japón, no tengo motivos de queja.",
+          "fr": "Quant à ma vie au Japon, je n'ai pas de raisons de m'en plaindre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 261,
+          "es": "\"¿Qué habrá en la cueva? Tengo curiosidad.\" \"No tengo ni idea.\"",
+          "fr": "« Qu'est-ce qu'il se passe dans la grotte ? Je suis curieux. » « Je n'en ai aucune idée. »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.331623637859941
+        },
+        {
+          "id": 160,
+          "es": "Si yo quisiera asustarte, te contaría qué fue lo que soñé hace un par de semanas.",
+          "fr": "Si je voulais te faire peur, je te raconterais ce dont j'ai rêvé il y a quelques semaines.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.353280470728502
+        },
+        {
+          "id": 821,
+          "es": "¡Ya no puedo más! ¡Hace tres días que no duermo!",
+          "fr": "Je n'en peux plus ! Ça fait trois jours que je n'ai pas dormi !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 4427,
+          "es": "No soy un pájaro, pero me gustaría serlo.",
+          "fr": "Je ne suis pas un oiseau, mais j'aimerais en être un.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.400919710757583
+        },
+        {
+          "id": 1573,
+          "es": "A menudo he estado ahí.",
+          "fr": "J'y suis souvent allé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3210,
+          "es": "Fui allí en autobús y en tren.",
+          "fr": "J'y suis allé en bus et en train.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3944,
+          "es": "También fui allí.",
+          "fr": "J'y suis également allé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1083,
+          "es": "No, no estoy enfadado contigo, sólo estoy decepcionado.",
+          "fr": "Non, je ne t'en veux pas, je suis seulement déçu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 24,
+          "es": "No tengo palabras.",
+          "fr": "J'en perds mes mots.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 141,
+          "es": "A mi profesor de física no le importa si me salto las clases.",
+          "fr": "Mon prof de physique s'en fiche si je sèche les cours.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 146,
+          "es": "No te preguntaré más por hoy.",
+          "fr": "Je ne t'en demanderai pas plus pour aujourd'hui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 164,
+          "es": "No me gusta cuando matemáticos que saben mucho más que yo no pueden expresarse con claridad.",
+          "fr": "Je n'aime pas quand les mathématiciens qui en savent beaucoup plus que moi ne savent pas s'exprimer explicitement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 290,
+          "es": "\"¿Por qué no vas?\" \"Porque no quiero.\"",
+          "fr": "\"Pourquoi tu n'y vas pas ?\" \"Parce que je ne veux pas.\"",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 622,
+          "es": "Ahora tengo que marcharme, están llamando para mi vuelo.",
+          "fr": "Maintenant je dois y aller, ils appellent pour mon vol.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3283,
+          "es": "Te doy un día para pensártelo.",
+          "fr": "Je te donne un jour pour y penser.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3291,
+          "es": "No puedo evitarlo.",
+          "fr": "Je ne peux pas m'en empêcher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3634,
+          "es": "No quiero más.",
+          "fr": "Je n'en veux pas plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3675,
+          "es": "Tengo intención de ir mañana si hace buen tiempo.",
+          "fr": "Je compte y aller demain s'il fait beau temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3743,
+          "es": "Quiero ir contigo.",
+          "fr": "Je veux y aller avec toi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3772,
+          "es": "No quiero ir solo.",
+          "fr": "Je ne veux pas y aller seul.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3855,
+          "es": "Ya me tengo que ir.",
+          "fr": "Il faut que j'y aille maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3856,
+          "es": "Ahora tengo que irme.",
+          "fr": "Il faut que j'y aille maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3857,
+          "es": "Debo irme ahora.",
+          "fr": "Il faut que j'y aille maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3858,
+          "es": "Tengo que irme ahora.",
+          "fr": "Il faut que j'y aille maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4876,
+          "es": "Quiero ir allí en metro.",
+          "fr": "Je veux y aller en métro.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4877,
+          "es": "Quiero llegar allá en metro.",
+          "fr": "Je veux y aller en métro.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B1.3_DOUBLE_PRONOUN_PLACEMENT",
+      "title": "Double Object Pronoun Order & Sentence Syntax",
+      "objective": "Apply the multi-pronoun ordering chart across declarative, negative, and imperative clause structures containing multiple object pronouns.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"PRON\",\n        \"LEMMA\": {\"IN\": [\"me\", \"te\", \"se\", \"nous\", \"vous\", \"le\", \"la\", \"les\"]}\n    },\n    {\n        \"POS\": \"PRON\",\n        \"LEMMA\": {\"IN\": [\"le\", \"la\", \"les\", \"lui\", \"leur\", \"y\", \"en\"]}\n    },\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]}\n    }\n]",
+      "exercises": [
+        {
+          "id": 3023,
+          "es": "¿Pueden enviarlo a esta dirección?",
+          "fr": "Pouvez-vous l'envoyer à cette adresse ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3024,
+          "es": "¿Podéis enviarlo a esta dirección?",
+          "fr": "Pouvez-vous l'envoyer à cette adresse ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3025,
+          "es": "¿Puede enviarlo a esta dirección?",
+          "fr": "Pouvez-vous l'envoyer à cette adresse ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1857,
+          "es": "Fue ella la que me lo dijo.",
+          "fr": "C'est elle qui me l'a dit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 2230,
+          "es": "Como lo insultaste, ahora está enfadado contigo.",
+          "fr": "Comme vous l'avez insulté, il est fâché contre vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 2217,
+          "es": "Me arrepiento de habértelo dicho.",
+          "fr": "Je regrette de te l'avoir dit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4979,
+          "es": "En cuanto a mi vida en Japón, no tengo motivos de queja.",
+          "fr": "Quant à ma vie au Japon, je n'ai pas de raisons de m'en plaindre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3674,
+          "es": "Si lo hubiera sabido os lo habría dicho.",
+          "fr": "Si je l'avais su, je vous l'aurais dit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 1083,
+          "es": "No, no estoy enfadado contigo, sólo estoy decepcionado.",
+          "fr": "Non, je ne t'en veux pas, je suis seulement déçu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 141,
+          "es": "A mi profesor de física no le importa si me salto las clases.",
+          "fr": "Mon prof de physique s'en fiche si je sèche les cours.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1852,
+          "es": "Me quedaré aquí si de verdad quieres.",
+          "fr": "Je resterai ici si vous le voulez vraiment.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3291,
+          "es": "No puedo evitarlo.",
+          "fr": "Je ne peux pas m'en empêcher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B1.3_RELATIVE_PRONOUNS_QUI_QUE_OU_DONT",
+      "title": "Relative Pronouns (Qui, Que, Où, Dont)",
+      "objective": "Link independent clauses and replace repetitive antecedents using simple relative pronouns based on syntactic function (*qui* = subject, *que* = direct object, *où* = place/time, *dont* = complement with *de*).",
+      "spacy_pattern": "pattern = [\n    {\"POS\": \"NOUN\"},\n    {\n        \"LEMMA\": {\"IN\": [\"qui\", \"que\", \"où\", \"dont\"]},\n        \"POS\": \"PRON\"\n    },\n    {\"OP\": \"*\"},\n    {\"POS\": \"VERB\"}\n]",
+      "exercises": [
+        {
+          "id": 100,
+          "es": "Pensemos en lo peor que podría pasar.",
+          "fr": "Réfléchissons au pire qui pourrait arriver.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 259,
+          "es": "\"¿Cuándo volverás?\" \"Todo depende del clima.\"",
+          "fr": "« Quand vas-tu revenir ? » « Tout dépend du temps qu'il fera. »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 835,
+          "es": "Las personas que aman no dudan de nada, o dudan de todo.",
+          "fr": "Les gens qui aiment ne doutent de rien, ou doutent de tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1008,
+          "es": "Más gente se mete en líos por las cosas que dice que por las que hace.",
+          "fr": "Plus de gens se mettent dans le pétrin pour les choses qu'ils disent plutôt que pour ce qu'ils font.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1009,
+          "es": "Aquellos que mentirán por ti, te mentirán a ti.",
+          "fr": "Les gens qui mentiront pour vous, vous mentiront.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2534,
+          "es": "Coja el impermeable por si llueve.",
+          "fr": "Prenez votre imperméable au cas où il pleuvrait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2539,
+          "es": "No olvides traer el paraguas por si llueve.",
+          "fr": "N'oubliez pas de prendre votre parapluie au cas où il pleuvrait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2540,
+          "es": "Llévate el paraguas por si llueve.",
+          "fr": "Prends ton parapluie avec toi au cas où il pleuvrait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2541,
+          "es": "Tome un paraguas en caso de que llueva.",
+          "fr": "Prenez un parapluie au cas où il pleuvrait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3062,
+          "es": "Ayúdame a elegir una corbata que combine con este traje.",
+          "fr": "Aide-moi à choisir une cravate qui aille avec ce costume.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3434,
+          "es": "Tengo tanta hambre que me comería un caballo.",
+          "fr": "J'ai si faim que je pourrais manger un cheval.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.691464588157062
+        },
+        {
+          "id": 608,
+          "es": "Hay también clubs nocturnos donde se baila flamenco.",
+          "fr": "Il y a aussi des boîtes de nuit où l'on danse le flamenco.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 854,
+          "es": "A pesar de las sucesivas declaraciones de amor de Trang, Spenser aún tiene miedo que ella deje de amarlo algún día.",
+          "fr": "En dépit des déclarations d'amour régulières de Trang, Spenser a encore peur qu'elle cesse un jour de l'aimer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3066,
+          "es": "¿Sabes quién ha escrito este libro?",
+          "fr": "Est-ce que tu sais qui a écrit ce livre ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3067,
+          "es": "¿Sabés quién escribió este libro?",
+          "fr": "Est-ce que tu sais qui a écrit ce livre ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4369,
+          "es": "Hay plantas que ahuyentan los insectos.",
+          "fr": "Il y a des plantes qui repoussent les insectes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4370,
+          "es": "Algunas personas creen en los fantasmas.",
+          "fr": "Il y a des gens qui croient aux fantômes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 764,
+          "es": "Matemática es la parte de la ciencia que podrías continuar haciendo si despertaras mañana y descubrieras que el universo se ha ido.",
+          "fr": "Les mathématiques sont la partie des sciences qu'on pourrait continuer à faire si on se réveillait demain et découvrait que l'univers avait disparu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 960,
+          "es": "Hay cosas en este mundo que simplemente no pueden expresarse con palabras.",
+          "fr": "Il y a des choses dans ce monde qui ne peuvent simplement pas être exprimées sous forme de mots.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 1560,
+          "es": "Este es el muñeco que fabricó ella misma.",
+          "fr": "C'est la poupée qu'elle a fabriquée elle-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 824,
+          "es": "De hecho, medio ojo es muy útil, porque con medio ojo, un animal puede ver la mitad de otro animal que se lo quiera comer y apartarse de su camino, y él mismo se comerá al animal que sólo tiene medio ojo o el 49% del ojo porque este no se apartará de su camino lo suficientemente rápido, y el animal que ha sido comido no tendrá descendencia porque estará muerto.",
+          "fr": "En fait, un demi-œil est très utile, parce qu'avec un demi-œil, un animal peut voir la moitié d'un autre animal qui veut le dévorer et s'écarter de son chemin, et il dévorera lui-même l'animal qui n'a qu'un demi-œil ou 49% d'un œil parce que celui-ci ne se sera pas écarté de son chemin assez vite, et l'animal qui a été dévoré n'aura pas de petits parce qu'il est mort.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.165806310961488
+        },
+        {
+          "id": 117,
+          "es": "Todas las personas que están solas, están solas porque tienen miedo de los demás.",
+          "fr": "Chaque personne qui est seule est seule parce qu'elle a peur des autres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.184367471743509
+        },
+        {
+          "id": 598,
+          "es": "¡Recordad que estamos todos en el mismo barco!",
+          "fr": "Souviens-toi que nous sommes tous dans le même bateau.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 719,
+          "es": "Puede ser que la felicidad que nos espera allí no sea para nada la clase de felicidad que nosotros quisiéramos.",
+          "fr": "Il se peut que le bonheur qui nous attend là-bas ne soit pas du tout le genre de bonheur que nous voudrions.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 866,
+          "es": "Las botellas de cerveza que llevé a la fiesta sobraron, la familia del anfitrión tenía una fábrica de cerveza.",
+          "fr": "Les bouteilles de bière que j’avais apporté à la fête étaient de trop ; la famille de notre hôte possédait une brasserie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 974,
+          "es": "Eso es lo que les pasa a las personas que creen odiar los ordenadores. Lo que detestan en realidad es a los malos programadores.",
+          "fr": "C'est ça le truc avec les gens qui pensent qu'ils détestent les ordinateurs. Ce qu'ils détestent vraiment sont les mauvais programmeurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2807,
+          "es": "Ésa es la casa donde él vive.",
+          "fr": "C'est la maison où il réside.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2808,
+          "es": "Ese es el hogar donde él vive.",
+          "fr": "C'est la maison où il réside.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4245,
+          "es": "A un hombre cuya mujer está muerta, se llama un viudo.",
+          "fr": "Un homme dont la femme est morte s'appelle un veuf.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4246,
+          "es": "A una mujer, cuyo marido está muerto, se le llama viuda.",
+          "fr": "Une femme dont le mari est mort s'appelle une veuve.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4247,
+          "es": "A una mujer, cuyo marido está muerto, se le llama viuda.",
+          "fr": "On nomme veuve la femme dont l'époux est décédé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4271,
+          "es": "Papá es un hombre que trabaja duro.",
+          "fr": "Papa est un homme qui travaille dur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4746,
+          "es": "El hombre es el único animal que puede hacer uso del fuego.",
+          "fr": "L'Homme est le seul animal qui peut utiliser le feu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4747,
+          "es": "Los seres humanos se diferencian de los animales en que pueden pensar y hablar.",
+          "fr": "Les êtres humains sont différents des animaux du fait qu'ils peuvent penser et parler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 120,
+          "es": "Soy una persona que tiene muchos defectos, pero esos defectos pueden ser corregidos fácilmente.",
+          "fr": "Je suis une personne qui a des défauts, mais ces défauts peuvent être facilement corrigés.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.276402575566278
+        },
+        {
+          "id": 1123,
+          "es": "Vi una casa con un techo rojo.",
+          "fr": "J'ai vu une maison dont le toit était rouge.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 1124,
+          "es": "Vi una casa cuyo techo era rojo.",
+          "fr": "J'ai vu une maison dont le toit était rouge.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 1916,
+          "es": "Es un milagro que yo pudiera vencer el cáncer.",
+          "fr": "C'est un miracle que j'aie pu survivre au cancer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 3426,
+          "es": "Adivina dónde he estado.",
+          "fr": "Devine où j'ai été.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 133,
+          "es": "Creo que nuestra convivencia ha influenciado tu forma de vida.",
+          "fr": "Je pense que le fait que j'ai vécu avec toi a influencé la façon dont tu vis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 255,
+          "es": "Siempre habrá cosas que nunca aprenderé, ¡no tengo toda la eternidad ante mí!",
+          "fr": "Il y aura toujours des choses que je n'apprendrai jamais, je n'ai pas l'éternité devant moi !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 3859,
+          "es": "He encontrado el libro que perdí ayer.",
+          "fr": "J'ai retrouvé le livre que j'avais perdu hier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 3865,
+          "es": "Le di todo el dinero que tenía.",
+          "fr": "Je lui ai donné tout l'argent que j'avais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 162,
+          "es": "Hay muchas palabras que no entiendo.",
+          "fr": "Il y a beaucoup de mots que je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 163,
+          "es": "Hay muchas palabras que no entiendo.",
+          "fr": "Il y a de nombreux mots que je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 210,
+          "es": "\"Yo nunca pensé en eso\", dijo el hombre mayor. \"¿Qué deberíamos hacer?\"",
+          "fr": "« Je n'y ai jamais pensé », dit le vieil homme. « Que devrions-nous faire ? »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1227,
+          "es": "Hablé con el joven que parecía ser el mayor.",
+          "fr": "J'ai parlé au garçon qui semblait le plus vieux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1586,
+          "es": "Encontré este libro de casualidad en una librería de segunda mano.",
+          "fr": "J'ai trouvé ce livre par hasard dans une librairie qui vend des livres d'occasion.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1867,
+          "es": "Tengo un amigo que vive en Sapporo.",
+          "fr": "J'ai un ami qui vit à Sapporo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1873,
+          "es": "Tengo un tío que vive en Kioto.",
+          "fr": "J'ai un oncle qui vit à Kyoto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 261,
+          "es": "\"¿Qué habrá en la cueva? Tengo curiosidad.\" \"No tengo ni idea.\"",
+          "fr": "« Qu'est-ce qu'il se passe dans la grotte ? Je suis curieux. » « Je n'en ai aucune idée. »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.331623637859941
+        },
+        {
+          "id": 61,
+          "es": "Una vez quise ser astrofísico.",
+          "fr": "Il fut un temps où je voulais être astrophysicien.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.350390318665248
+        },
+        {
+          "id": 64,
+          "es": "Si el mundo no fuera como es, yo podría confiar en cualquiera.",
+          "fr": "Si le monde n'était pas dans l'état où il est maintenant, je pourrais faire confiance à n'importe qui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.350390318665248
+        },
+        {
+          "id": 4737,
+          "es": "Kobe es la ciudad donde nací.",
+          "fr": "Kobe est la ville où je suis né.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.350390318665248
+        },
+        {
+          "id": 1174,
+          "es": "Estoy muy orgulloso del trabajo que yo mismo elegí.",
+          "fr": "Je suis très fière du boulot que j'ai choisi moi-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.352196663704781
+        },
+        {
+          "id": 470,
+          "es": "Tengo tanto trabajo que me quedo una hora más.",
+          "fr": "J'ai tellement de travail que je reste une heure de plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 821,
+          "es": "¡Ya no puedo más! ¡Hace tres días que no duermo!",
+          "fr": "Je n'en peux plus ! Ça fait trois jours que je n'ai pas dormi !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 1468,
+          "es": "Tengo tanta ropa que no sé qué ponerme mañana.",
+          "fr": "J'ai tellement de vêtements que je ne sais pas quoi mettre demain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 1957,
+          "es": "Tengo tanto trabajo que no me queda otra que anular mi viaje.",
+          "fr": "J'ai tellement de travail que je dois annuler mon voyage.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 250,
+          "es": "¡No vale la pena que hagas como que me haces creer que creo cosas que tú no crees!",
+          "fr": "Ce n'est pas la peine de faire semblant de me faire croire que je crois des choses que tu ne crois pas !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1313,
+          "es": "La estación que me gusta es la primavera.",
+          "fr": "Le printemps est la saison que j'aime le mieux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1912,
+          "es": "Hace dos meses que llegué a Tokio.",
+          "fr": "Cela fait deux mois que je suis arrivé à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4736,
+          "es": "Kobe es la ciudad que prefiero.",
+          "fr": "Kobé est la ville que je préfère.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 121,
+          "es": "Cada vez que encuentro algo que me gusta, es demasiado caro.",
+          "fr": "Chaque fois que je trouve quelque chose que j'aime, c'est trop cher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 252,
+          "es": "Soy tan tonto... estoy intentando explicarte cosas que no entiendo ni yo.",
+          "fr": "Je suis trop bête... J'essaie de t'expliquer des choses que je ne comprends pas moi-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.476713798896086
+        },
+        {
+          "id": 712,
+          "es": "Soy tan estúpido... Estoy intentando explicarte cosas que yo mismo no entiendo.",
+          "fr": "Je suis trop bête... J'essaie de t'expliquer des choses que je ne comprends pas moi-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.476713798896086
+        },
+        {
+          "id": 164,
+          "es": "No me gusta cuando matemáticos que saben mucho más que yo no pueden expresarse con claridad.",
+          "fr": "Je n'aime pas quand les mathématiciens qui en savent beaucoup plus que moi ne savent pas s'exprimer explicitement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 277,
+          "es": "Quiero un barco que me lleve lejos de aquí.",
+          "fr": "Je veux un bateau qui m'emmènera loin d'ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2066,
+          "es": "Le compro la plata a un hombre que posee una mina.",
+          "fr": "J'achète l'argent à un homme qui possède une mine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2544,
+          "es": "\"¿Qué significa O.V.N.I?\" \"Significa Objeto Volador No Identificado, creo\"",
+          "fr": "« Que veulent dire les initiales O.V.N.I. ? » « Cela signifie Objet Volant Non-Identifié, je crois. »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3061,
+          "es": "Quiero una corbata que vaya con este traje.",
+          "fr": "Je veux une cravate qui aille avec ce costume.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4448,
+          "es": "Yo conozco a una chica americana que habla muy bien el japonés.",
+          "fr": "Je connais une fille Américaine qui parle très bien le japonais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4525,
+          "es": "No me gusta la manera en la que ella ríe.",
+          "fr": "Je n'aime pas la façon dont elle rit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B1.3_STRESSED_PRONOUNS",
+      "title": "Stressed Pronouns (Pronoms Toniques: Moi, Toi, Lui, Elle, Soi, Nous, Vous, Eux, Elles)",
+      "objective": "Employ disjunctive/stressed pronouns for emphasis, after prepositions, after *c'est/ce sont*, in compound subjects, and in short answers.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"ADP\",\n        \"LEMMA\": {\"IN\": [\"avec\", \"pour\", \"chez\", \"sans\", \"selon\", \"à\", \"de\"]}\n    },\n    {\n        \"LEMMA\": {\"IN\": [\"moi\", \"toi\", \"lui\", \"elle\", \"soi\", \"nous\", \"vous\", \"eux\", \"elles\"]},\n        \"POS\": \"PRON\"\n    }\n]",
+      "exercises": [
+        {
+          "id": 81,
+          "es": "¡¿Acaso te quieres burlar de mí?!",
+          "fr": "Est-ce que tu te fous de moi ? !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 393,
+          "es": "¿Bailas conmigo?",
+          "fr": "Veux-tu danser avec moi ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 664,
+          "es": "Está usted en su casa.",
+          "fr": "Faites comme chez vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 683,
+          "es": "¿Te estás burlando de mí?",
+          "fr": "Est-ce que tu te fous de moi ? !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 752,
+          "es": "¿Quieres bailar conmigo?",
+          "fr": "Veux-tu danser avec moi ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1009,
+          "es": "Aquellos que mentirán por ti, te mentirán a ti.",
+          "fr": "Les gens qui mentiront pour vous, vous mentiront.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1039,
+          "es": "¿Quién viene conmigo?",
+          "fr": "Qui vient avec moi ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1822,
+          "es": "Mi perro va a todos lados conmigo.",
+          "fr": "Mon chien va partout avec moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2040,
+          "es": "Venid a mi casa esta tarde.",
+          "fr": "Venez chez moi cet après-midi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2226,
+          "es": "Me da igual si vienes o no.",
+          "fr": "Cela ne fait aucune différence pour moi que vous veniez ou non.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2438,
+          "es": "No te preocupes por mí.",
+          "fr": "Ne t'inquiète pas pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2676,
+          "es": "Uno de nosotros dos tendrá que hacerlo.",
+          "fr": "L'un de nous deux devra le faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2687,
+          "es": "Aquí hay una carta para ti.",
+          "fr": "Voici une lettre pour vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2688,
+          "es": "Aquí hay una carta para ustedes.",
+          "fr": "Voici une lettre pour vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2823,
+          "es": "Venga con nosotros.",
+          "fr": "Venez avec nous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2824,
+          "es": "Venid con nosotros.",
+          "fr": "Venez avec nous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2861,
+          "es": "Mi tío se va a quedar con nosotros esta semana.",
+          "fr": "Mon oncle reste avec nous cette semaine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2941,
+          "es": "Perdone que le moleste, ¿le importaría indicarme el camino hasta la estación?",
+          "fr": "Désolé de vous déranger, pourriez-vous me montrer le chemin jusqu'à la gare ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2942,
+          "es": "Perdone que le moleste, ¿le importaría indicarme el camino hasta la estación?",
+          "fr": "Excusez-moi de vous déranger, pourriez-vous m'indiquer le chemin vers la gare ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3078,
+          "es": "¿Puedes copiarlo por mí?",
+          "fr": "Peux-tu copier ça pour moi ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3169,
+          "es": "Deja de jugar al gato y al ratón conmigo y cuéntame las novedades.",
+          "fr": "Arrête de jouer au chat et à la souris avec moi et donne-moi les nouvelles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3463,
+          "es": "Encontremos algo para sentarnos.",
+          "fr": "Trouvons quelque chose pour nous asseoir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3769,
+          "es": "Dejadme ir con vosotros.",
+          "fr": "Laissez-moi y aller avec vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3771,
+          "es": "Ven a pescar conmigo.",
+          "fr": "Viens pêcher avec moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4374,
+          "es": "Él prometió casarse con ella.",
+          "fr": "Il promit de se marier avec elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4611,
+          "es": "No os preocupéis por nosotros.",
+          "fr": "Ne vous inquiétez pas pour nous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4657,
+          "es": "Dispense usted que le interrumpa.",
+          "fr": "Excusez-moi de vous interrompre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1333,
+          "es": "Vivo cerca de la escuela, vuelvo a casa para comer.",
+          "fr": "J'habite près de l'école, je rentre chez moi pour manger.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.570473002119626
+        },
+        {
+          "id": 238,
+          "es": "Aprendí a vivir sin ella.",
+          "fr": "J’ai appris à vivre sans elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1733,
+          "es": "Mi amigo rompió con su novia y ahora quiere salir conmigo.",
+          "fr": "Mon ami a quitté sa petite copine et maintenant il veut sortir avec moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1858,
+          "es": "¿Tiene algún mensaje para mí?",
+          "fr": "Avez-vous quelques messages pour moi ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2132,
+          "es": "Un perro me siguió hasta casa.",
+          "fr": "Un chien m'a suivi jusqu'à chez moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4489,
+          "es": "Yo no le encontraba sentido alguno a su discurso.",
+          "fr": "Son discours n'avait aucun sens pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 838,
+          "es": "Si dos hombres tienen siempre la misma opinión, uno de ellos es inútil.",
+          "fr": "Si deux hommes ont toujours la même opinion, l'un d'eux est inutile.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4517,
+          "es": "Tuve una agradable conversación con ella.",
+          "fr": "J'ai eu une discussion sympa avec elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 57,
+          "es": "Eres tan impaciente conmigo.",
+          "fr": "Tu es tellement impatiente avec moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 343,
+          "es": "Es imposible para mí explicártelo.",
+          "fr": "C'est impossible pour moi de te l'expliquer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 399,
+          "es": "¿Puedes marcarme el número? El teléfono está muy alto.",
+          "fr": "Pourriez-vous composer le numéro pour moi ? Le téléphone est placé trop haut.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 566,
+          "es": "Y conmigo ya somos uno más.",
+          "fr": "Et avec moi nous sommes déjà un de plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1913,
+          "es": "¿Crees que sería peligroso que cruzase el río a nado?",
+          "fr": "Pensez-vous qu'il soit dangereux, pour moi, de traverser la rivière à la nage ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1969,
+          "es": "A mi hermana le robaron el bolso cuando volvía a casa anoche.",
+          "fr": "Ma sœur s'est fait voler son sac en rentrant chez elle hier soir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1973,
+          "es": "Un tal señor Tanaka vino a verte ayer.",
+          "fr": "Un monsieur Tanaka est venu pour vous voir hier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2477,
+          "es": "Hablar inglés es muy difícil para mí.",
+          "fr": "Parler anglais est très difficile pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2498,
+          "es": "El inglés no es fácil para mí.",
+          "fr": "L'anglais n'est pas facile pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2554,
+          "es": "\"¡Si solo pudiera hacerte toda mía!\" dijo el pequeño conejo.",
+          "fr": "\"Si seulement tu pouvais entièrement être à moi !\" dit le petit lapin noir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2683,
+          "es": "Fue un placer volver a verte.",
+          "fr": "C'était un plaisir de vous revoir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3285,
+          "es": "Eso es muy amable de su parte.",
+          "fr": "С’est vraiment gentil à vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3288,
+          "es": "Este problema es muy difícil para que lo resuelva.",
+          "fr": "Ce problème est trop difficile à résoudre pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3301,
+          "es": "Es una buena noticia para mí.",
+          "fr": "C'est une bonne nouvelle pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3487,
+          "es": "Un anciano se sentó conmigo en el autobús.",
+          "fr": "Un vieil homme s'est assis à côté de moi dans le bus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3609,
+          "es": "Todo el mundo está de acuerdo con vosotros.",
+          "fr": "Tout le monde est d'accord avec vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3610,
+          "es": "Todo el mundo concuerda con usted.",
+          "fr": "Tout le monde est d'accord avec vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3611,
+          "es": "Todo el mundo está de acuerdo con ustedes.",
+          "fr": "Tout le monde est d'accord avec vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3612,
+          "es": "Todo el mundo está de acuerdo con vosotras.",
+          "fr": "Tout le monde est d'accord avec vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3663,
+          "es": "Va siendo hora de que te cortes el pelo; lo tienes demasiado largo.",
+          "fr": "Il est grand temps de vous faire couper les cheveux ; ils sont trop longs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3890,
+          "es": "Él se enamoró de ella a primera vista.",
+          "fr": "Il est tombé amoureux d'elle au premier regard.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3891,
+          "es": "Él se enamoró a primera vista de ella.",
+          "fr": "Il est tombé amoureux d'elle au premier regard.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4399,
+          "es": "Este trabajo es difícil para nosotros.",
+          "fr": "Ce travail est difficile pour nous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1918,
+          "es": "Estaba a punto de salir de casa cuando ella me llamó.",
+          "fr": "J'étais sur le point de sortir de chez moi quand elle m'a appelée.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 2902,
+          "es": "Lamento haberla hecho esperar.",
+          "fr": "Je suis désolé de vous avoir fait attendre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 133,
+          "es": "Creo que nuestra convivencia ha influenciado tu forma de vida.",
+          "fr": "Je pense que le fait que j'ai vécu avec toi a influencé la façon dont tu vis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 227,
+          "es": "No tengo a nadie que viaje conmigo.",
+          "fr": "Je n'ai personne qui veuille voyager avec moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 237,
+          "es": "Aprendí a vivir sin ella.",
+          "fr": "J'ai appris à vivre sans elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 709,
+          "es": "No tengo a nadie que quiera viajar conmigo.",
+          "fr": "Je n'ai personne qui veuille voyager avec moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1025,
+          "es": "No sé si él lo habría hecho por mí.",
+          "fr": "Je ne sais pas s'il l'aurait fait pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1026,
+          "es": "No sé si lo habría hecho por mí.",
+          "fr": "Je ne sais pas s'il l'aurait fait pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1178,
+          "es": "Compré este libro para mí, no para mi esposa.",
+          "fr": "J'ai acheté ce livre pour moi, pas pour ma femme.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1391,
+          "es": "Recuerdo haberos visto antes.",
+          "fr": "Je me souviens de vous avoir déjà vus avant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1672,
+          "es": "Tengo unas fotos para mostrarte.",
+          "fr": "J'ai quelques photos à vous montrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1676,
+          "es": "Tengo muchas ganas de veros.",
+          "fr": "J'ai hâte de vous voir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2221,
+          "es": "Tengo ganas de que vengas conmigo.",
+          "fr": "J'ai envie que tu viennes avec moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2402,
+          "es": "Estaba saliendo de casa cuando Tom me llamó por teléfono.",
+          "fr": "Je partais de chez moi lorsque Tom m'a téléphoné.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2684,
+          "es": "Tengo buenas noticias para usted.",
+          "fr": "J'ai de bonnes nouvelles pour vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2685,
+          "es": "Tengo algunas buenas noticias para usted.",
+          "fr": "J'ai de bonnes nouvelles pour vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3744,
+          "es": "Me avergüenzo de mí mismo.",
+          "fr": "J'ai honte de moi-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3745,
+          "es": "Tengo vergüenza de mí mismo.",
+          "fr": "J'ai honte de moi-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4088,
+          "es": "Estoy deseando veros en Navidad.",
+          "fr": "J'ai hâte de vous voir à Noël.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4528,
+          "es": "Yo la valoraba enormemente.",
+          "fr": "J'avais une bonne opinion d'elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4160,
+          "es": "Dado su interés por los niños, estoy seguro de que la docencia es la carrera ideal para ella.",
+          "fr": "Compte tenu de son intérêt pour les enfants, je suis certain que l'enseignement est la carrière idéale pour elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.350390318665248
+        },
+        {
+          "id": 2678,
+          "es": "Me alegro de que haya podido venir. Por favor, siéntase como en su casa.",
+          "fr": "Je suis heureux que vous puissiez venir. S'il vous plaît, faites comme chez vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3796,
+          "es": "Estoy impaciente por volverte a ver.",
+          "fr": "Je suis impatient de vous rencontrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4037,
+          "es": "Me encontré con un amigo de hace tiempo afuera de la estación.",
+          "fr": "Je suis tombé sur un vieil ami à moi devant la gare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4038,
+          "es": "Me encontré con un viejo amigo afuera de la estación.",
+          "fr": "Je suis tombé sur un vieil ami à moi devant la gare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4237,
+          "es": "No estoy de acuerdo con usted en este asunto.",
+          "fr": "Je ne peux pas être d'accord avec vous sur ce sujet.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4450,
+          "es": "No estoy nunca en casa los domingos.",
+          "fr": "Je ne suis jamais chez moi le dimanche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4451,
+          "es": "Nunca estoy en casa los domingos.",
+          "fr": "Je ne suis jamais chez moi le dimanche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4596,
+          "es": "Yo volví a casa en tren.",
+          "fr": "Je suis rentré chez moi en train.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 145,
+          "es": "Después de eso, me voy, pero entonces me doy cuenta de que olvidé mi mochila.",
+          "fr": "Après ça, je pars, mais je me rends compte que j'ai oublié mon sac chez eux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.427990751843286
+        },
+        {
+          "id": 245,
+          "es": "¡No puedes esperar de mí que yo siempre piense en todo!",
+          "fr": "Tu peux pas attendre de moi que je pense toujours à tout !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 418,
+          "es": "Vamos, juega conmigo, ¡estoy tan aburrido!",
+          "fr": "Allez, joue avec moi, j'm'ennuie trop !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1040,
+          "es": "Quiero saber quién viene con nosotros.",
+          "fr": "Je veux savoir qui vient avec nous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1177,
+          "es": "Sólo puedo hablar por mí mismo.",
+          "fr": "Je peux seulement parler pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1281,
+          "es": "Haré todo lo que pueda para ayudarla.",
+          "fr": "Je ferai tout ce que je peux pour vous aider.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1282,
+          "es": "Haré todo lo que pueda para ayudarles.",
+          "fr": "Je ferai tout ce que je peux pour vous aider.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1386,
+          "es": "Por favor, sígame.",
+          "fr": "Venez avec moi, je vous prie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1387,
+          "es": "Venga conmigo, por favor.",
+          "fr": "Venez avec moi, je vous prie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1424,
+          "es": "En un hotel no puedo sentirme como en casa.",
+          "fr": "Je ne peux pas me sentir chez moi à l'hôtel.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1600,
+          "es": "No me puedo sentir como en casa en un hotel así.",
+          "fr": "Je ne peux pas me sentir comme chez moi dans un tel hôtel.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1640,
+          "es": "Me gustaría jugar al tenis con usted algún día.",
+          "fr": "Un jour, j'aimerais jouer au tennis avec vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1668,
+          "es": "No puedo imaginar la vida sin ti.",
+          "fr": "Je ne peux imaginer la vie sans vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1837,
+          "es": "Venga a mi casa, por favor.",
+          "fr": "Venez chez moi, je vous prie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1895,
+          "es": "En cuanto a mí, me gusta más este.",
+          "fr": "Quant à moi, je préfère celui-ci.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2232,
+          "es": "Cuento con que te unas a nosotros.",
+          "fr": "Je compte sur toi pour te joindre à nous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2697,
+          "es": "Creo que yo lo debería hacer por ti.",
+          "fr": "Je pense que je devrais le faire pour vous.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3633,
+          "es": "No puedo soportar más este corazón partido. Tengo que dejar de pensar en ella.",
+          "fr": "Je ne peux supporter ce cœur brisé plus longtemps. Je dois cesser de penser à elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3849,
+          "es": "Yo pienso en ustedes todo el tiempo.",
+          "fr": "Je pense à vous tout le temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4033,
+          "es": "Veo la torre desde mi casa.",
+          "fr": "Je vois la tour de chez moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4515,
+          "es": "Quiero ir a esquiar con ella.",
+          "fr": "J'aimerais aller skier avec elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B1.3_POSSESSIVE_PRONOUNS",
+      "title": "Possessive Pronouns (Le mien, La tienne, Les leurs, etc.)",
+      "objective": "Form and correctly agree possessive pronouns in gender and number with the replaced noun, preceded by the appropriate definite article.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"DET\",\n        \"LEMMA\": {\"IN\": [\"le\", \"la\", \"les\", \"au\", \"aux\", \"du\", \"des\"]}\n    },\n    {\n        \"LEMMA\": {\"IN\": [\"mien\", \"tien\", \"sien\", \"nôtre\", \"vôtre\", \"leur\"]},\n        \"POS\": \"PRON\"\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "B1.3_DEMONSTRATIVE_PRONOUNS",
+      "title": "Demonstrative Pronouns (Celui, Celle, Ceux, Celles, Celui-ci, Celui-là)",
+      "objective": "Construct simple and compound demonstrative pronouns to replace previously mentioned nouns, specified by relative clauses, prepositions (*de*), or proximity suffixes (*-ci / -là*).",
+      "spacy_pattern": "pattern = [\n    {\n        \"LEMMA\": {\"IN\": [\"celui\", \"celle\", \"ceux\", \"celles\"]},\n        \"POS\": \"PRON\"\n    },\n    {\n        \"LEMMA\": {\"IN\": [\"de\", \"qui\", \"que\", \"dont\", \"où\", \"-ci\", \"-là\"]},\n        \"OP\": \"?\"\n    }\n]",
+      "exercises": [
+        {
+          "id": 326,
+          "es": "Aquellos que viven en casas de cristal no deberían tirar piedras.",
+          "fr": "Ceux qui habitent des maisons de verre ne devraient pas lancer de pierres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 559,
+          "es": "La belleza está en los ojos del que mira.",
+          "fr": "La beauté réside dans les yeux de celui qui regarde.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 930,
+          "es": "La belleza está en los ojos de quien mira.",
+          "fr": "La beauté réside dans les yeux de celui qui regarde.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 969,
+          "es": "Sólo aquellos que se arriesguen a ir demasiado lejos sabrán hasta dónde se puede llegar.",
+          "fr": "Seuls ceux qui se risqueront à aller trop loin sauront jusqu'où on peut aller.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1000,
+          "es": "A quien madruga Dios le ayuda.",
+          "fr": "L'avenir appartient à ceux qui se lèvent tôt.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2204,
+          "es": "Compara tus respuestas con las del profesor.",
+          "fr": "Compare tes réponses avec celles du professeur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2206,
+          "es": "Compara tu respuesta con la de Tom.",
+          "fr": "Compare ta réponse avec celle de Tom.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1061,
+          "es": "El que no trabaja no tiene derecho a comer.",
+          "fr": "Celui qui ne travaille pas n'a pas le droit de manger.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 4.830421289279535
+        },
+        {
+          "id": 487,
+          "es": "Hay 10 tipos de personas en el mundo: las que entienden binario y las que no.",
+          "fr": "Il y a 10 sortes de gens dans le monde : ceux qui comprennent le binaire et ceux qui ne le comprennent pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 332,
+          "es": "No es pobre quien tiene muy poco, sino quien ansía demasiado.",
+          "fr": "Un pauvre n'est pas celui qui a trop peu, mais celui qui veut trop.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 973,
+          "es": "Nada es imposible para aquel que no tiene que hacerlo él mismo.",
+          "fr": "Rien n'est impossible pour celui qui n'a pas à le faire lui-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 3880,
+          "es": "Japón se compone de cuatro grandes islas y más de 3000 islas pequeñas, siendo su superficie aproximadamente igual a la de California.",
+          "fr": "Le Japon est constitué de 4 grandes îles, de plus de 3000 petites îles et a une surface à peu près égale à celle de la Californie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 779,
+          "es": "Los seleccionados tendrán que enfrentar extensas pruebas médicas y psicológicas.",
+          "fr": "Ceux qui seront sélectionnés devront faire face à de considérables tests médicaux et psychologiques.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 972,
+          "es": "El mundo es un libro, y aquellos que no viajan leen sólo una página.",
+          "fr": "Le monde est un livre, et ceux qui ne voyagent pas ne lisent qu'une seule page.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1769,
+          "es": "Tengo el pelo tan largo como Jane.",
+          "fr": "Mes cheveux sont aussi longs que ceux de Jane.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3997,
+          "es": "Mi pelo es más largo que el de Jane.",
+          "fr": "Mes cheveux sont plus longs que ceux de Jane.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4980,
+          "es": "La población de Japón es mayor que la de Inglaterra y Francia juntas.",
+          "fr": "La population du Japon est plus grande que celles de la France et de la Grande-Bretagne réunies.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 613,
+          "es": "No me gustan estas tazas, las de la mesa me gustan más.",
+          "fr": "Ces tasses ne me plaisent pas, je préfère celles qui sont sur la table.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1634,
+          "es": "Respeto a quienes siempre dan lo mejor de sí.",
+          "fr": "Je respecte ceux qui font toujours de leur mieux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B1.3_GEOGRAPHICAL_PREPOSITIONS",
+      "title": "Prepositions with Geographical Names (En, À, Au, Aux, De, Du, Des)",
+      "objective": "Select correct prepositions of place and origin (*en, à, au, aux, de, du, des*) based on the grammatical gender, number, and initial letter of countries, continents, islands, and cities.",
+      "spacy_pattern": "pattern = [\n    {\n        \"LEMMA\": {\"IN\": [\"à\", \"en\", \"au\", \"aux\", \"de\", \"du\", \"des\"]},\n        \"POS\": \"ADP\"\n    },\n    {\n        \"POS\": \"PROPN\",\n        \"ENT_TYPE\": {\"IN\": [\"LOC\", \"GPE\"]}\n    }\n]",
+      "exercises": [
+        {
+          "id": 462,
+          "es": "Se espera que ciento cincuenta mil parejas se casen en Shanghái en 2006.",
+          "fr": "On s'attend à ce que cent cinquante mille couples se marient à Shanghai en 2006.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 587,
+          "es": "González regala una bicicleta a todos sus empleados en Europa.",
+          "fr": "Gonzales offre un vélo à tous ses employés en Europe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 617,
+          "es": "¿Cuánto se da de propina en España?",
+          "fr": "Combien donne-t-on en pourboire en Espagne ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 784,
+          "es": "El tren proveniente de Ginebra va a entrar en la estación.",
+          "fr": "Le train venant de Genève va entrer en gare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 999,
+          "es": "Todos los caminos llevan a Roma.",
+          "fr": "Tous les chemins mènent à Rome.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1367,
+          "es": "Él fue a América a estudiar inglés.",
+          "fr": "Il alla en Amérique pour étudier l'anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1824,
+          "es": "Mi hermano vive en Tokio.",
+          "fr": "Mon frère vit à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1832,
+          "es": "Mi familia va cada año a Italia.",
+          "fr": "Ma famille va en Italie tous les ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2206,
+          "es": "Compara tu respuesta con la de Tom.",
+          "fr": "Compare ta réponse avec celle de Tom.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2443,
+          "es": "En Okinawa llueve mucho.",
+          "fr": "Il pleut beaucoup à Okinawa.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2702,
+          "es": "¿Crees en los ovnis?",
+          "fr": "Crois-tu aux OVNIs ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2703,
+          "es": "¿Crees en OVNIs?",
+          "fr": "Crois-tu aux OVNIs ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2862,
+          "es": "Mi tío vive en Madrid, la capital de España.",
+          "fr": "Mon oncle vit à Madrid, la capitale de l'Espagne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3046,
+          "es": "¿Podría usted enviar esta carta a Japón?",
+          "fr": "Pouvez-vous envoyer cette lettre au Japon ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3197,
+          "es": "Disculpe, ¿este tren va a Washington Square?",
+          "fr": "Excusez-moi, ce train va-t-il à Washington Square ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3255,
+          "es": "Tráeme el libro, no se lo lleves a Tom.",
+          "fr": "Emmène-moi le livre, ne l'emmène pas à Tom.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3500,
+          "es": "Me gustaría ir a Hawái.",
+          "fr": "J’aimerais aller à Hawaii.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3715,
+          "es": "Lucy viene de América.",
+          "fr": "Lucy vient d'Amérique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3914,
+          "es": "El mar de Japón separa a Japón del continente asiático.",
+          "fr": "La mer du Japon sépare le Japon du continent asiatique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3922,
+          "es": "Muchos estudiantes van a Europa a estudiar música.",
+          "fr": "Beaucoup d'étudiants vont en Europe pour étudier la musique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4146,
+          "es": "Le gusta vivir en Tokio.",
+          "fr": "Il aime vivre à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4215,
+          "es": "Mi padre vive y trabaja en Tokio.",
+          "fr": "Mon père vit et, donc, travaille à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4227,
+          "es": "Mi padre vive desde hace más de quince años en Nagoya.",
+          "fr": "Mon père vit à Nagoya depuis plus de quinze ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4938,
+          "es": "Según el parte del tiempo, el tifón se aproxima a Okinawa.",
+          "fr": "Selon la météo, le typhon s'approche d'Okinawa.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4954,
+          "es": "Todo tipo de personas viven en Tokio.",
+          "fr": "Toutes sortes de gens vivent à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4981,
+          "es": "¿Sabe usted la población total del Japón?",
+          "fr": "Savez-vous la population totale du Japon ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1910,
+          "es": "Pasaron diez años desde mi llegada a Tokio.",
+          "fr": "Dix ans ont passé depuis ma venue à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2112,
+          "es": "La bomba atómica destruyó por completo la ciudad de Hiroshima.",
+          "fr": "La bombe atomique a entièrement détruit la ville d'Hiroshima.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2135,
+          "es": "Kenji contó a sus amigos una historia sobre su viaje a la India.",
+          "fr": "Kenji a raconté à ses amis une histoire sur son voyage en Inde.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3008,
+          "es": "¿Tienes muchos amigos aquí en Japón?",
+          "fr": "Avez-vous beaucoup d'amis ici au Japon ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3150,
+          "es": "Julie ha recibido una tarjeta de Navidad de su hermano en Italia.",
+          "fr": "Julie a reçu une carte de Noël de son frère en Italie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3194,
+          "es": "Hace tres años, el señor Smith vivía en Kioto.",
+          "fr": "Mr Smith vivait à Kyoto il y a trois ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3533,
+          "es": "Francia tenía numerosas colonias en África.",
+          "fr": "La France avait de nombreuses colonies en Afrique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3697,
+          "es": "¿Hay en Europa muchas personas que aún creen en fantasmas?",
+          "fr": "Y a-t-il beaucoup de gens en Europe qui croient encore aux fantômes ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4000,
+          "es": "Mi tío vivió en Washington durante dos años.",
+          "fr": "Mon oncle a vécu à Washington pendant deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4117,
+          "es": "El parece haber vivido en España.",
+          "fr": "Il semble qu'il ait vécu en Espagne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4309,
+          "es": "Hay muchos barrios bajos en México.",
+          "fr": "Au Mexique, il y a beaucoup de bidonvilles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4978,
+          "es": "¿Cuánto tiempo has vivido en Japón?",
+          "fr": "Combien de temps avez-vous vécu au Japon ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2712,
+          "es": "¿Has estado alguna vez en Francia?",
+          "fr": "Est-ce que tu as déjà été en France ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 3964,
+          "es": "Nació en Osaka pero creció en Tokio.",
+          "fr": "Il est né à Osaka mais a grandi à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4306,
+          "es": "La película no fue un éxito en Japón.",
+          "fr": "Le film n'a pas été un succès au Japon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4615,
+          "es": "El papel fue inventado en China.",
+          "fr": "Le papier a été inventé en Chine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4774,
+          "es": "Yo oí que hubo un terremoto en Shizuoka.",
+          "fr": "J'ai entendu qu'il y a eu un séisme à Shizuoka.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.178956481460675
+        },
+        {
+          "id": 4775,
+          "es": "Yo oí que hubo un temblor en Shizuoka.",
+          "fr": "J'ai entendu qu'il y a eu un séisme à Shizuoka.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.178956481460675
+        },
+        {
+          "id": 16,
+          "es": "¡Hoy es 18 de junio y es el cumpleaños de Muiriel!",
+          "fr": "Aujourd'hui nous sommes le 18 juin et c'est l'anniversaire de Muiriel !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 17,
+          "es": "¡Hoy es 18 de junio y es el cumpleaños de Muiriel!",
+          "fr": "Aujourd'hui c'est le 18 juin, et c'est l'anniversaire de Muiriel.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 517,
+          "es": "Fuimos a Londres el año pasado.",
+          "fr": "Nous sommes allés à Londres l'année dernière.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 645,
+          "es": "El guitarrista de Bang será padre por segunda vez, según anunció un portavoz de la banda.",
+          "fr": "Le guitariste de Bang sera père pour la seconde fois, selon l'annonce du porte-parole du groupe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 669,
+          "es": "Florencia es la ciudad más bonita de Italia.",
+          "fr": "Florence est la ville la plus belle d'Italie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1769,
+          "es": "Tengo el pelo tan largo como Jane.",
+          "fr": "Mes cheveux sont aussi longs que ceux de Jane.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1827,
+          "es": "Mi hermano está ahora en Australia.",
+          "fr": "Mon frère est maintenant en Australie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1828,
+          "es": "Mi hermano ahora está en Australia.",
+          "fr": "Mon frère est maintenant en Australie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1899,
+          "es": "Los dos somos de Tampa.",
+          "fr": "Nous sommes tous les deux de Tampa.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2444,
+          "es": "El señor Oh vino a Japón a estudiar japonés.",
+          "fr": "Monsieur Oh est venu au Japon pour étudier le japonais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2487,
+          "es": "El inglés se estudia en China también.",
+          "fr": "L'anglais est aussi étudié en Chine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2488,
+          "es": "El inglés también se estudia en China.",
+          "fr": "L'anglais est aussi étudié en Chine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2856,
+          "es": "Los minerales abundan en Australia.",
+          "fr": "Les minéraux sont abondants en Australie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2857,
+          "es": "Australia es más pequeña que Sudamérica.",
+          "fr": "L'Australie est plus petite que l'Amérique du Sud.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2867,
+          "es": "Ottawa es la capital de Canadá.",
+          "fr": "Ottawa est la capitale du Canada.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2962,
+          "es": "Ken ha llegado a Kioto.",
+          "fr": "Ken est arrivé à Kyoto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2976,
+          "es": "¿A cuánto queda Hakata de aquí?",
+          "fr": "À quelle distance de Hakata sommes-nous ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3160,
+          "es": "John estaba casado con Jane.",
+          "fr": "John était marié à Jane.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3578,
+          "es": "La madre Teresa era una monja católica que vivía y trabajaba en Calcuta, en la India.",
+          "fr": "Mère Thérésa était une sœur catholique qui vivait et travaillait à Calcutta en Inde.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3623,
+          "es": "El español es hablado en México.",
+          "fr": "L'espagnol est parlé au Mexique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3725,
+          "es": "Roma queda en Italia.",
+          "fr": "Rome est en Italie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3726,
+          "es": "Roma está en Italia.",
+          "fr": "Rome est en Italie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3728,
+          "es": "Londres es grande comparado con París.",
+          "fr": "Londres est grand, comparé à Paris.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3806,
+          "es": "En Australia se habla inglés.",
+          "fr": "L'anglais est parlé en Australie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3902,
+          "es": "Ella se fue a México sola.",
+          "fr": "Elle est allée seule au Mexique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3997,
+          "es": "Mi pelo es más largo que el de Jane.",
+          "fr": "Mes cheveux sont plus longs que ceux de Jane.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3999,
+          "es": "Mi tren salió a las siete y llegó a Nueva York a las diez.",
+          "fr": "Mon train est parti à sept heures et il est arrivé à dix heures à New York.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4145,
+          "es": "El sábado llegó a Kioto.",
+          "fr": "Il est arrivé samedi à Kyoto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4211,
+          "es": "El Monte Fuji es el más alto de los montes japoneses.",
+          "fr": "Le mont Fuji est la plus haute des montagnes du Japon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4324,
+          "es": "Los veranos son muy calurosos en Kioto.",
+          "fr": "Les étés sont très chauds à Kyoto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4403,
+          "es": "¿Cuánto tiempo estuviste en Canadá?",
+          "fr": "Combien de temps es-tu resté au Canada ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4977,
+          "es": "Japón y Corea del Sur son países limítrofes.",
+          "fr": "Le Japon et la Corée du Sud sont des pays limitrophes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4980,
+          "es": "La población de Japón es mayor que la de Inglaterra y Francia juntas.",
+          "fr": "La population du Japon est plus grande que celles de la France et de la Grande-Bretagne réunies.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1384,
+          "es": "Nunca he estado en Europa.",
+          "fr": "Je n'ai jamais été en Europe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 1865,
+          "es": "Tengo dos hijos: uno está en Tokio y el otro en Nagoya.",
+          "fr": "J'ai deux fils, dont l'un est à Tokyo et l'autre à Nagoya.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 4445,
+          "es": "Estuve en Japón durante dos meses.",
+          "fr": "J'ai été au Japon pendant deux mois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 295,
+          "es": "He vivido más de un mes en Nagoya.",
+          "fr": "J'ai vécu plus d'un mois à Nagoya.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 950,
+          "es": "Acabo de ver ahora mismo que el embajador de Arabia Saudí ha dimitido.",
+          "fr": "Je viens de voir que l'ambassadeur de l'Arabie Saoudite à Washington a démissionné.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1214,
+          "es": "El año pasado decidí venirme a Japón.",
+          "fr": "J'ai décidé l'année dernière de venir au Japon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1291,
+          "es": "Me encontré con un viejo amigo por casualidad en Tokio.",
+          "fr": "J'ai rencontré un vieil ami par hasard à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1409,
+          "es": "Tengo otro amigo en China.",
+          "fr": "J'ai un autre ami en Chine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1641,
+          "es": "Yo tengo un amigo en Inglaterra.",
+          "fr": "J'ai un ami en Angleterre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1642,
+          "es": "Pedí varios libros a Inglaterra.",
+          "fr": "J'ai commandé plusieurs livres d'Angleterre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1867,
+          "es": "Tengo un amigo que vive en Sapporo.",
+          "fr": "J'ai un ami qui vit à Sapporo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1873,
+          "es": "Tengo un tío que vive en Kioto.",
+          "fr": "J'ai un oncle qui vit à Kyoto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3982,
+          "es": "La conocí en Francia.",
+          "fr": "Je l'ai connue en France.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4099,
+          "es": "Recuerdo haberme encontrado con este hombre una vez en Cambridge.",
+          "fr": "Je me rappelle avoir déjà rencontré cet homme à Cambridge.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4435,
+          "es": "De casualidad me encontré con él en Tokio.",
+          "fr": "Je l'ai rencontré par hasard à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4474,
+          "es": "Le conocí en Francia.",
+          "fr": "Je l'ai connu en France.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4475,
+          "es": "Lo he conocido en Francia.",
+          "fr": "Je l'ai connu en France.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4979,
+          "es": "En cuanto a mi vida en Japón, no tengo motivos de queja.",
+          "fr": "Quant à ma vie au Japon, je n'ai pas de raisons de m'en plaindre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4437,
+          "es": "Nací y crecí en Tokio.",
+          "fr": "Je suis né et j'ai été élevé à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3316236378599395
+        },
+        {
+          "id": 3181,
+          "es": "Fue genial. Fui a Kioto.",
+          "fr": "C'était génial. Je suis allé à Kyoto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.350390318665248
+        },
+        {
+          "id": 421,
+          "es": "Ha pasado tanto tiempo desde la última vez que fui a Disneyland con mi familia.",
+          "fr": "Ça fait si longtemps depuis la dernière fois que je suis allée à Disneyland avec ma famille.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1302,
+          "es": "Nací en Kioto.",
+          "fr": "Je suis né à Kyoto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1449,
+          "es": "Me he perdido en Nueva York.",
+          "fr": "Je me suis perdu à New York.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1649,
+          "es": "No he ido nunca a los Estados Unidos.",
+          "fr": "Je ne suis jamais allé aux États-Unis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1707,
+          "es": "Nací en Osaka el 5 de marzo de 1977.",
+          "fr": "Je suis né à Osaka le 5 mars 1977.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1708,
+          "es": "Yo nací en Osaka en 1977.",
+          "fr": "Je suis née à Osaka en 1977.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1780,
+          "es": "Sólo sé que vino de China.",
+          "fr": "Tout ce que je sais, c'est qu'il vient de Chine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1912,
+          "es": "Hace dos meses que llegué a Tokio.",
+          "fr": "Cela fait deux mois que je suis arrivé à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2278,
+          "es": "Una vez estuve en Kioto.",
+          "fr": "Je suis allé une fois à Kyoto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2785,
+          "es": "Él era la última persona que hubiera esperado ver durante mi estancia en los EE. UU.",
+          "fr": "Il était la dernière personne que je m'attendais à voir pendant mon séjour en Amérique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4419,
+          "es": "Vine a Japón desde China.",
+          "fr": "Je suis venu au Japon par la Chine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4683,
+          "es": "Hace 6 años exactamente que estuve en Nueva Zelanda por primera vez.",
+          "fr": "Cela fait 6 ans exactement que je suis allé en Nouvelle-Zélande pour la première fois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 197,
+          "es": "Es inevitable que yo vaya a Francia algún día, sólo que no sé cuándo.",
+          "fr": "C'est inévitable que j'aille en France un jour, je ne sais juste pas quand.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 142,
+          "es": "Deseo poder ir a Japón.",
+          "fr": "J'aimerais bien pouvoir aller au Japon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 181,
+          "es": "Entonces voy a hacer un sudoku en vez de seguir molestándote.",
+          "fr": "Je vais donc jouer au Sudoku au lieu de continuer de te déranger.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 473,
+          "es": "Me gustaría estudiar en París.",
+          "fr": "J'aimerais faire mes études à Paris.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 621,
+          "es": "No le voy a poner un revólver en la cabeza a nadie por quedarme en Barcelona.",
+          "fr": "Je ne vais poser de revolver sur la tête de personne pour rester à Barcelone.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1160,
+          "es": "Voy a ir a París en otoño.",
+          "fr": "Je vais à Paris à l'automne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1162,
+          "es": "Tengo intención de ir a Izu durante el fin de semana.",
+          "fr": "J'irai à Izu pendant le week-end.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1275,
+          "es": "Voy a Hiroshima tres veces al mes.",
+          "fr": "Je vais à Hiroshima trois fois par mois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1392,
+          "es": "Me gustaría ir a Londres.",
+          "fr": "J'aimerais aller à Londres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1493,
+          "es": "Yo conduciré hasta Detroit.",
+          "fr": "Je vais conduire jusqu'à Detroit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1625,
+          "es": "Conozco a un profesor de inglés que viene de Canadá.",
+          "fr": "Je connais un professeur d'anglais qui vient du Canada.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1653,
+          "es": "Me gustaría ir a Estados Unidos.",
+          "fr": "J'aimerais aller aux États-Unis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1706,
+          "es": "Vivo en Tokio desde 1985.",
+          "fr": "Je vis à Tôkyô depuis 1985.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1714,
+          "es": "Yo voy a América en avión.",
+          "fr": "Je vais en Amérique en avion.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2408,
+          "es": "Yo vivo en Kakogawa.",
+          "fr": "J'habite à Kakogawa.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2818,
+          "es": "Soy de Inglaterra.",
+          "fr": "Je viens d'Angleterre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2819,
+          "es": "Vengo de Inglaterra.",
+          "fr": "Je viens d'Angleterre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3147,
+          "es": "¿Puedo hablar con Judy?",
+          "fr": "Puis-je parler à Judy ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3741,
+          "es": "Le escribiré una carta a Judy.",
+          "fr": "J'écrirai une lettre à Judy.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3879,
+          "es": "Vivo en Tokio.",
+          "fr": "Je vis à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4409,
+          "es": "Me quedo en Osaka.",
+          "fr": "Je reste à Osaka.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4436,
+          "es": "Vivo en las afueras de Tokio.",
+          "fr": "Je vis à la périphérie de Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4976,
+          "es": "Yo vengo de Japón.",
+          "fr": "Je viens du Japon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    }
+  ]
+}

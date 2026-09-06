@@ -1,0 +1,11 @@
+{
+  "name": "frenchtutor-project",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "vite frontend",
+    "build": "vite build frontend"
+  }
+}

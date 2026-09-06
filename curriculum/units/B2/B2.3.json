@@ -1,0 +1,475 @@
+{
+  "id": "B2.3",
+  "name": "Passive Voice, Indirect Speech & Complex Prepositional Verbs",
+  "topics": [
+    {
+      "id": "B2.3_PASSIVE_VOICE",
+      "title": "Passive Voice (Voix Passive) Formation & Agent Prepositions",
+      "objective": "Transform active sentences into the passive voice across multiple tenses, selecting correct agent prepositions (*par* vs *de*).",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": \"être\", \"DEP\": \"aux:pass\"},\n    {\"POS\": \"ADV\", \"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"VerbForm=Part|Tense=Past\", \"Voice=Pass\"]}},\n    {\"LEMMA\": {\"IN\": [\"par\", \"de\"]}, \"POS\": \"ADP\"}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.3_PASSIVE_VAR",
+      "title": "Passive Tense Variations & Pronominal Passive Alternatives",
+      "objective": "Master passive voice across compound/modal tenses and utilize natural pronominal passive alternatives (*se faire*, *se voir*, *se + verb*).",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": \"se\", \"POS\": \"PRON\"},\n    {\"LEMMA\": {\"IN\": [\"faire\", \"voir\"]}, \"POS\": \"VERB\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"VerbForm=Inf\", \"VerbForm=Part\"]}}\n]",
+      "exercises": [
+        {
+          "id": 3570,
+          "es": "Bob cobra 3 dólares por hora por cortar el césped.",
+          "fr": "Bob se faisait payer 3 dollars de l'heure pour tondre la pelouse.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        }
+      ]
+    },
+    {
+      "id": "B2.3_INDIRECT_SPEECH",
+      "title": "Indirect Speech (Discours Indirect) Tense Shifts in Past Contexts",
+      "objective": "Convert direct statements into indirect speech after past matrix reporting verbs, applying obligatory backshifting tense rules.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"dire\", \"affirmer\", \"déclarer\", \"expliquer\", \"annoncer\", \"prétendre\"]},\n     \"MORPH\": {\"IN\": [\"Mood=Ind|Tense=Past\", \"Tense=Past\", \"Aspect=Perf\"]}},\n    {\"LEMMA\": \"que\", \"POS\": \"SCONJ\"},\n    {\"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"Mood=Cnd\", \"Tense=Imp\", \"Tense=Pqp\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.3_INDIRECT_QUEST",
+      "title": "Indirect Questions & Imperatives in Indirect Speech",
+      "objective": "Transform direct interrogatives and imperatives into indirect reporting clauses using *si, ce que, ce qui*, interrogative adverbs, and *de + infinitive*.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"demander\", \"savoir\", \"ordonner\", \"conseiller\", \"prier\"]}, \"POS\": \"VERB\"},\n    {\"OP\": \"*\"},\n    {\"LEMMA\": {\"IN\": [\"si\", \"ce\", \"de\"]}, \"POS\": {\"IN\": [\"SCONJ\", \"ADP\", \"PRON\"]}},\n    {\"POS\": {\"IN\": [\"VERB\", \"PRON\"]}, \"OP\": \"+\"}\n]",
+      "exercises": [
+        {
+          "id": 464,
+          "es": "No preguntéis lo que piensan. Preguntad lo que hacen.",
+          "fr": "Ne demandez pas ce qu'ils pensent. Demandez ce qu'ils font.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2433,
+          "es": "Nuestro profesor de música me aconsejó visitar Viena.",
+          "fr": "Notre professeur de musique me conseilla de visiter Vienne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3540,
+          "es": "La señorita Baker sabía que el joven debía salir pronto, así que decidió pedirle mover un poco su carro, de tal manera que ella pudiera parquear el suyo en un buen lugar, por la noche, antes de ir a acostarse.",
+          "fr": "Mademoiselle Baker savait que le jeune homme devrait partir très bientôt, elle décida alors de lui demander de bouger un peu sa voiture, afin qu'elle puisse garer la sienne à une bonne place pour la nuit avant d'aller se coucher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.289644895756408
+        },
+        {
+          "id": 1840,
+          "es": "Mi profesor de inglés me ha aconsejado leer estos libros.",
+          "fr": "Mon professeur d'anglais m'a conseillé de lire ces livres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2427,
+          "es": "Si él hubiera sabido lo que estaba a punto de pasar, habría modificado su plan.",
+          "fr": "S'il avait su ce qui était sur le point de se passer, il aurait modifié son plan.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.11940340900644
+        },
+        {
+          "id": 781,
+          "es": "Cuando intenta probar algo, ayuda saber que es verdad.",
+          "fr": "Quand vous essayez de prouver quelque chose, ça aide de savoir que c'est vrai.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1922,
+          "es": "Estoy aquí porque me pidieron que viniera.",
+          "fr": "C'est parce qu'on m'a demandé de venir que je suis là.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.276402575566278
+        },
+        {
+          "id": 92,
+          "es": "Siempre me he preguntado cómo será tener hermanos.",
+          "fr": "Je me suis toujours demandé ce que ça ferait d'avoir des frères et sœurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 274,
+          "es": "Hazme saber si hay algo que yo pueda hacer.",
+          "fr": "Fais-moi savoir s'il y a quoi que ce soit que je puisse faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 352,
+          "es": "Hazme saber si necesito hacer cambios.",
+          "fr": "Faites-moi savoir si j'ai besoin de faire des changements.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 742,
+          "es": "Comunicadme si tengo que hacer algún cambio.",
+          "fr": "Faites-moi savoir si j'ai besoin de faire des changements.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1461,
+          "es": "Le pedí a Tom que cerrase la puerta.",
+          "fr": "J'ai demandé à Tom de fermer la porte.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1462,
+          "es": "Le pedí a Tom que cerrara la puerta.",
+          "fr": "J'ai demandé à Tom de fermer la porte.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1463,
+          "es": "Le pedí a Tom que abriera la ventana.",
+          "fr": "J'ai demandé à Tom d'ouvrir la fenêtre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1464,
+          "es": "Le pedí a Tom que abriese la ventana",
+          "fr": "J'ai demandé à Tom d'ouvrir la fenêtre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1542,
+          "es": "Le pedí que hiciera cuatro copias de la carta.",
+          "fr": "Je lui ai demandé de faire quatre copies de la lettre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4479,
+          "es": "Le pedí que me prestara dinero.",
+          "fr": "Je lui ai demandé de me prêter de l'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4504,
+          "es": "Yo les ordené que salieran de la habitación.",
+          "fr": "Je leur ai ordonné de quitter la pièce.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4546,
+          "es": "Le pedí a mi padre que me comprara este juguete.",
+          "fr": "J'ai demandé à mon père de m'acheter ce jouet.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 31,
+          "es": "No sé si tengo tiempo.",
+          "fr": "Je ne sais pas si j'ai le temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 212,
+          "es": "No sé si todavía lo tengo.",
+          "fr": "Je ne sais pas si je l'ai encore.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 4519,
+          "es": "Le pregunté si podía leer su libro.",
+          "fr": "Je lui ai demandé si je pouvais lire son livre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 46,
+          "es": "Sólo puedo preguntarme si acaso es lo mismo para todos los demás.",
+          "fr": "Je ne peux que me demander si c'est la même chose pour tous les autres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 557,
+          "es": "No sé qué es peor.",
+          "fr": "Je ne sais pas ce qui est pire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1522,
+          "es": "No sé si es verdad.",
+          "fr": "Je ne sais pas si c'est vrai.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1523,
+          "es": "No sé si será cierto o no.",
+          "fr": "Je ne sais pas si c'est vrai.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1780,
+          "es": "Sólo sé que vino de China.",
+          "fr": "Tout ce que je sais, c'est qu'il vient de Chine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 156,
+          "es": "No sé qué quieres decir.",
+          "fr": "Je ne sais pas ce que tu veux dire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1914,
+          "es": "No sé si voy a ganar o perder.",
+          "fr": "Je ne sais pas si je vais gagner ou perdre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2267,
+          "es": "Te aconsejo que dejes de fumar.",
+          "fr": "Je te conseille d'arrêter de fumer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B2.3_VERBS_DE",
+      "title": "Complex Prepositional Verbs Followed by De (Verbes + De + Infinitif/Nom)",
+      "objective": "Master B2-level verbal governing structures requiring preposition *de* before infinitive complements or nominal objects.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"décider\", \"éviter\", \"essayer\", \"refuser\", \"regretter\", \"rêver\", \"occuper\", \"risquer\", \"accepter\", \"choisir\"]}, \"POS\": \"VERB\"},\n    {\"LEMMA\": \"de\", \"POS\": \"ADP\"},\n    {\"POS\": \"VERB\", \"MORPH\": \"VerbForm=Inf\"}\n]",
+      "exercises": [
+        {
+          "id": 858,
+          "es": "El estudiante decidió acortar su reporte quitando detalles innecesarios.",
+          "fr": "L'étudiant décida d'abréger son rapport en enlevant les détails inutiles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2137,
+          "es": "Kenji decidió hacerse cocinero.",
+          "fr": "Kenji a décidé de devenir cuisinier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3562,
+          "es": "Casi todos los trabajadores se negaron a trabajar de noche.",
+          "fr": "Presque tous les travailleurs ont refusé de travailler la nuit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3563,
+          "es": "Casi todos los trabajadores se rehusaron a trabajar de noche.",
+          "fr": "Presque tous les travailleurs ont refusé de travailler la nuit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4340,
+          "es": "Intentaron asesinar al presidente.",
+          "fr": "Ils ont essayé d'assassiner le président.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4310,
+          "es": "Ella se rehusó a hablar de lo que había pasado.",
+          "fr": "Elle a refusé de parler de ce qui s'était passé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 781,
+          "es": "Cuando intenta probar algo, ayuda saber que es verdad.",
+          "fr": "Quand vous essayez de prouver quelque chose, ça aide de savoir que c'est vrai.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1105,
+          "es": "Traté de evitar un conflicto.",
+          "fr": "J'ai essayé d'éviter un conflit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 437,
+          "es": "Yo intentaba perder tiempo.",
+          "fr": "J'essayais de tuer le temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B2.3_VERBS_A",
+      "title": "Complex Prepositional Verbs Followed by À (Verbes + À + Infinitif/Nom)",
+      "objective": "Master B2-level verbal governing structures requiring preposition *à* before infinitive complements or indirect objects.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"apprendre\", \"arriver\", \"chercher\", \"continuer\", \"encourager\", \"hésiter\", \"parvenir\", \"renoncer\", \"réussir\", \"habituer\"]}, \"POS\": \"VERB\"},\n    {\"LEMMA\": \"à\", \"POS\": \"ADP\"},\n    {\"POS\": \"VERB\", \"MORPH\": \"VerbForm=Inf\"}\n]",
+      "exercises": [
+        {
+          "id": 3515,
+          "es": "Bill lloró por horas.",
+          "fr": "Bill continua à pleurer pendant des heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4917,
+          "es": "Los pájaros aprenden a volar por instinto.",
+          "fr": "Les oiseaux apprennent à voler instinctivement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 764,
+          "es": "Matemática es la parte de la ciencia que podrías continuar haciendo si despertaras mañana y descubrieras que el universo se ha ido.",
+          "fr": "Les mathématiques sont la partie des sciences qu'on pourrait continuer à faire si on se réveillait demain et découvrait que l'univers avait disparu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 620,
+          "es": "Los hombres estamos acostumbrados a esperar a las mujeres.",
+          "fr": "Nous, les hommes, sommes habitués à attendre les femmes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 918,
+          "es": "No tengo la fuerza de seguir intentándolo.",
+          "fr": "Je n'ai pas la force de continuer à essayer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1106,
+          "es": "Aún no he aprendido a conducir.",
+          "fr": "Je n'ai pas encore appris à conduire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1163,
+          "es": "Conseguí coronar la cima de la montaña.",
+          "fr": "J'ai réussi à atteindre le sommet de la montagne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2423,
+          "es": "Logré encontrar su oficina.",
+          "fr": "J'ai réussi à trouver son bureau.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2464,
+          "es": "Tuve éxito en abordar el autobús de las 8, corriendo a lo largo del camino hasta la estación.",
+          "fr": "J'ai réussi à attraper le train de 8h en courant tout au long du chemin jusqu'à la gare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3219,
+          "es": "Pude encontrar una plaza de aparcamiento justo en frente del edificio.",
+          "fr": "J'ai réussi à trouver une place de parking juste en face de l'immeuble.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4535,
+          "es": "Yo estaba demasiado cansado para continuar trabajando.",
+          "fr": "J'étais trop fatigué pour continuer à travailler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1377,
+          "es": "Quiero aprender a nadar.",
+          "fr": "Je veux apprendre à nager.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "B2.3_CAUSE_CONSEQ",
+      "title": "Expressions of Cause & Consequence (Expression de Cause et Conséquence)",
+      "objective": "Formulate complex argumentative sentences expressing logical causality and consequence using advanced connectors (*puisque, grâce à, à cause de, c'est pourquoi, par conséquent*).",
+      "spacy_pattern": "",
+      "exercises": []
+    }
+  ]
+}

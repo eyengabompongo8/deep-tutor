@@ -1,0 +1,34 @@
+{
+  "id": "B2.2",
+  "name": "Pluperfect & Future Perfect",
+  "topics": [
+    {
+      "id": "B2.2_PLUS_QUE_PARFAIT",
+      "title": "Pluperfect Tense (Plus-que-parfait) Formation & Antecedency",
+      "objective": "Construct and use the pluperfect tense (*imparfait* of auxiliary + past participle) to establish temporal antecedency between two past events.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"avoir\", \"être\"]}, \"MORPH\": {\"IN\": [\"Mood=Ind|Tense=Imp\", \"Tense=Imp\"]}},\n    {\"POS\": \"ADV\", \"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"VerbForm=Part|Tense=Past\", \"Aspect=Perf\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.2_PQP_AGREEMENT",
+      "title": "Pluperfect Agreement Rules & Type 3 Conditionals (Si + Plus-que-parfait)",
+      "objective": "Apply past participle agreement rules in pluperfect constructions and formulate counterfactual hypothetical sentences (Conditionnel Type 3).",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": \"si\", \"POS\": \"SCONJ\"},\n    {\"POS\": {\"IN\": [\"PRON\", \"NOUN\", \"PROPN\"]}},\n    {\"LEMMA\": {\"IN\": [\"avoir\", \"être\"]}, \"MORPH\": {\"IN\": [\"Mood=Ind|Tense=Imp\", \"Tense=Imp\"]}},\n    {\"POS\": \"ADV\", \"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"VerbForm=Part|Tense=Past\", \"Aspect=Perf\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.2_FUTUR_ANTERIEUR",
+      "title": "Future Perfect (Futur Antérieur) Formation & Chronological Aspect",
+      "objective": "Form and apply the future perfect tense (*futur simple* of auxiliary + past participle) to denote actions that will be completed prior to a specified future moment or event.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"avoir\", \"être\"]}, \"MORPH\": {\"IN\": [\"Mood=Ind|Tense=Fut\", \"Tense=Fut\"]}},\n    {\"POS\": \"ADV\", \"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"VerbForm=Part|Tense=Past\", \"Aspect=Perf\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.2_FUT_ANT_CONJUNCT",
+      "title": "Future Perfect with Temporal Conjunctions (Quand, Dès que, Lorsque)",
+      "objective": "Apply the obligatory double-future rule in French temporal subordinate clauses using *quand, lorsque, dès que, aussitôt que, une fois que*.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"quand\", \"lorsque\", \"dès\", \"aussitôt\"]}, \"POS\": {\"IN\": [\"SCONJ\", \"ADV\"]}},\n    {\"LEMMA\": \"que\", \"POS\": \"SCONJ\", \"OP\": \"?\"},\n    {\"OP\": \"*\"},\n    {\"LEMMA\": {\"IN\": [\"avoir\", \"être\"]}, \"MORPH\": {\"IN\": [\"Mood=Ind|Tense=Fut\", \"Tense=Fut\"]}},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"VerbForm=Part|Tense=Past\", \"Aspect=Perf\"]}}\n]",
+      "exercises": []
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "id": "B1.1",
+  "name": "Imparfait vs Passé Composé",
+  "topics": [
+    {
+      "id": "B1.1_IMPARFAIT_FORMATION",
+      "title": "Formation & Stem Rules of the Imperfect Tense (l'Imparfait)",
+      "objective": "Master the morphological formation of l'imparfait by deriving stems from the 1st person plural (*nous*) present tense form and applying the standard endings (-ais, -ais, -ait, -ions, -iez, -aient).",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]},\n        \"MORPH\": {\"IN\": [\"Aspect=Imp\", \"Tense=Imp\", \"Tense=Imp|VerbForm=Fin\"]}\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "B1.1_IMPARFAIT_USES",
+      "title": "Aspectual Uses of the Imparfait: Habitual Actions, Descriptions, & Background States",
+      "objective": "Apply l'imparfait appropriately to convey uncompleted past actions, habitual/iterative past routines, physical and emotional descriptions, weather conditions, time, and background contexts.",
+      "spacy_pattern": "pattern = [\n    {\n        \"LEMMA\": {\"IN\": [\"toujours\", \"souvent\", \"habitude\", \"autrefois\", \"pendant\"]}\n    },\n    {\"OP\": \"*\"},\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]},\n        \"MORPH\": {\"IN\": [\"Tense=Imp\", \"Aspect=Imp\"]}\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "B1.1_PASSE_COMPOSE_VS_IMPARFAIT",
+      "title": "Passé Composé vs Imparfait Contrast & Interrupted Actions",
+      "objective": "Contrast completed specific events (Passé Composé) with background continuous states or ongoing actions (Imparfait) within single and compound complex sentences.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"VERB\",\n        \"MORPH\": {\"IN\": [\"Aspect=Imp\", \"Tense=Imp\"]}\n    },\n    {\"OP\": \"*\"},\n    {\n        \"LEMMA\": {\"IN\": [\"quand\", \"lorsque\", \"soudain\", \"pendant\"]}\n    },\n    {\"OP\": \"*\"},\n    {\n        \"POS\": \"AUX\",\n        \"MORPH\": {\"IN\": [\"Tense=Pres\", \"VerbForm=Fin\"]}\n    },\n    {\n        \"POS\": \"VERB\",\n        \"MORPH\": {\"IN\": [\"Aspect=Perf\", \"Tense=Past\", \"VerbForm=Part\"]}\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "B1.1_TEMPORAL_MARKERS_PAST",
+      "title": "Past Temporal Expressions & Duration Markers (Depuis, Pendant, Il y a, En)",
+      "objective": "Distinguish and correctly deploy past time prepositions (*depuis*, *pendant*, *il y a*, *en*, *dans*) to anchor past actions, duration, and elapsed time relative to the moment of speech.",
+      "spacy_pattern": "pattern = [\n    {\n        \"LEMMA\": {\"IN\": [\"depuis\", \"pendant\", \"en\"]}\n    },\n    {\"POS\": \"NUM\", \"OP\": \"?\"},\n    {\n        \"LEMMA\": {\"IN\": [\"an\", \"année\", \"mois\", \"jour\", \"heure\", \"semaine\", \"minute\"]}\n    }\n]",
+      "exercises": [
+        {
+          "id": 2130,
+          "es": "Un perro saltó a la silla y se quedó ahí inmóvil por cinco minutos.",
+          "fr": "Un chien sauta sur la chaise et resta immobile pendant cinq minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2398,
+          "es": "Según los científicos, la atmósfera sube de temperatura año tras año.",
+          "fr": "Selon les scientifiques, l'atmosphère se réchauffe d'année en année.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2571,
+          "es": "Él volvió a casa después de diez años.",
+          "fr": "Il revint chez lui pour la première fois en dix ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2572,
+          "es": "Él regresó a casa por primera vez en diez años.",
+          "fr": "Il revint chez lui pour la première fois en dix ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1833,
+          "es": "Mi familia ha vivido aquí durante veinte años.",
+          "fr": "Ma famille a vécu ici pendant vingt ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2483,
+          "es": "He aprendido inglés durante cinco años.",
+          "fr": "J’ai étudié l'anglais pendant cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2484,
+          "es": "He estudiado inglés durante cinco años.",
+          "fr": "J’ai étudié l'anglais pendant cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4000,
+          "es": "Mi tío vivió en Washington durante dos años.",
+          "fr": "Mon oncle a vécu à Washington pendant deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1202,
+          "es": "Encontré el diario que mi padre mantuvo por 30 años.",
+          "fr": "J'ai trouvé le journal que mon père a tenu pendant 30 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 3883,
+          "es": "Ya hace cinco años que no tengo noticias de él.",
+          "fr": "Je n'ai pas eu de ses nouvelles depuis cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 4445,
+          "es": "Estuve en Japón durante dos meses.",
+          "fr": "J'ai été au Japon pendant deux mois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 1236,
+          "es": "El próximo febrero hará cinco años que estudio inglés.",
+          "fr": "À partir de février prochain, j'aurais étudié l'anglais pendant cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1697,
+          "es": "He vivido aquí durante treinta años.",
+          "fr": "J'ai vécu ici pendant trente ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 357,
+          "es": "Puedo ir caminando a la escuela en 10 minutos.",
+          "fr": "Je peux aller à l'école à pied en 10 minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1608,
+          "es": "Vivo aquí desde hace diez años.",
+          "fr": "Je vis ici depuis dix années.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    }
+  ]
+}

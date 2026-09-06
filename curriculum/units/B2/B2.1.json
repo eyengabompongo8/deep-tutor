@@ -1,0 +1,41 @@
+{
+  "id": "B2.1",
+  "name": "Present & Past Subjunctive",
+  "topics": [
+    {
+      "id": "B2.1_SUBJ_PRES",
+      "title": "Present Subjunctive Regular Stems & Conjugation (Subjonctif Présent - Régulier)",
+      "objective": "Form and apply the present subjunctive of regular -er, -ir, and -re verbs in dependent clauses after triggers expressing necessity, desire, and uncertainty.",
+      "spacy_pattern": "pattern = [\n    {\"POS\": {\"IN\": [\"VERB\", \"ADJ\", \"NOUN\"]}, \"OP\": \"+\"},\n    {\"LEMMA\": \"que\", \"POS\": \"SCONJ\"},\n    {\"POS\": \"PRON\", \"OP\": \"?\"},\n    {\"POS\": \"DET\", \"OP\": \"?\"},\n    {\"POS\": \"NOUN\", \"OP\": \"?\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"Mood=Sub|Tense=Pres\", \"VerbForm=Fin|Mood=Sub\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.1_SUBJ_IRREG",
+      "title": "Irregular Subjunctive Verbs (Subjonctif des Verbes Irréguliers)",
+      "objective": "Correctly conjugate and employ high-frequency irregular verbs in the present subjunctive (*être, avoir, faire, aller, pouvoir, savoir, vouloir*).",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"être\", \"avoir\", \"faire\", \"aller\", \"pouvoir\", \"savoir\", \"vouloir\"]},\n     \"MORPH\": {\"IN\": [\"Mood=Sub\", \"Mood=Sub|Tense=Pres\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.1_SUBJ_TRIGGERS",
+      "title": "Subjunctive Semantic Triggers & Modal Matrix Clauses",
+      "objective": "Identify and systematically apply subjunctive mood across five primary semantic categories: Volition, Emotion, Impersonal Necessity, Doubt, and Complex Conjunctions.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"douter\", \"regretter\", \"craindre\", \"souhaiter\", \"exiger\"]}, \"POS\": \"VERB\"},\n    {\"LEMMA\": \"que\", \"POS\": \"SCONJ\"},\n    {\"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"Mood=Sub\", \"VerbForm=Fin|Mood=Sub\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.1_SUBJ_VS_IND",
+      "title": "Subjunctive vs. Indicative Contrastive Syntax (Subjonctif ou Indicatif)",
+      "objective": "Contrast indicative and subjunctive usage based on clause polarity, assertion level, and matrix predicate certainty (*penser, croire, espérer, être certain*).",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": \"ne\", \"POS\": \"ADV\", \"OP\": \"?\"},\n    {\"LEMMA\": {\"IN\": [\"penser\", \"croire\", \"trouver\", \"estimer\"]}, \"POS\": \"VERB\"},\n    {\"LEMMA\": \"pas\", \"POS\": \"ADV\"},\n    {\"LEMMA\": \"que\", \"POS\": \"SCONJ\"},\n    {\"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"Mood=Sub\", \"VerbForm=Fin|Mood=Sub\"]}}\n]",
+      "exercises": []
+    },
+    {
+      "id": "B2.1_SUBJ_PAST",
+      "title": "Past Subjunctive (Subjonctif Passé)",
+      "objective": "Form and deploy the past subjunctive using present subjunctive auxiliaries (*avoir* / *être*) + past participle to express completed past actions in dependent clauses.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": {\"IN\": [\"avoir\", \"être\"]}, \"MORPH\": {\"IN\": [\"Mood=Sub\", \"VerbForm=Fin|Mood=Sub\"]}},\n    {\"POS\": \"ADV\", \"OP\": \"*\"},\n    {\"POS\": \"VERB\", \"MORPH\": {\"IN\": [\"VerbForm=Part|Tense=Past\", \"Aspect=Perf\"]}}\n]",
+      "exercises": []
+    }
+  ]
+}

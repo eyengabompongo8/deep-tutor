@@ -1,0 +1,57 @@
+{
+  "id": "B1.4",
+  "name": "Verb Constructions & Mood Introduction",
+  "topics": [
+    {
+      "id": "B1.4_FAIRE_INFINITIF",
+      "title": "Causative Construction (Faire + Infinitif & Se Faire + Infinitif)",
+      "objective": "Master the causative structure (*faire* + infinitive, *se faire* + infinitive) to express causing an action to be performed by someone else, managing word order, pronoun placement before *faire*, and introducing agents with *par* or *à*.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"PRON\",\n        \"MORPH\": {\"IS_SUBSET\": [\"PronType=Prs\"]},\n        \"DEP\": {\"IN\": [\"expl:pv\", \"obj\", \"iobj\"]},\n        \"OP\": \"?\"\n    },\n    {\n        \"LEMMA\": \"faire\",\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]}\n    },\n    {\n        \"POS\": \"PRON\",\n        \"OP\": \"*\"\n    },\n    {\n        \"POS\": \"VERB\",\n        \"MORPH\": \"VerbForm=Inf\"\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "B1.4_SEQUENCE_OF_TENSES",
+      "title": "Concordance and Sequence of Tenses in Subordinate Clauses (La Concordance des Temps)",
+      "objective": "Apply the correct tense shifts (sequence of tenses / concordance des temps) in subordinate clauses based on the tense of the main reporting clause across direct/indirect speech and complex sentence structures.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]},\n        \"MORPH\": {\"IN\": [\"Tense=Pres\", \"Tense=Past\", \"Aspect=Imp\", \"Aspect=Perf\", \"VerbForm=Fin\"]},\n        \"RIGHT_ID\": \"main_verb\",\n        \"RIGHT_ATTRS\": {\"POS\": {\"IN\": [\"VERB\", \"AUX\"]}}\n    },\n    {\n        \"LEMMA\": {\"IN\": [\"que\", \"qu'\", \"si\", \"ce que\", \"ce qui\"]},\n        \"POS\": {\"IN\": [\"SCONJ\", \"PRON\"]},\n        \"RIGHT_ID\": \"sub_conj\",\n        \"LEFT_ID\": \"main_verb\",\n        \"REL_OP\": \">\"\n    },\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]},\n        \"MORPH\": {\"IN\": [\"Tense=Imp\", \"Tense=Past\", \"Tense=Pres\", \"Mood=Cnd\", \"VerbForm=Fin\"]},\n        \"RIGHT_ID\": \"sub_verb\",\n        \"LEFT_ID\": \"sub_conj\",\n        \"REL_OP\": \"<\"\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "B1.4_NEG_INFINITIF",
+      "title": "Infinitive Negation & Word Order (Ne pas, Ne jamais, Ne plus + Infinitif)",
+      "objective": "Form negated infinitive clauses correctly by placing negative adverbial pairs (*ne pas*, *ne jamais*, *ne plus*, *ne rien*) immediately before the infinitive verb, while positioning object and reflexive pronouns between the negative pair and the infinitive.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": \"ne\"\n    },\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": {\"IN\": [\"pas\", \"jamais\", \"plus\", \"rien\", \"guère\"]}\n    },\n    {\n        \"POS\": \"PRON\",\n        \"OP\": \"*\"\n    },\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]},\n        \"MORPH\": {\"IN\": [\"VerbForm=Inf\", \"VerbForm=Inf|Tense=Pres\"]}\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "B1.4_SUBJ_INTRO",
+      "title": "Introduction to the Subjunctive Mood (Le Subjonctif Présent)",
+      "objective": "Understand the fundamental mood distinction between indicative objective reality and subjunctive subjective reality, master the 5 core trigger categories, and apply regular stem formation rules (-e, -es, -e, -ions, -iez, -ent) as the gateway to B2 advanced subjunctive structures.",
+      "spacy_pattern": "pattern = [\n    {\n        \"LEMMA\": {\"IN\": [\"falloir\", \"vouloir\", \"désirer\", \"souhaiter\", \"douter\", \"regretter\", \"préférer\", \"aimer\", \"content\", \"triste\", \"heureux\", \"important\", \"bon\", \"dommage\"]},\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\", \"ADJ\"]}\n    },\n    {\"OP\": \"*\"},\n    {\n        \"LEMMA\": \"que\",\n        \"POS\": \"SCONJ\"\n    },\n    {\"OP\": \"*\"},\n    {\n        \"POS\": \"VERB\",\n        \"MORPH\": {\"IN\": [\"Mood=Sub\", \"Mood=Sub|Tense=Pres\", \"VerbForm=Fin|Mood=Sub\"]}\n    }\n]",
+      "exercises": []
+    },
+    {
+      "id": "B1.4_IMPERSONAL_EXPRESSIONS",
+      "title": "Impersonal Expressions: General Infinitive (de + inf) vs Specific Subjunctive (que + subjonctif)",
+      "objective": "Distinguish and master impersonal expressions (*il est possible*, *il vaut mieux*, *il est important*, *il s'agit de*, *il convient de*) contrasting general statements using *de* + infinitive against specific-subject subclauses using *que* + subjunctive.",
+      "spacy_pattern": "pattern = [\n    {\n        \"LEMMA\": \"il\",\n        \"POS\": \"PRON\"\n    },\n    {\n        \"LEMMA\": {\"IN\": [\"être\", \"valoir\", \"agir\", \"convenir\"]},\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]}\n    },\n    {\n        \"LEMMA\": {\"IN\": [\"s'\", \"se\"]},\n        \"POS\": \"PRON\",\n        \"OP\": \"?\"\n    },\n    {\n        \"POS\": {\"IN\": [\"ADJ\", \"ADV\"]},\n        \"OP\": \"*\"\n    },\n    {\n        \"LEMMA\": {\"IN\": [\"de\", \"d'\", \"que\", \"qu'\"]},\n        \"POS\": {\"IN\": [\"ADP\", \"SCONJ\"]}\n    }\n]",
+      "exercises": [
+        {
+          "id": 11,
+          "es": "Es importante que estudies.",
+          "fr": "Il est important que vous étudiez.",
+          "is_human_pair": false,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        }
+      ]
+    },
+    {
+      "id": "B1.4_GERONDIF",
+      "title": "The French Gerund (Le Gérondif: En + Participe Présent) & Adjectival Participle Distinction",
+      "objective": "Form the French gerund (`en` + present participle stem `-ant`), master its adverbial functions (simultaneity, manner/means, condition, cause), enforce the strict subject co-referentiality constraint, and distinguish the invariant verbal gerund/participle from the variable verbal adjective (*adjectif verbal*).",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"ADP\",\n        \"LEMMA\": \"en\"\n    },\n    {\n        \"POS\": \"PRON\",\n        \"OP\": \"*\"\n    },\n    {\n        \"POS\": {\"IN\": [\"VERB\", \"AUX\"]},\n        \"MORPH\": {\"IN\": [\"Tense=Pres|VerbForm=Part\", \"VerbForm=Part\"]}\n    }\n]",
+      "exercises": []
+    }
+  ]
+}

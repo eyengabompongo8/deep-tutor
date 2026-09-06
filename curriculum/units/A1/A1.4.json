@@ -1,0 +1,2894 @@
+{
+  "id": "A1.4",
+  "name": "Foundational Vocabulary Grammar",
+  "topics": [
+    {
+      "id": "A1.4_QUANTITY_EXPRESSIONS",
+      "title": "Adverbs of Quantity & De Article Replacement Rule",
+      "objective": "Express quantities using adverbs of quantity (beaucoup de, peu de, un peu de, assez de, trop de) and apply the rule where de/d' replaces partitive and indefinite articles before nouns.",
+      "spacy_pattern": "pattern = [\n    {\"LEMMA\": \"un\", \"POS\": \"DET\", \"OP\": \"?\"},\n    {\n        \"POS\": \"ADV\",\n        \"LEMMA\": {\n            \"IN\": [\n                \"beaucoup\",\n                \"peu\",\n                \"assez\",\n                \"trop\",\n                \"plus\",\n                \"moins\",\n                \"combien\",\n                \"tant\",\n                \"tellement\",\n            ]\n        },\n    },\n    {\"POS\": \"ADP\", \"LEMMA\": \"de\"},\n    {\"POS\": \"ADJ\", \"OP\": \"*\"},\n    {\"POS\": {\"IN\": [\"NOUN\", \"PROPN\"]}},\n]",
+      "exercises": [
+        {
+          "id": 251,
+          "es": "Me llevaría demasiado tiempo explicarte por qué no va a funcionar.",
+          "fr": "Ça me prendrait trop de temps pour t'expliquer pourquoi ça ne va pas marcher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 336,
+          "es": "¿Cuánto tiempo se tarda en llegar a la estación?",
+          "fr": "Combien de temps cela prend-il pour arriver à la station ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 442,
+          "es": "¿En cuánto tiempo vamos a llegar?",
+          "fr": "Dans combien de temps arrivons-nous ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 859,
+          "es": "La gente en el mundo lucha siempre por más libertad e igualdad.",
+          "fr": "Les gens dans le monde se battent toujours pour plus de liberté et d'égalité.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 877,
+          "es": "¿Cuántos sándwiches quedan?",
+          "fr": "Combien de sandwichs restent-ils ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1096,
+          "es": "Más de un tercio de la población mundial vive cerca de la costa.",
+          "fr": "Plus du tiers de la population mondiale vit à proximité d'une côte.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1890,
+          "es": "No me hagas tantas preguntas, usá la cabeza.",
+          "fr": "Ne me posez pas tant de questions, servez-vous de votre tête.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1908,
+          "es": "Lleva mucho tiempo dominar un idioma.",
+          "fr": "Il nous faut beaucoup de temps pour maîtriser une langue étrangère.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1990,
+          "es": "Los cómic actuales contienen demasiadas escenas violentas y sexuales.",
+          "fr": "Les bandes dessinées actuelles comportent beaucoup trop de scènes violentes et sexuelles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2138,
+          "es": "El secreto de una buena salud reside en una alimentación sana y ejercicio moderado.",
+          "fr": "Le secret d'une bonne santé réside en une nourriture saine et un peu d'exercice.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2191,
+          "es": "¿Cuánto tiempo os quedaréis aquí?",
+          "fr": "Combien de temps resterez-vous ici ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2401,
+          "es": "Cada vez más parejas casadas comparten las tareas del hogar.",
+          "fr": "De plus en plus de couples mariés se partagent les tâches ménagères.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2558,
+          "es": "—¿Cuántas llaves? —preguntó Pepperberg.",
+          "fr": "\"Combien de clés ?\" demanda Pepperberg.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2577,
+          "es": "Toda persona mayor de dieciocho años cuenta como adulto.",
+          "fr": "Toute personne de plus de dix-huit ans compte pour un adulte.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2598,
+          "es": "¿Cuántas veces a la semana te bañas?",
+          "fr": "Tu prends un bain combien de fois par semaine ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2599,
+          "es": "¿Cuántas veces por semana te bañás?",
+          "fr": "Tu prends un bain combien de fois par semaine ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2600,
+          "es": "¿Cuántas veces por semana te tomas un baño?",
+          "fr": "Tu prends un bain combien de fois par semaine ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2706,
+          "es": "¿Cuántas veces al mes le escribes a tu madre?",
+          "fr": "Combien de fois par mois écris-tu à ta mère ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2738,
+          "es": "¿Durante cuánto tiempo estudia usted diariamente inglés?",
+          "fr": "Pendant combien de temps étudiez-vous l'anglais chaque jour ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2739,
+          "es": "¿Durante cuánto tiempo estudian ustedes diariamente inglés?",
+          "fr": "Pendant combien de temps étudiez-vous l'anglais chaque jour ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2774,
+          "es": "No gastes demasiado dinero.",
+          "fr": "Ne dépense pas trop d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2883,
+          "es": "Deme un poco de dinero.",
+          "fr": "Donnez-moi un peu d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2971,
+          "es": "Por favor, ponle mucha crema a mi café.",
+          "fr": "Mettez beaucoup de lait dans mon café, s'il vous plaît.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2973,
+          "es": "¿Cuánto tiempo tarda para ir de aquí al Hotel Hilton?",
+          "fr": "Combien de temps faut-il pour aller d'ici à l'Hôtel Hilton ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2975,
+          "es": "¿Cuánto lleva más o menos ir a pie desde aquí al ayuntamiento?",
+          "fr": "Combien de temps faut-il environ pour aller à pied d'ici à la mairie ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3031,
+          "es": "Para ir a esta escuela hace falta una gran cantidad de dinero.",
+          "fr": "Aller à cette école nécessite beaucoup d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3218,
+          "es": "¿Cuántas veces por día pasa ese autobús?",
+          "fr": "Combien de fois par jour passe ce bus ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3371,
+          "es": "A cada persona se le otorgó suficiente comida y ropa.",
+          "fr": "Chaque personne reçut assez de nourriture et de vêtements.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3453,
+          "es": "¿Durante cuánto tiempo puedes aguantar la respiración?",
+          "fr": "Combien de temps peux-tu retenir ta respiration ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3638,
+          "es": "¿Cuánto tiempo llevas en Tokio?",
+          "fr": "Depuis combien de temps vivez-vous à Tokyo ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3681,
+          "es": "Menos ruido, por favor.",
+          "fr": "Moins de bruit, s'il vous plait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3836,
+          "es": "Enseñar requiere mucha paciencia.",
+          "fr": "Enseigner requiert beaucoup de patience.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4835,
+          "es": "La oscuridad da miedo a muchos niños.",
+          "fr": "L'obscurité fait peur à beaucoup d'enfants.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4975,
+          "es": "¿Cuánto tiempo hará falta?",
+          "fr": "Combien de temps faudra-t-il ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2704,
+          "es": "¿Cuántas manzanas quieres?",
+          "fr": "Combien de pommes veux-tu ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 2.512305623976115
+        },
+        {
+          "id": 2784,
+          "es": "Los estadounidenses comen mucha carne.",
+          "fr": "Les Étatsuniens mangent beaucoup de viande.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.606403232289698
+        },
+        {
+          "id": 415,
+          "es": "¡Hay demasiadas cosas que hacer!",
+          "fr": "Il y a trop de choses à faire !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 553,
+          "es": "¿Cuántas horas de sueño necesitas?",
+          "fr": "De combien d'heures de sommeil as-tu besoin ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 579,
+          "es": "Hay muchas cosas que no sabes sobre mi personalidad.",
+          "fr": "Il y a beaucoup de choses que tu ne sais pas sur ma personnalité.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1081,
+          "es": "Cierra las contraventanas y corre las cortinas. Debe haber tan poca luz como sea posible.",
+          "fr": "Ferme les volets et tire les rideaux. Il faut qu'il y ait le moins de lumière possible.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1854,
+          "es": "Mi padre tiene muchos libros.",
+          "fr": "Mon père a beaucoup de livres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1945,
+          "es": "Los niños necesitan muchas cosas, pero antes que todo, ellos necesitan amor.",
+          "fr": "Les enfants ont besoin de beaucoup de choses, mais par-dessus tout, ils ont besoin d'amour.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1948,
+          "es": "Los niños necesitan mucho sueño.",
+          "fr": "Les enfants ont besoin de beaucoup de sommeil.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2705,
+          "es": "¿Cuánto tiempo has vivido en Sanda?",
+          "fr": "Combien de temps as-tu vécu à Sanda ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2882,
+          "es": "¿Cuánto dinero lleva usted encima?",
+          "fr": "Combien d'argent avez-vous sur vous ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3008,
+          "es": "¿Tienes muchos amigos aquí en Japón?",
+          "fr": "Avez-vous beaucoup d'amis ici au Japon ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3166,
+          "es": "John ha engordado mucho últimamente.",
+          "fr": "John a pris beaucoup de poids récemment.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3401,
+          "es": "Alemania produjo muchos científicos.",
+          "fr": "L'Allemagne a produit beaucoup de scientifiques.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3548,
+          "es": "Paul ganó mucho dinero el año pasado.",
+          "fr": "Paul a gagné beaucoup d'argent l'année dernière.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3697,
+          "es": "¿Hay en Europa muchas personas que aún creen en fantasmas?",
+          "fr": "Y a-t-il beaucoup de gens en Europe qui croient encore aux fantômes ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4178,
+          "es": "Tiene mucho dinero.",
+          "fr": "Elle a beaucoup d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4309,
+          "es": "Hay muchos barrios bajos en México.",
+          "fr": "Au Mexique, il y a beaucoup de bidonvilles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4363,
+          "es": "¿Cuántos libros hay sobre la mesa?",
+          "fr": "Combien de livres y a-t-il sur la table ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4402,
+          "es": "Los filósofos tienden a tener poco contacto con el mundo exterior.",
+          "fr": "Les philosophes ont tendance à avoir peu de contact avec le monde extérieur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4811,
+          "es": "¡Date prisa! No tenemos mucho tiempo.",
+          "fr": "Dépêche-toi ! Nous n'avons pas beaucoup de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4836,
+          "es": "Perdimos mucho tiempo.",
+          "fr": "On a perdu beaucoup de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4927,
+          "es": "¿Hay muchas flores en el jardín?",
+          "fr": "Y a-t-il beaucoup de fleurs dans le jardin ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4978,
+          "es": "¿Cuánto tiempo has vivido en Japón?",
+          "fr": "Combien de temps avez-vous vécu au Japon ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 101,
+          "es": "¿Cuántos amigos íntimos tienes?",
+          "fr": "Combien d'amis proches est-ce que tu as ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 122,
+          "es": "¿Cuánto tiempo estuviste?",
+          "fr": "Combien de temps es-tu restée ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2277,
+          "es": "Kioto es visitado por mucha gente todos los años.",
+          "fr": "Kyoto est visitée par beaucoup de gens chaque année.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2324,
+          "es": "Ellos no tardarán mucho en casarse.",
+          "fr": "Ils seront mariés d'ici peu de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4403,
+          "es": "¿Cuánto tiempo estuviste en Canadá?",
+          "fr": "Combien de temps es-tu resté au Canada ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4907,
+          "es": "Por culpa de la larga recesión muchos trabajadores están en paro.",
+          "fr": "À cause de la longue récession beaucoup de travailleurs sont sans travail.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4382,
+          "es": "Habría escrito una carta más larga si hubiera tenido más tiempo.",
+          "fr": "J'aurais écrit une lettre plus longue si j'avais eu plus de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.253666762575458
+        },
+        {
+          "id": 4383,
+          "es": "De haber tenido más tiempo habría escrito una carta más larga.",
+          "fr": "J'aurais écrit une lettre plus longue si j'avais eu plus de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.253666762575458
+        },
+        {
+          "id": 162,
+          "es": "Hay muchas palabras que no entiendo.",
+          "fr": "Il y a beaucoup de mots que je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 240,
+          "es": "Tengo demasiadas cosas en la cabeza estos días.",
+          "fr": "J'ai trop de choses dans la tête ces jours-ci.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 606,
+          "es": "Tengo tos y un poco de fiebre.",
+          "fr": "J'ai de la toux et un peu de fièvre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 847,
+          "es": "Necesito más tiempo.",
+          "fr": "J'ai besoin de plus de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1149,
+          "es": "Tengo un poco de dinero.",
+          "fr": "J'ai un peu d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1196,
+          "es": "Tengo más vestidos que mi hermana.",
+          "fr": "J'ai plus de robes que ma sœur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1501,
+          "es": "Tengo muchas cámaras de fotos.",
+          "fr": "J'ai beaucoup d'appareils photo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1502,
+          "es": "Tengo muchas cámaras.",
+          "fr": "J'ai beaucoup d'appareils photo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1503,
+          "es": "Tengo muchos libros.",
+          "fr": "J'ai beaucoup de livres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1511,
+          "es": "No tengo mucho dinero.",
+          "fr": "Je n'ai pas beaucoup d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1561,
+          "es": "Tengo mucho trabajo que hacer.",
+          "fr": "J'ai beaucoup de travail à faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1671,
+          "es": "Tengo diez veces más libros que tú.",
+          "fr": "J'ai dix fois plus de livres que tu en as.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2032,
+          "es": "Ahora tengo muchas cosas que hacer.",
+          "fr": "J'ai beaucoup de choses à faire maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2037,
+          "es": "Tengo muchas cosas que hacer esta tarde.",
+          "fr": "J'ai beaucoup de choses à faire cet après-midi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2224,
+          "es": "Me gustaría tener más tiempo para hablar contigo.",
+          "fr": "J'aimerais avoir plus de temps pour parler avec toi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2403,
+          "es": "Yo invertí mucho dinero en mi casa.",
+          "fr": "J'ai dépensé beaucoup d'argent pour ma maison.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3015,
+          "es": "Últimamente tengo poco tiempo para leer.",
+          "fr": "J'ai peu de temps pour lire ces jours-ci.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3636,
+          "es": "Si hubiese tenido un poco más de dinero, lo habría comprado.",
+          "fr": "Si j'avais eu un peu plus d'argent, je l'aurais acheté.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3637,
+          "es": "Si hubiera tenido un poco más de dinero, lo habría comprado.",
+          "fr": "Si j'avais eu un peu plus d'argent, je l'aurais acheté.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4486,
+          "es": "Tengo tres veces más libros que él.",
+          "fr": "J'ai trois fois plus de livres que lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4662,
+          "es": "No tengo mucho dinero encima.",
+          "fr": "Je n'ai pas beaucoup d'argent sur moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4714,
+          "es": "Tengo poco apetito.",
+          "fr": "J'ai peu d'appétit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 470,
+          "es": "Tengo tanto trabajo que me quedo una hora más.",
+          "fr": "J'ai tellement de travail que je reste une heure de plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 1468,
+          "es": "Tengo tanta ropa que no sé qué ponerme mañana.",
+          "fr": "J'ai tellement de vêtements que je ne sais pas quoi mettre demain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 1957,
+          "es": "Tengo tanto trabajo que no me queda otra que anular mi viaje.",
+          "fr": "J'ai tellement de travail que je dois annuler mon voyage.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 347,
+          "es": "Me pregunto cuánto tiempo tardará.",
+          "fr": "Je me demande combien de temps ça va prendre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 543,
+          "es": "Están haciendo demasiado ruido, no puedo concentrarme.",
+          "fr": "Ils font trop de bruit, je n'arrive pas à me concentrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 740,
+          "es": "Me pregunto cuánto tiempo va a durar.",
+          "fr": "Je me demande combien de temps ça va prendre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 894,
+          "es": "Hacen demasiado ruido, no logro concentrarme.",
+          "fr": "Ils font trop de bruit, je n'arrive pas à me concentrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1152,
+          "es": "Quiero algo de dinero.",
+          "fr": "Je veux un peu d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1651,
+          "es": "No bebo mucho vino.",
+          "fr": "Je ne bois pas beaucoup de vin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1654,
+          "es": "Cometo demasiados errores.",
+          "fr": "Je fais trop d'erreurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2972,
+          "es": "Prepararé algo de café.",
+          "fr": "Je vais faire un peu de café.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3817,
+          "es": "No bebo mucha cerveza.",
+          "fr": "Je ne bois pas beaucoup de bière.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "A1.4_NUMBERS_CARDINAL",
+      "title": "Cardinal Numbers & Counting Rules (0-100, Hundreds, Thousands & Plural Rules)",
+      "objective": "Master French cardinal numbers from 0 to millions, including compound number construction, hyphenation rules (traditional vs 1990 spelling rectifications), plural agreements for *cent* and *vingt*, and nominal usage with *de* for *million* and *milliard*.",
+      "spacy_pattern": "pattern = [\n    {\n        \"POS\": \"NUM\",\n        \"MORPH\": {\"REGEX\": \"NumType=Card\"},\n        \"OP\": \"+\",\n    },\n    {\"POS\": \"ADP\", \"LEMMA\": \"de\", \"OP\": \"?\"},\n    {\"POS\": \"NOUN\", \"OP\": \"?\"},\n]",
+      "exercises": [
+        {
+          "id": 38,
+          "es": "Eso va a costar 30 €.",
+          "fr": "Ça coûtera 30 €.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 276,
+          "es": "No comienza hasta las ocho y treinta.",
+          "fr": "Ça ne commence pas avant huit heures trente.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 462,
+          "es": "Se espera que ciento cincuenta mil parejas se casen en Shanghái en 2006.",
+          "fr": "On s'attend à ce que cent cinquante mille couples se marient à Shanghai en 2006.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 469,
+          "es": "Un metro cúbico corresponde a 1000 litros.",
+          "fr": "Un mètre cube correspond à 1000 litres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 537,
+          "es": "\"Gracias.\" \"De nada.\"",
+          "fr": "« Merci. » « De rien. »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 539,
+          "es": "\"Gracias.\" \"De nada.\"",
+          "fr": "« Merci ! » « De rien ! »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 540,
+          "es": "\"Gracias.\" \"De nada.\"",
+          "fr": "« Merci. » « De rien. »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 550,
+          "es": "Uno, dos, tres, cuatro, cinco, seis, siete, ocho, nueve, diez.",
+          "fr": "Un, deux, trois, quatre, cinq, six, sept, huit, neuf, dix.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 601,
+          "es": "En cualquier caso hay que votar sí en el referéndum del 18 de febrero.",
+          "fr": "En tous cas il faut voter oui au référendum du 18 février.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 643,
+          "es": "Más del 90 por ciento de las visitas de una página Web provienen de los motores de búsqueda.",
+          "fr": "Plus de 90 pourcents des visites d'une page Web proviennent de moteurs de recherche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 675,
+          "es": "Esto costará 30 €.",
+          "fr": "Ça coûtera 30 €.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 720,
+          "es": "No empieza antes de las ocho y media.",
+          "fr": "Ça ne commence pas avant huit heures trente.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 731,
+          "es": "Disculpe, permítame señalar tres errores que hay en el artículo de más arriba.",
+          "fr": "Excusez-moi, permettez-moi de signaler trois erreurs dans l'article ci-dessus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 923,
+          "es": "Un, dos, tres, cuatro, cinco, seis, siete, ocho, nueve, diez.",
+          "fr": "Un, deux, trois, quatre, cinq, six, sept, huit, neuf, dix.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 962,
+          "es": "Las funciones seno y coseno toman valores entre -1 y 1 (incluyendo -1 y 1).",
+          "fr": "Les fonctions sinus et cosinus prennent des valeurs entre -1 et 1 (-1 et 1 inclus).",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 989,
+          "es": "Cincuenta y dos por ciento de las mujeres británicas prefieren el chocolate en vez del sexo.",
+          "fr": "Cinquante-deux pour cent des femmes britanniques préfèrent le chocolat au sexe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1002,
+          "es": "Hombre prevenido vale por dos.",
+          "fr": "Un homme averti en vaut deux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1768,
+          "es": "Mi marido suele irse a trabajar a las 8.",
+          "fr": "Mon mari part habituellement pour son travail à 8 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1950,
+          "es": "Los niños empiezan a ir a la escuela a los seis años.",
+          "fr": "Les enfants commencent l'école à l'âge de six ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1960,
+          "es": "Cerrá los ojos por tres minutos.",
+          "fr": "Ferme tes yeux trois minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2046,
+          "es": "Estuvo a diez grados bajo cero esta mañana.",
+          "fr": "Il faisait moins dix ce matin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2072,
+          "es": "Hiromi va a la escuela cinco días a la semana.",
+          "fr": "Hiromi va à l'école cinq jours par semaine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2090,
+          "es": "La luz da una vuelta alrededor de la Tierra siete veces y media por segundo.",
+          "fr": "La lumière fait le tour de la Terre sept fois et demie par seconde.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2098,
+          "es": "Nos vemos en el vestíbulo del Hotel Imperial a las seis y media de la tarde.",
+          "fr": "Retrouvez-moi dans le vestibule de l'hôtel Impérial à six heures trente de l'après-midi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2121,
+          "es": "¡Mira! Dos chicos peleándose.",
+          "fr": "Regarde ! Deux garçons se battent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2130,
+          "es": "Un perro saltó a la silla y se quedó ahí inmóvil por cinco minutos.",
+          "fr": "Un chien sauta sur la chaise et resta immobile pendant cinq minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2252,
+          "es": "Robar un banco te costará diez años de cárcel.",
+          "fr": "Voler une banque te vaudra dix ans de prison.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2338,
+          "es": "La escuela termina a las 3:30.",
+          "fr": "L'école se termine à 3 heures et demie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2341,
+          "es": "Las clases empiezan el 8 de abril.",
+          "fr": "L'école débute le 8 avril.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2342,
+          "es": "El colegio empieza el ocho de abril.",
+          "fr": "L'école débute le 8 avril.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2343,
+          "es": "El colegio empieza a las 8 y media.",
+          "fr": "L'école commence à huit heures et demie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2344,
+          "es": "La escuela empieza a las ocho y media.",
+          "fr": "L'école commence à huit heures et demie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2358,
+          "es": "En general llega a la oficina a eso de las nueve y media de la mañana.",
+          "fr": "En règle générale, il arrive au bureau vers neuf heures trente du matin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2447,
+          "es": "Pásame la sal, por favor.",
+          "fr": "Passe-moi le sel, s'il te plaît.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2569,
+          "es": "Cien centavos hacen un dólar.",
+          "fr": "100 cents font un dollar.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2571,
+          "es": "Él volvió a casa después de diez años.",
+          "fr": "Il revint chez lui pour la première fois en dix ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2572,
+          "es": "Él regresó a casa por primera vez en diez años.",
+          "fr": "Il revint chez lui pour la première fois en dix ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2574,
+          "es": "Diez minutos después pasaron al tema siguiente.",
+          "fr": "Après dix minutes, ils passèrent à un nouveau sujet.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2588,
+          "es": "Del 5 al 15 de enero, por favor.",
+          "fr": "Du 5 au 15 janvier, s'il vous plaît.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2603,
+          "es": "Un siglo es cien años.",
+          "fr": "Un siècle fait cent années.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2604,
+          "es": "Un siglo tiene cien años.",
+          "fr": "Un siècle fait cent années.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2608,
+          "es": "No intentes hacer dos cosas a la vez.",
+          "fr": "N'essaie pas de faire deux choses à la fois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2609,
+          "es": "No trates de hacer dos cosas al mismo tiempo.",
+          "fr": "N'essaie pas de faire deux choses à la fois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2617,
+          "es": "No intentes hacer dos cosas a la vez.",
+          "fr": "N'essaie pas de faire deux choses en même temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2618,
+          "es": "Cualquiera con un CI de al menos dos dígitos sabe que ha habido intereses políticos tras esta elección.",
+          "fr": "Quiconque disposant d'un QI comportant au moins deux chiffres sait qu'il s'agissait d'un choix pour raisons politiques.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2624,
+          "es": "Por favor, confirme de nuevo la reserva del 10 de marzo.",
+          "fr": "S'il vous plait, confirmez à nouveau la réservation du 10 mars.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2630,
+          "es": "Llegaron al hotel a las cuatro.",
+          "fr": "Ils arrivèrent à l'hôtel à quatre heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2631,
+          "es": "¿Me podrías vender el libro por quinientos yenes?",
+          "fr": "Pourriez-vous me vendre ce livre à 500 yen, s'il vous plaît ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2632,
+          "es": "¿Me puedes prestar quinientos yenes?",
+          "fr": "Peux-tu me prêter cinq cents yens ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2638,
+          "es": "Nos vemos sobre las 7.",
+          "fr": "On se voit vers 7 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2641,
+          "es": "Tome el expreso del andén 9.",
+          "fr": "Prenez le train express sur le quai numéro 9.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2676,
+          "es": "Uno de nosotros dos tendrá que hacerlo.",
+          "fr": "L'un de nous deux devra le faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2982,
+          "es": "Vete de aquí.",
+          "fr": "Va-t'en d'ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3100,
+          "es": "Mil gracias por su gentileza.",
+          "fr": "Mille mercis pour votre gentillesse.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3107,
+          "es": "Un equipo de futbol consta de once jugadores.",
+          "fr": "Une équipe de football comporte 11 joueurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3159,
+          "es": "John tiene empleadas a 200 personas.",
+          "fr": "John emploie 200 travailleurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3189,
+          "es": "El 80% de las palabras de la lengua inglesa provienen de otras lenguas.",
+          "fr": "Quatre-vingt pour cent des mots anglais proviennent d'autres langues.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3363,
+          "es": "Dadme tres trozos de tiza.",
+          "fr": "Donnez-moi trois morceaux de craies.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3364,
+          "es": "Deme tres trozos de tiza.",
+          "fr": "Donnez-moi trois morceaux de craies.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3520,
+          "es": "Bill apartó cien dólares para su viaje.",
+          "fr": "Bill mit cent dollars de côté pour son voyage.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3570,
+          "es": "Bob cobra 3 dólares por hora por cortar el césped.",
+          "fr": "Bob se faisait payer 3 dollars de l'heure pour tondre la pelouse.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3719,
+          "es": "Cinco galones de normal, por favor.",
+          "fr": "Cinq gallons d'ordinaire s'il vous plait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3998,
+          "es": "Mis ingresos anuales superan los 5 millones de yenes.",
+          "fr": "Mon revenu annuel dépasse les 5 millions de yens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4011,
+          "es": "En nuestra clase hay 25 chicos y 20 chicas.",
+          "fr": "Notre classe compte 25 garçons et 20 filles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4112,
+          "es": "Su tío posee no menos que diez casas.",
+          "fr": "Son oncle ne possède pas moins de dix maisons.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4227,
+          "es": "Mi padre vive desde hace más de quince años en Nagoya.",
+          "fr": "Mon père vit à Nagoya depuis plus de quinze ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4278,
+          "es": "Diez menos dos es igual a ocho.",
+          "fr": "Deux ôtés de dix font huit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4289,
+          "es": "Pocas personas llegan a vivir más de cien años.",
+          "fr": "Peu de gens vivent au-delà de cent ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4294,
+          "es": "Los estudiantes reciben una beca de 15.000 euros para el viaje de ida y vuelta y los gastos diarios.",
+          "fr": "Les étudiants reçoivent une bourse de 15000 euros pour le voyage aller-retour et les dépenses journalières.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4296,
+          "es": "Dos por dos son cuatro.",
+          "fr": "Deux fois deux font quatre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4771,
+          "es": "\"¿En qué estás pensando?\" \"En nada...\"",
+          "fr": "« À quoi penses-tu ? » « À rien... »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4830,
+          "es": "Sé amable con los demás.",
+          "fr": "Sois gentil avec les autres !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4919,
+          "es": "Un ángulo recto tiene 90 grados.",
+          "fr": "Un angle droit mesure 90 degrés.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 20,
+          "es": "Ahora, Muiriel tiene 20 años.",
+          "fr": "Muiriel a 20 ans maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 207,
+          "es": "Pero en serio, el episodio 21 casi me hizo llorar de risa.",
+          "fr": "Mais sérieusement, l'épisode 21 m'a presque fait pleurer de rire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 487,
+          "es": "Hay 10 tipos de personas en el mundo: las que entienden binario y las que no.",
+          "fr": "Il y a 10 sortes de gens dans le monde : ceux qui comprennent le binaire et ceux qui ne le comprennent pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 588,
+          "es": "Hay 1000 películas que hay que ver antes de morir.",
+          "fr": "Il y a 1000 films qu’il faut voir avant de mourir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 672,
+          "es": "Muiriel ya tiene 20 años.",
+          "fr": "Muiriel a 20 ans maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 746,
+          "es": "Me tomó más de dos horas traducir unas pocas páginas en inglés.",
+          "fr": "Cela m'a pris plus de 2 heures pour traduire quelques pages d'anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 908,
+          "es": "Mi madre compró dos botellas de zumo de naranja.",
+          "fr": "Ma mère a acheté deux bouteilles de jus d’orange.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1042,
+          "es": "La película empezó a las 2.",
+          "fr": "Le film a commencé à 2 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1156,
+          "es": "Me llevó tres horas hacer los deberes.",
+          "fr": "Il m'a fallu 3 heures pour faire mes devoirs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1696,
+          "es": "Dejé de fumar hace dos años.",
+          "fr": "J’ai arrêté de fumer il y a deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1744,
+          "es": "Mi hermana hará trece años el próximo verano.",
+          "fr": "Ma sœur aura treize ans l'été prochain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1760,
+          "es": "Mi cuarto tiene dos ventanas.",
+          "fr": "Ma chambre a deux fenêtres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1762,
+          "es": "Para cuando mi padre se jubile habrá trabajado cerca de treinta años.",
+          "fr": "Lorsque mon père prendra sa retraite, il aura travaillé environ trente ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1795,
+          "es": "Mi tío tiene tres hijos.",
+          "fr": "Mon oncle a trois enfants.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1809,
+          "es": "Cuando se gradúe de su universidad, mi hermana habrá llevado diez años estudiando inglés.",
+          "fr": "Ma sœur aura étudié l'anglais durant dix ans quand elle obtiendra son diplôme de l'université.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1833,
+          "es": "Mi familia ha vivido aquí durante veinte años.",
+          "fr": "Ma famille a vécu ici pendant vingt ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1903,
+          "es": "Nuestra escuela tiene 80 años.",
+          "fr": "Notre école a 80 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1910,
+          "es": "Pasaron diez años desde mi llegada a Tokio.",
+          "fr": "Dix ans ont passé depuis ma venue à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2124,
+          "es": "Un perro tiene cuatro patas.",
+          "fr": "Un chien a quatre pattes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2139,
+          "es": "El año que viene Ken cumplirá 15 años.",
+          "fr": "Ken aura 15 ans l'année prochaine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2483,
+          "es": "He aprendido inglés durante cinco años.",
+          "fr": "J’ai étudié l'anglais pendant cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2484,
+          "es": "He estudiado inglés durante cinco años.",
+          "fr": "J’ai étudié l'anglais pendant cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2589,
+          "es": "En enero las exportaciones alcanzaron un total de diez mil millones de dólares, un récord para ese mes.",
+          "fr": "En janvier les exportations ont totalisé 10 milliards de dollars, un record pour le mois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2616,
+          "es": "A los 25 años, ella había vivido en cinco países diferentes.",
+          "fr": "À vingt-cinq ans, elle avait déjà vécu dans cinq pays différents.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2626,
+          "es": "Cada uno de los tres niños se ganó un premio.",
+          "fr": "Chacun des trois garçons a gagné un prix.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2628,
+          "es": "Pasaron cuarenta años.",
+          "fr": "Quarante ans ont passés.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2870,
+          "es": "Él dejó de fumar hace dos años.",
+          "fr": "Il a arrêté de fumer il y a deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3039,
+          "es": "En este país hay cuatro estaciones.",
+          "fr": "Dans ce pays il y a quatre saisons.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3112,
+          "es": "Sally cambió un billete de veinte dólares por billetes de cinco.",
+          "fr": "Sally a échangé un billet de vingt dollars contre des billets de cinq dollars.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3155,
+          "es": "John tiene dos hijos.",
+          "fr": "John a deux fils.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3158,
+          "es": "John tiene dos años más que yo.",
+          "fr": "John a deux ans de plus que moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3194,
+          "es": "Hace tres años, el señor Smith vivía en Kioto.",
+          "fr": "Mr Smith vivait à Kyoto il y a trois ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3399,
+          "es": "Alemania adoptó un sistema de seguridad social en la década de 1880.",
+          "fr": "L'Allemagne a adopté un système de sécurité sociale dans les années 1880.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3480,
+          "es": "Sólo había seis personas en la fiesta.",
+          "fr": "Il n'y avait que six personnes à la fête.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3579,
+          "es": "Lo creas o no, ella tiene tres hijos.",
+          "fr": "Crois-le ou non, elle a trois enfants.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3940,
+          "es": "Él es tres años mayor que yo.",
+          "fr": "Il a trois ans de plus que moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3941,
+          "es": "Él tiene tres años más que yo.",
+          "fr": "Il a trois ans de plus que moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4000,
+          "es": "Mi tío vivió en Washington durante dos años.",
+          "fr": "Mon oncle a vécu à Washington pendant deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4049,
+          "es": "Meg encontró un trébol de cuatro hojas.",
+          "fr": "Meg a trouvé un trèfle à quatre feuilles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4091,
+          "es": "Las Olimpiadas se celebran cada cuatro años.",
+          "fr": "Les Jeux Olympiques ont lieu tous les quatre ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4141,
+          "es": "Él vivió hasta los 90 años.",
+          "fr": "Il a vécu jusqu'à 90 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4187,
+          "es": "Ella ha subido los peldaños de cuatro en cuatro.",
+          "fr": "Elle a monté les marches quatre à quatre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4338,
+          "es": "Mi tía tiene tres hijos.",
+          "fr": "Ma tante a trois enfants.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4766,
+          "es": "Un cuadrado tiene cuatro lados iguales.",
+          "fr": "Un carré a quatre côtés égaux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4809,
+          "es": "La abuela tiene tres veces y media tu edad.",
+          "fr": "Grand-mère a trois fois et demie votre âge.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4955,
+          "es": "Las estadísticas indican que la población de esta ciudad se habrá duplicado en cinco años.",
+          "fr": "Les statistiques montrent que la population de cette ville aura doublé dans cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 838,
+          "es": "Si dos hombres tienen siempre la misma opinión, uno de ellos es inútil.",
+          "fr": "Si deux hommes ont toujours la même opinion, l'un d'eux est inutile.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 3880,
+          "es": "Japón se compone de cuatro grandes islas y más de 3000 islas pequeñas, siendo su superficie aproximadamente igual a la de California.",
+          "fr": "Le Japon est constitué de 4 grandes îles, de plus de 3000 petites îles et a une surface à peu près égale à celle de la Californie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4696,
+          "es": "No menos de cincuenta pasajeros resultaron heridos en ese accidente de tráfico.",
+          "fr": "Pas moins de cinquante passagers ont été blessés dans cet accident de circulation.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4807,
+          "es": "Mi abuelo murió hace tres años.",
+          "fr": "Mon grand-père est mort il y a trois ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4840,
+          "es": "Taro murió dos años atrás.",
+          "fr": "Taro est mort il y a deux ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 824,
+          "es": "De hecho, medio ojo es muy útil, porque con medio ojo, un animal puede ver la mitad de otro animal que se lo quiera comer y apartarse de su camino, y él mismo se comerá al animal que sólo tiene medio ojo o el 49% del ojo porque este no se apartará de su camino lo suficientemente rápido, y el animal que ha sido comido no tendrá descendencia porque estará muerto.",
+          "fr": "En fait, un demi-œil est très utile, parce qu'avec un demi-œil, un animal peut voir la moitié d'un autre animal qui veut le dévorer et s'écarter de son chemin, et il dévorera lui-même l'animal qui n'a qu'un demi-œil ou 49% d'un œil parce que celui-ci ne se sera pas écarté de son chemin assez vite, et l'animal qui a été dévoré n'aura pas de petits parce qu'il est mort.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.165806310961488
+        },
+        {
+          "id": 1202,
+          "es": "Encontré el diario que mi padre mantuvo por 30 años.",
+          "fr": "J'ai trouvé le journal que mon père a tenu pendant 30 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 1695,
+          "es": "Me encontré con él por primera vez hace tres años.",
+          "fr": "Je l'ai rencontré pour la première fois il y a 3 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 3883,
+          "es": "Ya hace cinco años que no tengo noticias de él.",
+          "fr": "Je n'ai pas eu de ses nouvelles depuis cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 294,
+          "es": "Vine a Tokio hace tres años y he estado viviendo aquí desde entonces.",
+          "fr": "Je suis venu à Tokyo il y a trois ans et ai vécu ici depuis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.227679528513477
+        },
+        {
+          "id": 16,
+          "es": "¡Hoy es 18 de junio y es el cumpleaños de Muiriel!",
+          "fr": "Aujourd'hui nous sommes le 18 juin et c'est l'anniversaire de Muiriel !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 17,
+          "es": "¡Hoy es 18 de junio y es el cumpleaños de Muiriel!",
+          "fr": "Aujourd'hui c'est le 18 juin, et c'est l'anniversaire de Muiriel.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 289,
+          "es": "10 años es un largo tiempo para esperar.",
+          "fr": "10 ans est une longue période à attendre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 296,
+          "es": "No es del todo raro vivir más de 90 años.",
+          "fr": "Ce n'est pas rare du tout de vivre plus de 90 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 358,
+          "es": "Ya son las once.",
+          "fr": "Il est déjà 11 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 359,
+          "es": "Ya son las once.",
+          "fr": "Il est déjà onze heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 735,
+          "es": "Es bastante difícil dominar el francés en 2, 3 años.",
+          "fr": "C'est assez difficile de maîtriser le français en 2, 3 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 753,
+          "es": "¿Cómo te llamas?",
+          "fr": "Comment est-ce que tu t'appelles ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 754,
+          "es": "¿Cuál es tu nombre?",
+          "fr": "Comment est-ce que tu t'appelles ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1078,
+          "es": "Él nació el 28 de julio de 1888.",
+          "fr": "Il est né le 28 juillet 1888.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1757,
+          "es": "Mi habitación es dos veces más grande que la de él.",
+          "fr": "Ma chambre est deux fois plus grande que la sienne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1786,
+          "es": "Mi abuelo nació en 1920.",
+          "fr": "Mon grand-père est né en 1920.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1831,
+          "es": "Mi colegio está a unos diez minutos a pie de la estación.",
+          "fr": "Mon école est à environ dix minutes à pied de la gare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2282,
+          "es": "Tanto el pescado como la carne son nutritivos, pero este último es más caro que el primero.",
+          "fr": "Le poisson et la viande sont tous les deux nourrissants, mais la dernière est plus chère que le premier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2552,
+          "es": "Yukio Mishima se suicidó en 1970.",
+          "fr": "Yukio Mishima s'est suicidé en 1970.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2568,
+          "es": "Uno, tres y cinco son números impares.",
+          "fr": "1, 3 et 5 sont des nombres impairs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2570,
+          "es": "Son las diez en punto.",
+          "fr": "Il est juste dix heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2575,
+          "es": "Ya son las once. Ya deberías estar en la cama.",
+          "fr": "Il est déjà onze heures. Tu devrais déjà être au lit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2576,
+          "es": "Casi son las once y media.",
+          "fr": "Il est presque onze heures et demie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2578,
+          "es": "Prohibida la entrada a menores de 18 años.",
+          "fr": "L'entrée n'est autorisée qu'aux 18 ans et plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2579,
+          "es": "Una bomba atómica fue lanzada en Hiroshima en 1945.",
+          "fr": "Une bombe atomique fut lâchée sur Hiroshima en 1945.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2582,
+          "es": "Un equipo consiste de once jugadores.",
+          "fr": "Une équipe est composée de onze joueurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2586,
+          "es": "Un dólar es igual a cien centavos.",
+          "fr": "Un dollar est égal à cent cents.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2587,
+          "es": "Una yarda son tres pies.",
+          "fr": "Un yard est égal à trois pieds.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2625,
+          "es": "El 15 de marzo será mi último día de escuela.",
+          "fr": "Le 15 mars sera mon dernier jour d'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2627,
+          "es": "Ha vuelto la paz después de tres años de guerra.",
+          "fr": "La paix est revenue après trois années de guerre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2634,
+          "es": "Son 50 yenes.",
+          "fr": "C'est 50 yen.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2635,
+          "es": "Él murió a los 54 años.",
+          "fr": "Il est mort à l'âge de 54 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2636,
+          "es": "Cinco es menos que ocho.",
+          "fr": "Cinq est plus petit que huit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2637,
+          "es": "Se levantó a las seis y se fue a las siete.",
+          "fr": "Il s'est levé à six heures et est parti à sept heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2639,
+          "es": "Ocho es el doble de cuatro.",
+          "fr": "Huit est le double de quatre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2655,
+          "es": "Él es un niño malcriado.",
+          "fr": "C'est un enfant gâté.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2846,
+          "es": "Mi perro es el más grande de los dos.",
+          "fr": "Des deux chiens, le mien est le plus grand.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2948,
+          "es": "Esta tarde, la marea alta es a las tres.",
+          "fr": "La marée haute est à 3 heures cet après-midi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2968,
+          "es": "Ambos, Ken y Meg, son mis amigos.",
+          "fr": "Ken et Meg sont tous deux mes amis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3231,
+          "es": "Los dos hermanos murieron.",
+          "fr": "Les deux frères sont morts.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3252,
+          "es": "Esta inversión tiene un 6% de interés garantizado.",
+          "fr": "Un rendement de 6% sur investissement est garanti.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3355,
+          "es": "Dan vino a recibir a Julie a las seis.",
+          "fr": "Dan est venu accueillir Julie à six heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3556,
+          "es": "Asegúrate donde está la salida de emergencia antes de acostarte en un hotel.",
+          "fr": "À l'hôtel, vérifiez où est la sortie de secours avant d'aller au lit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3567,
+          "es": "Bob estará de vuelta a las seis.",
+          "fr": "Bob sera de retour à 6 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3631,
+          "es": "Ya son las 7.",
+          "fr": "Il est déjà 7 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3665,
+          "es": "Ya son las diez de la noche.",
+          "fr": "Il est déjà 10 heures du soir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3999,
+          "es": "Mi tren salió a las siete y llegó a Nueva York a las diez.",
+          "fr": "Mon train est parti à sept heures et il est arrivé à dix heures à New York.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4351,
+          "es": "En frente del museo verás dos edificios, el restaurante está en el más grande de los dos.",
+          "fr": "Tu verras deux immeubles juste en face du musée, et le restaurant est dans le plus grand des deux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4619,
+          "es": "El capital, la tierra y el trabajo son los tres factores clave de la producción.",
+          "fr": "Le capital, la terre et le travail sont les trois facteurs clé de la production.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4769,
+          "es": "Él nació el 14 de febrero de 1960.",
+          "fr": "Il est né le 14 février 1960.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4901,
+          "es": "Son las ocho en punto de la mañana.",
+          "fr": "Il est huit heures du matin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2623,
+          "es": "Tengo dos perros. Uno es blanco y el otro negro.",
+          "fr": "J'ai deux chiens. L'un est blanc, l'autre est noir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.276402575566278
+        },
+        {
+          "id": 1865,
+          "es": "Tengo dos hijos: uno está en Tokio y el otro en Nagoya.",
+          "fr": "J'ai deux fils, dont l'un est à Tokyo et l'autre à Nagoya.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 2590,
+          "es": "Me temo que él no estará aquí hasta la una.",
+          "fr": "J'ai peur qu'il ne soit pas là avant 13 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 4445,
+          "es": "Estuve en Japón durante dos meses.",
+          "fr": "J'ai été au Japon pendant deux mois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 2543,
+          "es": "\"Navegué por el Mediterráneo en una goleta cuando tenía 17 años\" dijo lenta y cuidadosamente.",
+          "fr": "J'ai navigué autour de la Méditerranée dans une goélette quand j'avais dix-sept ans, déclama-t-elle lentement et soigneusement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 1097,
+          "es": "Compré una granja de ocho acres para mi retiro.",
+          "fr": "J'ai acheté une ferme de 8 acres pour ma retraite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1201,
+          "es": "Reservé mi habitación en el hotel con tres semanas de antelación.",
+          "fr": "J'ai réservé ma chambre d'hôtel trois semaines à l'avance.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1236,
+          "es": "El próximo febrero hará cinco años que estudio inglés.",
+          "fr": "À partir de février prochain, j'aurais étudié l'anglais pendant cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1269,
+          "es": "Tengo un perro y dos gatos.",
+          "fr": "J'ai un chien et deux chats.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1362,
+          "es": "Compré dos docenas de lápices.",
+          "fr": "J'ai acheté deux douzaines de crayons.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1411,
+          "es": "Voy a cumplir catorce años.",
+          "fr": "Je vais avoir quatorze ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1412,
+          "es": "Yo he llevado una dieta por dos semanas.",
+          "fr": "J'ai suivi un régime durant deux semaines.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1508,
+          "es": "Tengo la costumbre de irme a la cama antes de las 10.",
+          "fr": "J'ai l'habitude d'aller au lit avant 10 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1542,
+          "es": "Le pedí que hiciera cuatro copias de la carta.",
+          "fr": "Je lui ai demandé de faire quatre copies de la lettre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1602,
+          "es": "Pagué 200 dólares por esta bolsa.",
+          "fr": "J'ai payé 200 dollars pour ce sac.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1612,
+          "es": "Me tomé dos tazas de café.",
+          "fr": "J'ai pris deux tasses de café.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1671,
+          "es": "Tengo diez veces más libros que tú.",
+          "fr": "J'ai dix fois plus de livres que tu en as.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1697,
+          "es": "He vivido aquí durante treinta años.",
+          "fr": "J'ai vécu ici pendant trente ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1698,
+          "es": "Acabo de cumplir 20 años.",
+          "fr": "Je viens d'avoir 20 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1699,
+          "es": "He memorizado 2000 palabras inglesas.",
+          "fr": "J'ai mémorisé 2000 mots anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1710,
+          "es": "Esperé por diez minutos.",
+          "fr": "J'ai attendu dix minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1711,
+          "es": "He esperado diez minutos.",
+          "fr": "J'ai attendu dix minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1712,
+          "es": "Le esperé hasta las diez.",
+          "fr": "Je l'ai attendu jusqu'à dix heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1713,
+          "es": "He visto \"La Guerra de las Galaxias\" dos veces.",
+          "fr": "J'ai vu \"Star Wars\" deux fois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1720,
+          "es": "Tengo 30 años de edad ahora.",
+          "fr": "J'ai maintenant 30 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1862,
+          "es": "Tengo dos hijas.",
+          "fr": "J'ai deux filles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1872,
+          "es": "Tengo dos amigos extranjeros.",
+          "fr": "J'ai deux amis étrangers.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1883,
+          "es": "Tengo dos hermanos.",
+          "fr": "J'ai deux frères.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1884,
+          "es": "Tengo tres primos.",
+          "fr": "J'ai trois cousins.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1885,
+          "es": "Tengo dos hermanos y una hermana.",
+          "fr": "J'ai deux frères et une sœur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2006,
+          "es": "Habré terminado el trabajo a las siete de la tarde.",
+          "fr": "J'aurai fini le travail à dix-neuf heures ce soir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2580,
+          "es": "Tengo 19 años.",
+          "fr": "J'ai 19 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2581,
+          "es": "Tengo diecinueve años.",
+          "fr": "J'ai 19 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2629,
+          "es": "Tengo cita para que me vea el médico a las cuatro.",
+          "fr": "J'ai pris rendez-vous chez le médecin à quatre heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3501,
+          "es": "Pedí dos hamburguesas.",
+          "fr": "J'ai commandé deux hamburgers.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4238,
+          "es": "Ayer leí el libro hasta la página ochenta.",
+          "fr": "J'ai lu le livre jusqu'à la page 80 hier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4441,
+          "es": "Tengo dos libros.",
+          "fr": "J'ai deux livres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4486,
+          "es": "Tengo tres veces más libros que él.",
+          "fr": "J'ai trois fois plus de livres que lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4523,
+          "es": "Le presté 500 dólares sin intereses.",
+          "fr": "Je lui ai prêté 500 dollars sans intérêt.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4585,
+          "es": "Caminé alrededor de una milla.",
+          "fr": "J'ai marché environ 1 mile.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 471,
+          "es": "Estoy casada y tengo dos niños.",
+          "fr": "Je suis mariée et j'ai deux enfants.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.352196663704781
+        },
+        {
+          "id": 821,
+          "es": "¡Ya no puedo más! ¡Hace tres días que no duermo!",
+          "fr": "Je n'en peux plus ! Ça fait trois jours que je n'ai pas dormi !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 457,
+          "es": "¡Sería genial si pudiera hablar diez idiomas!",
+          "fr": "Ça serait trop cool si je pouvais parler dix langues !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 629,
+          "es": "Estoy embarazada de cuatro meses.",
+          "fr": "Je suis enceinte de quatre mois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 778,
+          "es": "¡Sería genial si pudiera hablar diez lenguas!",
+          "fr": "Ça serait trop cool si je pouvais parler dix langues !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1332,
+          "es": "Llegué diez minutos tarde a la escuela.",
+          "fr": "Je suis arrivé 10 minutes en retard à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1535,
+          "es": "Yo no era entonces más que una niña de siete años.",
+          "fr": "Je n'étais alors qu'une fille de sept ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1688,
+          "es": "Vuelvo a casa antes de las seis.",
+          "fr": "Je serai de retour à la maison avant 6 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1692,
+          "es": "Llegué aquí hacia las cinco.",
+          "fr": "Je suis arrivé ici à 5 heures environ.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1707,
+          "es": "Nací en Osaka el 5 de marzo de 1977.",
+          "fr": "Je suis né à Osaka le 5 mars 1977.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1708,
+          "es": "Yo nací en Osaka en 1977.",
+          "fr": "Je suis née à Osaka en 1977.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1709,
+          "es": "Nací en Tokio en 1968.",
+          "fr": "Je suis né à Tokyo en 1968.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1912,
+          "es": "Hace dos meses que llegué a Tokio.",
+          "fr": "Cela fait deux mois que je suis arrivé à Tokyo.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2013,
+          "es": "Estoy libre hasta las 6 de la tarde.",
+          "fr": "Je suis libre jusqu'à 6 heures ce soir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2573,
+          "es": "Volveré en diez minutos.",
+          "fr": "Je serai de retour dans 10 minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2667,
+          "es": "Estaré libre en 10 minutos.",
+          "fr": "Je serai libre dans dix minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3852,
+          "es": "Pienso que mirar TV es una pérdida de tiempo.",
+          "fr": "Je trouve que regarder la télé est une perte de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3853,
+          "es": "Pienso que ver la tele es una pérdida de tiempo.",
+          "fr": "Je trouve que regarder la télé est une perte de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3870,
+          "es": "Me he levantado hacia las seis.",
+          "fr": "Je me suis levé vers six heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4683,
+          "es": "Hace 6 años exactamente que estuve en Nueva Zelanda por primera vez.",
+          "fr": "Cela fait 6 ans exactement que je suis allé en Nouvelle-Zélande pour la première fois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 39,
+          "es": "Gano 100 € al día.",
+          "fr": "Je gagne 100€ par jour.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 357,
+          "es": "Puedo ir caminando a la escuela en 10 minutos.",
+          "fr": "Je peux aller à l'école à pied en 10 minutes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 611,
+          "es": "Así mato dos pájaros de un tiro.",
+          "fr": "Comme ça, je fais d'une pierre deux coups.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1087,
+          "es": "En invierno duermo con dos mantas.",
+          "fr": "Pendant l'hiver je dors avec deux couvertures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1161,
+          "es": "Le debo 10.000 $ a mi tío.",
+          "fr": "Je dois dix mille dollars à mon oncle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1275,
+          "es": "Voy a Hiroshima tres veces al mes.",
+          "fr": "Je vais à Hiroshima trois fois par mois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1339,
+          "es": "Estoy aprendiendo dos lenguas extranjeras.",
+          "fr": "J'apprends deux langues étrangères.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1506,
+          "es": "Generalmente me voy a casa a las cuatro.",
+          "fr": "Je rentre habituellement à quatre heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1507,
+          "es": "Normalmente me acuesto alrededor de las once.",
+          "fr": "Je vais d'habitude au lit vers onze heures environ.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1608,
+          "es": "Vivo aquí desde hace diez años.",
+          "fr": "Je vis ici depuis dix années.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1689,
+          "es": "Estudio de las ocho a las once.",
+          "fr": "J'étudie de 8 heures à 11 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1693,
+          "es": "Volveré a llamar a las 4.",
+          "fr": "Je vais rappeler à 4 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1694,
+          "es": "Volveré a llamar a las cuatro.",
+          "fr": "Je vais rappeler à 4 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1706,
+          "es": "Vivo en Tokio desde 1985.",
+          "fr": "Je vis à Tôkyô depuis 1985.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2633,
+          "es": "Me gustaría pedirte prestados cincuenta dólares.",
+          "fr": "J'aimerais t'emprunter cinquante dollars.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3871,
+          "es": "Vuelvo a las seis y media.",
+          "fr": "Je reviens à 6 heures et demie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4366,
+          "es": "Me levanto a las seis casi todos los días.",
+          "fr": "Je me lève à six heures presque tous les jours.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4389,
+          "es": "Me despierto habitualmente a las seis.",
+          "fr": "Je me réveille habituellement à six heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4483,
+          "es": "Le debo 50.000 yenes.",
+          "fr": "Je lui dois 50,000 yens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4485,
+          "es": "Me reúno con él una vez cada seis meses.",
+          "fr": "Je le rencontre une fois tous les six mois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4540,
+          "es": "Normalmente me levanto a las ocho.",
+          "fr": "Je me lève généralement à huit heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4567,
+          "es": "Yo me levanto a las seis todas las mañanas.",
+          "fr": "Je me lève à six heures chaque matin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4574,
+          "es": "Desayuno a las siete todas las mañanas.",
+          "fr": "Je prends mon petit déjeuner à sept heures tous les matins.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    }
+  ]
+}

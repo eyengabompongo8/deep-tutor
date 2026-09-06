@@ -1,0 +1,5125 @@
+{
+  "id": "A1.3",
+  "name": "Syntax & Basic Questions/Negation",
+  "topics": [
+    {
+      "id": "A1.3_SENTENCE_STRUCTURE",
+      "title": "Basic Sentence Structure & Adverb Placement",
+      "objective": "Construct standard declarative sentences following Subject-Verb-Object (SVO) order and place basic frequency/manner adverbs (*toujours, souvent, bien, mal*) correctly.",
+      "spacy_pattern": "pattern = [\n    {\"POS\": \"PRON\", \"DEP\": \"nsubj\"},\n    {\"POS\": \"VERB\"},\n    {\"POS\": \"ADV\", \"DEP\": \"advmod\"},\n    {\"POS\": {\"IN\": [\"NOUN\", \"PROPN\", \"DET\"]}, \"OP\": \"*\"},\n]",
+      "exercises": [
+        {
+          "id": 106,
+          "es": "Uno siempre puede encontrar tiempo.",
+          "fr": "On peut toujours trouver du temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 301,
+          "es": "Naturalmente, con tanta gente a su alrededor se puso un poco nervioso.",
+          "fr": "Avec autant de personnes autour de lui, il devint naturellement un peu nerveux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 424,
+          "es": "Hoy hace mucho calor.",
+          "fr": "Aujourd'hui, il fait très chaud.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 472,
+          "es": "Él toca el piano muy bien.",
+          "fr": "Il joue très bien du piano.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 531,
+          "es": "La vida empieza cuando decides lo que esperas de ella.",
+          "fr": "La vie commence quand on décide ce qu’on attend d’elle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 835,
+          "es": "Las personas que aman no dudan de nada, o dudan de todo.",
+          "fr": "Les gens qui aiment ne doutent de rien, ou doutent de tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1008,
+          "es": "Más gente se mete en líos por las cosas que dice que por las que hace.",
+          "fr": "Plus de gens se mettent dans le pétrin pour les choses qu'ils disent plutôt que pour ce qu'ils font.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1928,
+          "es": "La muerte se compara a menudo con el sueño.",
+          "fr": "On compare souvent la mort au sommeil.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1979,
+          "es": "Ayer hacía más frío que hoy.",
+          "fr": "Il faisait plus froid hier qu'aujourd'hui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1980,
+          "es": "Ayer hizo más frío que hoy.",
+          "fr": "Il faisait plus froid hier qu'aujourd'hui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1981,
+          "es": "Hacía mucho frío ayer por la mañana.",
+          "fr": "Il faisait très froid hier matin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2016,
+          "es": "Hace mucho frío este invierno.",
+          "fr": "Il fait très froid cet hiver.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2026,
+          "es": "Hace demasiado calor para trabajar.",
+          "fr": "Il fait trop chaud pour travailler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2046,
+          "es": "Estuvo a diez grados bajo cero esta mañana.",
+          "fr": "Il faisait moins dix ce matin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2315,
+          "es": "Todo va bien.",
+          "fr": "Tout va bien.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2421,
+          "es": "¡Qué bien canta ella!",
+          "fr": "Qu'elle chante bien !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2512,
+          "es": "Está demasiado frío para nadar.",
+          "fr": "Il fait beaucoup trop froid pour nager.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2965,
+          "es": "Ken habla como si supiera todo.",
+          "fr": "Ken parle comme s'il savait tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3341,
+          "es": "Probablemente mañana nevará.",
+          "fr": "Il va probablement neiger demain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3568,
+          "es": "Bob no sólo interpreta a la guitarra, sino también a la flauta.",
+          "fr": "Bob ne joue pas que de la guitare, il joue aussi de la flûte.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3591,
+          "es": "Todavía llueve.",
+          "fr": "Il pleut encore.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3805,
+          "es": "Hasta aquí todo bien.",
+          "fr": "Tout va bien jusque-là.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3900,
+          "es": "Él habla rápido.",
+          "fr": "Il parle vite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4122,
+          "es": "Él habla bien.",
+          "fr": "Il parle bien.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4123,
+          "es": "No solamente habla inglés, sino que también habla francés.",
+          "fr": "Non seulement il parle anglais, mais il parle aussi français.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4169,
+          "es": "Ella destaca en conversación inglesa.",
+          "fr": "Elle parle bien anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4172,
+          "es": "Ella tiene siempre una sonrisa alegre.",
+          "fr": "Elle affiche toujours un sourire joyeux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4174,
+          "es": "Ella estudia tanto como cualquier otro alumno de la clase.",
+          "fr": "Elle étudie autant que n'importe quel autre élève de la classe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4201,
+          "es": "Ella estudia arduamente.",
+          "fr": "Elle étudie ardemment.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4362,
+          "es": "Discutíamos sobre nuestro futuro a menudo.",
+          "fr": "Nous discutions souvent de notre futur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4407,
+          "es": "Viven cerca del colegio.",
+          "fr": "Ils habitent près de l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4408,
+          "es": "Ellos viven cerca de la escuela.",
+          "fr": "Ils habitent près de l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4684,
+          "es": "Hace demasiado calor.",
+          "fr": "Il fait trop chaud.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3540,
+          "es": "La señorita Baker sabía que el joven debía salir pronto, así que decidió pedirle mover un poco su carro, de tal manera que ella pudiera parquear el suyo en un buen lugar, por la noche, antes de ir a acostarse.",
+          "fr": "Mademoiselle Baker savait que le jeune homme devrait partir très bientôt, elle décida alors de lui demander de bouger un peu sa voiture, afin qu'elle puisse garer la sienne à une bonne place pour la nuit avant d'aller se coucher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.289644895756408
+        },
+        {
+          "id": 1062,
+          "es": "Vamos a comer mucho esta noche, entonces espero que no estés a régimen.",
+          "fr": "On va beaucoup manger ce soir alors j'espère que tu ne fais pas de régime.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.079455559662144
+        },
+        {
+          "id": 860,
+          "es": "Para él, el hambre era un concepto abstracto; él siempre tenía suficiente para comer.",
+          "fr": "Pour lui, la faim était un concept abstrait ; il avait toujours suffisamment à manger.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.303391371013215
+        },
+        {
+          "id": 3466,
+          "es": "Puede que sea joven, pero es alguien en quien realmente se puede confiar.",
+          "fr": "C'est vrai qu'il est jeune, mais c'est quelqu'un sur qui on peut vraiment compter.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.509409874799535
+        },
+        {
+          "id": 1333,
+          "es": "Vivo cerca de la escuela, vuelvo a casa para comer.",
+          "fr": "J'habite près de l'école, je rentre chez moi pour manger.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.570473002119626
+        },
+        {
+          "id": 3969,
+          "es": "Cuando era joven, a menudo jugaba al fútbol.",
+          "fr": "Je jouais souvent au football quand j'étais jeune.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.6609980510765405
+        },
+        {
+          "id": 868,
+          "es": "A veces tiene dificultades para expresar claramente sus opiniones.",
+          "fr": "Il a parfois des difficultés à exprimer clairement ses opinions.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3697,
+          "es": "¿Hay en Europa muchas personas que aún creen en fantasmas?",
+          "fr": "Y a-t-il beaucoup de gens en Europe qui croient encore aux fantômes ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3820,
+          "es": "Bill no había estudiado lo suficiente, entonces suspendió.",
+          "fr": "Bill n'avait pas étudié suffisamment, il a donc échoué.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 332,
+          "es": "No es pobre quien tiene muy poco, sino quien ansía demasiado.",
+          "fr": "Un pauvre n'est pas celui qui a trop peu, mais celui qui veut trop.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 136,
+          "es": "Ella pregunta cómo es posible eso.",
+          "fr": "Elle demande comment c’est possible.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 561,
+          "es": "La NASA dice que ya tiene información suficiente para afirmar que una visita humana al planeta rojo es factible.",
+          "fr": "La NASA dit qu'elle possède déjà les informations suffisantes pour affirmer qu'une visite humaine de la planète rouge est faisable.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 714,
+          "es": "\"Una piedra rodante no junta musgo\" es un refrán.",
+          "fr": "« Pierre qui roule n'amasse pas mousse » est un proverbe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 828,
+          "es": "Aceptémoslo, es imposible. Nunca lo vamos a lograr.",
+          "fr": "Soyons réalistes, c'est impossible. On va jamais y arriver.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 974,
+          "es": "Eso es lo que les pasa a las personas que creen odiar los ordenadores. Lo que detestan en realidad es a los malos programadores.",
+          "fr": "C'est ça le truc avec les gens qui pensent qu'ils détestent les ordinateurs. Ce qu'ils détestent vraiment sont les mauvais programmeurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1942,
+          "es": "Cuando ella era pequeña cantaba bien.",
+          "fr": "Quand elle était enfant, elle chantait bien.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2104,
+          "es": "Lo único que quieren ahora es un tejado sobre sus cabezas.",
+          "fr": "Tout ce qu'ils veulent maintenant, c'est un toit au-dessus de leur tête.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2161,
+          "es": "Ahora que mi hermano es estudiante universitario, tiene que leer mucho.",
+          "fr": "Maintenant que mon frère est étudiant à l'université, il doit beaucoup lire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3123,
+          "es": "Pero éste es un asunto al que volveremos más tarde.",
+          "fr": "Mais c'est un sujet sur lequel nous reviendrons plus tard.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3874,
+          "es": "Bien está lo que bien acaba.",
+          "fr": "Tout est bien qui finit bien.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4052,
+          "es": "Ben está detrás suyo, pero pronto debería alcanzarlos.",
+          "fr": "Ben est derrière eux, mais il devrait bientôt les rattraper.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 171,
+          "es": "Encontré una solución, pero la encontré tan rápido que no puede ser la correcta.",
+          "fr": "J'ai trouvé une solution, mais je l'ai trouvée tellement vite que ça peut pas être la bonne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.292645200217699
+        },
+        {
+          "id": 694,
+          "es": "He encontrado una solución, pero la he encontrado tan rápido, que puede que no sea la solución adecuada.",
+          "fr": "J'ai trouvé une solution, mais je l'ai trouvée tellement vite que ça peut pas être la bonne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.292645200217699
+        },
+        {
+          "id": 369,
+          "es": "¡Eh! Puede que no tenga dinero, pero todavía tengo mi orgullo.",
+          "fr": "Eh, j'ai peut-être pas d'argent, mais j'ai toujours ma fierté.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 52,
+          "es": "Siempre me gustaron más los personajes misteriosos.",
+          "fr": "J'ai toujours plus apprécié les personnages mystérieux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 761,
+          "es": "¡Qué irritante... Ahora me da dolor de cabeza cada vez que uso el computador!",
+          "fr": "Trop énervant... J'peux même plus utiliser un ordinateur sans avoir mal à la tête maintenant !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2145,
+          "es": "Siempre estoy depre los lunes.",
+          "fr": "J'ai toujours le cafard les lundis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2220,
+          "es": "Casi me daba miedo hablarte.",
+          "fr": "J'avais presque peur de te parler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3186,
+          "es": "Tuve problemas con la policía por andar conduciendo demasiado rápido.",
+          "fr": "J'ai eu des ennuis avec la police parce que je conduisais trop vite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3844,
+          "es": "Esta noche he dormido bien.",
+          "fr": "J'ai bien dormi cette nuit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3968,
+          "es": "Dormí bien.",
+          "fr": "J'ai bien dormi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4705,
+          "es": "Siempre estoy hambriento.",
+          "fr": "J'ai toujours faim.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4706,
+          "es": "Siempre tengo hambre.",
+          "fr": "J'ai toujours faim.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 844,
+          "es": "Dormí un rato en el descanso del almuerzo porque estaba muy cansado.",
+          "fr": "J'ai un peu dormi pendant la pause déjeuner parce que j'étais trop fatigué.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.352196663704781
+        },
+        {
+          "id": 168,
+          "es": "Nunca hubiera pensado que algún día buscaría \"viagra\" en Wikipedia.",
+          "fr": "J'aurais pas imaginé qu'un jour j'irais chercher « viagra » dans Wikipédia.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 22,
+          "es": "Volveré pronto.",
+          "fr": "Je serai bientôt de retour.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 421,
+          "es": "Ha pasado tanto tiempo desde la última vez que fui a Disneyland con mi familia.",
+          "fr": "Ça fait si longtemps depuis la dernière fois que je suis allée à Disneyland avec ma famille.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 673,
+          "es": "Volveré en seguida.",
+          "fr": "Je serai bientôt de retour.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1435,
+          "es": "Estaba demasiado cansado para pararme.",
+          "fr": "J'étais trop fatigué pour rester debout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1620,
+          "es": "Estaba demasiado avergonzado para mirarla a los ojos.",
+          "fr": "J'étais trop embarrassé pour la regarder dans les yeux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2003,
+          "es": "Supongo que vas a estar muy ocupado esta noche.",
+          "fr": "Je suppose que vous serez très occupé cette nuit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2030,
+          "es": "Hoy estaba muy cansado.",
+          "fr": "J'étais très fatigué aujourd'hui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4418,
+          "es": "Fui demasiado tímido como para mirarla a la cara.",
+          "fr": "J'étais trop timide pour la regarder en face.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4500,
+          "es": "Yo estaba muy impresionado con su discurso.",
+          "fr": "J'étais très impressionné par son discours.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4535,
+          "es": "Yo estaba demasiado cansado para continuar trabajando.",
+          "fr": "J'étais trop fatigué pour continuer à travailler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3594,
+          "es": "Creo que volveré pronto.",
+          "fr": "Je pense que je serai bientôt de retour.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 23,
+          "es": "Volveré pronto.",
+          "fr": "Je reviens bientôt.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 40,
+          "es": "Quizás me dé pronto por vencido y en lugar de eso me eche una siesta.",
+          "fr": "Il se peut que j'abandonne bientôt et fasse une sieste à la place.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 142,
+          "es": "Deseo poder ir a Japón.",
+          "fr": "J'aimerais bien pouvoir aller au Japon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 175,
+          "es": "Me gusta la luz de las velas.",
+          "fr": "Moi, j'aime bien la lumière des bougies.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 181,
+          "es": "Entonces voy a hacer un sudoku en vez de seguir molestándote.",
+          "fr": "Je vais donc jouer au Sudoku au lieu de continuer de te déranger.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 222,
+          "es": "¡Aborrezco profundamente la escritura formal!",
+          "fr": "Je déteste absolument l'écriture formelle !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 241,
+          "es": "Yo sólo quería revisar mis correos electrónicos.",
+          "fr": "Je voulais juste vérifier mes emails.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 242,
+          "es": "Yo sólo quería revisar mis correos electrónicos.",
+          "fr": "Je voulais juste vérifier mon courrier électronique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 243,
+          "es": "Yo sólo quería revisar mis correos electrónicos.",
+          "fr": "Je voulais juste vérifier mes courriels.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 245,
+          "es": "¡No puedes esperar de mí que yo siempre piense en todo!",
+          "fr": "Tu peux pas attendre de moi que je pense toujours à tout !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 519,
+          "es": "Me gusta mucho mi trabajo.",
+          "fr": "J'aime beaucoup mon travail.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 543,
+          "es": "Están haciendo demasiado ruido, no puedo concentrarme.",
+          "fr": "Ils font trop de bruit, je n'arrive pas à me concentrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 695,
+          "es": "A mí me gusta la luz de las velas.",
+          "fr": "Moi, j'aime bien la lumière des bougies.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 894,
+          "es": "Hacen demasiado ruido, no logro concentrarme.",
+          "fr": "Ils font trop de bruit, je n'arrive pas à me concentrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 946,
+          "es": "Usualmente tomo una ducha en la noche.",
+          "fr": "Je prends habituellement ma douche le soir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1012,
+          "es": "No sabía que él bebiera tanto.",
+          "fr": "Je ne savais pas qu'il buvait autant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1056,
+          "es": "\"¿Alguien puede ayudarme?\" \"Yo lo haré\".",
+          "fr": "\"Est-ce que quelqu'un peut m'aider ?\" \"Je veux bien.\"",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1071,
+          "es": "Trabajo mismo el domingo.",
+          "fr": "Je travaille même le dimanche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1072,
+          "es": "Trabajo incluso los domingos.",
+          "fr": "Je travaille même le dimanche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1177,
+          "es": "Sólo puedo hablar por mí mismo.",
+          "fr": "Je peux seulement parler pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1188,
+          "es": "Rara vez voy al cine.",
+          "fr": "Je vais rarement au cinéma.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1356,
+          "es": "A menudo estudio mientras estoy escuchando música.",
+          "fr": "J'étudie souvent en écoutant de la musique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1360,
+          "es": "Me gusta mucho la música.",
+          "fr": "J'aime beaucoup la musique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1400,
+          "es": "Me resfrío fácilmente.",
+          "fr": "J'attrape facilement un rhume.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1402,
+          "es": "A menudo voy al cine.",
+          "fr": "Je vais souvent au cinéma.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1426,
+          "es": "Me gusta mucho la comida francesa.",
+          "fr": "J'aime beaucoup la nourriture française.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1455,
+          "es": "Me gustaba Tony.",
+          "fr": "J'aimais bien Tony.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1456,
+          "es": "Tony me gustaba.",
+          "fr": "J'aimais bien Tony.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1457,
+          "es": "Me gustó Tony.",
+          "fr": "J'aimais bien Tony.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1495,
+          "es": "Acabo de almorzar.",
+          "fr": "Je viens juste de finir de déjeuner.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1496,
+          "es": "Acabo de terminar de desayunar.",
+          "fr": "Je viens juste de finir mon petit déjeuner.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1499,
+          "es": "A menudo recibo cartas de él.",
+          "fr": "Je reçois souvent des lettres de lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1506,
+          "es": "Generalmente me voy a casa a las cuatro.",
+          "fr": "Je rentre habituellement à quatre heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1580,
+          "es": "Me gustan bastante esas historias.",
+          "fr": "J'aime beaucoup ces histoires.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1607,
+          "es": "Acabo de llegar aquí.",
+          "fr": "Je viens juste d'arriver ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1608,
+          "es": "Vivo aquí desde hace diez años.",
+          "fr": "Je vis ici depuis dix années.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1633,
+          "es": "Siempre me olvido del nombre de la gente.",
+          "fr": "J'oublie toujours les noms des gens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1634,
+          "es": "Respeto a quienes siempre dan lo mejor de sí.",
+          "fr": "Je respecte ceux qui font toujours de leur mieux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1636,
+          "es": "Siempre confundo a John con Paul.",
+          "fr": "Je confonds toujours John et Paul.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1648,
+          "es": "Corrí tan rápido como pude.",
+          "fr": "Je courus aussi vite que je pouvais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1682,
+          "es": "Sé tu edad.",
+          "fr": "Je connais ton âge.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1841,
+          "es": "Yo pienso distinto.",
+          "fr": "Je pense autrement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1930,
+          "es": "Sangro con facilidad cuando me corto.",
+          "fr": "Je saigne facilement quand je me coupe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2056,
+          "es": "Estaré allí en seguida.",
+          "fr": "J'arrive tout de suite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2057,
+          "es": "Vengo enseguida.",
+          "fr": "J'arrive tout de suite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2106,
+          "es": "Estoy bien, ¿y tú?",
+          "fr": "Je vais bien, et toi ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3335,
+          "es": "Sólo estoy mirando.",
+          "fr": "Je regarde juste.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3338,
+          "es": "A veces fumo sólo para darles a mis manos algo que hacer.",
+          "fr": "Parfois je fume juste pour donner à mes mains quelque chose à faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3830,
+          "es": "Me gusta más viajar en tren que en avión.",
+          "fr": "J'aime mieux voyager en train qu'en avion.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3831,
+          "es": "Prefiero viajar en tren que en avión.",
+          "fr": "J'aime mieux voyager en train qu'en avion.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3913,
+          "es": "Orino poco.",
+          "fr": "J'urine très peu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3983,
+          "es": "Realmente quiero una motocicleta.",
+          "fr": "Je veux vraiment une moto.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4087,
+          "es": "Prefiero el café.",
+          "fr": "J'aime mieux le café.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4434,
+          "es": "En invierno, pillo a menudo la gripe.",
+          "fr": "En hiver, j'attrape souvent le rhume.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4448,
+          "es": "Yo conozco a una chica americana que habla muy bien el japonés.",
+          "fr": "Je connais une fille Américaine qui parle très bien le japonais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4452,
+          "es": "Yo voy a la ciudad los domingos por lo general.",
+          "fr": "Je vais souvent en ville le dimanche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4495,
+          "es": "Yo no solo leo sus novelas, sino también sus poemas.",
+          "fr": "Je lis non seulement ses romans mais ses poèmes aussi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4556,
+          "es": "Yo amo mucho a mi madre.",
+          "fr": "J'aime beaucoup ma mère.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4719,
+          "es": "Realmente lo agradezco.",
+          "fr": "J'apprécie vraiment cela.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4755,
+          "es": "Me gustaría un vaso de agua.",
+          "fr": "Je prendrais bien un verre d'eau.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4849,
+          "es": "Hable en voz alta, por favor. No le he oído.",
+          "fr": "Pouvez-vous parler plus fort je ne vous entends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "A1.3_NEGATION",
+      "title": "Basic Negation (Ne ... pas / N' ... pas) & Article Mutation",
+      "objective": "Form negative sentences using the bipartite wrapper *ne ... pas* / *n' ... pas* and apply indefinite/partitive article mutation (*de / d'*).",
+      "spacy_pattern": "pattern = [\n    {\"POS\": \"ADV\", \"LEMMA\": \"ne\"},\n    {\"POS\": {\"IN\": [\"VERB\", \"AUX\"]}},\n    {\"POS\": \"ADV\", \"LEMMA\": \"pas\"},\n    {\"POS\": \"ADP\", \"LEMMA\": \"de\", \"OP\": \"?\"},\n]",
+      "exercises": [
+        {
+          "id": 42,
+          "es": "Eso no va a pasar.",
+          "fr": "Ça n'arrivera pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 138,
+          "es": "Si buscas las letras, realmente no significan mucho.",
+          "fr": "Si tu regardes les paroles, elles ne signifient pas vraiment grand-chose.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 161,
+          "es": "Uno no puede esperarse todo de los colegios.",
+          "fr": "On ne peut pas tout attendre des écoles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 214,
+          "es": "No subestimes mi poder.",
+          "fr": "Ne sous-estime pas ma puissance.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 215,
+          "es": "Mi mamá no habla muy bien inglés.",
+          "fr": "Ma maman ne parle pas très bien anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 251,
+          "es": "Me llevaría demasiado tiempo explicarte por qué no va a funcionar.",
+          "fr": "Ça me prendrait trop de temps pour t'expliquer pourquoi ça ne va pas marcher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 272,
+          "es": "Por favor, no llores.",
+          "fr": "S'il te plaît, ne pleure pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 276,
+          "es": "No comienza hasta las ocho y treinta.",
+          "fr": "Ça ne commence pas avant huit heures trente.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 326,
+          "es": "Aquellos que viven en casas de cristal no deberían tirar piedras.",
+          "fr": "Ceux qui habitent des maisons de verre ne devraient pas lancer de pierres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 354,
+          "es": "No podemos dormir por el ruido.",
+          "fr": "Nous ne pouvons pas dormir à cause du bruit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 381,
+          "es": "¡¿Cómo que no sabes?!",
+          "fr": "Comment ça, tu ne sais pas ? !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 464,
+          "es": "No preguntéis lo que piensan. Preguntad lo que hacen.",
+          "fr": "Ne demandez pas ce qu'ils pensent. Demandez ce qu'ils font.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 583,
+          "es": "Si usted no dispone de este programa puede descargarlo ahora.",
+          "fr": "Si vous ne disposez pas de ce programme vous pouvez le télécharger maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 593,
+          "es": "No hay que preparar un plato diferente para cada persona.",
+          "fr": "Il ne faut pas préparer un plat différent pour chaque personne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 646,
+          "es": "Sin embargo, la cantante no reniega de sus orígenes.",
+          "fr": "Pourtant, la chanteuse ne renie pas ses origines.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 720,
+          "es": "No empieza antes de las ocho y media.",
+          "fr": "Ça ne commence pas avant huit heures trente.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 743,
+          "es": "No podemos dormir a causa del ruido.",
+          "fr": "Nous ne pouvons pas dormir à cause du bruit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 836,
+          "es": "La libertad consiste en poder hacer todo aquello que no perjudique a otro.",
+          "fr": "La liberté consiste à pouvoir faire tout ce qui ne nuit pas à autrui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 903,
+          "es": "El mundo no gira a tu alrededor.",
+          "fr": "Le monde ne tourne pas autour de toi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1057,
+          "es": "El coche no arranca.",
+          "fr": "La voiture ne veut pas démarrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1073,
+          "es": "No está trabajando mucho ahora.",
+          "fr": "Il ne travaille pas beaucoup en ce moment.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1753,
+          "es": "A mi madre no le gusta ver la TV.",
+          "fr": "Ma mère n'aime pas regarder la télévision.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1754,
+          "es": "A mi madre no le gusta ver la televisión.",
+          "fr": "Ma mère n'aime pas regarder la télévision.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1777,
+          "es": "A pesar de mi consejo, no cambiará de opinión.",
+          "fr": "Malgré mon conseil, il ne changera pas d'avis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1849,
+          "es": "No pongas azúcar en mi café.",
+          "fr": "Ne mets pas de sucre dans mon café.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 1925,
+          "es": "Los muertos no hablan.",
+          "fr": "Les morts ne parlent pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2075,
+          "es": "Una fábrica no es adecuada para un distrito residencial.",
+          "fr": "Une usine ne convient pas dans un quartier résidentiel.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2081,
+          "es": "No hables con la boca llena.",
+          "fr": "Ne parle pas la bouche pleine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2123,
+          "es": "¿No puede usted hacer que su perro deje de entrar en mi jardín?",
+          "fr": "Vous ne pouvez pas empêcher votre chien d'entrer dans mon jardin ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2234,
+          "es": "Un oso no tocará un cadáver.",
+          "fr": "Un ours ne touchera pas un cadavre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2260,
+          "es": "El dinero no crece en los árboles.",
+          "fr": "L'argent ne pousse pas sur les arbres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2270,
+          "es": "No habléis en clase.",
+          "fr": "Ne parlez pas en classe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2280,
+          "es": "Los peces no pueden vivir fuera del agua.",
+          "fr": "Les poissons ne peuvent pas vivre hors de l'eau.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2359,
+          "es": "¡No olvides lustrar tus zapatos antes de salir!",
+          "fr": "N'oublie pas de cirer tes chaussures avant de sortir !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2360,
+          "es": "¡Que no se te olvide limpiarte los zapatos antes de salir de casa!",
+          "fr": "N'oublie pas de cirer tes chaussures avant de sortir !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2394,
+          "es": "No olvide apagar el fuego.",
+          "fr": "N'oubliez pas d'éteindre le feu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2395,
+          "es": "No olvidéis apagar el fuego.",
+          "fr": "N'oubliez pas d'éteindre le feu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2399,
+          "es": "La ciencia no resuelve todos los problemas.",
+          "fr": "La science ne résout pas tous les problèmes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2446,
+          "es": "No toques mis libros con las manos sucias.",
+          "fr": "Ne touchez pas mes livres avec des mains sales.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2453,
+          "es": "No dudes en preguntarme.",
+          "fr": "N'hésite pas à me poser des questions.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2502,
+          "es": "Aquí no se habla inglés.",
+          "fr": "On ne parle pas anglais ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2539,
+          "es": "No olvides traer el paraguas por si llueve.",
+          "fr": "N'oubliez pas de prendre votre parapluie au cas où il pleuvrait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2563,
+          "es": "\"Mi padre no bebe alcohol.\" \"El mío tampoco.\"",
+          "fr": "\"Mon père ne boit pas.\" \"Le mien non plus.\"",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2564,
+          "es": "\"Mi padre no toma.\" \"El mío tampoco.\"",
+          "fr": "\"Mon père ne boit pas.\" \"Le mien non plus.\"",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2608,
+          "es": "No intentes hacer dos cosas a la vez.",
+          "fr": "N'essaie pas de faire deux choses à la fois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2609,
+          "es": "No trates de hacer dos cosas al mismo tiempo.",
+          "fr": "N'essaie pas de faire deux choses à la fois.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2617,
+          "es": "No intentes hacer dos cosas a la vez.",
+          "fr": "N'essaie pas de faire deux choses en même temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2764,
+          "es": "No escuches a aquel hombre.",
+          "fr": "N'écoute pas cet homme.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2774,
+          "es": "No gastes demasiado dinero.",
+          "fr": "Ne dépense pas trop d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2775,
+          "es": "Por favor, no andes demasiado rápido.",
+          "fr": "S'il te plaît ne marche pas trop vite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2820,
+          "es": "Coma lo que coma, ella no engorda.",
+          "fr": "Quoi qu'elle mange, elle ne grossit pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2838,
+          "es": "Un hombre digno de respeto no puede hacer una cosa como esa.",
+          "fr": "Un homme digne de respect ne peut pas faire une chose pareille.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2840,
+          "es": "No dejes la puerta abierta.",
+          "fr": "Ne laisse pas la porte ouverte.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2847,
+          "es": "Nuestro bebé todavía no sabe hablar.",
+          "fr": "Notre bébé ne parle pas encore.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2858,
+          "es": "No confundáis Austria con Australia.",
+          "fr": "Ne confondez pas Autriche et Australie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2927,
+          "es": "No te olvides de tomar una cámara contigo.",
+          "fr": "N'oublie pas de prendre un appareil photo avec toi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2928,
+          "es": "No toquéis la hierba.",
+          "fr": "Ne touchez pas l'herbe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2929,
+          "es": "No toque la hierba.",
+          "fr": "Ne touchez pas l'herbe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2930,
+          "es": "No toquen la hierba.",
+          "fr": "Ne touchez pas l'herbe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2952,
+          "es": "El verde no pega con el rojo.",
+          "fr": "Le vert ne va pas avec le rouge.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2993,
+          "es": "No juguéis al béisbol aquí.",
+          "fr": "Ne jouez pas au base-ball ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2994,
+          "es": "No jueguen al béisbol acá.",
+          "fr": "Ne jouez pas au base-ball ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3000,
+          "es": "No nos quedemos aquí mucho tiempo.",
+          "fr": "Ne restons pas ici trop longtemps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3110,
+          "es": "No te vayas sin despedirte.",
+          "fr": "Ne sors pas sans dire au revoir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3254,
+          "es": "No juegues a la pelota en la habitación.",
+          "fr": "Ne joue pas à la balle dans la pièce.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3325,
+          "es": "No camines tan rápido.",
+          "fr": "Ne marche pas si vite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3326,
+          "es": "No vayas tan rápido.",
+          "fr": "Ne marche pas si vite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3328,
+          "es": "No hables así.",
+          "fr": "Ne parle pas comme ça.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3336,
+          "es": "Un avestruz no vuela.",
+          "fr": "Une autruche ne vole pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3398,
+          "es": "No azote la puerta.",
+          "fr": "Ne claquez pas la porte.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3467,
+          "es": "Nancy no juega al tenis.",
+          "fr": "Nancy ne joue pas au tennis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3532,
+          "es": "El plástico no se quema con facilidad.",
+          "fr": "Le plastique ne brûle pas facilement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3568,
+          "es": "Bob no sólo interpreta a la guitarra, sino también a la flauta.",
+          "fr": "Bob ne joue pas que de la guitare, il joue aussi de la flûte.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3626,
+          "es": "Según Mary, él no vendrá.",
+          "fr": "Selon Mary il ne vient pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3841,
+          "es": "No dejes para mañana lo que puedas hacer hoy.",
+          "fr": "Ne remets pas à demain ce que tu peux faire aujourd'hui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3842,
+          "es": "No dejes para mañana lo que puedes hacer hoy.",
+          "fr": "Ne remets pas à demain ce que tu peux faire aujourd'hui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3848,
+          "es": "Mi madre no habla inglés.",
+          "fr": "Ma mère ne parle pas anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3899,
+          "es": "El hábito no hace al monje.",
+          "fr": "L'habit ne fait pas le moine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3906,
+          "es": "A ella no le gusta el fútbol.",
+          "fr": "Elle n'aime pas le football.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3907,
+          "es": "A ella no le gusta jugar fútbol.",
+          "fr": "Elle n'aime pas le football.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3911,
+          "es": "No eches el carro antes de los bueyes.",
+          "fr": "Ne mets pas la charrue avant les bœufs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3938,
+          "es": "No vivas por encima de tus posibilidades.",
+          "fr": "Ne vis pas au-dessus de tes moyens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 3994,
+          "es": "A mi padre no le gusta la música.",
+          "fr": "Mon père n'aime pas la musique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4062,
+          "es": "No lea este tipo de libro.",
+          "fr": "Ne lis pas ce genre de livre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4112,
+          "es": "Su tío posee no menos que diez casas.",
+          "fr": "Son oncle ne possède pas moins de dix maisons.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4291,
+          "es": "No debemos romper nuestra promesa.",
+          "fr": "Nous ne devons pas rompre notre promesse.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4316,
+          "es": "Él no podía dormir por causa del calor.",
+          "fr": "Il ne pouvait pas dormir à cause de la chaleur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4376,
+          "es": "No puedes aparcar tu coche aquí.",
+          "fr": "Tu ne peux pas garer ta voiture ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4392,
+          "es": "\"No puedes salir ahora.\" \"¿Por qué no?\"",
+          "fr": "« Tu ne peux pas sortir maintenant. » « Pourquoi cela ? »",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4505,
+          "es": "Él no debería regresar aquí.",
+          "fr": "Il ne devrait pas revenir ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4636,
+          "es": "Ella no pensaba que sus sueños pudieran hacerse realidad.",
+          "fr": "Elle ne pensait pas que ses rêves pourraient se réaliser.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4650,
+          "es": "No pise el césped.",
+          "fr": "Ne marchez pas sur la pelouse.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4652,
+          "es": "No exponga las fotos al sol.",
+          "fr": "N'exposez pas les photos au soleil.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4661,
+          "es": "No haga una promesa que no puede cumplir.",
+          "fr": "Ne faites pas une promesse que vous ne pouvez pas tenir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4663,
+          "es": "No olvides pegar el sello a la carta.",
+          "fr": "N'oublie pas de mettre un timbre à ta lettre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4676,
+          "es": "Un mecánico hábil aún se saca un buen dinero.",
+          "fr": "Un mécanicien doué ne gagne pas mal sa vie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4677,
+          "es": "No se olviden de cortar el gas antes de salir.",
+          "fr": "N'oubliez pas de couper le gaz avant de sortir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4690,
+          "es": "No toques la herida.",
+          "fr": "Ne touche pas la blessure.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4718,
+          "es": "Que no se te olvide apagar la luz antes de irte a acostar.",
+          "fr": "N'oublie pas d'éteindre la lumière avant d'aller te coucher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4738,
+          "es": "Un caballero no haría algo así.",
+          "fr": "Un gentleman ne ferait pas une chose pareille.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4804,
+          "es": "No todos los pájaros pueden volar.",
+          "fr": "Tous les oiseaux ne peuvent pas voler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4824,
+          "es": "Se suicidará si no puede ver a su hijo.",
+          "fr": "Il se suicidera s'il ne peut pas voir son fils.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4847,
+          "es": "No me levantes la voz.",
+          "fr": "N'élève pas la voix sur moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4908,
+          "es": "No fumes si quieres vivir una vida prolongada.",
+          "fr": "Si vous voulez vivre longtemps, ne fumez pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4946,
+          "es": "Que no se te olvide apagar la luz.",
+          "fr": "N'oublie pas d'éteindre la lumière.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4948,
+          "es": "No toque la pintura fresca.",
+          "fr": "Ne touche pas à la peinture fraîche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4952,
+          "es": "No grites.",
+          "fr": "Ne crie pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4968,
+          "es": "No hable tan rápido, por favor.",
+          "fr": "Ne parlez pas si vite, s'il vous plaît.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4993,
+          "es": "No hables en japonés.",
+          "fr": "Ne parle pas japonais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 4994,
+          "es": "No hables japonés.",
+          "fr": "Ne parle pas japonais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 0.0
+        },
+        {
+          "id": 2087,
+          "es": "No juguéis al béisbol en el parque.",
+          "fr": "Ne jouez pas au baseball dans le parc.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 2.512305623976115
+        },
+        {
+          "id": 284,
+          "es": "Si no comes, te mueres.",
+          "fr": "Si on ne mange pas, on meurt.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.606403232289698
+        },
+        {
+          "id": 285,
+          "es": "Si no comes, te mueres.",
+          "fr": "Si tu ne manges pas, tu meurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.606403232289698
+        },
+        {
+          "id": 1814,
+          "es": "No se lee mientras se come.",
+          "fr": "On ne lit pas en mangeant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.606403232289698
+        },
+        {
+          "id": 4256,
+          "es": "No comas demasiado.",
+          "fr": "Ne mange pas trop.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 3.606403232289698
+        },
+        {
+          "id": 4658,
+          "es": "Como es frecuente en los hombres jóvenes, él no presta mucha atención a su salud.",
+          "fr": "Comme c'est souvent le cas pour les jeunes gens, il ne fait pas beaucoup attention à sa santé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 4.769488215118493
+        },
+        {
+          "id": 1061,
+          "es": "El que no trabaja no tiene derecho a comer.",
+          "fr": "Celui qui ne travaille pas n'a pas le droit de manger.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 4.830421289279535
+        },
+        {
+          "id": 475,
+          "es": "¿Por qué no comes verdura?",
+          "fr": "Pourquoi est-ce que tu ne manges pas de légumes ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 4.927867383385138
+        },
+        {
+          "id": 733,
+          "es": "«Mamá, ¿puedo comerme una galleta?» «No. No hay que comer entre horas.»",
+          "fr": "\"Maman, est-ce que je peux manger un biscuit ?\" \"Non. Il ne faut pas manger entre les repas.\"",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.003661471523641
+        },
+        {
+          "id": 1062,
+          "es": "Vamos a comer mucho esta noche, entonces espero que no estés a régimen.",
+          "fr": "On va beaucoup manger ce soir alors j'espère que tu ne fais pas de régime.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.079455559662144
+        },
+        {
+          "id": 1881,
+          "es": "No me puedo permitir comer en un restaurante tan caro.",
+          "fr": "Je ne peux pas me permettre de manger dans un restaurant aussi cher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.079455559662144
+        },
+        {
+          "id": 2052,
+          "es": "Ahora no tengo ganas de comer.",
+          "fr": "Je n'ai pas envie de manger maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.404450155197886
+        },
+        {
+          "id": 3526,
+          "es": "Me gustan las uvas, pero no puedo comer muchas.",
+          "fr": "J'aime le raisin mais je ne peux pas en manger beaucoup.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 5.570473002119626
+        },
+        {
+          "id": 139,
+          "es": "Hay un problema que no ves.",
+          "fr": "Il y a un problème que tu ne vois pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 429,
+          "es": "Él ha roto su palabra.",
+          "fr": "Il n'a pas tenu sa parole.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 579,
+          "es": "Hay muchas cosas que no sabes sobre mi personalidad.",
+          "fr": "Il y a beaucoup de choses que tu ne sais pas sur ma personnalité.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 829,
+          "es": "En el mundo hay gente tan hambrienta que Dios no se les puede aparecer más que en forma de pan.",
+          "fr": "Il y a des gens dans le monde si affamés que Dieu ne peut pas leur apparaître, sauf sous forme de pain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 957,
+          "es": "¿No te da vergüenza hablar así?",
+          "fr": "Tu n'as pas honte de parler ainsi ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 1004,
+          "es": "El Estado no supo responder a las expectativas de la ciudadanía.",
+          "fr": "L'État n'a pas su répondre à l'attente des citoyens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2240,
+          "es": "Él no puede tener hambre, acaba de comer.",
+          "fr": "Il ne peut pas avoir faim ; il vient de déjeuner.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2241,
+          "es": "Él no puede tener hambre, acaba de almorzar.",
+          "fr": "Il ne peut pas avoir faim ; il vient de déjeuner.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2323,
+          "es": "No tengan miedo de cometer errores.",
+          "fr": "N'ayez pas peur de faire des erreurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2442,
+          "es": "El rey no solo nos invitó a nosotros, sino también a muchas otras personas.",
+          "fr": "Le roi n'a pas invité que nous, mais aussi plusieurs autres personnes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2779,
+          "es": "Las mujeres estadounidenses no tenían derecho a votar.",
+          "fr": "Les femmes étasuniennes n'avaient pas le droit de vote.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3722,
+          "es": "Según la radiografía, todo está bien.",
+          "fr": "Selon les rayons X, vous n'avez pas de problèmes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 3820,
+          "es": "Bill no había estudiado lo suficiente, entonces suspendió.",
+          "fr": "Bill n'avait pas étudié suffisamment, il a donc échoué.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4031,
+          "es": "Todavía no hemos planeado nuestras vacaciones.",
+          "fr": "Nous n'avons pas encore planifié nos vacances.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4195,
+          "es": "A ella no le dan miedo las serpientes.",
+          "fr": "Elle n'a pas peur des serpents.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4196,
+          "es": "Ella no les tiene miedo a las serpientes.",
+          "fr": "Elle n'a pas peur des serpents.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4221,
+          "es": "Francamente, no lo has hecho lo mejor que podías.",
+          "fr": "Franchement, tu n'as pas fait de ton mieux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4417,
+          "es": "Él respondió que no lo sabía.",
+          "fr": "Il a répondu qu'il ne savait pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4647,
+          "es": "No tengan miedo de hacer preguntas.",
+          "fr": "N'ayez pas peur de poser des questions.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4648,
+          "es": "No tenga miedo de hacer preguntas.",
+          "fr": "N'ayez pas peur de poser des questions.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 4811,
+          "es": "¡Date prisa! No tenemos mucho tiempo.",
+          "fr": "Dépêche-toi ! Nous n'avons pas beaucoup de temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.054439346269371
+        },
+        {
+          "id": 2285,
+          "es": "En comparación con el verano pasado, este año no hemos tenido mucha lluvia.",
+          "fr": "Comparé à l'été dernier, nous n'avons pas eu autant de pluie cette année.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.11940340900644
+        },
+        {
+          "id": 221,
+          "es": "¿Por qué lamentas algo que no has hecho?",
+          "fr": "Pourquoi es-tu désolée pour quelque chose que tu n'as pas fait ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 332,
+          "es": "No es pobre quien tiene muy poco, sino quien ansía demasiado.",
+          "fr": "Un pauvre n'est pas celui qui a trop peu, mais celui qui veut trop.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 333,
+          "es": "No es pobre quien tiene muy poco, sino quien ansía demasiado.",
+          "fr": "N'est pas pauvre celui qui a peu, mais celui qui en veut trop.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 334,
+          "es": "No es pobre quien tiene muy poco, sino quien ansía demasiado.",
+          "fr": "Le pauvre n'est pas celui qui a peu, mais celui qui en veut toujours plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 973,
+          "es": "Nada es imposible para aquel que no tiene que hacerlo él mismo.",
+          "fr": "Rien n'est impossible pour celui qui n'a pas à le faire lui-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 4306,
+          "es": "La película no fue un éxito en Japón.",
+          "fr": "Le film n'a pas été un succès au Japon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.151885440374974
+        },
+        {
+          "id": 824,
+          "es": "De hecho, medio ojo es muy útil, porque con medio ojo, un animal puede ver la mitad de otro animal que se lo quiera comer y apartarse de su camino, y él mismo se comerá al animal que sólo tiene medio ojo o el 49% del ojo porque este no se apartará de su camino lo suficientemente rápido, y el animal que ha sido comido no tendrá descendencia porque estará muerto.",
+          "fr": "En fait, un demi-œil est très utile, parce qu'avec un demi-œil, un animal peut voir la moitié d'un autre animal qui veut le dévorer et s'écarter de son chemin, et il dévorera lui-même l'animal qui n'a qu'un demi-œil ou 49% d'un œil parce que celui-ci ne se sera pas écarté de son chemin assez vite, et l'animal qui a été dévoré n'aura pas de petits parce qu'il est mort.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.165806310961488
+        },
+        {
+          "id": 3883,
+          "es": "Ya hace cinco años que no tengo noticias de él.",
+          "fr": "Je n'ai pas eu de ses nouvelles depuis cinq ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.220462193191111
+        },
+        {
+          "id": 34,
+          "es": "El aprendizaje no debe ser forzado, sino estimulado.",
+          "fr": "L'apprentissage ne devrait pas être forcé. L'apprentissage devrait être encouragé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 41,
+          "es": "Eso es porque no quieres estar solo.",
+          "fr": "C'est parce que tu ne veux pas être seul.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 99,
+          "es": "No tengo la intención de ser egoísta.",
+          "fr": "Il n'est pas dans mon intention d'être égoïste.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 134,
+          "es": "No es importante.",
+          "fr": "Ce n'est pas important.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 150,
+          "es": "No era mi intención.",
+          "fr": "Ce n'était pas mon intention.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 184,
+          "es": "Eso no es ninguna gran sorpresa, ¿o sí?",
+          "fr": "Ce n'est pas tellement une surprise, non ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 208,
+          "es": "Eso sólo muestra que no eres un robot.",
+          "fr": "Ça montre seulement que tu n'es pas un robot.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 211,
+          "es": "No es algo que pueda hacer cualquiera.",
+          "fr": "Ce n'est pas quelque chose que n'importe qui peut faire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 254,
+          "es": "Podrías al menos tratar de ser más cortés, aunque no sea tu naturaleza.",
+          "fr": "Tu pourrais au moins essayer d'être un peu plus poli, même si ce n'est pas dans ta nature.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 260,
+          "es": "—¿Qué pasa? —preguntó el pequeño conejo blanco.",
+          "fr": "\"Qu'est-ce qui ne va pas ?\" demanda le petit lapin blanc.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 296,
+          "es": "No es del todo raro vivir más de 90 años.",
+          "fr": "Ce n'est pas rare du tout de vivre plus de 90 ans.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 378,
+          "es": "No vemos las cosas según son, sino según somos.",
+          "fr": "Nous ne voyons pas les choses comme elles sont, mais comme nous sommes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 391,
+          "es": "¡Estas cosas no son mías!",
+          "fr": "Ce ne sont pas mes affaires !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 397,
+          "es": "¡No es culpa mía!",
+          "fr": "Ce n'est pas ma faute !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 423,
+          "es": "¿Quién no conoce este problema?",
+          "fr": "Qui est-ce qui ne connaît pas ce problème ? !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 431,
+          "es": "¡No te preocupes, sé feliz!",
+          "fr": "Ne sois pas inquiet, sois heureux !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 436,
+          "es": "No es mi tipo.",
+          "fr": "Ce n'est pas mon type.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 453,
+          "es": "Se está haciendo la dormida, por eso no ronca.",
+          "fr": "Elle fait semblant de dormir, c'est pour ça qu'elle ne ronfle pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 548,
+          "es": "La matemática no es simplemente la memorización de fórmulas.",
+          "fr": "Les mathématiques ne sont pas juste de la mémorisation de formules.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 549,
+          "es": "La matemática no es simplemente la memorización de fórmulas.",
+          "fr": "Les mathématiques, ce n'est pas que la mémorisation de formules.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 570,
+          "es": "La libertad no es gratis.",
+          "fr": "La liberté n'est pas gratuite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 642,
+          "es": "La parte material no es lo que define nuestra vida sino la parte espiritual.",
+          "fr": "Ce n'est pas le côté matériel qui définit notre vie mais le côté spirituel.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 658,
+          "es": "No se puede estar en misa y repicando.",
+          "fr": "On ne peut pas être au four et au moulin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 686,
+          "es": "No pretendo ser egoísta.",
+          "fr": "Il n'est pas dans mon intention d'être égoïste.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 704,
+          "es": "Eso solamente muestra que usted no es un robot.",
+          "fr": "Ça montre seulement que tu n'es pas un robot.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 714,
+          "es": "\"Una piedra rodante no junta musgo\" es un refrán.",
+          "fr": "« Pierre qui roule n'amasse pas mousse » est un proverbe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 719,
+          "es": "Puede ser que la felicidad que nos espera allí no sea para nada la clase de felicidad que nosotros quisiéramos.",
+          "fr": "Il se peut que le bonheur qui nous attend là-bas ne soit pas du tout le genre de bonheur que nous voudrions.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 757,
+          "es": "¿Quién no conoce ese problema?",
+          "fr": "Qui est-ce qui ne connaît pas ce problème ? !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 758,
+          "es": "Mis padres siguen discutiendo por estupideces. ¡Es tan molesto!",
+          "fr": "Mes parents n'arrêtent pas de se disputer sur des choses stupides. C'est tellement énervant !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 759,
+          "es": "Si no quieres ponerte protector solar es tu problema, pero no vengas a quejarte conmigo cuando tengas quemaduras de sol.",
+          "fr": "Si tu ne veux pas mettre de crème solaire c'est ton problème, mais ne viens pas te plaindre quand t'auras des coups de soleil.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 826,
+          "es": "No desesperes, todavía no está todo perdido.",
+          "fr": "Ne désespère pas, tout n'est pas encore perdu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 942,
+          "es": "¡La vida no es larga sino ancha!",
+          "fr": "La vie n'est pas longue, elle est large !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 966,
+          "es": "La vida no es una ciencia exacta, es un arte.",
+          "fr": "La vie n'est pas une science exacte, c'est un art.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 967,
+          "es": "Puede que te sientas decepcionado si fracasas, pero estás condenado si no lo intentas.",
+          "fr": "Il se peut que tu sois déçu si tu échoues, mais tu es condamné si tu n'essaies pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 971,
+          "es": "El problema no es saber si las máquinas piensan, el problema real es saber si el hombre piensa.",
+          "fr": "Le réel problème n'est pas de savoir si les machines pensent mais si les hommes le font.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 977,
+          "es": "Esto no es asunto suyo.",
+          "fr": "Ce n'est pas son affaire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 981,
+          "es": "No es del todo exacto.",
+          "fr": "Ce n'est pas tout à fait exact.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1761,
+          "es": "Mi padre no estará ocupado mañana.",
+          "fr": "Mon père ne sera pas occupé demain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 1992,
+          "es": "Hoy en día no es raro que una mujer viaje sola.",
+          "fr": "Aujourd'hui il n'est pas inhabituel pour une femme de voyager seule.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2000,
+          "es": "Una casa sin amor no es más casa que un cuerpo sin alma es un hombre.",
+          "fr": "Une maison sans amour n'est pas plus une maison qu'un corps sans âme n'est un homme.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2140,
+          "es": "Desde el punto de vista de la salud, Tokio no es un lugar tan bueno para vivir.",
+          "fr": "Du point de vue de la santé, Tokyo n'est pas tellement un bon endroit pour vivre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2209,
+          "es": "No es de tu incumbencia.",
+          "fr": "Ce ne sont pas tes affaires.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2264,
+          "es": "El dinero no lo es todo.",
+          "fr": "L'argent n'est pas tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2265,
+          "es": "El dinero no es todo.",
+          "fr": "L'argent n'est pas tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2307,
+          "es": "No es oro todo lo que reluce.",
+          "fr": "Tout ce qui brille n'est pas or.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2345,
+          "es": "No lleguen tarde a la escuela.",
+          "fr": "Ne soyez pas en retard à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2346,
+          "es": "No lleguéis tarde a la escuela.",
+          "fr": "Ne soyez pas en retard à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2350,
+          "es": "No llegues tarde a la escuela.",
+          "fr": "Ne sois pas en retard pour l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2478,
+          "es": "Hablar inglés no es fácil.",
+          "fr": "Parler anglais n'est pas facile.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2496,
+          "es": "El inglés no es mi lengua nativa.",
+          "fr": "L'anglais n'est pas ma langue natale.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2498,
+          "es": "El inglés no es fácil para mí.",
+          "fr": "L'anglais n'est pas facile pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2501,
+          "es": "El inglés no es fácil, pero es interesante.",
+          "fr": "L'anglais n'est pas facile mais est intéressant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2509,
+          "es": "No era tan fácil escribir una carta en inglés.",
+          "fr": "Ce n'était pas si simple d'écrire une lettre en anglais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2622,
+          "es": "No llegues tarde a clase otra vez.",
+          "fr": "Ne sois pas encore en retard à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2805,
+          "es": "No es un caballo, sino un burro.",
+          "fr": "Ce n'est pas un cheval mais un âne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 2806,
+          "es": "No es un caballo, es un asno.",
+          "fr": "Ce n'est pas un cheval mais un âne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3105,
+          "es": "Ir en bici es un buen ejercicio. Además, no contamina el aire.",
+          "fr": "Faire du vélo est un bon exercice. En plus, ça ne pollue pas l'air.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3136,
+          "es": "Jim no es abogado, es médico.",
+          "fr": "Jim n'est pas avocat mais médecin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3137,
+          "es": "Jim no es abogado, sino médico.",
+          "fr": "Jim n'est pas avocat mais médecin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3149,
+          "es": "Judy no es una buena cantante, ¿verdad?",
+          "fr": "Judy n'est pas une bonne chanteuse, n'est-ce pas ?",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3205,
+          "es": "No es mi tema preferido.",
+          "fr": "Ce n'est pas mon sujet préféré.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3239,
+          "es": "Cuando llegue el momento, házmelo saber sin falta.",
+          "fr": "N'oublie pas de me faire savoir quand il sera temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3243,
+          "es": "Este chiste no es gracioso.",
+          "fr": "Cette blague n'est pas drôle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3295,
+          "es": "No es caro.",
+          "fr": "Ce n'est pas cher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3302,
+          "es": "No es el caso.",
+          "fr": "Ce n'est pas le cas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3303,
+          "es": "Este no es el caso.",
+          "fr": "Ce n'est pas le cas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3304,
+          "es": "Ése no es el caso.",
+          "fr": "Ce n'est pas le cas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3306,
+          "es": "Eso no es completamente falso.",
+          "fr": "Ça ce n'est pas totalement faux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3323,
+          "es": "No está tan lejos.",
+          "fr": "Ce n'est pas si loin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3324,
+          "es": "No vuelvas a llegar tarde al colegio.",
+          "fr": "Ne sois pas en retard à l'école à nouveau.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3387,
+          "es": "Pero no es necesario quedarse hasta el final.",
+          "fr": "Mais vous n'êtes pas obligés de rester jusqu'à la fin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3508,
+          "es": "Un pedazo de pan no bastó para saciar su hambre.",
+          "fr": "Un morceau de pain n'était pas suffisant pour apaiser sa faim.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3621,
+          "es": "Mary no es tan alta como él.",
+          "fr": "Marie n'est pas aussi grande que lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3749,
+          "es": "No seas un niño malo.",
+          "fr": "Ne sois pas un mauvais garçon.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 3757,
+          "es": "No es bueno leer en una pieza oscura.",
+          "fr": "Ce n'est pas bon de lire dans une pièce sombre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4096,
+          "es": "No seas tan avaricioso.",
+          "fr": "Ne sois pas si avare.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4297,
+          "es": "La gracia todavía no ha venido.",
+          "fr": "La grâce n'est pas encore venue.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4405,
+          "es": "No era caro.",
+          "fr": "Ce n'était pas cher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4406,
+          "es": "Mi madre no está siempre en casa.",
+          "fr": "Ma mère n'est pas toujours à la maison.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4605,
+          "es": "Él no puede ser más viejo que yo.",
+          "fr": "Il ne peut pas être plus vieux que moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4743,
+          "es": "No es educado mirar a la gente fijamente.",
+          "fr": "Il n'est pas poli de regarder fixement les gens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4744,
+          "es": "Por muy rico que pueda ser un hombre, no debe permanecer ocioso.",
+          "fr": "Si riche qu'un homme puisse être, il ne doit pas rester oisif.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4762,
+          "es": "Las notas son importantes, pero no lo son todo.",
+          "fr": "Les notes sont importantes, mais elles ne sont pas tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4765,
+          "es": "La honestidad no es siempre la mejor política.",
+          "fr": "L'honnêteté n'est pas toujours la meilleure politique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4767,
+          "es": "El pescado crudo no es de mi gusto.",
+          "fr": "Le poisson cru n'est pas à mon goût.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4803,
+          "es": "Eso no es completamente falso.",
+          "fr": "Ça ce n'est pas entièrement faux.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4859,
+          "es": "No todos pueden ser poetas.",
+          "fr": "Tout le monde ne peut pas être poète.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4894,
+          "es": "No llegues tarde.",
+          "fr": "Ne sois pas en retard.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4969,
+          "es": "Jiro no está aquí.",
+          "fr": "Jiro n'est pas ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 4988,
+          "es": "Japón no es rico en recursos naturales.",
+          "fr": "Le Japon n'est pas riche en ressources naturelles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480577
+        },
+        {
+          "id": 430,
+          "es": "Mejor ser odiado por lo que eres que querido por lo que no eres.",
+          "fr": "Il vaut mieux être détesté pour ce que l'on est, qu'aimé pour ce que l'on n'est pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.249331534480578
+        },
+        {
+          "id": 179,
+          "es": "Es una lástima que yo no tenga que adelgazar.",
+          "fr": "C'est dommage que je n'aie pas besoin de maigrir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 1292,
+          "es": "No estoy totalmente convencido de que tengáis razón.",
+          "fr": "Je ne suis pas totalement convaincu que vous ayez raison.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 2590,
+          "es": "Me temo que él no estará aquí hasta la una.",
+          "fr": "J'ai peur qu'il ne soit pas là avant 13 heures.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 3076,
+          "es": "No soy el único que tiene esta opinión.",
+          "fr": "Je ne suis pas le seul à avoir cette opinion.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 3274,
+          "es": "No he podido convencerle de que era cierto.",
+          "fr": "Je n'ai pas pu le persuader que c'était vrai.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 3767,
+          "es": "Esperé durante una hora, pero él no apareció.",
+          "fr": "J'ai attendu pendant une heure, mais il n'est pas apparu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 4542,
+          "es": "No me avergüenza que mi padre sea pobre.",
+          "fr": "Je n'ai pas honte que mon père soit pauvre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.285426255928179
+        },
+        {
+          "id": 119,
+          "es": "No soy un artista. Nunca tuve mente para ello.",
+          "fr": "Je ne suis pas un artiste. Je n'ai jamais eu l'esprit pour ça.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.292645200217699
+        },
+        {
+          "id": 255,
+          "es": "Siempre habrá cosas que nunca aprenderé, ¡no tengo toda la eternidad ante mí!",
+          "fr": "Il y aura toujours des choses que je n'apprendrai jamais, je n'ai pas l'éternité devant moi !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 4422,
+          "es": "Tengo hambre porque no he comido.",
+          "fr": "J'ai faim car je n'ai pas déjeuné.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 4423,
+          "es": "Estoy hambriento porque no he comido en el almuerzo.",
+          "fr": "J'ai faim car je n'ai pas déjeuné.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 4424,
+          "es": "Tengo hambre porque no almorcé.",
+          "fr": "J'ai faim car je n'ai pas déjeuné.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.30347361665198
+        },
+        {
+          "id": 135,
+          "es": "No me gustaba.",
+          "fr": "Je n'ai pas aimé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 162,
+          "es": "Hay muchas palabras que no entiendo.",
+          "fr": "Il y a beaucoup de mots que je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 163,
+          "es": "Hay muchas palabras que no entiendo.",
+          "fr": "Il y a de nombreux mots que je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 195,
+          "es": "No debí desconectarme del sitio.",
+          "fr": "Je n'aurais pas dû me déconnecter.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 349,
+          "es": "No podría haberlo hecho sin ti. Gracias.",
+          "fr": "Je n'aurais pas pu le faire sans toi. Merci.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 511,
+          "es": "No quiero ir a la escuela.",
+          "fr": "Je n'ai pas envie d'aller à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 918,
+          "es": "No tengo la fuerza de seguir intentándolo.",
+          "fr": "Je n'ai pas la force de continuer à essayer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 934,
+          "es": "No, no puedo dejaros entrar, hay una persona de más.",
+          "fr": "Non, je ne peux pas vous laisser entrer, il y a une personne de trop.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1025,
+          "es": "No sé si él lo habría hecho por mí.",
+          "fr": "Je ne sais pas s'il l'aurait fait pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1026,
+          "es": "No sé si lo habría hecho por mí.",
+          "fr": "Je ne sais pas s'il l'aurait fait pour moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1098,
+          "es": "No he perdido peso.",
+          "fr": "Je n'ai pas perdu de poids.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1106,
+          "es": "Aún no he aprendido a conducir.",
+          "fr": "Je n'ai pas encore appris à conduire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1150,
+          "es": "No tengo nada de hambre.",
+          "fr": "Je n'ai pas faim du tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1251,
+          "es": "Ahora no tengo ganas de salir.",
+          "fr": "Je n'ai pas envie de sortir maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1351,
+          "es": "Al no saber qué hacer, le pedí consejo.",
+          "fr": "Ne sachant pas quoi faire, je lui ai demandé conseil.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1419,
+          "es": "Aún no he desayunado.",
+          "fr": "Je n'ai pas encore pris de petit déjeuner.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1477,
+          "es": "No tengo tiempo de ver la televisión.",
+          "fr": "Je n'ai pas le temps de regarder la télévision.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1511,
+          "es": "No tengo mucho dinero.",
+          "fr": "Je n'ai pas beaucoup d'argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1552,
+          "es": "No pude dormir por el ruido.",
+          "fr": "Je n'ai pas pu dormir à cause du bruit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1861,
+          "es": "No tengo tiempo para leer libros.",
+          "fr": "Je n'ai pas le temps de lire des livres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1868,
+          "es": "No tengo hermanos.",
+          "fr": "Je n'ai pas de frères.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1880,
+          "es": "No tengo dinero para comprar un diccionario.",
+          "fr": "Je n'ai pas d'argent pour acheter un dictionnaire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 1882,
+          "es": "No tengo tiempo de ayudarte en tus deberes.",
+          "fr": "Je n'ai pas le temps pour t'aider dans tes devoirs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2048,
+          "es": "Todavía no he encontrado ningún trabajo.",
+          "fr": "Je n'ai pas encore trouvé de travail.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2049,
+          "es": "No he encontrado trabajo aún.",
+          "fr": "Je n'ai pas encore trouvé de travail.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2050,
+          "es": "Aún no he encontrado trabajo.",
+          "fr": "Je n'ai pas encore trouvé de travail.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 2053,
+          "es": "De momento no necesito dinero.",
+          "fr": "Je n'ai pas besoin d'argent pour le moment.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3126,
+          "es": "Pero yo no tenía miedo.",
+          "fr": "Mais je n'avais pas peur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3127,
+          "es": "Pero no tenía miedo.",
+          "fr": "Mais je n'avais pas peur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3259,
+          "es": "No tengo tiempo para leer este libro.",
+          "fr": "Je n'ai pas le temps de lire ce livre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3260,
+          "es": "No tengo tiempo para leer ese libro.",
+          "fr": "Je n'ai pas le temps de lire ce livre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3469,
+          "es": "No tuve más alternativa que hacer lo que me pedía.",
+          "fr": "Je n'avais pas d'autre choix que de faire ce qu'il demandait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3742,
+          "es": "No participé en la conversación.",
+          "fr": "Je n'ai pas pris part à la conversation.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3752,
+          "es": "No pude salir por el mal tiempo.",
+          "fr": "Je n'ai pas pu sortir à cause du mauvais temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 3868,
+          "es": "No tengo una buena vista.",
+          "fr": "Je n'ai pas une très bonne vue.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4022,
+          "es": "No necesito tu ayuda.",
+          "fr": "Je n'ai pas besoin de ton aide.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4057,
+          "es": "Pese a todo, no fui capaz de contarle la verdad.",
+          "fr": "Malgré tout, je n'ai pas pu me résoudre à lui dire la vérité.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4413,
+          "es": "No sé quién ha escrito esta carta.",
+          "fr": "Je ne sais pas qui a écrit cette lettre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4455,
+          "es": "No tengo gato.",
+          "fr": "Je n'ai pas de chat.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4508,
+          "es": "No lo puedo perdonar por haberme insultado en público.",
+          "fr": "Je ne peux pas lui pardonner de m'avoir insulté en public.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4662,
+          "es": "No tengo mucho dinero encima.",
+          "fr": "Je n'ai pas beaucoup d'argent sur moi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4770,
+          "es": "No tengo la menstruación.",
+          "fr": "Je n'ai pas mes règles.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 4979,
+          "es": "En cuanto a mi vida en Japón, no tengo motivos de queja.",
+          "fr": "Quant à ma vie au Japon, je n'ai pas de raisons de m'en plaindre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3034736166519805
+        },
+        {
+          "id": 782,
+          "es": "La pregunta clave no es lo que puedo ganar, sino lo que tengo para perder.",
+          "fr": "La question clé n'est pas qu'est-ce que je peux gagner mais qu'est-ce que j'ai à perdre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.317908287296714
+        },
+        {
+          "id": 64,
+          "es": "Si el mundo no fuera como es, yo podría confiar en cualquiera.",
+          "fr": "Si le monde n'était pas dans l'état où il est maintenant, je pourrais faire confiance à n'importe qui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.350390318665248
+        },
+        {
+          "id": 1295,
+          "es": "No soy rico, ni deseo serlo.",
+          "fr": "Je ne suis pas riche, et ne souhaite pas l'être.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.350390318665248
+        },
+        {
+          "id": 1798,
+          "es": "No pude encontrarme con él en la estación porque se me acabó la gasolina.",
+          "fr": "Je n'ai pas pu le rencontrer à la gare parce que je suis tombé en panne d'essence.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.352196663704781
+        },
+        {
+          "id": 31,
+          "es": "No sé si tengo tiempo.",
+          "fr": "Je ne sais pas si j'ai le temps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 212,
+          "es": "No sé si todavía lo tengo.",
+          "fr": "Je ne sais pas si je l'ai encore.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 821,
+          "es": "¡Ya no puedo más! ¡Hace tres días que no duermo!",
+          "fr": "Je n'en peux plus ! Ça fait trois jours que je n'ai pas dormi !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 1094,
+          "es": "Tengo la piel extremadamente blanca y no me bronceo del todo.",
+          "fr": "J'ai la peau extrêmement blanche et je ne bronze pas du tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 1468,
+          "es": "Tengo tanta ropa que no sé qué ponerme mañana.",
+          "fr": "J'ai tellement de vêtements que je ne sais pas quoi mettre demain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.3864850401128495
+        },
+        {
+          "id": 83,
+          "es": "¡¡No quiero ser patético, quiero ser guay!!",
+          "fr": "Je ne veux pas être lamentable, je veux être cool ! !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.400919710757583
+        },
+        {
+          "id": 89,
+          "es": "No soy un pez de verdad, sólo soy un peluche.",
+          "fr": "Je ne suis pas un vrai poisson, je ne suis qu'une simple peluche.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.400919710757583
+        },
+        {
+          "id": 975,
+          "es": "No entiendo por qué la gente tiene miedo de nuevas ideas. A mí me dan miedo las viejas.",
+          "fr": "Je ne comprends pas pourquoi les gens sont effrayés par les nouvelles idées. Je suis effrayé par les anciennes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.400919710757583
+        },
+        {
+          "id": 4427,
+          "es": "No soy un pájaro, pero me gustaría serlo.",
+          "fr": "Je ne suis pas un oiseau, mais j'aimerais en être un.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.400919710757583
+        },
+        {
+          "id": 4428,
+          "es": "No soy tan alto como mi hermano, pero soy más alto que mi padre.",
+          "fr": "Je ne suis pas aussi grand que mon frère, mais je suis plus grand que mon père.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.400919710757583
+        },
+        {
+          "id": 126,
+          "es": "No quiero perder mis ideas, aunque algunas de ellas sean un poco extremas.",
+          "fr": "Je ne veux pas perdre mes idées, même si certaines d'entre elles sont un peu extrêmes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 167,
+          "es": "¡No sé cómo demostrarlo, ya que es tan evidente!",
+          "fr": "Je ne sais pas comment le démontrer vu que c'est trop évident !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 203,
+          "es": "No tengo mucho de viajero.",
+          "fr": "Je ne suis pas un grand voyageur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 209,
+          "es": "¿Cómo podría ser yo un robot? Si los robots no sueñan.",
+          "fr": "Comment pourrais-je être un robot ? Les robots ne rêvent pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 250,
+          "es": "¡No vale la pena que hagas como que me haces creer que creo cosas que tú no crees!",
+          "fr": "Ce n'est pas la peine de faire semblant de me faire croire que je crois des choses que tu ne crois pas !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 335,
+          "es": "Viendo que no estás sorprendido, creo que debes estar al corriente.",
+          "fr": "Vu que tu n'es pas surpris, je pense que tu étais au courant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 474,
+          "es": "No sabéis quién soy.",
+          "fr": "Vous ne savez pas qui je suis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 557,
+          "es": "No sé qué es peor.",
+          "fr": "Je ne sais pas ce qui est pire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 788,
+          "es": "No sabe quién soy.",
+          "fr": "Vous ne savez pas qui je suis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 789,
+          "es": "No saben quién soy.",
+          "fr": "Vous ne savez pas qui je suis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1052,
+          "es": "No estoy de acuerdo con él.",
+          "fr": "Je ne suis pas d'accord avec lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1053,
+          "es": "Yo no estoy de acuerdo con él.",
+          "fr": "Je ne suis pas d'accord avec lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1117,
+          "es": "No soy maestro.",
+          "fr": "Je ne suis pas un enseignant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1308,
+          "es": "No estoy tan ocupado como Yoshio.",
+          "fr": "Je ne suis pas aussi occupé que Yoshio.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1388,
+          "es": "No soy médico, soy profesor.",
+          "fr": "Je ne suis pas médecin, mais professeur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1389,
+          "es": "No soy médico, sino profesor.",
+          "fr": "Je ne suis pas médecin, mais professeur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1513,
+          "es": "No puedo hablar tan rápido.",
+          "fr": "Je ne suis pas capable de parler aussi vite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1514,
+          "es": "No soy capaz de hablar tan rápido.",
+          "fr": "Je ne suis pas capable de parler aussi vite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1522,
+          "es": "No sé si es verdad.",
+          "fr": "Je ne sais pas si c'est vrai.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1523,
+          "es": "No sé si será cierto o no.",
+          "fr": "Je ne sais pas si c'est vrai.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1577,
+          "es": "No me gusta que me traten de esa manera.",
+          "fr": "Je n'aime pas être traité de cette manière.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 1627,
+          "es": "Sé que el dinero no lo es todo.",
+          "fr": "Je sais que l'argent n'est pas tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 2910,
+          "es": "No puedo ver adentro porque están cerradas las cortinas.",
+          "fr": "Je ne peux pas voir à l'intérieur parce que les rideaux sont fermés.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3202,
+          "es": "No estoy nada cansada.",
+          "fr": "Je ne suis pas fatiguée du tout.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3294,
+          "es": "No creo que haya sido una sabia decisión.",
+          "fr": "Je ne pense pas que c'était une sage décision.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3431,
+          "es": "No consigo recordar cuál es mi raqueta.",
+          "fr": "Je n'arrive pas à me rappeler laquelle est ma raquette.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 3981,
+          "es": "No tengo ganas de esperar más.",
+          "fr": "Je ne suis pas d'humeur à attendre plus longtemps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4218,
+          "es": "No soy el capitán del nuevo equipo.",
+          "fr": "Je ne suis pas le capitaine de la nouvelle équipe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4237,
+          "es": "No estoy de acuerdo con usted en este asunto.",
+          "fr": "Je ne peux pas être d'accord avec vous sur ce sujet.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4359,
+          "es": "No estoy acostumbrada a levantarme pronto.",
+          "fr": "Je ne suis pas habituée à me lever tôt.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4469,
+          "es": "No sé quién es.",
+          "fr": "Je ne sais pas qui il est.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4471,
+          "es": "No sabía que fuera japonés.",
+          "fr": "Je ne savais pas qu'il était Japonais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4501,
+          "es": "No soy tan alto como él.",
+          "fr": "Je ne suis pas aussi grand que lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4502,
+          "es": "No soy tan alta como él.",
+          "fr": "Je ne suis pas aussi grande que lui.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4534,
+          "es": "\"Yo no estoy cansado.\" \"Yo tampoco.\"",
+          "fr": "\"Je ne suis pas fatigué.\" \"Moi non plus.\"",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4558,
+          "es": "No estoy ocupado.",
+          "fr": "Je ne suis pas occupé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4700,
+          "es": "No entré en detalles.",
+          "fr": "Je ne suis pas entré dans les détails.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 4900,
+          "es": "Yo no soy madrugador.",
+          "fr": "Je ne suis pas matinal.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.4009197107575835
+        },
+        {
+          "id": 102,
+          "es": "Yo puedo ser antisocial, pero eso no significa que no hable con la gente.",
+          "fr": "Il se peut que je sois antisocial, mais ça ne veut pas dire pas que je ne parle pas aux gens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 488,
+          "es": "No pienso, luego no existo.",
+          "fr": "Je ne pense pas, donc je ne suis pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 1171,
+          "es": "No conozco el lugar exacto en el que nací.",
+          "fr": "Je ne connais pas l'endroit exact où je suis né.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 1467,
+          "es": "Estoy tan cansado que no puedo estudiar.",
+          "fr": "Je suis si fatigué que je ne peux pas étudier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 2028,
+          "es": "Hoy me siento mejor, pero no lo suficiente para trabajar.",
+          "fr": "Aujourd'hui je me sens mieux, mais je ne suis pas assez bien pour travailler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.451449102849918
+        },
+        {
+          "id": 252,
+          "es": "Soy tan tonto... estoy intentando explicarte cosas que no entiendo ni yo.",
+          "fr": "Je suis trop bête... J'essaie de t'expliquer des choses que je ne comprends pas moi-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.476713798896086
+        },
+        {
+          "id": 712,
+          "es": "Soy tan estúpido... Estoy intentando explicarte cosas que yo mismo no entiendo.",
+          "fr": "Je suis trop bête... J'essaie de t'expliquer des choses que je ne comprends pas moi-même.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.476713798896086
+        },
+        {
+          "id": 1,
+          "es": "No soporto a ese tipo.",
+          "fr": "Je ne supporte pas ce type.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2,
+          "es": "No aguanto a este tío.",
+          "fr": "Je ne supporte pas ce type.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 58,
+          "es": "No puedo vivir así.",
+          "fr": "Je ne peux pas vivre comme ça.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 60,
+          "es": "No puedo vivir así.",
+          "fr": "Je ne peux pas vivre ainsi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 96,
+          "es": "Algunas veces no puedo evitar mostrar mis sentimientos.",
+          "fr": "Parfois je ne peux pas m'empêcher de montrer des émotions.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 132,
+          "es": "No sabía de dónde venía eso.",
+          "fr": "Je ne savais pas d'où ça venait.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 156,
+          "es": "No sé qué quieres decir.",
+          "fr": "Je ne sais pas ce que tu veux dire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 164,
+          "es": "No me gusta cuando matemáticos que saben mucho más que yo no pueden expresarse con claridad.",
+          "fr": "Je n'aime pas quand les mathématiciens qui en savent beaucoup plus que moi ne savent pas s'exprimer explicitement.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 191,
+          "es": "No quiero esperar tanto tiempo.",
+          "fr": "Je ne veux pas attendre aussi longtemps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 199,
+          "es": "Yo no quería que pasase esto.",
+          "fr": "Je ne voulais pas que ça arrive.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 205,
+          "es": "Tampoco lo puedo explicar.",
+          "fr": "Je ne peux pas l'expliquer non plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 216,
+          "es": "¡No hablo francés lo suficientemente bien!",
+          "fr": "Je ne parle pas assez bien français !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 234,
+          "es": "No hablo japonés.",
+          "fr": "Je ne parle pas japonais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 273,
+          "es": "Por favor, no llores.",
+          "fr": "Ne pleure pas, je t'en prie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 288,
+          "es": "Lo siento, no puedo quedarme mucho tiempo.",
+          "fr": "Je m'excuse, je ne peux pas rester longtemps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 290,
+          "es": "\"¿Por qué no vas?\" \"Porque no quiero.\"",
+          "fr": "\"Pourquoi tu n'y vas pas ?\" \"Parce que je ne veux pas.\"",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 340,
+          "es": "\"No puedo pensar con ese ruido,\" dijo ella, mirando fijamente su máquina de escribir.",
+          "fr": "\"Je ne peux pas réfléchir avec ce bruit\", dit-elle, en fixant des yeux la machine à écrire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 344,
+          "es": "No quiero pasarme el resto de mi vida arrepintiéndome de ello.",
+          "fr": "Je ne veux pas passer le reste de ma vie à le regretter.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 348,
+          "es": "No puedo vivir sin tele.",
+          "fr": "Je ne peux pas vivre sans télé.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 435,
+          "es": "No sé qué decir para consolarte.",
+          "fr": "Je ne sais pas quoi dire pour te consoler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 441,
+          "es": "No entiendo.",
+          "fr": "Je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 479,
+          "es": "¡No quiero pedir tu mano!",
+          "fr": "Je ne veux pas demander ta main !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 490,
+          "es": "No me gusta aprender los verbos irregulares.",
+          "fr": "Je n'aime pas apprendre les verbes irréguliers.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 510,
+          "es": "No quiero ir a la escuela.",
+          "fr": "Je ne veux pas aller à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 523,
+          "es": "¡No voy a perder!",
+          "fr": "Je ne perdrai pas !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 543,
+          "es": "Están haciendo demasiado ruido, no puedo concentrarme.",
+          "fr": "Ils font trop de bruit, je n'arrive pas à me concentrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 674,
+          "es": "No sé.",
+          "fr": "Je ne sais pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 702,
+          "es": "No quiero esperar tanto.",
+          "fr": "Je ne veux pas attendre aussi longtemps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 703,
+          "es": "Yo tampoco lo puedo explicar.",
+          "fr": "Je ne peux pas l'expliquer non plus.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 711,
+          "es": "Yo no hablo japonés.",
+          "fr": "Je ne parle pas japonais.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 769,
+          "es": "No lo termino de entender.",
+          "fr": "Je ne comprends pas.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 801,
+          "es": "No entiendo el alemán.",
+          "fr": "Je ne comprends pas l'allemand.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 820,
+          "es": "¡No puedo cortarme las uñas y planchar al mismo tiempo!",
+          "fr": "Je ne peux pas me couper les ongles et faire le repassage en même temps !",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 889,
+          "es": "No me gusta la escuela.",
+          "fr": "Je n'aime pas l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 894,
+          "es": "Hacen demasiado ruido, no logro concentrarme.",
+          "fr": "Ils font trop de bruit, je n'arrive pas à me concentrer.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 907,
+          "es": "No quiero suspender mis exámenes.",
+          "fr": "Je ne veux pas louper mes examens.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 939,
+          "es": "No confío necesariamente en las traducciones.",
+          "fr": "Je ne fais pas forcément confiance aux traductions.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1012,
+          "es": "No sabía que él bebiera tanto.",
+          "fr": "Je ne savais pas qu'il buvait autant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1020,
+          "es": "No puedo decir lo contrario.",
+          "fr": "Je ne peux pas dire le contraire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1074,
+          "es": "Si no quieres estar solo, puedo hacerte compañía.",
+          "fr": "Si tu ne veux pas rester seul, je peux te tenir compagnie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1111,
+          "es": "No quería levantarme pronto.",
+          "fr": "Je ne voulais pas me lever tôt.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1157,
+          "es": "No me gusta la primavera.",
+          "fr": "Je n'aime pas le printemps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1185,
+          "es": "No conozco el lugar exacto de mi nacimiento.",
+          "fr": "Je ne connais pas le lieu exact de ma naissance.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1318,
+          "es": "Me desagrada el frío.",
+          "fr": "Je n'aime pas le froid.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1319,
+          "es": "No me gustan los niños malcriados.",
+          "fr": "Je n'aime pas les enfants gâtés.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1324,
+          "es": "Yo no voy a la escuela.",
+          "fr": "Je ne vais pas à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1325,
+          "es": "Yo no voy al colegio.",
+          "fr": "Je ne vais pas à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1326,
+          "es": "No voy a la escuela.",
+          "fr": "Je ne vais pas à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1338,
+          "es": "No puedo salir fuera.",
+          "fr": "Je ne peux pas sortir dehors.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1358,
+          "es": "No me gusta la música.",
+          "fr": "Je n'aime pas la musique.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1365,
+          "es": "No puedo evitar sentir cariño por la campiña inglesa.",
+          "fr": "Je ne peux pas m'empêcher d'aimer la campagne anglaise.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1366,
+          "es": "No me gustan las novelas sin héroes.",
+          "fr": "Je n'aime pas les romans sans héros.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1375,
+          "es": "Me gusta el inglés, pero no lo hablo bien.",
+          "fr": "J'aime l'anglais, mais je ne peux pas bien le parler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1397,
+          "es": "Yo no estaba escuchando la radio.",
+          "fr": "Je n'écoutais pas la radio.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1414,
+          "es": "No puedo leer sin anteojos.",
+          "fr": "Je ne peux pas lire sans lunettes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1415,
+          "es": "Sin gafas no puedo leer.",
+          "fr": "Je ne peux pas lire sans lunettes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1416,
+          "es": "No puedo leer sin lentes.",
+          "fr": "Je ne peux pas lire sans lunettes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1424,
+          "es": "En un hotel no puedo sentirme como en casa.",
+          "fr": "Je ne peux pas me sentir chez moi à l'hôtel.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1425,
+          "es": "No quiero compartir la habitación del hotel con un desconocido.",
+          "fr": "Je ne veux pas partager la chambre d'hôtel avec un inconnu.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1427,
+          "es": "No sé leer en francés, tampoco puedo hablarlo.",
+          "fr": "Je ne peux pas lire le français, je ne peux pas non plus le parler.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1436,
+          "es": "Yo no sé cómo usar una videocasetera.",
+          "fr": "Je ne sais pas comment utiliser le magnétoscope.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1453,
+          "es": "No juego al tenis tan bien como Tom.",
+          "fr": "Je ne joue pas aussi bien que Tom au tennis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1460,
+          "es": "No me gusta el sabor de los tomates.",
+          "fr": "Je n'aime pas le goût des tomates.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1519,
+          "es": "No quiero correr el riesgo de perderlo.",
+          "fr": "Je ne veux pas courir le risque de le perdre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1546,
+          "es": "No quiero participar en la ceremonia.",
+          "fr": "Je ne veux pas participer à la cérémonie.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1548,
+          "es": "No sé cómo deletrear la palabra.",
+          "fr": "Je ne sais pas comment épeler ce mot.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1557,
+          "es": "No puedo evitar pensar así.",
+          "fr": "Je ne peux pas m'empêcher de penser ainsi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1569,
+          "es": "No puedo fiarme de John con mi coche.",
+          "fr": "Je ne peux pas faire confiance à John avec ma voiture.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1590,
+          "es": "No me gusta su sombrero.",
+          "fr": "Je n'aime pas son chapeau.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1595,
+          "es": "No me gusta este tipo de casa.",
+          "fr": "Je n'aime pas ce genre de maison.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1600,
+          "es": "No me puedo sentir como en casa en un hotel así.",
+          "fr": "Je ne peux pas me sentir comme chez moi dans un tel hôtel.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1613,
+          "es": "Yo no le echo azúcar al café.",
+          "fr": "Je ne mets pas de sucre dans mon café.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1626,
+          "es": "No voy a desperdiciar mi dinero.",
+          "fr": "Je ne vais pas gaspiller mon argent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1651,
+          "es": "No bebo mucho vino.",
+          "fr": "Je ne bois pas beaucoup de vin.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1652,
+          "es": "No me gustan mucho las flores.",
+          "fr": "Je n'aime pas beaucoup les fleurs.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1664,
+          "es": "No comprendo qué es lo que quieres decir.",
+          "fr": "Je ne comprends pas ce que tu veux dire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1674,
+          "es": "No puedo seguirte.",
+          "fr": "Je ne peux pas te suivre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1690,
+          "es": "No me gusta el helado.",
+          "fr": "Je n'aime pas la crème glacée.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1716,
+          "es": "No puedo evitar admirar su talento.",
+          "fr": "Je ne peux pas m'empêcher d'admirer son talent.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1722,
+          "es": "No me gusta el verano.",
+          "fr": "Je n'aime pas l'été.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1737,
+          "es": "No quiero agobiarlo con mis problemas.",
+          "fr": "Je ne veux pas vous accabler avec mes ennuis.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1751,
+          "es": "A mi madre no le gusta que yo mire televisión.",
+          "fr": "Ma mère n'aime pas que je regarde la télévision.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 1914,
+          "es": "No sé si voy a ganar o perder.",
+          "fr": "Je ne sais pas si je vais gagner ou perdre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2164,
+          "es": "No puedo vivir sin ti.",
+          "fr": "Je ne peux pas vivre sans toi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2165,
+          "es": "No puedo vivir sin vos.",
+          "fr": "Je ne peux pas vivre sans toi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2216,
+          "es": "No entiendo lo que quiere decir.",
+          "fr": "Je ne comprends pas ce que vous voulez dire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2225,
+          "es": "No puedo imaginarme la vida sin ti.",
+          "fr": "Je ne peux pas penser à la vie sans toi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2274,
+          "es": "Sopla un viento fuerte y no puedo caminar rápido.",
+          "fr": "Il souffle un vent fort et je ne peux pas marcher vite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2327,
+          "es": "No sé cómo agradecéroslo.",
+          "fr": "Je ne sais pas comment vous remercier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2328,
+          "es": "No sé cómo agradecérselo.",
+          "fr": "Je ne sais pas comment vous remercier.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2375,
+          "es": "No lo aguanto.",
+          "fr": "Je ne peux pas le supporter.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2485,
+          "es": "No puedo hablar en inglés, mucho menos en español.",
+          "fr": "Je ne sais pas parler anglais, et encore moins espagnol.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2682,
+          "es": "No puedo prestarte este libro.",
+          "fr": "Je ne peux pas te prêter ce livre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 2810,
+          "es": "No puedo concentrarme con todo este ruido.",
+          "fr": "Je ne peux pas me concentrer avec tout ce bruit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3029,
+          "es": "Yo no puedo ver esta fotografía sin pensar en mi madre.",
+          "fr": "Je ne peux pas regarder ce tableau sans penser à ma mère.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3038,
+          "es": "No puedo terminar de leer ese libro gordo en una semana.",
+          "fr": "Je ne peux pas finir de lire ce livre épais en une semaine.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3048,
+          "es": "No puedo aguantar el abrigo con este calor.",
+          "fr": "Je ne peux pas garder mon manteau avec cette chaleur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3049,
+          "es": "No me gusta estudiar con este calor.",
+          "fr": "Je n'aime pas étudier par cette chaleur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3151,
+          "es": "No sé si viene George.",
+          "fr": "Je ne sais pas si George vient.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3291,
+          "es": "No puedo evitarlo.",
+          "fr": "Je ne peux pas m'en empêcher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3327,
+          "es": "No puedo comprar un libro tan caro.",
+          "fr": "Je ne peux pas acheter un livre aussi cher.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3402,
+          "es": "No sé hablar alemán.",
+          "fr": "Je ne sais pas parler allemand.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3425,
+          "es": "No sé adónde ir.",
+          "fr": "Je ne sais pas où aller.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3462,
+          "es": "No puedo explicar su ausencia de la escuela.",
+          "fr": "Je ne peux pas justifier son absence à l'école.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3468,
+          "es": "No sé qué decir.",
+          "fr": "Je ne sais pas quoi dire.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3635,
+          "es": "No puedo esperar más tiempo.",
+          "fr": "Je ne peux pas attendre plus longtemps.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3772,
+          "es": "No quiero ir solo.",
+          "fr": "Je ne veux pas y aller seul.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3790,
+          "es": "No puedo levantar mi brazo derecho.",
+          "fr": "Je ne peux pas lever mon bras droit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3794,
+          "es": "No me gusta salir cuando llueve.",
+          "fr": "Je n'aime pas sortir quand il pleut.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3817,
+          "es": "No bebo mucha cerveza.",
+          "fr": "Je ne bois pas beaucoup de bière.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3854,
+          "es": "Yo no puedo hablar en francés.",
+          "fr": "Je ne sais pas parler français.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3918,
+          "es": "No me puedo mover.",
+          "fr": "Je ne peux pas bouger.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3930,
+          "es": "No me gusta cantar en público.",
+          "fr": "Je n'aime pas chanter en public.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3966,
+          "es": "Me gusta nadar, pero no quiero nadar aquí.",
+          "fr": "J'aime nager, mais je ne veux pas nager ici.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3970,
+          "es": "No sé qué hacer ahora.",
+          "fr": "Je ne sais pas quoi faire maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3971,
+          "es": "Ahora no sé qué hacer.",
+          "fr": "Je ne sais pas quoi faire maintenant.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 3978,
+          "es": "No quiero vivir solo.",
+          "fr": "Je ne veux pas vivre seul.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4108,
+          "es": "No puedo prestarle este libro.",
+          "fr": "Je ne peux pas vous prêter ce livre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4205,
+          "es": "No encuentro que ella se parezca a su madre.",
+          "fr": "Je ne trouve pas qu'elle ressemble à sa mère.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4232,
+          "es": "No sé si mañana lloverá o no.",
+          "fr": "Je ne sais pas s'il pleuvra ou pas demain.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4315,
+          "es": "No me gusta el sushi.",
+          "fr": "Je n'aime pas le sushi.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4371,
+          "es": "No sé dónde vive.",
+          "fr": "Je ne sais pas où il habite.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4412,
+          "es": "No me gusta la atmósfera contaminada de las ciudades grandes.",
+          "fr": "Je n'aime pas l'atmosphère polluée des grandes villes.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4429,
+          "es": "No me gusta vivir en el campo.",
+          "fr": "Je n'aime pas vivre à la campagne.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4462,
+          "es": "No sé por qué él renunció a la compañía.",
+          "fr": "Je ne sais pas pourquoi il quitte la société.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4463,
+          "es": "Desconozco la razón de su ausencia.",
+          "fr": "Je ne connais pas la raison de son absence.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4473,
+          "es": "No sé si vendrá en tren o en coche.",
+          "fr": "Je ne sais pas s'il viendra par le train ou en voiture.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4494,
+          "es": "No quiero responder a su carta.",
+          "fr": "Je ne veux pas répondre à sa lettre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4511,
+          "es": "No sé cuándo puede venir.",
+          "fr": "Je ne sais pas quand elle peut venir.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4525,
+          "es": "No me gusta la manera en la que ella ríe.",
+          "fr": "Je n'aime pas la façon dont elle rit.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4526,
+          "es": "No me gusta la forma en que ella habla.",
+          "fr": "Je n'aime pas la façon dont elle parle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4527,
+          "es": "No me gusta su forma de hablar.",
+          "fr": "Je n'aime pas la façon dont elle parle.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4548,
+          "es": "No conozco los ingresos anuales de mi padre.",
+          "fr": "Je ne connais pas le revenu annuel de mon père.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4560,
+          "es": "No leo libros.",
+          "fr": "Je ne lis pas de livres.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4598,
+          "es": "Yo no pude darme a entender.",
+          "fr": "Je ne pouvais pas me faire comprendre.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4654,
+          "es": "No puedo hacer que el carro encienda.",
+          "fr": "Je n'arrive pas à faire démarrer la voiture.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4734,
+          "es": "No creo que Dios exista.",
+          "fr": "Je ne crois pas que Dieu existe.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4923,
+          "es": "No puedo aguantar este dolor.",
+          "fr": "Je ne peux pas supporter cette douleur.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        },
+        {
+          "id": 4971,
+          "es": "No quiero carne.",
+          "fr": "Je ne veux pas de viande.",
+          "is_human_pair": true,
+          "max_cefr_level": "C2",
+          "flelex_score": 6.55250788703459
+        }
+      ]
+    },
+    {
+      "id": "A1.3_QUESTIONS",
+      "title": "Interrogative Sentences & Question Words",
+      "objective": "Form questions using intonation, *Est-ce que*, pronoun inversion, and interrogative words (*qui, que, où, quand, pourquoi, comment, combien*).",
+      "spacy_pattern": "pattern_est_ce_que = [\n    {\"LEMMA\": \"est\"},\n    {\"LEMMA\": \"-\"},\n    {\"LEMMA\": \"ce\"},\n    {\"LEMMA\": \"que\"},\n]\n\npattern_interrogative_word = [\n    {\n        \"POS\": {\"IN\": [\"ADV\", \"PRON\", \"DET\"]},\n        \"LEMMA\": {\n            \"IN\": [\n                \"où\",\n                \"quand\",\n                \"comment\",\n                \"pourquoi\",\n                \"combien\",\n                \"qui\",\n                \"que\",\n                \"quel\",\n            ]\n        },\n    },\n    {\"POS\": \"VERB\", \"OP\": \"?\"},\n]",
+      "exercises": []
+    }
+  ]
+}
