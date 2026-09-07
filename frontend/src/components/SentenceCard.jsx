@@ -493,16 +493,9 @@ export default function SentenceCard({
               <div className="md:col-span-7 space-y-3.5">
                 {/* Reference Translation */}
                 <div className="p-3.5 rounded-xl bg-neutral-50">
-                  <div className="text-xs text-neutral-500 font-medium flex items-center justify-between gap-2 mb-1.5">
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="w-3.5 h-3.5 text-neutral-500" />
-                      <span>Reference Translation:</span>
-                    </div>
-                    {firstTimeLemmas.length > 0 && (
-                      <span className="text-[10px] font-medium text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full border border-purple-200">
-                        Nouveau mot
-                      </span>
-                    )}
+                  <div className="text-xs text-neutral-500 font-medium flex items-center gap-1 mb-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-neutral-500" />
+                    <span>Reference Translation:</span>
                   </div>
                   <div className="text-base text-neutral-900 font-medium leading-relaxed">
                     {sentence.fr.split(/(\s+)/).map((part, pIdx) => {
@@ -602,49 +595,41 @@ export default function SentenceCard({
 
                 {/* Grammar & Syntax Error Notice */}
                 {evalResult.syntactical_errors?.length > 0 && !isSkipped && (
-                  <div className="p-3 rounded-xl bg-amber-50 text-amber-900 text-xs space-y-1">
-                    <div className="font-semibold flex items-center gap-1.5 text-amber-800">
-                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                      <span>{evalResult.status_message ? evalResult.status_message : 'Grammar & Syntax:'}</span>
+                  <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-200/70 text-xs shadow-xs space-y-2">
+                    <div className="flex items-center gap-2 text-amber-900 font-semibold tracking-tight">
+                      <div className="p-1 rounded-md bg-amber-100/80 text-amber-700">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Grammar & Syntax Feedback</span>
+                      <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-200/60 text-amber-800">
+                        {evalResult.syntactical_errors.length} {evalResult.syntactical_errors.length === 1 ? 'issue' : 'issues'}
+                      </span>
                     </div>
-                    <ul className="list-disc list-inside space-y-0.5 pl-1 text-neutral-700">
-                      {evalResult.syntactical_errors.map((err, i) => (
-                        <li key={i}>{err}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Vocabulary Progress & First-time Root Mastery */}
-                {evalResult.vocabulary_progress?.length > 0 && !isSkipped && (
-                  <div className="p-3 rounded-xl bg-purple-50/80 border border-purple-100 text-xs space-y-1.5">
-                    <div className="font-semibold text-purple-900 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-                      <span>Vocabulaire pratiqué :</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
-                      {evalResult.vocabulary_progress.map((item, i) => {
-                        const isFirstTime = item.appearance_count <= 2;
+                    <div className="space-y-1.5 pt-0.5">
+                      {evalResult.syntactical_errors.map((err, i) => {
+                        // Extract context prefix like On 'phrase': if present
+                        const match = err.match(/^On '([^']+)':\s*(.+)$/);
+                        if (match) {
+                          const [, contextPhrase, explanation] = match;
+                          return (
+                            <div key={i} className="flex items-start gap-2 bg-white/70 border border-amber-100 rounded-lg p-2 text-neutral-800 leading-relaxed">
+                              <span className="shrink-0 px-1.5 py-0.5 rounded bg-amber-100/90 text-amber-900 font-mono text-[11px] font-semibold">
+                                {contextPhrase}
+                              </span>
+                              <span className="text-neutral-700 text-[11px] pt-0.5">{explanation}</span>
+                            </div>
+                          );
+                        }
                         return (
-                          <span
-                            key={i}
-                            className={`px-2 py-0.5 rounded text-[11px] font-medium flex items-center gap-1 ${
-                              isFirstTime
-                                ? 'bg-purple-200/90 text-purple-950 border border-purple-300 shadow-sm'
-                                : 'bg-white text-purple-800 border border-purple-200'
-                            }`}
-                          >
-                            {isFirstTime && <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>}
-                            <strong>{item.lemma}</strong>
-                            <span className="text-[10px] text-purple-700 font-normal">
-                              {isFirstTime ? '(Nouveau)' : `(${item.appearance_count}x)`}
-                            </span>
-                          </span>
+                          <div key={i} className="bg-white/70 border border-amber-100 rounded-lg p-2 text-neutral-700 text-[11px] leading-relaxed">
+                            {err}
+                          </div>
                         );
                       })}
                     </div>
                   </div>
                 )}
+
 
                 {/* Language warning (only if genuine non-French) */}
                 {!evalResult.is_french && !isSkipped && (

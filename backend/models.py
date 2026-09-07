@@ -454,19 +454,26 @@ class MLEngine:
         return perplexity, fluency_token_breakdown, fluency_word_breakdown
 
     def evaluate_syntax(self, text):
-        """Uses LanguageTool to detect syntactical and grammatical errors."""
+        """Uses LanguageTool (Tier 2) to detect genuine syntactical, grammatical, and confused-word errors."""
         matches = self.lang_tool.check(text)
         errors = []
         
+        # Stylistic categories and typography rules to exclude from harsh penalties
+        IGNORED_CATEGORIES = {"STYLE", "TYPOGRAPHY", "PUNCTUATION", "COLLOQUIALISMS", "REDUNDANCY"}
+        IGNORED_ISSUE_TYPES = {"style", "register", "typographical", "whitespace", "locale-violation"}
+
         for match in matches:
-            # Skip pure spelling errors since pyspellchecker handles basic typos
-            if "MORFOLOGIK_RULE_FR" in match.rule_id or "FRENCH_SPELLER_RULE" in match.rule_id:
+            cat = getattr(match, "category", "")
+            issue_type = getattr(match, "rule_issue_type", "")
+
+            # Exclude stylistic or subjective feedback
+            if cat in IGNORED_CATEGORIES or issue_type in IGNORED_ISSUE_TYPES:
                 continue
-                
-            error_msg = f"{match.message} (Rule: {match.rule_id})"
+
+            error_msg = match.message.strip()
             
-            # Optionally extract bad text context for clarity
-            context = text[match.offset:match.offset+match.error_length]
+            # Extract bad text context for clarity
+            context = text[match.offset:match.offset + match.error_length].strip()
             if context:
                 error_msg = f"On '{context}': {error_msg}"
                 

@@ -43,18 +43,34 @@ Before evaluating student input against neural metrics, `server.py` runs a multi
 
 ```mermaid
 flowchart LR
-    RawInput["Student Text"] --> AccMatch["Unaccented Reference Matching"]
-    AccMatch --> SpellCheck["pyspellchecker (Levenshtein <= 2)"]
-    SpellCheck --> CleanText["Corrected French Text"]
+    RawInput["Student Text"] --> Punct["Punctuation & Spacing Reconciliation"]
+    Punct --> AccMatch["Unaccented Reference Matching"]
+    AccMatch --> LTSpell["LanguageTool Typos (Levenshtein <= 2)"]
+    LTSpell --> CleanText["Normalized French Text"]
 ```
 
-1. **Reference-Guided Accent Restoration**:
+1. **Terminal Punctuation & Spacing Reconciliation**:
+   - Terminal punctuation marks (`.`, `?`, `!`) from the reference sentence are reconciled if omitted, preventing artificial NMT SentencePiece perplexity spikes.
+   - French two-part punctuation spacing (e.g. preceding space before `?`, `!`, `:`, `;`) is normalized.
+2. **Reference-Guided Accent Restoration**:
    - French accents (é, è, ê, à, ç) are common sources of friction for Spanish keyboards.
    - If `remove_accents(student_word.lower())` matches an unaccented word in the reference sentence, the accented reference casing is restored.
-2. **Spellchecker Typos**:
-   - Words unknown to `SpellChecker` with a Levenshtein edit distance $\le 2$ against the nearest French dictionary candidate are corrected.
-3. **Elision & Contraction Protection**:
+3. **LanguageTool Minor Typo Correction**:
+   - Genuine typographical slips (`TYPOS` category, `misspelling` rule issue type) with a Levenshtein edit distance $\le 2$ are gently corrected without solving grammatical agreements or confused-word choices.
+4. **Elision & Contraction Protection**:
    - Functional prefixes (`j'`, `l'`, `c'`, `d'`, `m'`, `t'`, `s'`, `n'`, `qu'`) are protected from accidental mutation.
+
+### Tier 1 Preprocessing Error Handling Matrix
+
+| Error Type | Example | Handled By | Outcome |
+| :--- | :--- | :--- | :--- |
+| **Missing Terminal Mark** | `Comment vas-tu` (ref: `Comment vas-tu ?`) | Reference Alignment | Appends `?`; zero penalty; logs `added '?'` |
+| **Mismatched Terminal Mark** | `Je vais bien?` (ref: `Je vais bien.`) | Reference Alignment | Replaces with `.`; zero penalty; logs `'?' -> '.'` |
+| **High Punctuation Spacing** | `C'est bien!` | French Regex Rule | Normalizes to `C'est bien !`; zero penalty |
+| **Missing Accents** | `eleve`, `garcon` | Reference Dictionary | Restored to `élève`, `garçon`; zero penalty |
+| **Surface Typo / Slip** | `pome` $\to$ `pomme` (edit dist $\le 2$) | LanguageTool (`TYPOS`) | Corrected non-punitively; logs `pome -> pomme` |
+| **Grammar Agreement** | `ils mange`, `un pomme` | **Excluded from Tier 1** | **Preserved intact**; forwarded to Tier 2 for diagnostic evaluation |
+| **Confused Words / Homophones** | `a` vs `à`, `son` vs `sont` | **Excluded from Tier 1** | **Preserved intact**; forwarded to Tier 2 for diagnostic evaluation |
 
 ---
 

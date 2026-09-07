@@ -3,17 +3,12 @@ import pandas as pd
 import numpy as np
 import re
 import unicodedata
-from spellchecker import SpellChecker
-
 try:
     from backend.data_manager import DataManager
     from backend.models import MLEngine
 except ImportError:
     from data_manager import DataManager
     from models import MLEngine
-
-# Initialize spellchecker once
-spell = SpellChecker(language='fr')
 
 print("Initializing Data Manager...")
 data_manager = DataManager()
@@ -126,26 +121,47 @@ def remove_accents(input_str):
     nfkd_form = unicodedata.normalize('NFKD', input_str)
     return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
 
-def autocorrect_text(student_text, reference_text):
+def autocorrect_text(student_text, reference_text, lang_tool=None):
     if not student_text:
         return student_text, []
-        
-    ref_words_unaccented = {remove_accents(w.lower()): w for w in re.findall(r"\b[^\W\d_]+\b", reference_text, re.UNICODE)}
+
     corrections_made = []
-    
-    # Common French contractions to ignore
+    text = student_text.strip()
+    ref = reference_text.strip() if reference_text else ""
+
+    # 1. Punctuation Reconciliation: terminal marks (. ? !) from reference
+    if ref and ref[-1] in {".", "?", "!"}:
+        target_mark = ref[-1]
+        if not text.endswith((".", "?", "!")):
+            text = f"{text}{target_mark}"
+            corrections_made.append(f"added '{target_mark}'")
+        elif text[-1] != target_mark and text[-1] in {".", "?", "!"}:
+            old_mark = text[-1]
+            text = f"{text[:-1]}{target_mark}"
+            corrections_made.append(f"'{old_mark}' -> '{target_mark}'")
+
+    # 2. French punctuation spacing: high punctuation (?, !, :, ;) requires a preceding space
+    for mark in [r"\?", r"!", r":", r";"]:
+        pattern = r"(\S)" + mark
+        def add_space(m):
+            return f"{m.group(1)} {m.group(0)[-1]}"
+        text = re.sub(pattern, add_space, text)
+
+    # 3. Reference-Guided Accent & Case Restoration
+    ref_words_unaccented = {
+        remove_accents(w.lower()): w
+        for w in re.findall(r"\b[^\W\d_]+\b", reference_text or "", re.UNICODE)
+    }
     ignored_words = {'j', 'l', 'c', 'd', 'm', 't', 's', 'n', 'qu'}
-    
+
     def replace_word(match):
         word = match.group(0)
         word_lower = word.lower()
         word_unaccented = remove_accents(word_lower)
-        
-        # Skip autocorrecting common contractions
+
         if word_lower in ignored_words:
             return word
-            
-        # 1. Check against reference text for missing accents on valid words
+
         if word_unaccented in ref_words_unaccented and ref_words_unaccented[word_unaccented].lower() != word_lower:
             correct_word = ref_words_unaccented[word_unaccented]
             if word.istitle():
@@ -154,32 +170,57 @@ def autocorrect_text(student_text, reference_text):
                 correct_word = correct_word.upper()
             corrections_made.append(f"{word} -> {correct_word}")
             return correct_word
-            
-        # 2. Check pyspellchecker for unknown words
-        if not spell.known([word_lower]):
-            candidate = spell.correction(word_lower)
-            if candidate and candidate != word_lower:
-                if levenshtein(word_lower, candidate) <= 2:
-                    if word.istitle():
-                        candidate = candidate.capitalize()
-                    elif word.isupper():
-                        candidate = candidate.upper()
-                    corrections_made.append(f"{word} -> {candidate}")
-                    return candidate
-                    
+
         return word
 
-    corrected_text = re.sub(r"\b[^\W\d_]+\b", replace_word, student_text, flags=re.UNICODE)
-    
-    # Deduplicate corrections
+    text = re.sub(r"\b[^\W\d_]+\b", replace_word, text, flags=re.UNICODE)
+
+    # 4. LanguageTool Minor Typo Correction (Tier 1: strictly typos, edit distance <= 2)
+    if lang_tool is not None:
+        try:
+            matches = lang_tool.check(text)
+            matches = sorted(matches, key=lambda m: m.offset, reverse=True)
+            for m in matches:
+                is_spelling_issue = (
+                    getattr(m, "category", "") == "TYPOS"
+                    or getattr(m, "rule_issue_type", "") == "misspelling"
+                    or "SPELL" in getattr(m, "rule_id", "")
+                    or "MORFOLOGIK" in getattr(m, "rule_id", "")
+                )
+                is_grammar_or_confusion = (
+                    getattr(m, "category", "") in {"GRAMMAR", "CONFUSED_WORDS"}
+                    or getattr(m, "rule_issue_type", "") in {"grammar", "style", "register"}
+                )
+                if not is_spelling_issue or is_grammar_or_confusion:
+                    continue
+
+                if not m.replacements:
+                    continue
+
+                original_word = text[m.offset:m.offset + m.error_length]
+                if original_word.lower() in ignored_words:
+                    continue
+
+                candidate = m.replacements[0]
+                if candidate and candidate.lower() != original_word.lower():
+                    if levenshtein(original_word.lower(), candidate.lower()) <= 2:
+                        if original_word.istitle():
+                            candidate = candidate.capitalize()
+                        elif original_word.isupper():
+                            candidate = candidate.upper()
+                        text = text[:m.offset] + candidate + text[m.offset + m.error_length:]
+                        corrections_made.append(f"{original_word} -> {candidate}")
+        except Exception as e:
+            print(f"LanguageTool tier 1 warning: {e}")
+
     seen = set()
     unique_corrections = []
     for c in corrections_made:
         if c not in seen:
             seen.add(c)
             unique_corrections.append(c)
-            
-    return corrected_text, unique_corrections
+
+    return text, unique_corrections
 
 
 def render_breakdown_badges(breakdown_list, is_word_view=True):
@@ -252,7 +293,7 @@ def evaluate_translation(source_text, reference_text, student_text):
     if not reference_text or not str(reference_text).strip():
         reference_text = student_text
 
-    student_text, autocorrect_msgs = autocorrect_text(student_text, reference_text)
+    student_text, autocorrect_msgs = autocorrect_text(student_text, reference_text, lang_tool=getattr(engine, "lang_tool", None))
 
     result = engine.compute_final_score(source_text, student_text, reference_text)
 

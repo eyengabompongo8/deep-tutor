@@ -36,7 +36,7 @@ graph TD
 | `test_progressive_vocab.py` | Vocabulary appearance logging, success counters, mastery transitions, and $i+1$ filtering. |
 | `test_scoring.py` | Continuous CEFR calculations, score-to-level mapping, sentence quality metrics, and batch delta adjustments. |
 | `test_transcription.py` | Deterministic sequence matcher, accent error classification, typo detection, and diff tokens. |
-| `test_spellchecker.py` | Reference-guided accent restoration, Levenshtein typo corrections, and contraction protection. |
+| `test_spellchecker.py` | Reference-guided accent restoration, terminal mark reconciliation, French spacing, and LanguageTool typo corrections. |
 | `test_ml_models.py` | Integration tests for `MLEngine` (marked `@pytest.mark.ml`). |
 
 ---

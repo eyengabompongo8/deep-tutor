@@ -8,8 +8,6 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from spellchecker import SpellChecker
-
 try:
     from backend.data_manager import DataManager
     from backend.scoring_engine import ScoringEngine, score_to_level
@@ -38,7 +36,6 @@ print("Initializing DataManager and ScoringEngine...")
 data_manager = DataManager()
 scoring_engine = ScoringEngine(data_manager=data_manager)
 tts_engine = get_tts_engine(data_manager=data_manager)
-spell = SpellChecker(language='fr')
 
 # Lazy load MLEngine with thread-safe lock
 ml_engine = None
@@ -99,22 +96,47 @@ def remove_accents(input_str: str) -> str:
     nfkd_form = unicodedata.normalize('NFKD', input_str)
     return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
 
-def autocorrect_text(student_text: str, reference_text: str):
+def autocorrect_text(student_text: str, reference_text: str, lang_tool=None):
     if not student_text:
         return student_text, []
-        
-    ref_words_unaccented = {remove_accents(w.lower()): w for w in re.findall(r"\b[^\W\d_]+\b", reference_text, re.UNICODE)}
+
     corrections_made = []
+    text = student_text.strip()
+    ref = reference_text.strip() if reference_text else ""
+
+    # 1. Punctuation Reconciliation: terminal marks (. ? !) from reference
+    if ref and ref[-1] in {".", "?", "!"}:
+        target_mark = ref[-1]
+        if not text.endswith((".", "?", "!")):
+            text = f"{text}{target_mark}"
+            corrections_made.append(f"added '{target_mark}'")
+        elif text[-1] != target_mark and text[-1] in {".", "?", "!"}:
+            old_mark = text[-1]
+            text = f"{text[:-1]}{target_mark}"
+            corrections_made.append(f"'{old_mark}' -> '{target_mark}'")
+
+    # 2. French punctuation spacing: high punctuation (?, !, :, ;) requires a preceding space
+    for mark in [r"\?", r"!", r":", r";"]:
+        pattern = r"(\S)" + mark
+        def add_space(m):
+            return f"{m.group(1)} {m.group(0)[-1]}"
+        text = re.sub(pattern, add_space, text)
+
+    # 3. Reference-Guided Accent & Case Restoration
+    ref_words_unaccented = {
+        remove_accents(w.lower()): w
+        for w in re.findall(r"\b[^\W\d_]+\b", reference_text or "", re.UNICODE)
+    }
     ignored_words = {'j', 'l', 'c', 'd', 'm', 't', 's', 'n', 'qu'}
-    
+
     def replace_word(match):
         word = match.group(0)
         word_lower = word.lower()
         word_unaccented = remove_accents(word_lower)
-        
+
         if word_lower in ignored_words:
             return word
-            
+
         if word_unaccented in ref_words_unaccented and ref_words_unaccented[word_unaccented].lower() != word_lower:
             correct_word = ref_words_unaccented[word_unaccented]
             if word.istitle():
@@ -123,29 +145,60 @@ def autocorrect_text(student_text: str, reference_text: str):
                 correct_word = correct_word.upper()
             corrections_made.append(f"{word} -> {correct_word}")
             return correct_word
-            
-        if not spell.known([word_lower]):
-            candidate = spell.correction(word_lower)
-            if candidate and candidate != word_lower:
-                if levenshtein(word_lower, candidate) <= 2:
-                    if word.istitle():
-                        candidate = candidate.capitalize()
-                    elif word.isupper():
-                        candidate = candidate.upper()
-                    corrections_made.append(f"{word} -> {candidate}")
-                    return candidate
-                    
+
         return word
 
-    corrected_text = re.sub(r"\b[^\W\d_]+\b", replace_word, student_text, flags=re.UNICODE)
+    text = re.sub(r"\b[^\W\d_]+\b", replace_word, text, flags=re.UNICODE)
+
+    # 4. LanguageTool Minor Typo Correction (Tier 1: strictly typos, edit distance <= 2)
+    if lang_tool is not None:
+        try:
+            matches = lang_tool.check(text)
+            # Sort matches in reverse order so character offsets remain valid during replacements
+            matches = sorted(matches, key=lambda m: m.offset, reverse=True)
+            for m in matches:
+                # Strictly allow only spelling typos; never solve grammar, confused words, or syntax
+                is_spelling_issue = (
+                    getattr(m, "category", "") == "TYPOS"
+                    or getattr(m, "rule_issue_type", "") == "misspelling"
+                    or "SPELL" in getattr(m, "rule_id", "")
+                    or "MORFOLOGIK" in getattr(m, "rule_id", "")
+                )
+                is_grammar_or_confusion = (
+                    getattr(m, "category", "") in {"GRAMMAR", "CONFUSED_WORDS"}
+                    or getattr(m, "rule_issue_type", "") in {"grammar", "style", "register"}
+                )
+                if not is_spelling_issue or is_grammar_or_confusion:
+                    continue
+
+                if not m.replacements:
+                    continue
+
+                original_word = text[m.offset:m.offset + m.error_length]
+                if original_word.lower() in ignored_words:
+                    continue
+
+                candidate = m.replacements[0]
+                if candidate and candidate.lower() != original_word.lower():
+                    if levenshtein(original_word.lower(), candidate.lower()) <= 2:
+                        if original_word.istitle():
+                            candidate = candidate.capitalize()
+                        elif original_word.isupper():
+                            candidate = candidate.upper()
+                        text = text[:m.offset] + candidate + text[m.offset + m.error_length:]
+                        corrections_made.append(f"{original_word} -> {candidate}")
+        except Exception as e:
+            print(f"LanguageTool tier 1 warning: {e}")
+
+    # Deduplicate corrections while preserving order
     seen = set()
     unique_corrections = []
     for c in corrections_made:
         if c not in seen:
             seen.add(c)
             unique_corrections.append(c)
-            
-    return corrected_text, unique_corrections
+
+    return text, unique_corrections
 
 def get_aligned_targets(selected_source_indices: List[int], matrix: np.ndarray, num_tgt_words: int) -> List[int]:
     if not selected_source_indices or matrix is None or matrix.size == 0:
@@ -361,7 +414,9 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
         }
 
     try:
-        corrected_student_text, autocorrect_msgs = autocorrect_text(req.student_text, req.reference_text)
+        engine = get_ml_engine()
+        lt = getattr(engine, "lang_tool", None)
+        corrected_student_text, autocorrect_msgs = autocorrect_text(req.student_text, req.reference_text, lang_tool=lt)
         
         # Compute ML evaluation via Thread 2 evaluator (reusing precomputed reference bundle)
         result = eager_processor.evaluate_student(

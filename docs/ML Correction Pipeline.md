@@ -84,11 +84,23 @@ Evaluates whether the student's output constitutes natural, grammatical French i
 
 ## 5. Stage 5: Syntax & Grammar Diagnostics
 
-Detects grammatical agreement, conjugation, and gender errors that neural embeddings might overlook.
+Detects genuine grammatical agreement, conjugation, gender errors, and word confusions that neural embeddings might overlook.
 - **Engine**: `language_tool_python` (`fr`).
-- **Rule Filtering**: Pure spelling rules (`MORFOLOGIK_RULE_FR`, `FRENCH_SPELLER_RULE`) are ignored to avoid duplicate reporting with `pyspellchecker`.
+- **Rule Filtering**: Filters strictly for genuine grammatical violations (`GRAMMAR`), agreement errors, and homophone confusions (`CONFUSED_WORDS`), while excluding subjective stylistic preferences (`STYLE`, `TYPOGRAPHY`, `PUNCTUATION`).
 - **Penalty Calculation**: Each unique grammatical violation deducts 4.0 points from the composite score (capped at a maximum penalty of 20.0 points):
   $$\text{Penalty}_{\text{syntax}} = \min(20.0, \text{Count}_{\text{errors}} \times 4.0)$$
+
+### Stage 5 Diagnostic Error Taxonomy
+
+| Error Category | Example Rule IDs / Triggers | Sample Mistake | Pipeline Action |
+| :--- | :--- | :--- | :--- |
+| **Subject-Verb Agreement** | `ACCORD_SUJET_VERBE`, `VERBE_PLURIEL` | *« Ils mange la pomme »* | Flagged; -4.0 pts |
+| **Gender & Number Agreement** | `ACCORD_GENRE`, `ACCORD_NOMBRE` | *« Une grand garçon »*, *« Les chat noir »* | Flagged; -4.0 pts |
+| **Homophones / Confused Words** | `CONFUSED_WORDS`, `A_A_ACCENT`, `SON_SONT` | *« Il a faim »* vs *« Il va à Paris »*, *« Son/Sont »* | Flagged; -4.0 pts |
+| **Incorrect Auxiliary Verb** | `AUXILIAIRE_ETRE_AVOIR` | *« Je suis allé »* vs *« J'ai allé »* | Flagged; -4.0 pts |
+| **Preposition & Syntax Rules** | `PREPOSITION_DE`, `VERBE_INFINITIF` | *« J'aime de voyager »* | Flagged; -4.0 pts |
+| **Subjective Style / Register** | `STYLE`, `REDUNDANCY`, `COLLOQUIALISMS` | *« on »* vs *« nous »*, passive voice | **Ignored** (no deduction) |
+| **Typography & Spacing** | `TYPOGRAPHY`, `PUNCTUATION`, `WHITESPACE` | Guimet quotes, spacing nuances | **Ignored** (handled in Tier 1) |
 
 ---
 
