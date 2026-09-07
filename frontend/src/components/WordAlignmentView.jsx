@@ -242,11 +242,6 @@ export default function WordAlignmentView({
         <div className="space-y-1">
           <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider flex items-center justify-between">
             <span>🇫🇷 Reference (Target)</span>
-            {firstTimeLemmas.length > 0 && (
-              <span className="text-[10px] font-medium text-purple-700 bg-purple-100 px-1.5 py-0.2 rounded border border-purple-200">
-                Nouveau
-              </span>
-            )}
             {selectedRefIndices.length > 0 && (
               <span className="text-[10px] text-neutral-500 lowercase">
                 ({activeOrigin === 'ref' ? 'selected' : 'aligned'})

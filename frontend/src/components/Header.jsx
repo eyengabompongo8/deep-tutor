@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, Settings, CheckCircle2, Languages, Headphones } from 'lucide-react';
+import { Flame, Settings, Languages, Headphones } from 'lucide-react';
 import UserMenu from './UserMenu';
 
 const LEVEL_NAMES = {
@@ -24,7 +24,6 @@ export default function Header({
   const score = modeData?.score ?? 1.20;
   const level = modeData?.level ?? 'A1';
   const streak = modeData?.streak ?? 0;
-  const completed = modeData?.total_completed ?? 0;
 
   const currentLevelInt = Math.floor(score);
   const progressPercent = Math.min(100, Math.max(0, Math.round((score - currentLevelInt) * 100)));
@@ -84,24 +83,12 @@ export default function Header({
 
         {/* Right Stats, Active User & Settings */}
         <div className="flex items-center gap-3 sm:gap-4 text-xs text-neutral-500">
-          {profile?.vocabulary?.total_known > 0 && currentMode === 'translation' && (
-            <div className="flex items-center gap-1 font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100" title={`${profile.vocabulary.total_known} racines de mots connues`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-              <span>{profile.vocabulary.total_known} mots</span>
-            </div>
-          )}
-
           {streak > 0 && (
             <div className="flex items-center gap-1 font-medium text-amber-700" title={`${streak} séries réussies`}>
               <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
               <span>{streak}</span>
             </div>
           )}
-
-          <div className="flex items-center gap-1 text-neutral-500" title={`${completed} phrases complétées`}>
-            <CheckCircle2 className="w-3.5 h-3.5 text-neutral-400" />
-            <span>{completed}</span>
-          </div>
 
           <div className="h-4 w-px bg-neutral-200" />
 
