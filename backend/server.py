@@ -292,9 +292,8 @@ def get_exercises_batch(
     # For transcription exercises, only include familiar words (no new words)
     effective_max_unknown = 0 if mode == "transcription" else max_unknown
 
-    all_sentences = data_manager.get_all_sentences()
     batch = scoring_engine.get_batch_sentences(
-        all_sentences,
+        all_sentences=None,
         target_score=target_score,
         count=count,
         exclude_ids=exclude_ids,

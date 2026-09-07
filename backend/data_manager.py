@@ -2,6 +2,7 @@ import os
 import sqlite3
 import re
 import json
+import threading
 from typing import List, Dict, Any, Optional, Set, Tuple
 from contextlib import contextmanager
 
@@ -18,6 +19,8 @@ SYSTEM_COLUMNS = {
 class DataManager:
     def __init__(self, db_path: Optional[str] = None):
         self.db_path = db_path or DB_PATH
+        self._lexemas_cache: Optional[Dict[int, Dict[str, Any]]] = None
+        self._lexemas_cache_lock = threading.Lock()
         os.makedirs(os.path.dirname(os.path.abspath(self.db_path)), exist_ok=True)
         self._init_db()
 
@@ -863,6 +866,23 @@ class DataManager:
     # Lexemas & Sentence Junction Methods
     # ==========================================
 
+    def get_lexemas_dict(self) -> Dict[int, Dict[str, Any]]:
+        """Returns in-memory cached dictionary of all lexemas {id: {lemma, level, is_base}}."""
+        with self._lexemas_cache_lock:
+            if self._lexemas_cache is None:
+                with self._get_connection() as conn:
+                    lex_cursor = conn.execute("SELECT id, lemma, level, is_base FROM lexemas;")
+                    self._lexemas_cache = {
+                        r['id']: {'lemma': r['lemma'], 'level': r['level'], 'is_base': bool(r['is_base'])}
+                        for r in lex_cursor.fetchall()
+                    }
+            return self._lexemas_cache
+
+    def invalidate_lexemas_cache(self):
+        """Invalidates the in-memory lexemas cache."""
+        with self._lexemas_cache_lock:
+            self._lexemas_cache = None
+
     def upsert_lexema(
         self,
         lemma: str,
@@ -875,6 +895,7 @@ class DataManager:
         lemma = lemma.lower().strip()
         pos = (pos or '').upper().strip() or None
         meta_str = json.dumps(metadata or {}, ensure_ascii=False)
+        self.invalidate_lexemas_cache()
         with self._get_connection() as conn:
             conn.execute("""
                 INSERT INTO lexemas (lemma, pos, level, frequency, is_base, metadata)
@@ -891,6 +912,7 @@ class DataManager:
     def bulk_upsert_lexemas(self, lexemas: List[Dict[str, Any]]) -> Dict[tuple, int]:
         if not lexemas:
             return {}
+        self.invalidate_lexemas_cache()
         with self._get_connection() as conn:
             for item in lexemas:
                 lemma = item['lemma'].lower().strip()
@@ -1084,15 +1106,45 @@ class DataManager:
         known_lexema_ids = self.get_user_known_lexema_ids(user_id)
         exclude_set = set(exclude_ids or [])
 
+        # Tiered candidate query to leverage idx_sentences_score_lexical range scans
+        min_candidates = max(10, count * 4)
         with self._get_connection() as conn:
+            # Tier 1: narrow window (+/- 0.8)
             cursor = conn.execute("""
                 SELECT s.*, GROUP_CONCAT(sl.lexema_id) as lexema_ids
                 FROM sentences s
                 JOIN sentence_lexemas sl ON s.id = sl.sentence_id
+                WHERE s.score_lexical BETWEEN ? AND ?
                 GROUP BY s.id
-                ORDER BY ABS(s.score_lexical - ?) ASC;
-            """, (target_score,))
+                ORDER BY ABS(s.score_lexical - ?) ASC
+                LIMIT 150;
+            """, (target_score - 0.8, target_score + 0.8, target_score))
             all_rows = cursor.fetchall()
+
+            # Tier 2: wider window (+/- 1.6) if insufficient candidates
+            if len(all_rows) < min_candidates:
+                cursor = conn.execute("""
+                    SELECT s.*, GROUP_CONCAT(sl.lexema_id) as lexema_ids
+                    FROM sentences s
+                    JOIN sentence_lexemas sl ON s.id = sl.sentence_id
+                    WHERE s.score_lexical BETWEEN ? AND ?
+                    GROUP BY s.id
+                    ORDER BY ABS(s.score_lexical - ?) ASC
+                    LIMIT 250;
+                """, (target_score - 1.6, target_score + 1.6, target_score))
+                all_rows = cursor.fetchall()
+
+            # Tier 3: full corpus fallback if still insufficient
+            if len(all_rows) < min_candidates:
+                cursor = conn.execute("""
+                    SELECT s.*, GROUP_CONCAT(sl.lexema_id) as lexema_ids
+                    FROM sentences s
+                    JOIN sentence_lexemas sl ON s.id = sl.sentence_id
+                    GROUP BY s.id
+                    ORDER BY ABS(s.score_lexical - ?) ASC
+                    LIMIT 350;
+                """, (target_score,))
+                all_rows = cursor.fetchall()
 
         if not all_rows:
             all_s = self.get_all_sentences()
@@ -1106,9 +1158,8 @@ class DataManager:
         progression_candidates = []
         fallback_candidates = []
 
+        lex_dict = self.get_lexemas_dict()
         with self._get_connection() as conn:
-            lex_cursor = conn.execute("SELECT id, lemma, level, is_base FROM lexemas;")
-            lex_dict = {r['id']: {'lemma': r['lemma'], 'level': r['level'], 'is_base': bool(r['is_base'])} for r in lex_cursor.fetchall()}
             user_counts_cursor = conn.execute(
                 "SELECT lexema_id, appearance_count, is_known FROM user_lexema_counts WHERE user_id = ?;",
                 (user_id,)
@@ -1116,9 +1167,6 @@ class DataManager:
             user_counts = {r['lexema_id']: {'count': r['appearance_count'], 'is_known': bool(r['is_known'])} for r in user_counts_cursor.fetchall()}
 
         for row in all_rows:
-            s_dict = self._row_to_dict(row)
-            is_excluded = s_dict['id'] in exclude_set
-
             raw_lids = row['lexema_ids']
             if not raw_lids:
                 continue
@@ -1127,43 +1175,13 @@ class DataManager:
             if not sent_lids:
                 continue
 
+            s_dict = self._row_to_dict(row)
+            is_excluded = s_dict['id'] in exclude_set
             unknown_lids = sent_lids - known_lexema_ids
-            known_lids = sent_lids & known_lexema_ids
 
             s_dict['unknown_count'] = len(unknown_lids)
-            s_dict['known_lexemas'] = [lex_dict[lid]['lemma'] for lid in known_lids if lid in lex_dict]
-            s_dict['new_lexemas'] = [lex_dict[lid]['lemma'] for lid in unknown_lids if lid in lex_dict]
-
-            # Roots appearing for the first times (appearance count <= 2, excluding base functional words)
-            first_time_lids = [
-                lid for lid in sent_lids
-                if not lex_dict.get(lid, {}).get('is_base', False)
-                and (lid not in user_counts or user_counts[lid]['count'] <= 2)
-            ]
-            s_dict['first_time_lexemas'] = [lex_dict[lid]['lemma'] for lid in first_time_lids if lid in lex_dict]
-            if not s_dict['first_time_lexemas'] and s_dict['new_lexemas']:
-                s_dict['first_time_lexemas'] = s_dict['new_lexemas']
-
-            # Match surface words in target French sentence for each first-time root
-            fr_text = s_dict.get('fr', '')
-            fr_tokens = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", fr_text, re.UNICODE)
-            pairs = []
-            for lem in s_dict['first_time_lexemas']:
-                lem_lower = lem.lower()
-                matched_word = lem
-                for tok in fr_tokens:
-                    tok_clean = tok.lower().lstrip("ldjcmnst'")
-                    if tok_clean == lem_lower:
-                        matched_word = tok
-                        break
-                    min_len = min(len(tok_clean), len(lem_lower))
-                    if min_len >= 4 and tok_clean[:4] == lem_lower[:4]:
-                        matched_word = tok
-                    elif min_len >= 3 and tok_clean[:3] == lem_lower[:3] and abs(len(tok_clean) - len(lem_lower)) <= 2:
-                        matched_word = tok
-                pairs.append({'word': matched_word, 'lemma': lem})
-            s_dict['first_time_pairs'] = pairs
-
+            s_dict['_sent_lids'] = sent_lids
+            s_dict['_unknown_lids'] = unknown_lids
             score_diff = abs(s_dict.get('score', 1.0) - target_score)
             s_dict['_score_diff'] = score_diff
 
@@ -1197,6 +1215,36 @@ class DataManager:
                 top_ex_reinf = excluded_reinforcement[:max(10, needed * 3)]
                 random.shuffle(top_ex_reinf)
                 selected.extend(top_ex_reinf[:needed])
+
+            # In transcription mode, if still needed, search full corpus for familiar sentences
+            if len(selected) < count:
+                with self._get_connection() as conn:
+                    cursor = conn.execute("""
+                        SELECT s.*, GROUP_CONCAT(sl.lexema_id) as lexema_ids
+                        FROM sentences s
+                        JOIN sentence_lexemas sl ON s.id = sl.sentence_id
+                        GROUP BY s.id
+                        ORDER BY ABS(s.score_lexical - ?) ASC;
+                    """, (target_score,))
+                    extra_rows = cursor.fetchall()
+                selected_ids = {s['id'] for s in selected}
+                for row in extra_rows:
+                    raw_lids = row['lexema_ids']
+                    if not raw_lids:
+                        continue
+                    sent_lids = {int(x) for x in raw_lids.split(',') if x}
+                    if not sent_lids:
+                        continue
+                    if sent_lids.issubset(known_lexema_ids):
+                        s_dict = self._row_to_dict(row)
+                        if s_dict['id'] not in selected_ids:
+                            s_dict['unknown_count'] = 0
+                            s_dict['_sent_lids'] = sent_lids
+                            s_dict['_unknown_lids'] = set()
+                            selected.append(s_dict)
+                            selected_ids.add(s_dict['id'])
+                            if len(selected) == count:
+                                break
         else:
             num_prog = max(1, round(count * 0.67))
             num_reinf = count - num_prog
@@ -1222,7 +1270,43 @@ class DataManager:
                     if len(selected) == count:
                         break
 
+        # Defer lexical enrichment, tokenization, and root alignment to selected sentences only
         for s in selected:
+            sent_lids = s.pop('_sent_lids', set())
+            unknown_lids = s.pop('_unknown_lids', set())
+            known_lids = sent_lids - unknown_lids
+
+            s['known_lexemas'] = [lex_dict[lid]['lemma'] for lid in known_lids if lid in lex_dict]
+            s['new_lexemas'] = [lex_dict[lid]['lemma'] for lid in unknown_lids if lid in lex_dict]
+
+            first_time_lids = [
+                lid for lid in sent_lids
+                if not lex_dict.get(lid, {}).get('is_base', False)
+                and (lid not in user_counts or user_counts[lid]['count'] <= 2)
+            ]
+            s['first_time_lexemas'] = [lex_dict[lid]['lemma'] for lid in first_time_lids if lid in lex_dict]
+            if not s['first_time_lexemas'] and s['new_lexemas']:
+                s['first_time_lexemas'] = s['new_lexemas']
+
+            # Match surface words in target French sentence for each first-time root
+            fr_text = s.get('fr', '')
+            fr_tokens = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", fr_text, re.UNICODE)
+            pairs = []
+            for lem in s['first_time_lexemas']:
+                lem_lower = lem.lower()
+                matched_word = lem
+                for tok in fr_tokens:
+                    tok_clean = tok.lower().lstrip("ldjcmnst'")
+                    if tok_clean == lem_lower:
+                        matched_word = tok
+                        break
+                    min_len = min(len(tok_clean), len(lem_lower))
+                    if min_len >= 4 and tok_clean[:4] == lem_lower[:4]:
+                        matched_word = tok
+                    elif min_len >= 3 and tok_clean[:3] == lem_lower[:3] and abs(len(tok_clean) - len(lem_lower)) <= 2:
+                        matched_word = tok
+                pairs.append({'word': matched_word, 'lemma': lem})
+            s['first_time_pairs'] = pairs
             s.pop('_score_diff', None)
 
         return selected

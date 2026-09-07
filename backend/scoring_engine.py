@@ -253,7 +253,7 @@ class ScoringEngine:
 
     def get_batch_sentences(
         self,
-        all_sentences: List[Dict[str, Any]],
+        all_sentences: Optional[List[Dict[str, Any]]] = None,
         target_score: Optional[float] = None,
         count: int = 3,
         exclude_ids: Optional[List[int]] = None,
@@ -296,6 +296,13 @@ class ScoringEngine:
                         return prog_batch
             except Exception as e:
                 print(f"Warning: Progressive sentence selection fallback: {e}")
+
+        # Lazy-load all_sentences only if progressive selection didn't return candidates
+        if all_sentences is None and dm is not None:
+            try:
+                all_sentences = dm.get_all_sentences()
+            except Exception:
+                all_sentences = []
 
         if not all_sentences:
             return []
