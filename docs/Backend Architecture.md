@@ -22,7 +22,7 @@ sequenceDiagram
     Note over S,ML: Server starts listening on :8000
     Client->>S: POST /api/exercises/evaluate-single
     S->>ML: get_ml_engine() [Thread-safe Lock]
-    Note over ML: Loads M2M100, distilgpt2, MiniLM, GlotLID
+    Note over ML: Loads M2M100, distilgpt2, MiniLM, GlotLID, LanguageTool
     ML-->>S: Return MLEngine instance
 ```
 
@@ -30,9 +30,8 @@ sequenceDiagram
    - `data_manager = DataManager()`: Establishes SQLite connection, enforces WAL mode, creates tables and indexes.
    - `scoring_engine = ScoringEngine(data_manager)`: Calibrates user profiles, loads CEFR thresholds.
    - `tts_engine = get_tts_engine(data_manager)`: Sets up Edge-TTS handler and audio cache directory.
-   - `spell = SpellChecker(language='fr')`: In-memory French dictionary for typo detection.
 2. **Lazy Initialization (`get_ml_engine()`)**:
-   - `MLEngine` loads several gigabytes of PyTorch weights (`facebook/m2m100_418M`, `distilgpt2`, `paraphrase-multilingual-MiniLM-L12-v2`).
+   - `MLEngine` loads several gigabytes of PyTorch weights (`facebook/m2m100_418M`, `distilgpt2`, `paraphrase-multilingual-MiniLM-L12-v2`), GlotLID/FastText, and initializes `language_tool_python.LanguageTool('fr')`.
    - Protected by `threading.Lock()` to prevent race conditions during concurrent server warm-up.
 
 ---
