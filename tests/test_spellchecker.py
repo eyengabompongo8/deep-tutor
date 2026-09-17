@@ -39,21 +39,13 @@ class TestSpellcheckerAndAccents:
         corrected, msgs = autocorrect_text(student, ref)
         assert corrected == "C'est bien !"
 
-    def test_autocorrect_accents_from_reference(self):
-        student = "J'aime l'eleve et le garcon."
-        ref = "J'aime l'élève et le garçon."
+    def test_autocorrect_does_not_override_words_from_reference(self):
+        student = "Elle a appris a nager."
+        ref = "Il a appris à nager."
         corrected, msgs = autocorrect_text(student, ref)
-        assert corrected == "J'aime l'élève et le garçon."
-        assert "eleve -> élève" in msgs
-        assert "garcon -> garçon" in msgs
-
-    def test_autocorrect_preserves_capitalization(self):
-        student = "Eleve et Garcon."
-        ref = "Élève et Garçon."
-        corrected, msgs = autocorrect_text(student, ref)
-        assert corrected == "Élève et Garçon."
-        assert any("Eleve" in m for m in msgs)
-        assert any("Garcon" in m for m in msgs)
+        # Without LanguageTool, only punctuation reconciliation happens, words/accents are not blindly rewritten from ref
+        assert corrected == "Elle a appris a nager."
+        assert msgs == []
 
     def test_autocorrect_ignores_french_contractions(self):
         student = "j'ai vu l'arbre."

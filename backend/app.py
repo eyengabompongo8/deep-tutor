@@ -147,35 +147,8 @@ def autocorrect_text(student_text, reference_text, lang_tool=None):
             return f"{m.group(1)} {m.group(0)[-1]}"
         text = re.sub(pattern, add_space, text)
 
-    # 3. Reference-Guided Accent & Case Restoration
-    ref_words_unaccented = {
-        remove_accents(w.lower()): w
-        for w in re.findall(r"\b[^\W\d_]+\b", reference_text or "", re.UNICODE)
-    }
+    # 3. LanguageTool Minor Typo Correction (Tier 1: strictly typos, edit distance <= 2)
     ignored_words = {'j', 'l', 'c', 'd', 'm', 't', 's', 'n', 'qu'}
-
-    def replace_word(match):
-        word = match.group(0)
-        word_lower = word.lower()
-        word_unaccented = remove_accents(word_lower)
-
-        if word_lower in ignored_words:
-            return word
-
-        if word_unaccented in ref_words_unaccented and ref_words_unaccented[word_unaccented].lower() != word_lower:
-            correct_word = ref_words_unaccented[word_unaccented]
-            if word.istitle():
-                correct_word = correct_word.capitalize()
-            elif word.isupper():
-                correct_word = correct_word.upper()
-            corrections_made.append(f"{word} -> {correct_word}")
-            return correct_word
-
-        return word
-
-    text = re.sub(r"\b[^\W\d_]+\b", replace_word, text, flags=re.UNICODE)
-
-    # 4. LanguageTool Minor Typo Correction (Tier 1: strictly typos, edit distance <= 2)
     if lang_tool is not None:
         try:
             matches = lang_tool.check(text)
