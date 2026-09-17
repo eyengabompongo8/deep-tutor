@@ -24,7 +24,9 @@ frontend/dist/
 .env.local
 *.env
 
-# Database temporary / lock files
+# Database files
+data/sentences.db
+*.db
 *.db-wal
 *.db-shm
 
