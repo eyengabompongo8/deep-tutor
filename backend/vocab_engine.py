@@ -1,6 +1,7 @@
 import os
 import sys
 import csv
+import re
 import spacy
 import urllib.request
 import zipfile
@@ -273,6 +274,73 @@ class VocabEngine:
 
         return lexemas
 
+    def get_token_lemmas(self, fr_text: str) -> List[Tuple[str, str, str, str]]:
+        """
+        Tokenizes French text and returns a list of (raw_token_text, clean_word, lemma, spacy_lemma) tuples
+        for all content and functional words.
+        """
+        if not fr_text or not fr_text.strip():
+            return []
+        doc = self.nlp(fr_text.strip())
+        results = []
+        for tok in doc:
+            if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
+                continue
+            lvl, score, lemma = self.get_word_level(tok)
+            if not lemma:
+                lemma = tok.lemma_.lower().strip()
+            lemma = lemma.lower().strip().rstrip("'’")
+            spacy_lemma = tok.lemma_.lower().strip().rstrip("'’")
+            if not lemma and not spacy_lemma:
+                continue
+            raw_text = tok.text
+            clean_word = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", raw_text)
+            results.append((raw_text, clean_word, lemma or spacy_lemma, spacy_lemma))
+        return results
+
+    def extract_sentence_token_pairs(self, fr_text: str, target_lemmas: List[str]) -> List[Dict[str, str]]:
+        """
+        For a given French sentence and a list of target lexemas (lemmas),
+        finds the actual surface derivation in the sentence matching each target lexema.
+        Returns: [{'word': surface_word, 'lemma': target_lemma}, ...]
+        """
+        if not target_lemmas:
+            return []
+        token_info = self.get_token_lemmas(fr_text)
+        pairs = []
+        matched_tokens = set()
+
+        def _norm(s: str) -> str:
+            return s.lower().replace('œ', 'oe').replace('æ', 'ae').strip().rstrip("'’")
+
+        for target in target_lemmas:
+            tgt_clean = _norm(target)
+            matched_word = target
+            found = False
+
+            # 1. Search for a token whose resolved lemma matches target lexema
+            for idx, (raw_word, clean_word, tok_lemma, spacy_lemma) in enumerate(token_info):
+                if idx not in matched_tokens:
+                    if _norm(tok_lemma) == tgt_clean or _norm(spacy_lemma) == tgt_clean:
+                        matched_word = clean_word if clean_word else raw_word
+                        matched_tokens.add(idx)
+                        found = True
+                        break
+
+            # 2. Fallback: match clean word or raw word directly to target
+            if not found:
+                for idx, (raw_word, clean_word, tok_lemma, spacy_lemma) in enumerate(token_info):
+                    if idx not in matched_tokens:
+                        if _norm(clean_word) == tgt_clean or _norm(raw_word) == tgt_clean:
+                            matched_word = clean_word if clean_word else raw_word
+                            matched_tokens.add(idx)
+                            found = True
+                            break
+
+            pairs.append({'word': matched_word, 'lemma': target})
+        return pairs
+
+
     def index_database_lexemas(self, data_manager, batch_size: int = 500, verbose: bool = True):
         """
         Indexes all sentences in the database:
@@ -395,12 +463,18 @@ class VocabEngine:
                         sent_links.append((s_id, lid))
                 data_manager.bulk_link_sentence_lexemas(sent_links)
 
-            if verbose:
-                print(f"Indexed batch {min(i + batch_size, len(unindexed))}/{len(unindexed)}")
+_vocab_engine_instance = None
+
+
+def get_vocab_engine() -> VocabEngine:
+    global _vocab_engine_instance
+    if _vocab_engine_instance is None:
+        _vocab_engine_instance = VocabEngine()
+    return _vocab_engine_instance
 
 
 if __name__ == "__main__":
-    engine = VocabEngine()
+    engine = get_vocab_engine()
     print("VocabEngine loaded successfully!")
     test_sentences = [
         "Bonjour, je m'appelle Marie et j'habite à Paris.",

@@ -40,9 +40,13 @@ The system evaluates a given French translation based on the following pipeline:
 
 ## Installation & Execution
 
-1. Sync the environment and install all required dependencies using `uv`:
+1. Sync the environment and choose your PyTorch acceleration tier:
     ```bash
-    uv sync
+    # Option A: Lightweight CPU-only PyTorch (~180 MB, fast download & ideal for testing / CPU inference)
+    uv sync --extra cpu
+
+    # Option B: GPU PyTorch with CUDA 12.4 acceleration (~2.5 GB+)
+    uv sync --extra cu124
     ```
 2. Run the application:
     ```bash
@@ -64,4 +68,4 @@ The system evaluates a given French translation based on the following pipeline:
     # or
     uv run pytest -m ""
     ```
-3. *Note: The first run with ML models will take several minutes to download the PyTorch models from the Hugging Face Hub (approx. ~3-4 GB).*
+3. *Note: The first run with ML models will take several minutes to download the neural models from the Hugging Face Hub (approx. ~3-4 GB).*

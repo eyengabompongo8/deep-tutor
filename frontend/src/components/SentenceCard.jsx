@@ -313,7 +313,12 @@ export default function SentenceCard({
                 <span>
                   Nouveau vocabulaire :{' '}
                   <strong className="text-purple-900 font-semibold">
-                    {firstTimePairs.map(p => `${p.word} (${p.lemma})`).join(', ')}
+                    {firstTimePairs.map(p => {
+                      const wordStr = (p.word || '').trim();
+                      const lemmaStr = (p.lemma || '').trim();
+                      const isIdentical = wordStr.toLowerCase() === lemmaStr.toLowerCase();
+                      return isIdentical ? wordStr : `${wordStr} (${lemmaStr})`;
+                    }).join(', ')}
                   </strong>
                 </span>
               </div>
@@ -501,7 +506,9 @@ export default function SentenceCard({
                   </div>
                   <div className="text-base text-neutral-900 font-medium leading-relaxed">
                     {sentence.fr.split(/(\s+)/).map((part, pIdx) => {
-                      const isMatch = isWordMatchingLemma(part, firstTimeLemmas);
+                      const cleanPart = part.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '');
+                      const isMatch = isWordMatchingLemma(part, firstTimeLemmas) ||
+                        firstTimePairs.some(p => (p.word || '').toLowerCase() === cleanPart);
                       if (isMatch) {
                         return (
                           <span
