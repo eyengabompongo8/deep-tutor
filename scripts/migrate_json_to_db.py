@@ -11,7 +11,7 @@ from data_manager import DataManager
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 JSON_FILE = os.path.join(DATA_DIR, 'sentences.json')
-DB_FILE = os.path.join(DATA_DIR, 'sentences.db')
+DB_FILE = os.path.join(DATA_DIR, 'app.db')
 BACKUP_JSON = os.path.join(DATA_DIR, 'sentences.json.bak')
 
 def migrate(backup: bool = True):

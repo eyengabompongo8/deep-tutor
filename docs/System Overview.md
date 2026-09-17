@@ -6,7 +6,7 @@ FrenchTutor is an intelligent, full-stack language tutor designed specifically f
 graph TD
     Client["Frontend (React 18 + Vite + Tailwind)"] <-->|REST / JSON| API["FastAPI Backend (server.py)"]
     API <--> DM["DataManager (data_manager.py)"]
-    DM <--> DB[("SQLite (sentences.db)")]
+    DM <--> DB[("SQLite (app.db)")]
     API <--> ML["MLEngine (models.py)"]
     API <--> SE["ScoringEngine (scoring_engine.py)"]
     API <--> TTS["TTSEngine (tts_engine.py)"]
@@ -73,7 +73,7 @@ FrenchTutor/
 │   ├── src/components/       # UI cards, modals, alignments, audio players
 │   └── dist/                 # Production static bundle served by FastAPI
 ├── data/                     # Local data store
-│   ├── sentences.db          # Main SQLite database
+│   ├── app.db                # Main SQLite database
 │   ├── audio_cache/          # Cached .mp3/.wav synthesis files
 │   └── flelex_beacco.tsv     # Lexical frequency and CEFR lexicon
 ├── curriculum/               # Legacy curriculum mining & AI-generated specs (inactive)

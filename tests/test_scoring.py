@@ -12,7 +12,7 @@ class TestScoringEngine(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.test_profile_path = os.path.join(self.temp_dir.name, 'test_profile.json')
-        self.test_db_path = os.path.join(self.temp_dir.name, 'test_sentences.db')
+        self.test_db_path = os.path.join(self.temp_dir.name, 'test_app.db')
         self.dm = DataManager(db_path=self.test_db_path)
         self.dm.bulk_insert_sentences([
             {"es": "Hola mundo", "fr": "Bonjour le monde", "level": "A1", "score_lexical": 1.0},

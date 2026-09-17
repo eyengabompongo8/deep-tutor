@@ -7,7 +7,7 @@ flowchart TD
     Raw["Raw Parallel Corpora (Tatoeba es-fr)"] --> Clean["Punctuation & Length Filtering (3-25 words)"]
     Clean --> Vocab["VocabEngine (FLELex & Lexique383)"]
     Vocab --> Score["Sentence CEFR Scoring (Max Word Rule)"]
-    Score --> Seed["Database Seeding (sentences.db)"]
+    Score --> Seed["Database Seeding (app.db)"]
     Seed --> Index["Lemma Extraction & Indexing (index_lexemas.py)"]
     Index --> Lexemas[("lexemas & sentence_lexemas")]
 ```
@@ -21,7 +21,7 @@ flowchart TD
 > 
 > The markdown specifications and scripts located in the `curriculum/` folder (`curriculum/A1.md` through `curriculum/C1_C2.md`, `curriculum/units/`, `units.json`, `curriculum_parser.py`, `unit_builder.py`, `spacy_clusterer.py`, etc.) represent early, AI-generated experiments.
 > 
-> This content is **low quality and is NOT actively used** by the current application runtime. The application relies entirely on authentic bilingual parallel pairs in SQLite (`data/sentences.db`), scored dynamically by `VocabEngine` and indexed through `scripts/index_lexemas.py`. The `curriculum/` folder is retained solely for historical reference.
+> This content is **low quality and is NOT actively used** by the current application runtime. The application relies entirely on authentic bilingual parallel pairs in SQLite (`data/app.db`), scored dynamically by `VocabEngine` and indexed through `scripts/index_lexemas.py`. The `curriculum/` folder is retained solely for historical reference.
 
 ---
 

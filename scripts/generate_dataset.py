@@ -16,7 +16,7 @@ from data_manager import DataManager
 
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 OUTPUT_FILE = os.path.join(DATA_DIR, 'sentences.json')
-DB_FILE = os.path.join(DATA_DIR, 'sentences.db')
+DB_FILE = os.path.join(DATA_DIR, 'app.db')
 
 def clean_sentence(text):
     text = re.sub(r'\s+', ' ', text).strip()

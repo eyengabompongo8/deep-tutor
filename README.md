@@ -32,7 +32,7 @@ The system evaluates a given French translation based on the following pipeline:
 *   `frontend/`: React + Vite single page application.
 *   `scripts/`: Harvest, mining, rescoring, and migration utilities (`generate_dataset.py`, `rescore_dataset.py`, `translate_sentences.py`, `migrate_json_to_db.py`).
 *   `curriculum/`: CEFR levels curriculum definitions, module units, and parsing tools.
-*   `data/`: Processed SQLite database (`sentences.db`), lexicons (`flelex_beacco.tsv`), and audio cache.
+*   `data/`: Processed SQLite database (`app.db`), lexicons (`flelex_beacco.tsv`), and audio cache.
 *   `tests/`: Standardized Pytest test suite with isolated fixtures.
 *   `run_tests.py`: Fast test runner script with automated categorization.
 *   `pyproject.toml`: Modern project specification and dependencies managed by `uv`.

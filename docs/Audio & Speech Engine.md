@@ -49,7 +49,7 @@ To guarantee zero latency and reduce network calls, generated audio files are pe
 1. **Deterministic Hashing**:
    $$\text{Hash} = \operatorname{SHA256}(\text{text.strip()} + \text{voice})$$
 2. **Disk Storage**: Files are saved to `data/audio_cache/{hash}.mp3` (or `.wav`).
-3. **Database Indexing**: The `audio_cache` table in `sentences.db` records:
+3. **Database Indexing**: The `audio_cache` table in `app.db` records:
    - `sentence_id` (optional foreign key).
    - `text_hash` (unique index).
    - `text` (raw French string).

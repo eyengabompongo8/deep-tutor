@@ -25,6 +25,7 @@ frontend/dist/
 *.env
 
 # Database files
+data/app.db
 data/sentences.db
 *.db
 *.db-wal

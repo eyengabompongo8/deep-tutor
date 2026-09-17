@@ -1,6 +1,6 @@
 # Database Architecture
 
-The persistence layer is managed by `backend/data_manager.py` targeting an embedded SQLite database at `data/sentences.db`. It handles corpus storage, relational lexema junctions, progressive vocabulary tracking, multi-user profiles, exercise history, and audio synthesis caches.
+The persistence layer is managed by `backend/data_manager.py` targeting an embedded SQLite database at `data/app.db`. It handles corpus storage, relational lexema junctions, progressive vocabulary tracking, multi-user profiles, exercise history, and audio synthesis caches.
 
 ---
 
@@ -21,7 +21,7 @@ flowchart TD
 
 - **Write-Ahead Logging (WAL)**: Enables concurrent readers while a write transaction is underway.
 - **Busy Timeout**: Configured for 10,000 ms to prevent `database is locked` errors during bursts.
-- **Read-Only Fallback**: If an unrecoverable `OperationalError` occurs (e.g. read-only filesystem or concurrent locks), the connection retries using SQLite's immutable URI mode (`file:...sentences.db?immutable=1`).
+- **Read-Only Fallback**: If an unrecoverable `OperationalError` occurs (e.g. read-only filesystem or concurrent locks), the connection retries using SQLite's immutable URI mode (`file:...app.db?immutable=1`).
 
 ---
 

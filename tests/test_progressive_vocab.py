@@ -9,7 +9,7 @@ from scoring_engine import ScoringEngine
 class TestProgressiveVocabulary(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = os.path.join(self.temp_dir.name, "test_sentences.db")
+        self.db_path = os.path.join(self.temp_dir.name, "test_app.db")
         self.dm = DataManager(db_path=self.db_path)
         self.scoring = ScoringEngine()
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Indexes all sentences in data/sentences.db:
+Indexes all sentences in data/app.db:
 - Extracts canonical word roots (lemmas) using spaCy + Lexique383 + FLELex
 - Populates the 'lexemas' table
 - Populates the 'sentence_lexemas' junction table

@@ -7,7 +7,7 @@ from typing import List, Dict, Any, Optional, Set, Tuple
 from contextlib import contextmanager
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(ROOT_DIR, 'data', 'sentences.db')
+DB_PATH = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(ROOT_DIR, 'data', 'app.db')
 OLD_JSON_PATH = os.path.join(ROOT_DIR, 'data', 'sentences.json')
 
 SYSTEM_COLUMNS = {
