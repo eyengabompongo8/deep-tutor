@@ -1144,26 +1144,6 @@ class DataManager:
             if not s_dict['first_time_lexemas'] and s_dict['new_lexemas']:
                 s_dict['first_time_lexemas'] = s_dict['new_lexemas']
 
-            # Match surface words in target French sentence for each first-time root
-            fr_text = s_dict.get('fr', '')
-            fr_tokens = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", fr_text, re.UNICODE)
-            pairs = []
-            for lem in s_dict['first_time_lexemas']:
-                lem_lower = lem.lower()
-                matched_word = lem
-                for tok in fr_tokens:
-                    tok_clean = tok.lower().lstrip("ldjcmnst'")
-                    if tok_clean == lem_lower:
-                        matched_word = tok
-                        break
-                    min_len = min(len(tok_clean), len(lem_lower))
-                    if min_len >= 4 and tok_clean[:4] == lem_lower[:4]:
-                        matched_word = tok
-                    elif min_len >= 3 and tok_clean[:3] == lem_lower[:3] and abs(len(tok_clean) - len(lem_lower)) <= 2:
-                        matched_word = tok
-                pairs.append({'word': matched_word, 'lemma': lem})
-            s_dict['first_time_pairs'] = pairs
-
             score_diff = abs(s_dict.get('score', 1.0) - target_score)
             s_dict['_score_diff'] = score_diff
 
@@ -1222,7 +1202,42 @@ class DataManager:
                     if len(selected) == count:
                         break
 
+        # Resolve accurate token derivations only for the final selected sentences
+        try:
+            from backend.vocab_engine import get_vocab_engine
+        except ImportError:
+            try:
+                from vocab_engine import get_vocab_engine
+            except ImportError:
+                get_vocab_engine = None
+
+        engine = None
+        if get_vocab_engine is not None:
+            try:
+                engine = get_vocab_engine()
+            except Exception:
+                engine = None
+
         for s in selected:
             s.pop('_score_diff', None)
+            pairs = []
+            if s.get('first_time_lexemas'):
+                if engine is not None:
+                    try:
+                        pairs = engine.extract_sentence_token_pairs(s.get('fr', ''), s['first_time_lexemas'])
+                    except Exception:
+                        pairs = []
+                if not pairs:
+                    fr_tokens = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", s.get('fr', ''), re.UNICODE)
+                    for lem in s['first_time_lexemas']:
+                        lem_lower = lem.lower()
+                        matched_word = lem
+                        for tok in fr_tokens:
+                            tok_clean = tok.lower().lstrip("ldjcmnst'")
+                            if tok_clean == lem_lower:
+                                matched_word = tok
+                                break
+                        pairs.append({'word': matched_word, 'lemma': lem})
+            s['first_time_pairs'] = pairs
 
         return selected

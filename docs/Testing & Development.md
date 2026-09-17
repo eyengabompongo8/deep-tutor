@@ -75,8 +75,11 @@ The project is packaged and managed using `uv` for deterministic dependency reso
 
 ### Environment Setup
 ```bash
-# Clone repository and synchronize environment
-uv sync
+# Option 1: Synchronize with lightweight CPU-only PyTorch (~180 MB)
+uv sync --extra cpu
+
+# Option 2: Synchronize with GPU-accelerated PyTorch (CUDA 12.4, ~2.5 GB+)
+uv sync --extra cu124
 ```
 
 ### Running the Application

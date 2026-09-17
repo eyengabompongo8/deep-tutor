@@ -66,17 +66,20 @@ uv remove <package_name>
 
 ### Syncing the Virtual Environment
 
-Ensure the `.venv` matches `uv.lock` exactly:
+Ensure the `.venv` matches `uv.lock` exactly with the desired PyTorch hardware accelerator:
 
 ```bash
-# Standard sync
-uv sync
+# Sync with CPU-only PyTorch (~180 MB)
+uv sync --extra cpu
 
-# Sync including development dependencies
-uv sync --all-extras --dev
+# Sync with GPU CUDA 12.4 PyTorch (~2.5 GB+)
+uv sync --extra cu124
+
+# Sync including development test dependencies
+uv sync --extra cpu --dev
 
 # Sync strictly from existing uv.lock without updating it
-uv sync --frozen
+uv sync --frozen --extra cpu
 ```
 
 ### Upgrading Dependencies

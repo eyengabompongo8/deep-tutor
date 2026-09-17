@@ -158,6 +158,30 @@ class TestProgressiveVocabulary(unittest.TestCase):
         self.assertEqual(batch[0]["unknown_count"], 0)
         self.assertEqual(batch[0]["new_lexemas"], [])
 
+    def test_irregular_word_derivation_matching(self):
+        # Test irregular verb forms like 'vais' (aller) and 'sommes' (être)
+        l_aller = self.dm.upsert_lexema(lemma="aller", pos="VERB", level="A1", is_base=False)
+        s_aller = self.dm.add_sentence(es="Voy a la playa", fr="Je vais à la plage", level="A1", score=1.2)
+        self.dm.link_sentence_lexemas(s_aller["id"], [l_aller])
+
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=1.2, count=5)
+        matched_s = next((s for s in batch if s["id"] == s_aller["id"]), None)
+        self.assertIsNotNone(matched_s)
+        self.assertIn("first_time_pairs", matched_s)
+        aller_pair = next((p for p in matched_s["first_time_pairs"] if p["lemma"] == "aller"), None)
+        self.assertIsNotNone(aller_pair)
+        self.assertEqual(aller_pair["word"], "vais")
+
+    def test_regular_word_derivation_matching(self):
+        # Test regular words like 'chat' (chat)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=1.2, count=5)
+        matched_s = next((s for s in batch if s["id"] == self.s2["id"]), None)
+        self.assertIsNotNone(matched_s)
+        self.assertIn("first_time_pairs", matched_s)
+        chat_pair = next((p for p in matched_s["first_time_pairs"] if p["lemma"] == "chat"), None)
+        self.assertIsNotNone(chat_pair)
+        self.assertEqual(chat_pair["word"], "chat")
+
 
 if __name__ == "__main__":
     unittest.main()

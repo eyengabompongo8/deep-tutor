@@ -214,23 +214,41 @@ class EagerPrecomputeManager:
         first_time_tgt_indices = set()
 
         if first_time_lemmas:
-            clean_lemmas = [l.lower().strip() for l in first_time_lemmas if l]
+            pairs = []
+            try:
+                from backend.vocab_engine import get_vocab_engine
+            except ImportError:
+                try:
+                    from vocab_engine import get_vocab_engine
+                except ImportError:
+                    get_vocab_engine = None
+
+            if get_vocab_engine is not None:
+                try:
+                    engine = get_vocab_engine()
+                    pairs = engine.extract_sentence_token_pairs(reference_text, first_time_lemmas)
+                except Exception:
+                    pairs = []
+
+            matched_words = {p['word'].lower().strip() for p in pairs if p.get('word')}
+            clean_lemmas = {l.lower().strip() for l in first_time_lemmas if l}
+
             for t_idx, t_word in enumerate(ref_words):
                 clean_t = re.sub(r'^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$', '', t_word.lower())
+                clean_t_no_prefix = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", clean_t)
                 if not clean_t:
                     continue
-                is_match = False
-                for lem in clean_lemmas:
-                    if clean_t == lem:
-                        is_match = True
-                        break
-                    min_len = min(len(clean_t), len(lem))
-                    if min_len >= 4 and clean_t[:4] == lem[:4]:
-                        is_match = True
-                        break
-                    if min_len >= 3 and clean_t[:3] == lem[:3] and abs(len(clean_t) - len(lem)) <= 2:
-                        is_match = True
-                        break
+                is_match = (
+                    clean_t in matched_words or
+                    clean_t_no_prefix in matched_words or
+                    clean_t in clean_lemmas or
+                    clean_t_no_prefix in clean_lemmas
+                )
+                if not is_match and not matched_words:
+                    for lem in clean_lemmas:
+                        if clean_t == lem or clean_t_no_prefix == lem:
+                            is_match = True
+                            break
 
                 if is_match:
                     first_time_tgt_indices.add(t_idx)
