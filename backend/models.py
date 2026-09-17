@@ -241,7 +241,7 @@ class MLEngine:
         self.nmt_tokenizer.tgt_lang = "fr"
 
         inputs = self.nmt_tokenizer(source_text, return_tensors="pt").to(self.device)
-        labels = self.nmt_tokenizer(target_text, return_tensors="pt").input_ids.to(self.device)
+        labels = self.nmt_tokenizer(text_target=target_text, return_tensors="pt").input_ids.to(self.device)
 
         with torch.inference_mode():
             outputs = self.nmt_model(**inputs, labels=labels, output_attentions=True)
@@ -321,11 +321,14 @@ class MLEngine:
             w_prob = float(np.exp(-w_loss)) * 100.0
             w_delta_l = max(0.0, w_loss - w_top_1_loss)
 
-            first_idx = sub_indices[0] if sub_indices else None
-            top_pred_word = "—"
-            if first_idx is not None and first_idx < len(top_1_token_ids):
-                top_pred_id = int(top_1_token_ids[first_idx].item())
-                top_pred_word = _strip_boundary(self.nmt_tokenizer.convert_ids_to_tokens(top_pred_id))
+            top_pred_parts = []
+            for s_idx in sub_indices:
+                if s_idx < len(top_1_token_ids):
+                    t_id = int(top_1_token_ids[s_idx].item())
+                    tok_str = self.nmt_tokenizer.convert_ids_to_tokens(t_id)
+                    if not _is_special_token(tok_str):
+                        top_pred_parts.append(_strip_boundary(tok_str))
+            top_pred_word = "".join(top_pred_parts).strip() if top_pred_parts else "—"
 
             nmt_word_breakdown.append({
                 "index": w_idx,
@@ -481,6 +484,95 @@ class MLEngine:
                             
         return errors
 
+    def align_and_filter_unexpected_words(self, nmt_word_breakdown, mapping_data_student, mapping_data_ref):
+        """
+        Soundness & vocabulary verification using student-to-source-to-reference alignment.
+        Instead of arbitrary greedy NMT sub-tokens, finds which source word the student word
+        aligned with, and looks up the intended reference word.
+        If the student word is unsound for that concept and has elevated surprise, flags it
+        and provides the actual reference word as top_prediction.
+        """
+        if not nmt_word_breakdown:
+            return nmt_word_breakdown
+
+        ref_words = mapping_data_ref[1] if mapping_data_ref is not None else []
+        ref_matrix = mapping_data_ref[2] if mapping_data_ref is not None else None
+        src_words_ref = mapping_data_ref[0] if mapping_data_ref is not None else []
+
+        src_words_stu = mapping_data_student[0] if mapping_data_student is not None else []
+        stu_words = mapping_data_student[1] if mapping_data_student is not None else []
+        stu_matrix = mapping_data_student[2] if mapping_data_student is not None else None
+
+        ref_words_clean = [w.lower().strip(".,!?:;'\"-") for w in ref_words]
+        ref_words_set = set(ref_words_clean)
+
+        # Common grammatical function words that vary legitimately with syntax/structure
+        FUNCTION_WORDS = {
+            "le", "la", "les", "l'", "un", "une", "des", "du", "de", "d'",
+            "ce", "cet", "cette", "ces", "c'", "est", "sont", "a", "ont",
+            "que", "qui", "qu'", "ne", "pas", "n'", "se", "s'", "en", "y"
+        }
+
+        for item in nmt_word_breakdown:
+            w_idx = item.get("index", 0)
+            raw_w = item.get("word", "")
+            clean_w = raw_w.lower().strip(".,!?:;'\"-")
+
+            # 1. If word is directly in the reference translation, it is guaranteed sound
+            if clean_w in ref_words_set:
+                item["is_error"] = False
+                item["top_prediction"] = ""
+                continue
+
+            expected_ref_word = ""
+            matched_src_word = ""
+
+            # 2. Find the primary source word this student word aligned with
+            if stu_matrix is not None and w_idx < stu_matrix.shape[0]:
+                best_s_idx = int(np.argmax(stu_matrix[w_idx, :]))
+                if best_s_idx < len(src_words_stu):
+                    matched_src_word = src_words_stu[best_s_idx]
+
+                # 3. Find what reference word aligned with that same source word
+                if ref_matrix is not None and best_s_idx < ref_matrix.shape[1]:
+                    best_ref_idx = int(np.argmax(ref_matrix[:, best_s_idx]))
+                    if best_ref_idx < len(ref_words):
+                        expected_ref_word = ref_words[best_ref_idx]
+
+            # 4. Fallback: if no alignment found, check if there is an unmatched reference content word
+            if not expected_ref_word and ref_words:
+                expected_ref_word = ref_words[-1]
+
+            clean_expected = expected_ref_word.lower().strip(".,!?:;'\"-")
+
+            # Check semantic similarity between typed word and expected reference word
+            is_sound = False
+            if clean_expected and clean_w:
+                if clean_w == clean_expected:
+                    is_sound = True
+                elif clean_w in FUNCTION_WORDS and clean_expected in FUNCTION_WORDS:
+                    # Legitimate syntactic variation (e.g. cleft sentence 'ce que' / 'est')
+                    is_sound = True
+                else:
+                    try:
+                        embs = self.sem_model.encode([clean_w, clean_expected], convert_to_tensor=True, device=self.device)
+                        sim = float(util.cos_sim(embs[0], embs[1]).item())
+                        if sim >= 0.70:
+                            is_sound = True
+                    except Exception:
+                        pass
+
+            if is_sound:
+                item["is_error"] = False
+                item["top_prediction"] = ""
+            else:
+                # Word is unsound for this concept (e.g. 'vélos' for 'automóviles' / 'voitures')
+                item["is_error"] = bool(clean_expected != "" and clean_w != "")
+                item["top_prediction"] = expected_ref_word
+                item["source_word"] = matched_src_word
+
+        return nmt_word_breakdown
+
     def evaluate_student_against_bundle(self, source_text, student_text, reference_bundle):
         """
         Evaluates the student text against a precomputed ReferenceBundle.
@@ -517,6 +609,11 @@ class MLEngine:
             reference_bundle.src_words,
             reference_bundle.ref_words,
             reference_bundle.attn_matrix_ref
+        )
+
+        # Soundness and expected-word refinement using reference alignment
+        nmt_word_breakdown = self.align_and_filter_unexpected_words(
+            nmt_word_breakdown, mapping_data_student, mapping_data_ref
         )
 
         return {
@@ -556,6 +653,11 @@ class MLEngine:
 
         # 4. Syntactical Analysis (LanguageTool)
         syntactical_errors = self.evaluate_syntax(student_text)
+
+        # Soundness and expected-word refinement using reference alignment
+        nmt_word_breakdown = self.align_and_filter_unexpected_words(
+            nmt_word_breakdown, mapping_data, mapping_data_ref
+        )
 
         return {
             "is_french": is_french,
