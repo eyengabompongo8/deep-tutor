@@ -182,6 +182,34 @@ class TestProgressiveVocabulary(unittest.TestCase):
         self.assertIsNotNone(chat_pair)
         self.assertEqual(chat_pair["word"], "chat")
 
+    def test_contraction_and_elision_derivation_matching(self):
+        # Test elided words like l'obstinée (obstiner) or j'habite (habiter)
+        l_obstiner = self.dm.upsert_lexema(lemma="obstiner", pos="VERB", level="B2", is_base=False)
+        s_obst = self.dm.add_sentence(es="Ella es obstinada", fr="Elle est l'obstinée de la classe", level="B2", score=4.5)
+        self.dm.link_sentence_lexemas(s_obst["id"], [l_obstiner])
+
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=4.5, count=5)
+        matched_s = next((s for s in batch if s["id"] == s_obst["id"]), None)
+        self.assertIsNotNone(matched_s)
+        self.assertIn("first_time_pairs", matched_s)
+        pair = next((p for p in matched_s["first_time_pairs"] if p["lemma"] == "obstiner"), None)
+        self.assertIsNotNone(pair)
+        self.assertEqual(pair["word"], "obstinée")
+
+    def test_reflexive_verb_derivation_matching(self):
+        # Test reflexive dictionary lemma like s'obstiner matching sentence word obstinée
+        l_refl = self.dm.upsert_lexema(lemma="s'obstiner", pos="VERB", level="B2", is_base=False)
+        s_refl = self.dm.add_sentence(es="Ella es obstinada", fr="Elle s'obstine toujours", level="B2", score=4.5)
+        self.dm.link_sentence_lexemas(s_refl["id"], [l_refl])
+
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=4.5, count=5)
+        matched_s = next((s for s in batch if s["id"] == s_refl["id"]), None)
+        self.assertIsNotNone(matched_s)
+        self.assertIn("first_time_pairs", matched_s)
+        pair = next((p for p in matched_s["first_time_pairs"] if "obstin" in p["lemma"]), None)
+        self.assertIsNotNone(pair)
+        self.assertEqual(pair["word"], "obstine")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1316,18 +1316,20 @@ class DataManager:
                 if not pairs:
                     fr_tokens = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", s.get('fr', ''), re.UNICODE)
                     for lem in s['first_time_lexemas']:
-                        lem_lower = lem.lower()
-                        matched_word = lem
+                        lem_clean = re.sub(r"^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])", "", lem.lower()).strip()
+                        matched_word = lem_clean
                         for tok in fr_tokens:
-                            tok_clean = tok.lower().lstrip("ldjcmnst'")
-                            if tok_clean == lem_lower:
-                                matched_word = tok
+                            tok_clean = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", tok).lower().strip()
+                            if not tok_clean:
+                                continue
+                            if tok_clean == lem_clean:
+                                matched_word = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", tok)
                                 break
-                            min_len = min(len(tok_clean), len(lem_lower))
-                            if min_len >= 4 and tok_clean[:4] == lem_lower[:4]:
-                                matched_word = tok
-                            elif min_len >= 3 and tok_clean[:3] == lem_lower[:3] and abs(len(tok_clean) - len(lem_lower)) <= 2:
-                                matched_word = tok
+                            min_len = min(len(tok_clean), len(lem_clean))
+                            if min_len >= 4 and tok_clean[:4] == lem_clean[:4]:
+                                matched_word = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", tok)
+                            elif min_len >= 3 and tok_clean[:3] == lem_clean[:3] and abs(len(tok_clean) - len(lem_clean)) <= 2:
+                                matched_word = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", tok)
                         pairs.append({'word': matched_word, 'lemma': lem})
             s['first_time_pairs'] = pairs
 

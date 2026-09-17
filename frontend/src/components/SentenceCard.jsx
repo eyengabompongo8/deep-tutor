@@ -6,10 +6,12 @@ const FRENCH_ACCENTS = ['é', 'è', 'ê', 'ë', 'à', 'ç', 'ù', 'ô', 'î', '�
 
 export function isWordMatchingLemma(word, lemmas = []) {
   if (!word || !lemmas || lemmas.length === 0) return false;
-  const cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '');
+  let cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '');
+  cleanWord = cleanWord.replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '').trim();
   if (!cleanWord || cleanWord.length < 2) return false;
   return lemmas.some(lemma => {
-    const cleanLemma = lemma.toLowerCase().trim();
+    let cleanLemma = lemma.toLowerCase().trim();
+    cleanLemma = cleanLemma.replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '').trim();
     if (cleanWord === cleanLemma) return true;
     const minLen = Math.min(cleanWord.length, cleanLemma.length);
     if (minLen >= 4 && cleanWord.slice(0, 4) === cleanLemma.slice(0, 4)) return true;
@@ -73,15 +75,22 @@ export default function SentenceCard({
     if (preloadedHint?.first_time_tgt_indices && preloadedHint.first_time_tgt_indices.length > 0) {
       return new Set(preloadedHint.first_time_tgt_indices);
     }
-    if (!preloadedHint?.tgt_words || firstTimeLemmas.length === 0) return new Set();
+    if (!preloadedHint?.tgt_words || (firstTimeLemmas.length === 0 && firstTimePairs.length === 0)) return new Set();
     const set = new Set();
     preloadedHint.tgt_words.forEach((w, tIdx) => {
-      if (isWordMatchingLemma(w, firstTimeLemmas)) {
+      const cleanW = w.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '')
+        .replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+      const isMatch = isWordMatchingLemma(w, firstTimeLemmas) ||
+        firstTimePairs.some(p => {
+          const pWord = (p.word || '').toLowerCase().replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+          return pWord && pWord === cleanW;
+        });
+      if (isMatch) {
         set.add(tIdx);
       }
     });
     return set;
-  }, [preloadedHint, firstTimeLemmas]);
+  }, [preloadedHint, firstTimeLemmas, firstTimePairs]);
 
   // Source Spanish word indices aligned to first-time roots via ML mapping
   const firstTimeSrcIndices = React.useMemo(() => {
@@ -506,9 +515,13 @@ export default function SentenceCard({
                   </div>
                   <div className="text-base text-neutral-900 font-medium leading-relaxed">
                     {sentence.fr.split(/(\s+)/).map((part, pIdx) => {
-                      const cleanPart = part.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '');
+                      const cleanPart = part.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '')
+                        .replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
                       const isMatch = isWordMatchingLemma(part, firstTimeLemmas) ||
-                        firstTimePairs.some(p => (p.word || '').toLowerCase() === cleanPart);
+                        firstTimePairs.some(p => {
+                          const pWord = (p.word || '').toLowerCase().replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+                          return pWord && pWord === cleanPart;
+                        });
                       if (isMatch) {
                         return (
                           <span
@@ -534,6 +547,7 @@ export default function SentenceCard({
                     studentWords={evalResult.student_words || []}
                     alignedStudentMap={evalResult.aligned_student_map || {}}
                     firstTimeLemmas={firstTimeLemmas}
+                    firstTimePairs={firstTimePairs}
                   />
                 )}
               </div>

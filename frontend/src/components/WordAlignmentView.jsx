@@ -11,6 +11,7 @@ export default function WordAlignmentView({
   studentWords = [],
   alignedStudentMap = {},
   firstTimeLemmas = [],
+  firstTimePairs = [],
 }) {
   const effectiveRefWords = refWords.length > 0 ? refWords : tgtWords;
   const effectiveRefMap = Object.keys(alignedRefMap).length > 0 ? alignedRefMap : alignedTargetsMap;
@@ -52,15 +53,22 @@ export default function WordAlignmentView({
 
   // Set of target reference indices that match first-time roots
   const firstTimeTgtSet = useMemo(() => {
-    if (!effectiveRefWords.length || !firstTimeLemmas.length) return new Set();
+    if (!effectiveRefWords.length || (!firstTimeLemmas.length && !firstTimePairs.length)) return new Set();
     const set = new Set();
     effectiveRefWords.forEach((word, idx) => {
-      if (isWordMatchingLemma(word, firstTimeLemmas)) {
+      const cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '')
+        .replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+      const isMatch = isWordMatchingLemma(word, firstTimeLemmas) ||
+        firstTimePairs.some(p => {
+          const pWord = (p.word || '').toLowerCase().replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+          return pWord && pWord === cleanWord;
+        });
+      if (isMatch) {
         set.add(idx);
       }
     });
     return set;
-  }, [effectiveRefWords, firstTimeLemmas]);
+  }, [effectiveRefWords, firstTimeLemmas, firstTimePairs]);
 
   // Set of source indices that align to first-time reference words
   const firstTimeSrcSet = useMemo(() => {

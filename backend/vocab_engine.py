@@ -311,7 +311,28 @@ class VocabEngine:
         matched_tokens = set()
 
         def _norm(s: str) -> str:
-            return s.lower().replace('œ', 'oe').replace('æ', 'ae').strip().rstrip("'’")
+            if not s:
+                return ""
+            s = s.lower().replace('œ', 'oe').replace('æ', 'ae').strip()
+            s = re.sub(r"^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])", "", s)
+            return s.strip().rstrip("'’")
+
+        def _stem_match(a: str, b: str) -> bool:
+            a_clean = _norm(a)
+            b_clean = _norm(b)
+            if not a_clean or not b_clean:
+                return False
+            if a_clean == b_clean:
+                return True
+            suf_pattern = r"(issant|issante|issants|issantes|issiez|issons|issent|isse|isses|ant|ante|ants|antes|ée|ées|és|é|er|ir|re|oir|ons|ez|ait|ais|aient|as|âmes|âtes|èrent|ât|ît|us|ue|ues|ut|ûmes|ûtes|urent|ie|ies|it|ît|euse|euses|eur|eurs|eux|trice|trices|teur|teurs|es|e|ent)$"
+            stem_a = re.sub(suf_pattern, "", a_clean)
+            stem_b = re.sub(suf_pattern, "", b_clean)
+            if len(stem_a) >= 3 and len(stem_b) >= 3 and stem_a == stem_b:
+                return True
+            min_len = min(len(a_clean), len(b_clean))
+            if min_len >= 4 and a_clean[:4] == b_clean[:4] and abs(len(a_clean) - len(b_clean)) <= 4:
+                return True
+            return False
 
         for target in target_lemmas:
             tgt_clean = _norm(target)
@@ -327,11 +348,26 @@ class VocabEngine:
                         found = True
                         break
 
-            # 2. Fallback: match clean word or raw word directly to target
+            # 2. Match clean word or raw word directly to target
             if not found:
                 for idx, (raw_word, clean_word, tok_lemma, spacy_lemma) in enumerate(token_info):
                     if idx not in matched_tokens:
                         if _norm(clean_word) == tgt_clean or _norm(raw_word) == tgt_clean:
+                            matched_word = clean_word if clean_word else raw_word
+                            matched_tokens.add(idx)
+                            found = True
+                            break
+
+            # 3. Stem and derivation similarity matching
+            if not found:
+                for idx, (raw_word, clean_word, tok_lemma, spacy_lemma) in enumerate(token_info):
+                    if idx not in matched_tokens:
+                        if (
+                            _stem_match(tok_lemma, tgt_clean) or
+                            _stem_match(spacy_lemma, tgt_clean) or
+                            _stem_match(clean_word, tgt_clean) or
+                            _stem_match(raw_word, tgt_clean)
+                        ):
                             matched_word = clean_word if clean_word else raw_word
                             matched_tokens.add(idx)
                             found = True
