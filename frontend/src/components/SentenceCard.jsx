@@ -281,7 +281,9 @@ export default function SentenceCard({
 
   const scoreBadge = evalResult && !isSkipped ? getScoreBadge(evalResult.composite_score) : null;
   const BadgeIcon = scoreBadge?.icon;
-  const errorWords = (evalResult?.nmt_word_breakdown || []).filter(w => w.is_error);
+  const errorWords = (evalResult?.nmt_word_breakdown || []).filter(
+    w => w.is_error && w.top_prediction && w.top_prediction !== "—" && w.top_prediction.toLowerCase() !== w.word.toLowerCase()
+  );
 
   return (
     <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all">
@@ -584,7 +586,7 @@ export default function SentenceCard({
                         <span
                           key={i}
                           className="px-2 py-0.5 rounded bg-neutral-200 text-neutral-800 text-[11px]"
-                          title={`Expected: "${item.top_prediction}" (ΔL: ${item.delta_l.toFixed(1)})`}
+                          title={item.source_word ? `Expected "${item.top_prediction}" for "${item.source_word}" (ΔL: ${item.delta_l.toFixed(1)})` : `Expected: "${item.top_prediction}" (ΔL: ${item.delta_l.toFixed(1)})`}
                         >
                           "{item.word}" → <strong>{item.top_prediction}</strong>
                         </span>
