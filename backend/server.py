@@ -437,4 +437,10 @@ if os.path.exists(frontend_dist):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.server:app", host="0.0.0.0", port=8000, reload=True)
+    import argparse
+    parser = argparse.ArgumentParser(description="FrenchTutor API Server")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8000))), help="Port to bind to")
+    parser.add_argument("--host", type=str, default=os.environ.get("HOST", "0.0.0.0"), help="Host interface to bind to")
+    parser.add_argument("--reload", action="store_true", default=True, help="Enable auto-reload")
+    args = parser.parse_args()
+    uvicorn.run("backend.server:app", host=args.host, port=args.port, reload=args.reload)
