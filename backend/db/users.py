@@ -239,13 +239,20 @@ class UsersMixin:
         level: str = 'A1'
     ) -> Dict[str, Any]:
         """Resets the score and statistics for a given mode."""
+        self.get_or_create_user(user_id)
         start_score = max(1.0, min(6.0, float(start_score)))
         with self._get_connection() as conn:
             conn.execute("""
-                UPDATE user_modes
-                SET score = ?, level = ?, streak = 0, total_completed = 0, total_skipped = 0, updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = ? AND mode = ?;
-            """, (start_score, level, user_id, mode))
+                INSERT INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped, updated_at)
+                VALUES (?, ?, ?, ?, 0, 0, 0, CURRENT_TIMESTAMP)
+                ON CONFLICT(user_id, mode) DO UPDATE SET
+                    score = excluded.score,
+                    level = excluded.level,
+                    streak = 0,
+                    total_completed = 0,
+                    total_skipped = 0,
+                    updated_at = CURRENT_TIMESTAMP;
+            """, (user_id, mode, start_score, level))
         if mode == 'translation':
             with self._get_connection() as conn:
                 conn.execute("""

@@ -168,6 +168,7 @@ class ScoringEngine:
         if self.data_manager is not None:
             try:
                 self.data_manager.reset_user_mode(user_id=user_id, mode=mode, start_score=start_score, level=lvl)
+                self.data_manager.unlock_user_vocabulary_for_level(user_id=user_id, target_level=lvl)
                 return self.get_profile(user_id=user_id, mode=mode)
             except Exception as e:
                 print(f"Warning: Reset user mode failed in DataManager: {e}")
@@ -412,6 +413,9 @@ class ScoringEngine:
                     total_completed=new_completed,
                     total_skipped=new_skipped
                 )
+
+                if new_level != old_level:
+                    self.data_manager.unlock_user_vocabulary_for_level(user_id=user_id, target_level=new_level)
 
                 if not is_retry:
                     for it in evaluated_items:

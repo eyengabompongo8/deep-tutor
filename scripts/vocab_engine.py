@@ -114,17 +114,38 @@ class VocabEngine:
             reader = csv.DictReader(f, delimiter='\t')
             for row in reader:
                 word = row['word'].lower()
-                lvl = row.get('level', 'C2').upper()
-                if lvl not in LEVELS_VAL:
-                    lvl = 'C2'
                 try:
                     freq = float(row.get('freq_total', 0) or 0)
                 except (ValueError, TypeError):
                     freq = 0.0
 
+                cefr_levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+                level_freqs = {}
+                total_cefr_freq = 0.0
+                for lvl in cefr_levels:
+                    try:
+                        lvl_freq = float(row.get(f'freq_{lvl}', 0) or 0)
+                    except (ValueError, TypeError):
+                        lvl_freq = 0.0
+                    level_freqs[lvl] = lvl_freq
+                    total_cefr_freq += lvl_freq
+                
+                assigned_lvl = 'C2'
+                if total_cefr_freq > 0:
+                    cum = 0.0
+                    for lvl in cefr_levels:
+                        cum += (level_freqs[lvl] / total_cefr_freq)
+                        if cum >= 0.20:
+                            assigned_lvl = lvl
+                            break
+                else:
+                    assigned_lvl = row.get('level', 'C2').upper()
+                    if assigned_lvl not in LEVELS_VAL:
+                        assigned_lvl = 'C2'
+
                 self.flelex_data[word] = {
-                    'level': lvl,
-                    'score': LEVELS_VAL[lvl],
+                    'level': assigned_lvl,
+                    'score': LEVELS_VAL[assigned_lvl],
                     'freq': freq
                 }
 
