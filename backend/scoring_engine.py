@@ -5,7 +5,6 @@ import math
 from typing import List, Dict, Any, Optional
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROFILE_FILE = os.environ.get("FRENCHTUTOR_PROFILE_FILE") or os.path.join(ROOT_DIR, 'data', 'user_profile.json')
 
 LEVEL_RANGES = [
     (1.0, 2.0, 'A1'),
@@ -29,30 +28,11 @@ import unicodedata
 import re
 import difflib
 
-def levenshtein(s1: str, s2: str) -> int:
-    if len(s1) < len(s2):
-        return levenshtein(s2, s1)
-    if len(s2) == 0:
-        return len(s1)
-    previous_row = range(len(s2) + 1)
-    for i, c1 in enumerate(s1):
-        current_row = [i + 1]
-        for j, c2 in enumerate(s2):
-            insertions = previous_row[j + 1] + 1
-            deletions = current_row[j] + 1
-            substitutions = previous_row[j] + (c1 != c2)
-            current_row.append(min(insertions, deletions, substitutions))
-        previous_row = current_row
-    return previous_row[-1]
-
-def remove_accents(input_str: str) -> str:
-    nfkd = unicodedata.normalize('NFKD', input_str)
-    return "".join([c for c in nfkd if not unicodedata.combining(c)])
+from backend.text_utils import levenshtein, remove_accents
 
 
 class ScoringEngine:
-    def __init__(self, profile_file: str = PROFILE_FILE, data_manager: Optional[Any] = None):
-        self.profile_file = profile_file
+    def __init__(self, data_manager: Optional[Any] = None):
         self.data_manager = data_manager
         self.profile = self.load_profile()
 
@@ -151,37 +131,6 @@ class ScoringEngine:
             except Exception as e:
                 print(f"Warning: Could not read user from SQLite: {e}")
 
-        if os.path.exists(self.profile_file):
-            try:
-                with open(self.profile_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    data.setdefault("score", 1.20)
-                    data["score"] = float(data["score"])
-                    data["level"] = score_to_level(data["score"])
-                    data.setdefault("streak", 0)
-                    data.setdefault("total_completed", 0)
-                    data.setdefault("total_skipped", 0)
-                    data.setdefault("history", [])
-                    data.setdefault("current_mode", "translation")
-                    data.setdefault("modes", {
-                        "translation": {
-                            "score": data["score"],
-                            "level": data["level"],
-                            "streak": data["streak"],
-                            "total_completed": data["total_completed"],
-                            "total_skipped": data["total_skipped"]
-                        },
-                        "transcription": {
-                            "score": 1.20,
-                            "level": "A1",
-                            "streak": 0,
-                            "total_completed": 0,
-                            "total_skipped": 0
-                        }
-                    })
-                    return data
-            except Exception as e:
-                print(f"Warning: Could not read profile from {self.profile_file}: {e}")
         profile = self.get_default_profile()
         self.save_profile(profile)
         return profile
@@ -206,14 +155,6 @@ class ScoringEngine:
                 )
             except Exception:
                 pass
-
-        try:
-            if os.path.dirname(self.profile_file):
-                os.makedirs(os.path.dirname(self.profile_file), exist_ok=True)
-            with open(self.profile_file, 'w', encoding='utf-8') as f:
-                json.dump(self.profile, f, ensure_ascii=False, indent=2)
-        except OSError:
-            pass
 
     def reset_profile(
         self,

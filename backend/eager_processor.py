@@ -6,34 +6,10 @@ import numpy as np
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Any, Optional
 
-try:
-    from backend.models import MLEngine
-except ImportError:
-    from models import MLEngine
+from backend.models import MLEngine
 
 
-def get_aligned_targets(selected_source_indices: List[int], matrix: np.ndarray, num_tgt_words: int) -> List[int]:
-    """Computes target token alignment indices for selected source word indices using the cross-attention matrix."""
-    if not selected_source_indices or matrix is None or matrix.size == 0:
-        return []
-
-    num_tgt, num_src = matrix.shape
-    aligned = set()
-
-    for s_idx in selected_source_indices:
-        if 0 <= s_idx < num_src:
-            col = matrix[:, s_idx]
-            best_t = int(np.argmax(col))
-            aligned.add(best_t)
-
-            max_col_val = col[best_t]
-            for t_idx in range(num_tgt):
-                row_best_s = int(np.argmax(matrix[t_idx, :]))
-                if row_best_s == s_idx and col[t_idx] >= 0.65 * max_col_val:
-                    aligned.add(t_idx)
-
-    return sorted(list(aligned))
-
+from backend.text_utils import get_aligned_targets
 
 @dataclass
 class ReferenceBundle:
@@ -215,13 +191,7 @@ class EagerPrecomputeManager:
 
         if first_time_lemmas:
             pairs = []
-            try:
-                from backend.vocab_engine import get_vocab_engine
-            except ImportError:
-                try:
-                    from vocab_engine import get_vocab_engine
-                except ImportError:
-                    get_vocab_engine = None
+            from scripts.vocab_engine import get_vocab_engine
 
             if get_vocab_engine is not None:
                 try:

@@ -9,7 +9,6 @@ if _BACKEND_DIR not in sys.path:
 from .data_manager import DataManager
 from .scoring_engine import ScoringEngine, score_to_level
 from .tts_engine import TTSEngine, get_tts_engine
-from .vocab_engine import VocabEngine
 
 __all__ = [
     "DataManager",
@@ -17,5 +16,4 @@ __all__ = [
     "score_to_level",
     "TTSEngine",
     "get_tts_engine",
-    "VocabEngine",
 ]

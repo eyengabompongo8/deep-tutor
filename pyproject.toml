@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Interactive Gradio web application for learning French tailored for Spanish speakers"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
+
 dependencies = [
     "gradio",
     "transformers",
@@ -27,7 +28,7 @@ cu124 = [
 ]
 
 [tool.uv]
-package = false
+package = true
 conflicts = [
     [
         { extra = "cpu" },
@@ -65,3 +66,6 @@ markers = [
     "slow: tests that take significant time to run",
 ]
 addopts = "-v -m 'not ml'"
+
+[tool.setuptools.packages.find]
+include = ["backend*"]

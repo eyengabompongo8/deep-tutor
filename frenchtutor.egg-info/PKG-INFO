@@ -1,0 +1,93 @@
+Metadata-Version: 2.4
+Name: frenchtutor
+Version: 0.1.0
+Summary: Interactive Gradio web application for learning French tailored for Spanish speakers
+Requires-Python: <3.14,>=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: gradio
+Requires-Dist: transformers
+Requires-Dist: sentence-transformers
+Requires-Dist: fasttext
+Requires-Dist: huggingface_hub
+Requires-Dist: numpy<2
+Requires-Dist: sentencepiece
+Requires-Dist: sacremoses
+Requires-Dist: language-tool-python
+Requires-Dist: spacy>=3.8.15
+Requires-Dist: edge-tts>=7.2.8
+Provides-Extra: cpu
+Requires-Dist: torch; extra == "cpu"
+Provides-Extra: cu124
+Requires-Dist: torch; extra == "cu124"
+
+# FrenchTutor Application
+
+This project is a Gradio-based interactive web application for learning French, tailored for Spanish speakers. It utilizes a state-of-the-art Natural Language Processing (NLP) architecture to map translations and score the student's input using three distinct metrics.
+
+## Architecture
+
+The system evaluates a given French translation based on the following pipeline:
+
+1.  **Language Identification (LID) Gatekeeper:**
+    *   **Model:** `cis-lmu/glotlid` (via FastText).
+    *   **Purpose:** Quickly analyzes the input to ensure the language is actually French before passing it to heavier neural models.
+2.  **Semantic Adequacy ($S_{\text{sem}}$):**
+    *   **Model:** `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`.
+    *   **Purpose:** Computes cosine similarity between the student's input and the reference translation to evaluate whether the meaning was preserved, regardless of syntax.
+3.  **NMT Conditional Perplexity ($S_{\text{NMT}}$) & Word Mapping:**
+    *   **Model:** `facebook/nllb-200-distilled-600M` (No Language Left Behind).
+    *   **Purpose:** Calculates the cross-entropy perplexity of the generated tokens given the Spanish source. Furthermore, **cross-attention weights** are extracted to dynamically map which Spanish words correspond to which French words, providing interactive visual feedback.
+4.  **Monolingual Fluency ($S_{\text{fluency}}$):**
+    *   **Model:** `asi/gpt-fr-cased-base` (Autoregressive causal LM).
+    *   **Purpose:** Runs a single pass over the student's input to calculate the structural fluency and naturalness of the sentence strictly in French, ignoring the source text.
+
+## Project Structure
+
+*   `backend/`: Python backend application code:
+    *   `server.py`: FastAPI application serving the API and React frontend.
+    *   `app.py`: Gradio application interface and state management.
+    *   `data_manager.py`: SQLite database operations and sentence repository CRUD.
+    *   `models.py`: Natural Language Processing and translation evaluation engine (`MLEngine`).
+    *   `scoring_engine.py`: Adaptive CEFR score calculation and transcription diff evaluation.
+    *   `tts_engine.py`: Neural French Text-to-Speech synthesis and caching.
+    *   `vocab_engine.py`: CEFRLex / FLELex vocabulary engine for CEFR level estimation.
+*   `frontend/`: React + Vite single page application.
+*   `scripts/`: Harvest, mining, rescoring, and migration utilities (`generate_dataset.py`, `rescore_dataset.py`, `translate_sentences.py`, `migrate_json_to_db.py`).
+*   `curriculum/`: CEFR levels curriculum definitions, module units, and parsing tools.
+*   `data/`: Processed SQLite database (`app.db`), lexicons (`flelex_beacco.tsv`), and audio cache.
+*   `tests/`: Standardized Pytest test suite with isolated fixtures.
+*   `run_tests.py`: Fast test runner script with automated categorization.
+*   `pyproject.toml`: Modern project specification and dependencies managed by `uv`.
+*   `uv.lock`: Deterministic lockfile for dependencies.
+
+## Installation & Execution
+
+1. Sync the environment and choose your PyTorch acceleration tier:
+    ```bash
+    # Option A: Lightweight CPU-only PyTorch (~180 MB, fast download & ideal for testing / CPU inference)
+    uv sync --extra cpu
+
+    # Option B: GPU PyTorch with CUDA 12.4 acceleration (~2.5 GB+)
+    uv sync --extra cu124
+    ```
+2. Run the application:
+    ```bash
+    # Run FastAPI web server with frontend
+    uv run python -m backend.server
+
+    # Or run the legacy Gradio application
+    uv run python -m backend.app
+    ```
+    or run the test suite:
+    ```bash
+    # Run fast unit & API tests (default)
+    uv run pytest
+    # or
+    python run_tests.py
+
+    # Run all tests including heavy ML models
+    python run_tests.py --all
+    # or
+    uv run pytest -m ""
+    ```
+3. *Note: The first run with ML models will take several minutes to download the neural models from the Hugging Face Hub (approx. ~3-4 GB).*
