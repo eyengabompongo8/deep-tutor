@@ -23,6 +23,9 @@ dependencies = [
 cpu = [
     "torch<2.5.0",
 ]
+cu118 = [
+    "torch<2.5.0",
+]
 cu124 = [
     "torch<2.5.0",
 ]
@@ -32,6 +35,7 @@ package = true
 conflicts = [
     [
         { extra = "cpu" },
+        { extra = "cu118" },
         { extra = "cu124" },
     ],
 ]
@@ -39,12 +43,18 @@ conflicts = [
 [tool.uv.sources]
 torch = [
     { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu118", extra = "cu118" },
     { index = "pytorch-cu124", extra = "cu124" },
 ]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
 explicit = true
 
 [[tool.uv.index]]

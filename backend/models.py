@@ -14,7 +14,7 @@ except Exception:
 
 import torch
 import re
-from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer, AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForSeq2SeqLM, AutoModelForCausalLM, AutoTokenizer
 from sentence_transformers import SentenceTransformer, util
 import fasttext
 from huggingface_hub import hf_hub_download
@@ -143,23 +143,23 @@ class MLEngine:
         # Auto-detect CUDA with active probe test, fallback to CPU
         self.device, self.dtype = resolve_device_and_dtype()
 
-        # 1. Term 2: NMT Conditional Perplexity & Word Mapping (facebook/m2m100_418M)
-        print(f"Loading NMT Model (facebook/m2m100_418M) on {self.device}...")
-        self.nmt_model_name = "facebook/m2m100_418M"
-        self.nmt_tokenizer = M2M100Tokenizer.from_pretrained(self.nmt_model_name)
-        self.nmt_model = M2M100ForConditionalGeneration.from_pretrained(
+        # 1. Term 2: NMT Conditional Perplexity & Word Mapping (Helsinki-NLP/opus-mt-es-fr)
+        print(f"Loading NMT Model (Helsinki-NLP/opus-mt-es-fr) on {self.device}...")
+        self.nmt_model_name = "Helsinki-NLP/opus-mt-es-fr"
+        self.nmt_tokenizer = AutoTokenizer.from_pretrained(self.nmt_model_name)
+        self.nmt_model = AutoModelForSeq2SeqLM.from_pretrained(
             self.nmt_model_name,
             torch_dtype=self.dtype,
             attn_implementation="eager"
         ).to(self.device)
 
-        # 2. Term 1: Semantic Adequacy (sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2)
-        print(f"Loading Semantic Model (paraphrase-multilingual-MiniLM-L12-v2) on {self.device}...")
-        self.sem_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", device=self.device)
+        # 2. Term 1: Semantic Adequacy (dangvantuan/sentence-camembert-base)
+        print(f"Loading Semantic Model (sentence-camembert-base) on {self.device}...")
+        self.sem_model = SentenceTransformer("dangvantuan/sentence-camembert-base", device=self.device)
 
-        # 3. Term 3: Monolingual Fluency (distilgpt2)
-        print(f"Loading Fluency Model (distilgpt2) on {self.device}...")
-        self.fluency_model_name = "distilgpt2"
+        # 3. Term 3: Monolingual Fluency (asi/gpt-fr-cased-small)
+        print(f"Loading Fluency Model (gpt-fr-cased-small) on {self.device}...")
+        self.fluency_model_name = "asi/gpt-fr-cased-small"
         self.fluency_tokenizer = AutoTokenizer.from_pretrained(self.fluency_model_name)
         self.fluency_model = AutoModelForCausalLM.from_pretrained(
             self.fluency_model_name,
@@ -237,9 +237,6 @@ class MLEngine:
         Calculates NMT perplexity, per-token/word breakdown metrics (loss, PPL, prob, top prediction, Delta L),
         and constructs a high-precision hybrid word alignment matrix.
         """
-        self.nmt_tokenizer.src_lang = "es"
-        self.nmt_tokenizer.tgt_lang = "fr"
-
         inputs = self.nmt_tokenizer(source_text, return_tensors="pt").to(self.device)
         labels = self.nmt_tokenizer(text_target=target_text, return_tensors="pt").input_ids.to(self.device)
 
@@ -372,7 +369,7 @@ class MLEngine:
         return perplexity, (src_words, tgt_words, hybrid_matrix), nmt_token_breakdown, nmt_word_breakdown
 
     def evaluate_fluency(self, text):
-        """Calculates perplexity and per-token/word breakdown of the French text using distilgpt2."""
+        """Calculates perplexity and per-token/word breakdown of the French text using gpt-fr-cased-small."""
         encodings = self.fluency_tokenizer(text, return_tensors="pt").to(self.device)
         input_ids = encodings.input_ids.to(self.device)
         if input_ids.shape[1] == 0:
