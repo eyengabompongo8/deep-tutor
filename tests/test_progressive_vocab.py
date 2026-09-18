@@ -11,7 +11,7 @@ class TestProgressiveVocabulary(unittest.TestCase):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.db_path = os.path.join(self.temp_dir.name, "test_app.db")
         self.dm = DataManager(db_path=self.db_path)
-        self.scoring = ScoringEngine()
+        self.scoring = ScoringEngine(data_manager=self.dm)
 
         # Seed test lexemas
         self.l1 = self.dm.upsert_lexema(lemma="être", pos="VERB", level="A1", is_base=True)
@@ -209,6 +209,29 @@ class TestProgressiveVocabulary(unittest.TestCase):
         pair = next((p for p in matched_s["first_time_pairs"] if "obstin" in p["lemma"]), None)
         self.assertIsNotNone(pair)
         self.assertEqual(pair["word"], "obstine")
+
+    def test_manual_level_lowering_relocks_unpracticed_vocab(self):
+        # 1. Reset user to B2 -> unlocks A1, A2, B1 lexemas
+        self.scoring.reset_profile(start_score=4.20, mode="translation", user_id="relock_user")
+        known_b2 = self.dm.get_user_known_lexema_ids("relock_user")
+        self.assertIn(self.l3, known_b2)  # A1 non-base word was auto-unlocked
+        
+        # 2. Simulate practicing a specific A1 word (l3: 'chat')
+        self.dm.record_lexema_appearances("relock_user", self.s2["id"], is_success=True)
+
+        # 3. Lower level manually to A1
+        self.scoring.reset_profile(start_score=1.20, mode="translation", user_id="relock_user")
+        known_a1 = self.dm.get_user_known_lexema_ids("relock_user")
+
+        # Base words are still known
+        self.assertIn(self.l1, known_a1)
+        self.assertIn(self.l2, known_a1)
+
+        # Practiced word 'chat' (l3) remains known because it was actually practiced
+        self.assertIn(self.l3, known_a1)
+
+        # Unpracticed non-base word 'noir' (l4) is relocked and no longer known
+        self.assertNotIn(self.l4, known_a1)
 
 
 if __name__ == "__main__":

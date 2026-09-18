@@ -150,6 +150,7 @@ class DBConnection:
                     CREATE TABLE IF NOT EXISTS user_lexema_counts (
                         user_id TEXT NOT NULL,
                         lexema_id INTEGER NOT NULL,
+                        level TEXT DEFAULT 'A1',
                         appearance_count INTEGER NOT NULL DEFAULT 0,
                         success_count INTEGER NOT NULL DEFAULT 0,
                         is_known BOOLEAN NOT NULL DEFAULT 0,
@@ -160,6 +161,13 @@ class DBConnection:
                     );
                 """)
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_ulc_user_known ON user_lexema_counts(user_id, is_known);")
+
+                try:
+                    ulc_cols = [c[1] for c in conn.execute("PRAGMA table_info(user_lexema_counts);").fetchall()]
+                    if 'level' not in ulc_cols:
+                        conn.execute("ALTER TABLE user_lexema_counts ADD COLUMN level TEXT DEFAULT 'A1';")
+                except Exception:
+                    pass
 
                 # Seed default user if not exists
                 user_row = conn.execute("SELECT id FROM users WHERE id = 'default_user';").fetchone()

@@ -146,8 +146,8 @@ class VocabularyMixin:
             success_inc = 1 if is_success else 0
             for lid in lexema_ids:
                 conn.execute("""
-                    INSERT INTO user_lexema_counts (user_id, lexema_id, appearance_count, success_count, is_known, last_seen_at)
-                    VALUES (?, ?, 1, ?, ?, CURRENT_TIMESTAMP)
+                    INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count, is_known, last_seen_at)
+                    SELECT ?, ?, level, 1, ?, ?, CURRENT_TIMESTAMP FROM lexemas WHERE id = ?
                     ON CONFLICT(user_id, lexema_id) DO UPDATE SET
                         appearance_count = user_lexema_counts.appearance_count + 1,
                         success_count = user_lexema_counts.success_count + ?,
@@ -158,7 +158,7 @@ class VocabularyMixin:
                             ELSE 0
                         END,
                         last_seen_at = CURRENT_TIMESTAMP;
-                """, (user_id, lid, success_inc, 1 if success_inc else 0, success_inc, unlock_threshold, success_inc))
+                """, (user_id, lid, success_inc, 1 if success_inc else 0, lid, success_inc, unlock_threshold, success_inc))
 
             placeholders = ",".join(["?"] * len(lexema_ids))
             cursor = conn.execute(f"""
@@ -168,6 +168,45 @@ class VocabularyMixin:
                 WHERE ulc.user_id = ? AND l.id IN ({placeholders});
             """, [user_id] + lexema_ids)
             return [dict(r) for r in cursor.fetchall()]
+
+    def unlock_user_vocabulary_for_level(self, user_id: str, target_level: str):
+        """
+        Synchronizes user vocabulary for target_level:
+        1. Unlocks all vocabulary of levels strictly below target_level.
+        2. Relocks any unpracticed vocabulary (appearance_count = 0 and success_count = 0)
+           at or above target_level, so if a user manually lowers their level, unpracticed words stop appearing.
+        """
+        levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+        if target_level not in levels:
+            return
+
+        idx = levels.index(target_level)
+        previous_levels = levels[:idx]
+        current_and_higher = levels[idx:]
+
+        with self._get_connection() as conn:
+            # 1. Unlock strictly previous levels
+            if previous_levels:
+                placeholders = ",".join(["?"] * len(previous_levels))
+                conn.execute(f"""
+                    INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count, is_known, last_seen_at)
+                    SELECT ?, id, level, 0, 0, 1, CURRENT_TIMESTAMP
+                    FROM lexemas
+                    WHERE level IN ({placeholders})
+                    ON CONFLICT(user_id, lexema_id) DO UPDATE SET
+                        is_known = 1;
+                """, [user_id] + previous_levels)
+
+            # 2. Relock unpracticed words at or above target_level
+            if current_and_higher:
+                relock_placeholders = ",".join(["?"] * len(current_and_higher))
+                conn.execute(f"""
+                    DELETE FROM user_lexema_counts
+                    WHERE user_id = ?
+                      AND level IN ({relock_placeholders})
+                      AND appearance_count = 0
+                      AND success_count = 0;
+                """, [user_id] + current_and_higher)
 
     def get_user_vocabulary_stats(self, user_id: str = 'default_user') -> Dict[str, Any]:
         """Returns vocabulary progress diagnostics for the user."""
