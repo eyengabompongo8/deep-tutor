@@ -16,9 +16,9 @@ Requires-Dist: language-tool-python
 Requires-Dist: spacy>=3.8.15
 Requires-Dist: edge-tts>=7.2.8
 Provides-Extra: cpu
-Requires-Dist: torch; extra == "cpu"
+Requires-Dist: torch<2.5.0; extra == "cpu"
 Provides-Extra: cu124
-Requires-Dist: torch; extra == "cu124"
+Requires-Dist: torch<2.5.0; extra == "cu124"
 
 # FrenchTutor Application
 

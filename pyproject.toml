@@ -21,10 +21,10 @@ dependencies = [
 
 [project.optional-dependencies]
 cpu = [
-    "torch",
+    "torch<2.5.0",
 ]
 cu124 = [
-    "torch",
+    "torch<2.5.0",
 ]
 
 [tool.uv]
