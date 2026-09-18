@@ -1,6 +1,4 @@
 import os
-# os.environ.setdefault("HF_HUB_OFFLINE", "1")
-# os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 # Allow transformers to load trusted local model weights on PyTorch 2.5
@@ -14,12 +12,15 @@ except Exception:
 
 import torch
 import re
-from transformers import AutoModelForSeq2SeqLM, AutoModelForCausalLM, AutoTokenizer
-from sentence_transformers import SentenceTransformer, util
+from typing import Dict, Any, Tuple, List, Optional
+from sentence_transformers import util
 import fasttext
 from huggingface_hub import hf_hub_download
 import numpy as np
 import language_tool_python
+
+from backend.model_registry import registry, NMTRawOutput, FluencyRawOutput
+
 # SentencePiece word-boundary markers used by M2M100 and related models
 _SP_BOUNDARIES = (
     "\u2581",   # ▁  LOWER ONE EIGHTH BLOCK (primary marker in M2M100)
@@ -41,7 +42,7 @@ def _starts_new_word(tok: str) -> bool:
     """Return True if the token begins a new word (starts with a boundary marker)."""
     return any(tok.startswith(m) for m in _SP_BOUNDARIES)
 
-def aggregate_sentencepiece_tokens_to_words(tokens):
+def aggregate_sentencepiece_tokens_to_words(tokens: List[str]) -> Tuple[List[str], List[List[int]]]:
     """
     Groups SentencePiece sub-tokens into full, clean words.
     Handles the ▁ (U+2581) boundary marker used by M2M100 and mBART tokenizers.
@@ -115,6 +116,191 @@ def aggregate_sentencepiece_tokens_to_words(tokens):
     return words, final_subtoken_indices
 
 
+def _build_nmt_breakdowns(raw: NMTRawOutput) -> Tuple[List[str], List[str], List[List[int]], List[List[int]], List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Computes token-level and word-level metric breakdowns from raw NMT inference outputs.
+    Calculates surprise Delta_L = max(0, loss - top_1_loss) and flags errors when Delta_L > 8.0.
+    """
+    src_words, src_sub_groups = aggregate_sentencepiece_tokens_to_words(raw.src_raw_tokens)
+    tgt_words, tgt_sub_groups = aggregate_sentencepiece_tokens_to_words(raw.tgt_raw_tokens)
+
+    nmt_token_breakdown = []
+    token_loss_map = {}
+    top_1_loss_map = {}
+
+    for idx, t_id in enumerate(raw.target_ids):
+        tok_str = raw.tgt_raw_tokens[idx] if idx < len(raw.tgt_raw_tokens) else str(t_id)
+        if _is_special_token(tok_str) or t_id == -100:
+            continue
+
+        loss_i = raw.token_losses[idx] if idx < len(raw.token_losses) else 0.0
+        top_1_tok_str = raw.top_1_tokens[idx] if idx < len(raw.top_1_tokens) else ""
+        top_1_loss_i = raw.top_1_losses[idx] if idx < len(raw.top_1_losses) else 0.0
+
+        tok_clean = _strip_boundary(tok_str)
+        top_1_clean = _strip_boundary(top_1_tok_str)
+
+        ppl_i = float(np.exp(loss_i))
+        prob_i = float(np.exp(-loss_i)) * 100.0
+        delta_l_i = max(0.0, loss_i - top_1_loss_i)
+
+        token_loss_map[idx] = loss_i
+        top_1_loss_map[idx] = top_1_loss_i
+
+        nmt_token_breakdown.append({
+            "index": idx,
+            "token": tok_clean if tok_clean else tok_str,
+            "loss": loss_i,
+            "ppl": ppl_i,
+            "prob": prob_i,
+            "top_prediction": top_1_clean if top_1_clean else top_1_tok_str,
+            "delta_l": delta_l_i,
+            "is_error": delta_l_i > 8.0
+        })
+
+    nmt_word_breakdown = []
+    for w_idx, (word_text, sub_indices) in enumerate(zip(tgt_words, tgt_sub_groups)):
+        word_losses = [token_loss_map[idx] for idx in sub_indices if idx in token_loss_map]
+        word_top_1_losses = [top_1_loss_map[idx] for idx in sub_indices if idx in top_1_loss_map]
+
+        if word_losses:
+            w_loss = float(np.mean(word_losses))
+            w_top_1_loss = float(np.mean(word_top_1_losses))
+        else:
+            w_loss = 0.0
+            w_top_1_loss = 0.0
+
+        w_ppl = float(np.exp(w_loss))
+        w_prob = float(np.exp(-w_loss)) * 100.0
+        w_delta_l = max(0.0, w_loss - w_top_1_loss)
+
+        top_pred_parts = []
+        for s_idx in sub_indices:
+            if s_idx < len(raw.top_1_tokens):
+                tok_str = raw.top_1_tokens[s_idx]
+                if not _is_special_token(tok_str):
+                    top_pred_parts.append(_strip_boundary(tok_str))
+        top_pred_word = "".join(top_pred_parts).strip() if top_pred_parts else "—"
+
+        nmt_word_breakdown.append({
+            "index": w_idx,
+            "word": word_text,
+            "loss": w_loss,
+            "ppl": w_ppl,
+            "prob": w_prob,
+            "top_prediction": top_pred_word,
+            "delta_l": w_delta_l,
+            "is_error": w_delta_l > 8.0
+        })
+
+    return src_words, tgt_words, src_sub_groups, tgt_sub_groups, nmt_token_breakdown, nmt_word_breakdown
+
+
+def _build_fluency_breakdowns(raw: FluencyRawOutput, text: str) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Computes token-level and word-level metric breakdowns from raw Fluency inference outputs.
+    """
+    fluency_token_breakdown = []
+    for idx in range(len(raw.tokens)):
+        tok_str = raw.tokens[idx]
+        loss_i = raw.token_losses[idx]
+        top_1_str = raw.top_1_tokens[idx]
+        top_1_loss_i = raw.top_1_losses[idx]
+
+        ppl_i = float(np.exp(loss_i))
+        prob_i = float(np.exp(-loss_i)) * 100.0
+        delta_l_i = max(0.0, loss_i - top_1_loss_i)
+
+        fluency_token_breakdown.append({
+            "index": idx + 1,
+            "token": tok_str if tok_str else f"token_{idx}",
+            "loss": loss_i,
+            "ppl": ppl_i,
+            "prob": prob_i,
+            "top_prediction": top_1_str,
+            "delta_l": delta_l_i,
+            "is_error": delta_l_i > 8.0
+        })
+
+    words = text.strip().split()
+    fluency_word_breakdown = []
+    if words and fluency_token_breakdown:
+        num_words = len(words)
+        tokens_per_word = max(1, len(fluency_token_breakdown) // num_words)
+
+        for w_idx, w_text in enumerate(words):
+            start_t = w_idx * tokens_per_word
+            end_t = (w_idx + 1) * tokens_per_word if w_idx < num_words - 1 else len(fluency_token_breakdown)
+            word_toks = fluency_token_breakdown[start_t:end_t]
+
+            if word_toks:
+                w_loss = float(np.mean([t["loss"] for t in word_toks]))
+                w_top_1 = word_toks[0]["top_prediction"]
+            else:
+                w_loss = 0.0
+                w_top_1 = "—"
+
+            w_ppl = float(np.exp(w_loss))
+            w_prob = float(np.exp(-w_loss)) * 100.0
+            w_top_1_loss = float(np.mean([t["loss"] - t["delta_l"] for t in word_toks])) if word_toks else 0.0
+            w_delta_l = max(0.0, w_loss - w_top_1_loss)
+
+            fluency_word_breakdown.append({
+                "index": w_idx,
+                "word": w_text,
+                "loss": w_loss,
+                "ppl": w_ppl,
+                "prob": w_prob,
+                "top_prediction": w_top_1,
+                "delta_l": w_delta_l,
+                "is_error": w_delta_l > 8.0
+            })
+
+    return fluency_token_breakdown, fluency_word_breakdown
+
+
+def _compute_hybrid_alignment_matrix(
+    subtoken_attn: np.ndarray,
+    src_words: List[str],
+    tgt_words: List[str],
+    src_sub_groups: List[List[int]],
+    tgt_sub_groups: List[List[int]],
+    sem_model: Any
+) -> np.ndarray:
+    """
+    Constructs a high-precision hybrid word alignment matrix by combining:
+    1. Row-softmax normalized NMT cross-attention weights pooled to word boundaries.
+    2. Contextual multilingual embedding cosine similarity (SimAlign) from the semantic model.
+    """
+    row_sums = subtoken_attn.sum(axis=1, keepdims=True) + 1e-8
+    norm_subtoken_attn = subtoken_attn / row_sums
+
+    num_tgt_words = max(1, len(tgt_words))
+    num_src_words = max(1, len(src_words))
+    word_attn_matrix = np.zeros((num_tgt_words, num_src_words))
+
+    for tgt_w_idx, tgt_subs in enumerate(tgt_sub_groups):
+        for src_w_idx, src_subs in enumerate(src_sub_groups):
+            attn_sum = 0.0
+            for t_sub in tgt_subs:
+                for s_sub in src_subs:
+                    if t_sub < norm_subtoken_attn.shape[0] and s_sub < norm_subtoken_attn.shape[1]:
+                        attn_sum += norm_subtoken_attn[t_sub, s_sub]
+            word_attn_matrix[tgt_w_idx, src_w_idx] = attn_sum
+
+    if src_words and tgt_words:
+        src_embs = sem_model.encode(src_words)
+        tgt_embs = sem_model.encode(tgt_words)
+        sim_matrix = util.cos_sim(tgt_embs, src_embs).cpu().float().numpy()
+        sim_matrix = np.maximum(0.0, sim_matrix)
+    else:
+        sim_matrix = np.zeros((num_tgt_words, num_src_words))
+
+    max_attn = np.max(word_attn_matrix) + 1e-8
+    hybrid_matrix = 0.5 * (word_attn_matrix / max_attn) + 0.5 * sim_matrix
+    return hybrid_matrix
+
+
 def resolve_device_and_dtype():
     """
     Attempts to use CUDA acceleration if available and capable of executing kernels.
@@ -123,7 +309,6 @@ def resolve_device_and_dtype():
     """
     if torch.cuda.is_available():
         try:
-            # Active probe test: verify kernel execution on the device
             probe = torch.zeros((1, 1), device="cuda")
             _ = probe + 1.0
             del probe
@@ -139,32 +324,18 @@ def resolve_device_and_dtype():
 
 
 class MLEngine:
-    def __init__(self):
-        # Auto-detect CUDA with active probe test, fallback to CPU
+    """
+    Main evaluation pipeline orchestrator for language exercises.
+    Coordinates swappable ML model wrappers retrieved from ModelRegistry and applies
+    pipeline logic for scoring, word breakdowns, hybrid alignment mapping, and error detection.
+    """
+    def __init__(self, semantic_name="camembert", nmt_name="helsinki", fluency_name="gpt_fr"):
         self.device, self.dtype = resolve_device_and_dtype()
 
-        # 1. Term 2: NMT Conditional Perplexity & Word Mapping (Helsinki-NLP/opus-mt-es-fr)
-        print(f"Loading NMT Model (Helsinki-NLP/opus-mt-es-fr) on {self.device}...")
-        self.nmt_model_name = "Helsinki-NLP/opus-mt-es-fr"
-        self.nmt_tokenizer = AutoTokenizer.from_pretrained(self.nmt_model_name)
-        self.nmt_model = AutoModelForSeq2SeqLM.from_pretrained(
-            self.nmt_model_name,
-            torch_dtype=self.dtype,
-            attn_implementation="eager"
-        ).to(self.device)
-
-        # 2. Term 1: Semantic Adequacy (dangvantuan/sentence-camembert-base)
-        print(f"Loading Semantic Model (sentence-camembert-base) on {self.device}...")
-        self.sem_model = SentenceTransformer("dangvantuan/sentence-camembert-base", device=self.device)
-
-        # 3. Term 3: Monolingual Fluency (asi/gpt-fr-cased-small)
-        print(f"Loading Fluency Model (gpt-fr-cased-small) on {self.device}...")
-        self.fluency_model_name = "asi/gpt-fr-cased-small"
-        self.fluency_tokenizer = AutoTokenizer.from_pretrained(self.fluency_model_name)
-        self.fluency_model = AutoModelForCausalLM.from_pretrained(
-            self.fluency_model_name,
-            torch_dtype=self.dtype
-        ).to(self.device)
+        # Load models dynamically from the registry
+        self.sem_model = registry.get_semantic(semantic_name, self.device, self.dtype)
+        self.nmt_model = registry.get_nmt(nmt_name, self.device, self.dtype)
+        self.fluency_model = registry.get_fluency(fluency_name, self.device, self.dtype)
 
         # 4. LID Gatekeeper (cis-lmu/glotlid)
         print("Loading GlotLID Gatekeeper...")
@@ -177,7 +348,7 @@ class MLEngine:
 
         print(f"All ML models loaded successfully on {self.device} ({self.dtype}).")
 
-    def check_language(self, text):
+    def check_language(self, text: str) -> Tuple[bool, float]:
         text_clean = text.strip().replace("\n", " ")
         if not text_clean:
             return False, 0.0
@@ -187,8 +358,6 @@ class MLEngine:
             return False, 0.0
 
         # Short French sentences (< 6 words) frequently trigger false negatives in fasttext
-        # (e.g. "Bonjour" getting classified as Picard or Norman).
-        # Check against common French functional and core words first:
         common_fr = {
             'le', 'la', 'les', 'un', 'une', 'des', 'du', 'au', 'aux',
             'ce', 'cet', 'cette', 'ces', 'je', 'tu', 'il', 'elle', 'on',
@@ -213,18 +382,18 @@ class MLEngine:
         except Exception:
             return True, 1.0
 
-    def encode_semantics(self, texts):
-        """Encodes sentences into normalized embeddings on the active device."""
-        return self.sem_model.encode(texts, convert_to_tensor=True, device=self.device)
+    def encode_semantics(self, texts: List[str]) -> torch.Tensor:
+        """Encodes sentences into normalized embeddings via the registered semantic model."""
+        return self.sem_model.encode(texts)
 
-    def evaluate_semantics(self, student_text, reference_texts, ref_embs=None):
+    def evaluate_semantics(self, student_text: str, reference_texts: List[str], ref_embs: Optional[torch.Tensor] = None) -> Tuple[float, float]:
         """
-        Calculates Semantic Adequacy (S_sem) directly using normalized Cosine Similarity (R_cos * 100).
+        Calculates Semantic Adequacy (S_sem) using normalized Cosine Similarity (R_cos * 100).
         Accepts optional precomputed ref_embs to eliminate redundant forward passes.
         """
-        student_emb = self.sem_model.encode(student_text, convert_to_tensor=True, device=self.device)
+        student_emb = self.sem_model.encode([student_text] if isinstance(student_text, str) else student_text)
         if ref_embs is None:
-            ref_embs = self.sem_model.encode(reference_texts, convert_to_tensor=True, device=self.device)
+            ref_embs = self.sem_model.encode(reference_texts)
 
         cosine_scores = util.cos_sim(student_emb, ref_embs)
         raw_cos = float(torch.max(cosine_scores).item())
@@ -232,233 +401,39 @@ class MLEngine:
 
         return score, raw_cos
 
-    def evaluate_nmt_and_map(self, source_text, target_text):
+    def evaluate_nmt_and_map(self, source_text: str, target_text: str) -> Tuple[float, Tuple[List[str], List[str], np.ndarray], List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
-        Calculates NMT perplexity, per-token/word breakdown metrics (loss, PPL, prob, top prediction, Delta L),
-        and constructs a high-precision hybrid word alignment matrix.
+        Runs NMT inference via the registered NMT wrapper, then computes token/word breakdowns
+        and constructs the hybrid cross-attention + SimAlign word alignment matrix.
         """
-        inputs = self.nmt_tokenizer(source_text, return_tensors="pt").to(self.device)
-        labels = self.nmt_tokenizer(text_target=target_text, return_tensors="pt").input_ids.to(self.device)
+        raw_output = self.nmt_model.infer(source_text, target_text)
 
-        with torch.inference_mode():
-            outputs = self.nmt_model(**inputs, labels=labels, output_attentions=True)
-            loss = float(outputs.loss.item())
-            perplexity = float(np.exp(loss))
+        src_words, tgt_words, src_subs, tgt_subs, nmt_token_breakdown, nmt_word_breakdown = _build_nmt_breakdowns(raw_output)
 
-            if outputs.cross_attentions is not None and len(outputs.cross_attentions) > 0:
-                top_layers = outputs.cross_attentions[-4:]
-                subtoken_attn = torch.mean(torch.stack(top_layers), dim=(0, 1, 2)).squeeze(0).cpu().float().numpy()
-            else:
-                subtoken_attn = np.zeros((labels.shape[1], inputs["input_ids"].shape[1]))
+        hybrid_matrix = _compute_hybrid_alignment_matrix(
+            raw_output.cross_attentions,
+            src_words,
+            tgt_words,
+            src_subs,
+            tgt_subs,
+            self.sem_model
+        )
 
-            logits = outputs.logits[0].float()  # Float32 for stable CrossEntropyLoss
-            target_ids = labels[0]
-            loss_fct = torch.nn.CrossEntropyLoss(reduction='none', ignore_index=-100)
-            token_losses_tensor = loss_fct(logits, target_ids)
-            top_1_token_ids = torch.argmax(logits, dim=-1)
-            top_1_losses_tensor = loss_fct(logits, top_1_token_ids)
+        return raw_output.perplexity, (src_words, tgt_words, hybrid_matrix), nmt_token_breakdown, nmt_word_breakdown
 
-        src_raw_tokens = self.nmt_tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
-        tgt_raw_tokens = self.nmt_tokenizer.convert_ids_to_tokens(labels[0])
+    def evaluate_fluency(self, text: str) -> Tuple[float, List[Dict[str, Any]], List[Dict[str, Any]]]:
+        """
+        Runs fluency inference via the registered Fluency wrapper, then computes token and word breakdowns.
+        """
+        raw_output = self.fluency_model.infer(text)
+        fluency_token_breakdown, fluency_word_breakdown = _build_fluency_breakdowns(raw_output, text)
+        return raw_output.perplexity, fluency_token_breakdown, fluency_word_breakdown
 
-        src_words, src_sub_groups = aggregate_sentencepiece_tokens_to_words(src_raw_tokens)
-        tgt_words, tgt_sub_groups = aggregate_sentencepiece_tokens_to_words(tgt_raw_tokens)
-
-        # Build NMT Token Breakdown
-        nmt_token_breakdown = []
-        token_loss_map = {}
-        top_1_loss_map = {}
-
-        for idx, t_id_tensor in enumerate(target_ids):
-            t_id = int(t_id_tensor.item())
-            tok_str = tgt_raw_tokens[idx] if idx < len(tgt_raw_tokens) else str(t_id)
-            if _is_special_token(tok_str) or t_id == -100:
-                continue
-
-            loss_i = float(token_losses_tensor[idx].item())
-            top_1_id = int(top_1_token_ids[idx].item())
-            top_1_tok_str = self.nmt_tokenizer.convert_ids_to_tokens(top_1_id)
-            top_1_loss_i = float(top_1_losses_tensor[idx].item())
-
-            tok_clean = _strip_boundary(tok_str)
-            top_1_clean = _strip_boundary(top_1_tok_str)
-
-            ppl_i = float(np.exp(loss_i))
-            prob_i = float(np.exp(-loss_i)) * 100.0
-            delta_l_i = max(0.0, loss_i - top_1_loss_i)
-
-            token_loss_map[idx] = loss_i
-            top_1_loss_map[idx] = top_1_loss_i
-
-            nmt_token_breakdown.append({
-                "index": idx,
-                "token": tok_clean if tok_clean else tok_str,
-                "loss": loss_i,
-                "ppl": ppl_i,
-                "prob": prob_i,
-                "top_prediction": top_1_clean if top_1_clean else top_1_tok_str,
-                "delta_l": delta_l_i,
-                "is_error": delta_l_i > 8.0
-            })
-
-        # Build NMT Word Breakdown
-        nmt_word_breakdown = []
-        for w_idx, (word_text, sub_indices) in enumerate(zip(tgt_words, tgt_sub_groups)):
-            word_losses = [token_loss_map[idx] for idx in sub_indices if idx in token_loss_map]
-            word_top_1_losses = [top_1_loss_map[idx] for idx in sub_indices if idx in top_1_loss_map]
-
-            if word_losses:
-                w_loss = float(np.mean(word_losses))
-                w_top_1_loss = float(np.mean(word_top_1_losses))
-            else:
-                w_loss = 0.0
-                w_top_1_loss = 0.0
-
-            w_ppl = float(np.exp(w_loss))
-            w_prob = float(np.exp(-w_loss)) * 100.0
-            w_delta_l = max(0.0, w_loss - w_top_1_loss)
-
-            top_pred_parts = []
-            for s_idx in sub_indices:
-                if s_idx < len(top_1_token_ids):
-                    t_id = int(top_1_token_ids[s_idx].item())
-                    tok_str = self.nmt_tokenizer.convert_ids_to_tokens(t_id)
-                    if not _is_special_token(tok_str):
-                        top_pred_parts.append(_strip_boundary(tok_str))
-            top_pred_word = "".join(top_pred_parts).strip() if top_pred_parts else "—"
-
-            nmt_word_breakdown.append({
-                "index": w_idx,
-                "word": word_text,
-                "loss": w_loss,
-                "ppl": w_ppl,
-                "prob": w_prob,
-                "top_prediction": top_pred_word,
-                "delta_l": w_delta_l,
-                "is_error": w_delta_l > 8.0
-            })
-
-        # Row-level softmax normalization per target token to filter background noise
-        row_sums = subtoken_attn.sum(axis=1, keepdims=True) + 1e-8
-        norm_subtoken_attn = subtoken_attn / row_sums
-
-        # Construct Word-Level Attention Matrix
-        num_tgt_words = max(1, len(tgt_words))
-        num_src_words = max(1, len(src_words))
-        word_attn_matrix = np.zeros((num_tgt_words, num_src_words))
-
-        for tgt_w_idx, tgt_subs in enumerate(tgt_sub_groups):
-            for src_w_idx, src_subs in enumerate(src_sub_groups):
-                attn_sum = 0.0
-                for t_sub in tgt_subs:
-                    for s_sub in src_subs:
-                        if t_sub < norm_subtoken_attn.shape[0] and s_sub < norm_subtoken_attn.shape[1]:
-                            attn_sum += norm_subtoken_attn[t_sub, s_sub]
-                word_attn_matrix[tgt_w_idx, src_w_idx] = attn_sum
-
-        # Multilingual Contextual Embedding Similarity (SimAlign)
-        src_embs = self.sem_model.encode(src_words, convert_to_tensor=True, device=self.device)
-        tgt_embs = self.sem_model.encode(tgt_words, convert_to_tensor=True, device=self.device)
-        sim_matrix = util.cos_sim(tgt_embs, src_embs).cpu().float().numpy()
-        sim_matrix = np.maximum(0.0, sim_matrix)
-
-        # Hybrid Alignment Matrix: 50% normalized cross-attention + 50% contextual embedding similarity
-        max_attn = np.max(word_attn_matrix) + 1e-8
-        hybrid_matrix = 0.5 * (word_attn_matrix / max_attn) + 0.5 * sim_matrix
-
-        return perplexity, (src_words, tgt_words, hybrid_matrix), nmt_token_breakdown, nmt_word_breakdown
-
-    def evaluate_fluency(self, text):
-        """Calculates perplexity and per-token/word breakdown of the French text using gpt-fr-cased-small."""
-        encodings = self.fluency_tokenizer(text, return_tensors="pt").to(self.device)
-        input_ids = encodings.input_ids.to(self.device)
-        if input_ids.shape[1] == 0:
-            return 100.0, [], []
-
-        with torch.inference_mode():
-            outputs = self.fluency_model(input_ids, labels=input_ids)
-            loss = float(outputs.loss.item())
-            perplexity = float(np.exp(loss))
-
-            logits = outputs.logits[0].float()
-            if input_ids.shape[1] > 1:
-                shift_logits = logits[:-1, :]
-                shift_labels = input_ids[0, 1:]
-                loss_fct = torch.nn.CrossEntropyLoss(reduction='none')
-                token_losses = loss_fct(shift_logits, shift_labels)
-                top_1_ids = torch.argmax(shift_logits, dim=-1)
-                top_1_losses = loss_fct(shift_logits, top_1_ids)
-
-                fluency_token_breakdown = []
-                for idx in range(len(shift_labels)):
-                    lbl_id = int(shift_labels[idx].item())
-                    tok_str = self.fluency_tokenizer.decode([lbl_id]).strip()
-
-                    loss_i = float(token_losses[idx].item())
-                    top_1_id = int(top_1_ids[idx].item())
-                    top_1_str = self.fluency_tokenizer.decode([top_1_id]).strip()
-                    top_1_loss_i = float(top_1_losses[idx].item())
-
-                    ppl_i = float(np.exp(loss_i))
-                    prob_i = float(np.exp(-loss_i)) * 100.0
-                    delta_l_i = max(0.0, loss_i - top_1_loss_i)
-
-                    fluency_token_breakdown.append({
-                        "index": idx + 1,
-                        "token": tok_str if tok_str else f"token_{idx}",
-                        "loss": loss_i,
-                        "ppl": ppl_i,
-                        "prob": prob_i,
-                        "top_prediction": top_1_str,
-                        "delta_l": delta_l_i,
-                        "is_error": delta_l_i > 8.0
-                    })
-            else:
-                fluency_token_breakdown = []
-
-        # Fluency Word Breakdown
-        words = text.strip().split()
-        fluency_word_breakdown = []
-        if words and fluency_token_breakdown:
-            num_words = len(words)
-            tokens_per_word = max(1, len(fluency_token_breakdown) // num_words)
-
-            for w_idx, w_text in enumerate(words):
-                start_t = w_idx * tokens_per_word
-                end_t = (w_idx + 1) * tokens_per_word if w_idx < num_words - 1 else len(fluency_token_breakdown)
-                word_toks = fluency_token_breakdown[start_t:end_t]
-
-                if word_toks:
-                    w_loss = float(np.mean([t["loss"] for t in word_toks]))
-                    w_top_1 = word_toks[0]["top_prediction"]
-                else:
-                    w_loss = 0.0
-                    w_top_1 = "—"
-
-                w_ppl = float(np.exp(w_loss))
-                w_prob = float(np.exp(-w_loss)) * 100.0
-                w_top_1_loss = float(np.mean([t["loss"] - t["delta_l"] for t in word_toks])) if word_toks else 0.0
-                w_delta_l = max(0.0, w_loss - w_top_1_loss)
-
-                fluency_word_breakdown.append({
-                    "index": w_idx,
-                    "word": w_text,
-                    "loss": w_loss,
-                    "ppl": w_ppl,
-                    "prob": w_prob,
-                    "top_prediction": w_top_1,
-                    "delta_l": w_delta_l,
-                    "is_error": w_delta_l > 8.0
-                })
-
-        return perplexity, fluency_token_breakdown, fluency_word_breakdown
-
-    def evaluate_syntax(self, text):
+    def evaluate_syntax(self, text: str) -> List[str]:
         """Uses LanguageTool (Tier 2) to detect genuine syntactical, grammatical, and confused-word errors."""
         matches = self.lang_tool.check(text)
         errors = []
         
-        # Stylistic categories and typography rules to exclude from harsh penalties
         IGNORED_CATEGORIES = {"STYLE", "TYPOGRAPHY", "PUNCTUATION", "COLLOQUIALISMS", "REDUNDANCY"}
         IGNORED_ISSUE_TYPES = {"style", "register", "typographical", "whitespace", "locale-violation"}
 
@@ -466,13 +441,10 @@ class MLEngine:
             cat = getattr(match, "category", "")
             issue_type = getattr(match, "rule_issue_type", "")
 
-            # Exclude stylistic or subjective feedback
             if cat in IGNORED_CATEGORIES or issue_type in IGNORED_ISSUE_TYPES:
                 continue
 
             error_msg = match.message.strip()
-            
-            # Extract bad text context for clarity
             context = text[match.offset:match.offset + match.error_length].strip()
             if context:
                 error_msg = f"On '{context}': {error_msg}"
@@ -481,7 +453,12 @@ class MLEngine:
                             
         return errors
 
-    def align_and_filter_unexpected_words(self, nmt_word_breakdown, mapping_data_student, mapping_data_ref):
+    def align_and_filter_unexpected_words(
+        self,
+        nmt_word_breakdown: List[Dict[str, Any]],
+        mapping_data_student: Tuple[List[str], List[str], np.ndarray],
+        mapping_data_ref: Tuple[List[str], List[str], np.ndarray]
+    ) -> List[Dict[str, Any]]:
         """
         Soundness & vocabulary verification using student-to-source-to-reference alignment.
         Instead of arbitrary greedy NMT sub-tokens, finds which source word the student word
@@ -503,7 +480,6 @@ class MLEngine:
         ref_words_clean = [w.lower().strip(".,!?:;'\"-") for w in ref_words]
         ref_words_set = set(ref_words_clean)
 
-        # Common grammatical function words that vary legitimately with syntax/structure
         FUNCTION_WORDS = {
             "le", "la", "les", "l'", "un", "une", "des", "du", "de", "d'",
             "ce", "cet", "cette", "ces", "c'", "est", "sont", "a", "ont",
@@ -515,7 +491,6 @@ class MLEngine:
             raw_w = item.get("word", "")
             clean_w = raw_w.lower().strip(".,!?:;'\"-")
 
-            # 1. If word is directly in the reference translation, it is guaranteed sound
             if clean_w in ref_words_set:
                 item["is_error"] = False
                 item["top_prediction"] = ""
@@ -524,35 +499,30 @@ class MLEngine:
             expected_ref_word = ""
             matched_src_word = ""
 
-            # 2. Find the primary source word this student word aligned with
             if stu_matrix is not None and w_idx < stu_matrix.shape[0]:
                 best_s_idx = int(np.argmax(stu_matrix[w_idx, :]))
                 if best_s_idx < len(src_words_stu):
                     matched_src_word = src_words_stu[best_s_idx]
 
-                # 3. Find what reference word aligned with that same source word
                 if ref_matrix is not None and best_s_idx < ref_matrix.shape[1]:
                     best_ref_idx = int(np.argmax(ref_matrix[:, best_s_idx]))
                     if best_ref_idx < len(ref_words):
                         expected_ref_word = ref_words[best_ref_idx]
 
-            # 4. Fallback: if no alignment found, check if there is an unmatched reference content word
             if not expected_ref_word and ref_words:
                 expected_ref_word = ref_words[-1]
 
             clean_expected = expected_ref_word.lower().strip(".,!?:;'\"-")
 
-            # Check semantic similarity between typed word and expected reference word
             is_sound = False
             if clean_expected and clean_w:
                 if clean_w == clean_expected:
                     is_sound = True
                 elif clean_w in FUNCTION_WORDS and clean_expected in FUNCTION_WORDS:
-                    # Legitimate syntactic variation (e.g. cleft sentence 'ce que' / 'est')
                     is_sound = True
                 else:
                     try:
-                        embs = self.sem_model.encode([clean_w, clean_expected], convert_to_tensor=True, device=self.device)
+                        embs = self.sem_model.encode([clean_w, clean_expected])
                         sim = float(util.cos_sim(embs[0], embs[1]).item())
                         if sim >= 0.70:
                             is_sound = True
@@ -563,14 +533,13 @@ class MLEngine:
                 item["is_error"] = False
                 item["top_prediction"] = ""
             else:
-                # Word is unsound for this concept (e.g. 'vélos' for 'automóviles' / 'voitures')
                 item["is_error"] = bool(clean_expected != "" and clean_w != "")
                 item["top_prediction"] = expected_ref_word
                 item["source_word"] = matched_src_word
 
         return nmt_word_breakdown
 
-    def evaluate_student_against_bundle(self, source_text, student_text, reference_bundle):
+    def evaluate_student_against_bundle(self, source_text: str, student_text: str, reference_bundle: Any) -> Dict[str, Any]:
         """
         Evaluates the student text against a precomputed ReferenceBundle.
         Only runs inference passes on the student text (S_sem vs cached ref embedding,
@@ -609,6 +578,49 @@ class MLEngine:
         )
 
         # Soundness and expected-word refinement using reference alignment
+        nmt_word_breakdown = self.align_and_filter_unexpected_words(
+            nmt_word_breakdown, mapping_data_student, mapping_data_ref
+        )
+
+        return {
+            "is_french": is_french,
+            "lid_prob": lid_prob,
+            "s_sem": s_sem,
+            "s_nmt": s_nmt,
+            "s_fluency": s_fluency,
+            "mapping_data": mapping_data_student,
+            "mapping_data_ref": mapping_data_ref,
+            "nmt_ppl": nmt_ppl_student,
+            "fluency_ppl": fluency_ppl_student,
+            "raw_cos": raw_cos,
+            "syntactical_errors": syntactical_errors,
+            "nmt_token_breakdown": nmt_token_breakdown,
+            "nmt_word_breakdown": nmt_word_breakdown,
+            "fluency_token_breakdown": fluency_token_breakdown,
+            "fluency_word_breakdown": fluency_word_breakdown
+        }
+
+    def compute_final_score(self, source_text: str, student_text: str, reference_text: str) -> Dict[str, Any]:
+        """
+        Direct evaluation of a student submission against a reference text without precomputed bundles.
+        """
+        nmt_ppl_ref, (src_words, ref_words, attn_matrix_ref), _, _ = self.evaluate_nmt_and_map(source_text, reference_text)
+        fluency_ppl_ref, _, _ = self.evaluate_fluency(reference_text)
+        ref_sem_emb = self.encode_semantics([reference_text])
+
+        mapping_data_ref = (src_words, ref_words, attn_matrix_ref)
+
+        is_french, lid_prob = self.check_language(student_text)
+        s_sem, raw_cos = self.evaluate_semantics(student_text, [reference_text], ref_embs=ref_sem_emb)
+
+        nmt_ppl_student, mapping_data_student, nmt_token_breakdown, nmt_word_breakdown = self.evaluate_nmt_and_map(source_text, student_text)
+        s_nmt = max(0.0, min(100.0, (nmt_ppl_ref / max(nmt_ppl_student, 1e-5)) * 100.0))
+
+        fluency_ppl_student, fluency_token_breakdown, fluency_word_breakdown = self.evaluate_fluency(student_text)
+        s_fluency = max(0.0, min(100.0, (fluency_ppl_ref / max(fluency_ppl_student, 1e-5)) * 100.0))
+
+        syntactical_errors = self.evaluate_syntax(student_text)
+
         nmt_word_breakdown = self.align_and_filter_unexpected_words(
             nmt_word_breakdown, mapping_data_student, mapping_data_ref
         )

@@ -3,6 +3,7 @@ pyproject.toml
 backend/__init__.py
 backend/data_manager.py
 backend/eager_processor.py
+backend/model_registry.py
 backend/models.py
 backend/scoring_engine.py
 backend/server.py
