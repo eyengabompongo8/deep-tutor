@@ -33,6 +33,7 @@ The system evaluates a given French translation based on the following pipeline:
 *   `scripts/`: Harvest, mining, rescoring, and migration utilities (`generate_dataset.py`, `rescore_dataset.py`, `translate_sentences.py`, `migrate_json_to_db.py`).
 *   `curriculum/`: CEFR levels curriculum definitions, module units, and parsing tools.
 *   `data/`: Processed SQLite database (`app.db`), lexicons (`flelex_beacco.tsv`), and audio cache.
+*   `Makefile`: Standard developer automation commands (`make dev`, `make start`, `make test`, `make build`, `make install`).
 *   `tests/`: Standardized Pytest test suite with isolated fixtures.
 *   `run_tests.py`: Fast test runner script with automated categorization.
 *   `pyproject.toml`: Modern project specification and dependencies managed by `uv`.
@@ -40,32 +41,49 @@ The system evaluates a given French translation based on the following pipeline:
 
 ## Installation & Execution
 
-1. Sync the environment and choose your PyTorch acceleration tier:
-    ```bash
-    # Option A: Lightweight CPU-only PyTorch (~180 MB, fast download & ideal for testing / CPU inference)
-    uv sync --extra cpu
+### 1. Environment Setup
+```bash
+# Option A: Lightweight CPU-only PyTorch (~180 MB, fast download & ideal for testing / CPU inference)
+uv sync --extra cpu
 
-    # Option B: GPU PyTorch with CUDA 12.4 acceleration (~2.5 GB+)
-    uv sync --extra cu124
-    ```
-2. Run the application:
-    ```bash
-    # Run FastAPI web server with frontend
-    uv run python -m backend.server
+# Option B: GPU PyTorch with CUDA 12.4 acceleration (~2.5 GB+)
+uv sync --extra cu124
+```
 
-    # Or run the legacy Gradio application
-    uv run python -m backend.app
-    ```
-    or run the test suite:
-    ```bash
-    # Run fast unit & API tests (default)
-    uv run pytest
-    # or
-    python run_tests.py
+### 2. Development Mode (Vite HMR + FastAPI Live-Reload)
+Start both backend and frontend development servers with a single command:
+```bash
+make dev
+```
+Open **[http://localhost:5173](http://localhost:5173)** in your browser. Any change made to React components updates instantly via Vite HMR without rebuilds!
 
-    # Run all tests including heavy ML models
-    python run_tests.py --all
-    # or
-    uv run pytest -m ""
-    ```
+#### Parallel Git Worktrees
+When working across multiple git worktrees on the same machine, customize ports to avoid collisions:
+```bash
+# Main worktree
+make dev
+
+# Feature worktree (custom ports)
+make dev BACKEND_PORT=8001 FRONTEND_PORT=5174
+```
+
+### 3. Production Build & Execution
+```bash
+# Build frontend and serve from FastAPI (port 8000)
+make start
+
+# Or custom port:
+make start PORT=8080
+```
+
+### 4. Running the Test Suite
+```bash
+# Run fast unit & API tests (<2s)
+make test
+# or
+python run_tests.py
+
+# Run all tests including heavy ML models
+python run_tests.py --all
+```
 3. *Note: The first run with ML models will take several minutes to download the neural models from the Hugging Face Hub (approx. ~3-4 GB).*

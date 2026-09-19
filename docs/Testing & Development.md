@@ -69,32 +69,55 @@ python run_tests.py -v
 
 ---
 
-## 4. Development Workflow with `uv`
+## 4. Development Workflow & Makefile
 
-The project is packaged and managed using `uv` for deterministic dependency resolution.
+FrenchTutor provides a unified `Makefile` for local development, testing, and production builds.
 
-### Environment Setup
+### Standard Full-Stack Development
+To run both the **FastAPI backend** (with Uvicorn auto-reload) and the **Vite React frontend** (with instant Hot Module Replacement) concurrently with a single command:
+
 ```bash
-# Option 1: Synchronize with lightweight CPU-only PyTorch (~180 MB)
-uv sync --extra cpu
+make dev
+```
+- **Frontend (HMR)**: Open [http://localhost:5173](http://localhost:5173) in your browser. Any frontend edit updates instantly without rebuilding.
+- **Backend API**: Accessible at [http://localhost:8000](http://localhost:8000) (Swagger Docs at [http://localhost:8000/docs](http://localhost:8000/docs)). Vite automatically proxies all `/api` requests to port 8000.
+- Press `Ctrl+C` in the terminal to cleanly terminate both servers simultaneously.
 
-# Option 2: Synchronize with GPU-accelerated PyTorch (CUDA 12.4, ~2.5 GB+)
-uv sync --extra cu124
+### Multi-Worktree Parallel Development
+If you have multiple git worktrees on the same machine to develop different features in parallel, you can isolate ports without collisions:
+
+```bash
+# Worktree A (e.g. main branch on default ports 8000 & 5173):
+make dev
+
+# Worktree B (e.g. feature branch on ports 8001 & 5174):
+make dev BACKEND_PORT=8001 FRONTEND_PORT=5174
+```
+Vite will automatically bind to `5174` and proxy all `/api` traffic directly to the backend running on `8001`.
+
+### Production Build & Serve
+To compile the production frontend assets and serve them directly via FastAPI:
+
+```bash
+# Build frontend assets into frontend/dist:
+make build
+
+# Start production server (auto-builds frontend if dist/ is missing):
+make start
+# Or with a custom port:
+make start PORT=8080
 ```
 
-### Running the Application
-```bash
-# Launch the FastAPI backend server
-uv run python -m backend.server
+### Makefile Reference Cheatsheet
 
-# In another terminal: run the Vite development server with hot-reload
-cd frontend
-npm install
-npm run dev
-
-# Or build the frontend for production serving by FastAPI:
-npm run build
-```
+| Target | Description | Overrides |
+| :--- | :--- | :--- |
+| `make dev` | Starts full-stack dev servers (Vite HMR + FastAPI reload) | `BACKEND_PORT=8001 FRONTEND_PORT=5174` |
+| `make start` | Starts standalone FastAPI server serving static `frontend/dist` | `PORT=8080` |
+| `make build` | Compiles production frontend bundle | — |
+| `make test` | Runs the fast test suite via `uv run pytest` | — |
+| `make install` | Installs frontend dependencies (`npm install`) & Python dependencies (`uv sync`) | — |
+| `make clean` | Cleans `frontend/dist`, pytest caches, and `__pycache__` | — |
 
 ### Code Quality & Hygiene
 - Keep CPU and offline inference deterministic: neural models in `backend/models.py` enforce `HF_HUB_OFFLINE=1` and `TRANSFORMERS_OFFLINE=1`.
