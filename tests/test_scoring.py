@@ -20,7 +20,7 @@ class TestScoringEngine(unittest.TestCase):
             {"es": "El perro", "fr": "Le chien", "level": "A1", "score_lexical": 1.5},
             {"es": "La casa", "fr": "La maison", "level": "A2", "score_lexical": 2.1},
         ])
-        self.engine = ScoringEngine(profile_file=self.test_profile_path, data_manager=self.dm)
+        self.engine = ScoringEngine(data_manager=self.dm)
 
     def tearDown(self):
         self.temp_dir.cleanup()

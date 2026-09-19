@@ -7,7 +7,10 @@ numpy<2
 sentencepiece
 sacremoses
 language-tool-python
+pymupdf>=1.23.0
+datasketch>=1.5.0
 spacy>=3.8.15
+fr-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.8.0/fr_core_news_sm-3.8.0-py3-none-any.whl
 edge-tts>=7.2.8
 
 [cpu]

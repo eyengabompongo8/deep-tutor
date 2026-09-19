@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+from typing import List, Dict, Any
 from tqdm import tqdm
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -8,12 +9,12 @@ sys.path.insert(0, BASE_DIR)
 
 from scripts.vocab_engine import VocabEngine
 
-def clean_sentence(text):
+def clean_sentence(text: str) -> str:
     text = re.sub(r'\s+', ' ', text).strip()
     text = text.strip('"\'«»')
     return text.strip()
 
-def is_valid_sentence(text, min_words=3, max_words=25):
+def is_valid_sentence(text: str, min_words: int = 3, max_words: int = 25) -> bool:
     if not text:
         return False
     words = text.split()
@@ -27,8 +28,8 @@ def is_valid_sentence(text, min_words=3, max_words=25):
         return False
     return True
 
-def run_mine_tatoeba(max_per_level=1200):
-    print("\n--- Processing Bilingual Dataset (Tatoeba) ---")
+def run_mine_tatoeba(max_per_level: int = 1200) -> List[Dict[str, Any]]:
+    print("\n--- Mining Bilingual Dataset (Tatoeba) ---")
     data_dir = os.path.join(BASE_DIR, 'data')
     raw_dir = os.path.join(data_dir, 'raw')
     es_file = os.path.join(raw_dir, 'Tatoeba.es-fr.es')
@@ -84,16 +85,4 @@ def run_mine_tatoeba(max_per_level=1200):
         
     unique_pairs.sort(key=lambda x: (level_order.get(x['level'], 99), len(x['fr'])))
     
-    for idx, item in enumerate(unique_pairs, start=1):
-        item['id'] = idx
-
     return unique_pairs
-
-if __name__ == "__main__":
-    import json
-    results = run_mine_tatoeba()
-    if results:
-        out_path = os.path.join(BASE_DIR, 'data', 'mined_sentences.json')
-        print(f"\nSaving output to {out_path} for inspection...")
-        with open(out_path, 'w', encoding='utf-8') as f:
-            json.dump(results, f, ensure_ascii=False, indent=2)
