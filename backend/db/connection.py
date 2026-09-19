@@ -268,6 +268,7 @@ class DBConnection:
                         INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
                         VALUES ('default_user', 'transcription', 1.20, 'A1', 0, 0, 0);
                     """)
+
         except sqlite3.OperationalError:
             if os.path.exists(self.db_path):
                 return

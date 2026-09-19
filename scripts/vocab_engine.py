@@ -398,29 +398,28 @@ class VocabEngine:
         return pairs
 
 
-    def index_database_lexemas(self, data_manager, batch_size: int = 500, verbose: bool = True):
+    def link_sentence_lexemas_to_database(self, data_manager, batch_size: int = 500, verbose: bool = True):
         """
-        Indexes all sentences in the database:
-        - Extracts lexemas using spaCy + Lexique + FLELex
-        - Populates the 'lexemas' table
-        - Links sentences to their lexemas in 'sentence_lexemas'
-        - Seeds base foundational A1 words
+        Links all sentences in the database to the pre-seeded lexemas table:
+        - Uses pre-seeded lexemas from FLELex (does not insert any new lexemas)
+        - Links sentences to matching lexemas in 'sentence_lexemas'
         """
-        # 1. Seed base foundational words in lexemas table
-        base_words_to_seed = []
-        for w in A1_WORDS:
-            cleaned = w.strip().rstrip("'’")
-            if cleaned and not cleaned.endswith("'"):
-                base_words_to_seed.append({
-                    'lemma': cleaned,
-                    'pos': None,
-                    'level': 'A1',
-                    'frequency': 1000.0,
-                    'is_base': True
-                })
-        data_manager.bulk_upsert_lexemas(base_words_to_seed)
+        # 1. Fetch pre-seeded lexemas lookup map from DB
+        with data_manager._get_connection() as conn:
+            cursor = conn.execute("SELECT id, lemma, pos FROM lexemas;")
+            rows = cursor.fetchall()
+            lemma_pos_to_id = {}
+            lemma_fallback_to_id = {}
+            for r in rows:
+                lem = r['lemma']
+                pos = r['pos']
+                lid = r['id']
+                if pos:
+                    lemma_pos_to_id[(lem, pos)] = lid
+                if lem not in lemma_fallback_to_id:
+                    lemma_fallback_to_id[lem] = lid
 
-        # 2. Find sentences that need indexing
+        # 2. Find sentences that need linking
         with data_manager._get_connection() as conn:
             cursor = conn.execute("SELECT DISTINCT sentence_id FROM sentence_lexemas;")
             indexed_sentence_ids = {r[0] for r in cursor.fetchall()}
@@ -429,7 +428,7 @@ class VocabEngine:
         unindexed = [s for s in all_sentences if s['id'] not in indexed_sentence_ids]
 
         if verbose:
-            print(f"Total sentences: {len(all_sentences)}, already indexed: {len(indexed_sentence_ids)}, to index: {len(unindexed)}")
+            print(f"Total sentences: {len(all_sentences)}, already linked: {len(indexed_sentence_ids)}, to link: {len(unindexed)}")
 
         if not unindexed:
             return
@@ -440,69 +439,10 @@ class VocabEngine:
             texts = [s['fr'] for s in chunk]
             docs = list(self.nlp.pipe(texts, batch_size=batch_size))
 
-            chunk_lexemas = []
-            sentence_links = []
+            chunk_links = []
 
             for s_dict, doc in zip(chunk, docs):
                 s_id = s_dict['id']
-                # Extract lexemas for this doc
-                seen_in_sent = set()
-                sent_lex_items = []
-                for tok in doc:
-                    if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
-                        continue
-                    lvl, score, lemma = self.get_word_level(tok)
-                    if not lemma:
-                        lemma = tok.lemma_.lower().strip()
-                    lemma = lemma.lower().strip()
-                    if lemma.endswith("'") or lemma.endswith("’"):
-                        continue
-                    pos = tok.pos_
-                    k = (lemma, pos)
-                    if k in seen_in_sent:
-                        continue
-                    seen_in_sent.add(k)
-
-                    if not lvl or lvl not in LEVELS_VAL:
-                        lvl = self.flelex_data.get(lemma, {}).get('level', 'A1' if lemma in A1_WORDS else 'A2')
-
-                    freq = 0.0
-                    if lemma in self.lexique_best_lemma:
-                        freq = self.lexique_best_lemma[lemma][1]
-                    elif lemma in self.flelex_data:
-                        freq = self.flelex_data[lemma]['freq']
-
-                    is_base = (
-                        lemma in A1_WORDS or
-                        pos in ('DET', 'PRON', 'ADP', 'CCONJ', 'SCONJ', 'AUX') or
-                        (lvl == 'A1' and lemma in ('être', 'avoir', 'aller', 'faire', 'dire', 'pouvoir', 'vouloir', 'voir', 'savoir'))
-                    )
-
-                    sent_lex_items.append({
-                        'lemma': lemma,
-                        'pos': pos,
-                        'level': lvl,
-                        'frequency': freq,
-                        'is_base': is_base
-                    })
-                    chunk_lexemas.append({
-                        'lemma': lemma,
-                        'pos': pos,
-                        'level': lvl,
-                        'frequency': freq,
-                        'is_base': is_base
-                    })
-
-                # Store temporary tuple for linking after upsert
-                chunk_lexemas.extend(sent_lex_items)
-
-            # Upsert all discovered lexemas
-            lemma_id_map = data_manager.bulk_upsert_lexemas(chunk_lexemas)
-
-            # Now build sentence_lexemas links
-            for s_dict, doc in zip(chunk, docs):
-                s_id = s_dict['id']
-                sent_links = []
                 seen_lids = set()
                 for tok in doc:
                     if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
@@ -514,11 +454,16 @@ class VocabEngine:
                     if lemma.endswith("'") or lemma.endswith("’"):
                         continue
                     pos = tok.pos_
-                    lid = lemma_id_map.get((lemma, pos)) or lemma_id_map.get((lemma, None))
+                    lid = lemma_pos_to_id.get((lemma, pos)) or lemma_fallback_to_id.get(lemma)
                     if lid and lid not in seen_lids:
                         seen_lids.add(lid)
-                        sent_links.append((s_id, lid))
-                data_manager.bulk_link_sentence_lexemas(sent_links)
+                        chunk_links.append((s_id, lid))
+
+            if chunk_links:
+                data_manager.bulk_link_sentence_lexemas(chunk_links)
+
+    # Alias for backward compatibility
+    index_database_lexemas = link_sentence_lexemas_to_database
 
 _vocab_engine_instance = None
 
