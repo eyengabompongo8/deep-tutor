@@ -50,23 +50,18 @@ export default function SettingsModal({
 
         {/* Setting 1: Sentences per screen */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider block">
-              Sentences per screen
-            </label>
-            <span className="text-xs font-mono font-medium text-neutral-600">
-              {batchSize} {batchSize === 1 ? 'item' : 'items'}
-            </span>
-          </div>
-          <p className="text-xs text-neutral-500">
-            Number of sentences displayed per exercise batch (1 to 10).
-          </p>
-
-          <div className="flex items-center gap-4 pt-2">
-            {/* Slider */}
-            <div className="flex-1">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider block">
+                Sentences per screen
+              </label>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Number of sentences displayed per exercise batch (1 to 10).
+              </p>
+            </div>
+            <div className="w-16 shrink-0">
               <input
-                type="range"
+                type="number"
                 min="1"
                 max="10"
                 step="1"
@@ -77,70 +72,43 @@ export default function SettingsModal({
                     onChangeBatchSize(Math.max(1, Math.min(10, val)));
                   }
                 }}
-                className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900"
-              />
-              <div className="flex justify-between text-[10px] text-neutral-400 mt-1 font-mono">
-                <span>1</span>
-                <span>5</span>
-                <span>10</span>
-              </div>
-            </div>
-
-            {/* Numerical input box */}
-            <div className="w-14">
-              <input
-                type="number"
-                min="1"
-                max="10"
-                value={batchSize}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  if (!isNaN(val)) {
-                    onChangeBatchSize(Math.max(1, Math.min(10, val)));
-                  }
-                }}
-                className="w-full text-center py-1.5 px-1 bg-neutral-100 rounded-xl text-neutral-900 font-mono font-semibold text-sm focus:outline-none focus:ring-1 focus:ring-neutral-900/20"
+                className="w-full text-center py-1.5 px-2 bg-neutral-100 border border-neutral-200 rounded-xl text-neutral-900 font-mono font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400"
               />
             </div>
           </div>
         </div>
 
         {/* Setting 2: Skill Level & Score Preset */}
-        <div className="space-y-2 pt-2">
-          <div>
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider block">
-                Starting Level
-              </label>
-              <span className="text-[11px] font-medium text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-full">
-                {modeLabel}
-              </span>
-            </div>
-            <p className="text-xs text-neutral-500 mt-0.5">
-              Current proficiency: <span className="font-mono font-medium text-neutral-800">{currentScore.toFixed(2)}</span> ({currentLevel})
-            </p>
+        <div className="space-y-2 pt-2 border-t border-neutral-100">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider block">
+              Starting Level
+            </label>
+            <span className="text-[11px] font-medium text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-full">
+              {modeLabel}
+            </span>
           </div>
+          <p className="text-xs text-neutral-500">
+            Current proficiency: <span className="font-mono font-medium text-neutral-800">{currentScore.toFixed(2)}</span> ({currentLevel})
+          </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
-            {CEFR_PRESETS.map(preset => (
-              <button
-                key={preset.level}
-                onClick={() => onResetScore(preset.score, currentMode)}
-                className="p-2.5 rounded-xl bg-neutral-50 hover:bg-neutral-100 text-left transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-neutral-900">
-                    {preset.level}
-                  </span>
-                  <span className="text-[10px] font-mono text-neutral-400">
-                    {preset.score.toFixed(1)}
-                  </span>
-                </div>
-                <div className="text-[11px] text-neutral-500 mt-0.5">
-                  {preset.label}
-                </div>
-              </button>
-            ))}
+          <div className="pt-1">
+            <select
+              value={CEFR_PRESETS.some(p => p.level === currentLevel) ? currentLevel : 'A1'}
+              onChange={(e) => {
+                const preset = CEFR_PRESETS.find(p => p.level === e.target.value);
+                if (preset) {
+                  onResetScore(preset.score, currentMode);
+                }
+              }}
+              className="w-full py-2 px-3 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 rounded-xl text-neutral-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 cursor-pointer transition-colors"
+            >
+              {CEFR_PRESETS.map((preset) => (
+                <option key={preset.level} value={preset.level}>
+                  {preset.level} – {preset.label} (Score: {preset.score.toFixed(1)})
+                </option>
+              ))}
+            </select>
           </div>
 
           <button
@@ -188,35 +156,31 @@ export default function SettingsModal({
           </div>
           
           <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-neutral-800">
-                Translation Pass Threshold
-              </label>
-              <span className="text-xs font-mono font-medium text-neutral-600">
-                {translationThreshold}%
-              </span>
-            </div>
-            <p className="text-xs text-neutral-500">
-              Minimum score required on all metrics (Semantics, NMT, Fluency) for a translation to be marked correct.
-            </p>
-            <input
-              type="range"
-              min="50"
-              max="95"
-              step="5"
-              value={translationThreshold}
-              onChange={(e) => {
-                const val = parseInt(e.target.value, 10);
-                if (!isNaN(val) && onChangeTranslationThreshold) {
-                  onChangeTranslationThreshold(Math.max(50, Math.min(100, val)));
-                }
-              }}
-              className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900 mt-2"
-            />
-            <div className="flex justify-between text-[10px] text-neutral-400 font-mono">
-              <span>50</span>
-              <span>75</span>
-              <span>95</span>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <label className="text-xs font-medium text-neutral-800">
+                  Translation Pass Threshold (%)
+                </label>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Minimum score required on all metrics (Semantics, NMT, Fluency) for a translation to be marked correct.
+                </p>
+              </div>
+              <div className="w-16 shrink-0">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={translationThreshold}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    if (!isNaN(val) && onChangeTranslationThreshold) {
+                      onChangeTranslationThreshold(Math.max(0, Math.min(100, val)));
+                    }
+                  }}
+                  className="w-full text-center py-1.5 px-2 bg-neutral-100 border border-neutral-200 rounded-xl text-neutral-900 font-mono font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400"
+                />
+              </div>
             </div>
           </div>
 
