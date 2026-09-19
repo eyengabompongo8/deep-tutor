@@ -12,6 +12,12 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Build & packaging artifacts
+*.egg-info/
+*.egg
+build/
+*.whl
+
 # Node & Frontend build
 node_modules/
 frontend/node_modules/
