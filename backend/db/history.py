@@ -1,5 +1,6 @@
 import os
 from typing import List, Dict, Any, Optional
+from backend.config import HISTORY_LIMIT, STARTING_SCORE
 
 class HistoryMixin:
     def record_exercise_history(
@@ -8,8 +9,8 @@ class HistoryMixin:
         mode: str = 'translation',
         sentence_id: Optional[int] = None,
         quality: float = 0.0,
-        score_before: float = 1.20,
-        score_after: float = 1.20,
+        score_before: float = STARTING_SCORE,
+        score_after: float = STARTING_SCORE,
         delta: float = 0.0,
         is_skipped: bool = False
     ):
@@ -24,7 +25,7 @@ class HistoryMixin:
         self,
         user_id: str = 'default_user',
         mode: Optional[str] = None,
-        limit: int = 50
+        limit: int = HISTORY_LIMIT
     ) -> List[Dict[str, Any]]:
         """Retrieves recent exercise history entries."""
         with self._get_connection() as conn:

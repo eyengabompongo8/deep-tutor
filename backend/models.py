@@ -20,6 +20,7 @@ import numpy as np
 import language_tool_python
 
 from backend.model_registry import registry, NMTRawOutput, FluencyRawOutput
+from backend.config import NMT_DELTA_L_THRESHOLD, FUNCTION_WORDS, COMMON_FRENCH_WORDS
 
 # SentencePiece word-boundary markers used by M2M100 and related models
 _SP_BOUNDARIES = (
@@ -155,7 +156,7 @@ def _build_nmt_breakdowns(raw: NMTRawOutput) -> Tuple[List[str], List[str], List
             "prob": prob_i,
             "top_prediction": top_1_clean if top_1_clean else top_1_tok_str,
             "delta_l": delta_l_i,
-            "is_error": delta_l_i > 8.0
+            "is_error": delta_l_i > NMT_DELTA_L_THRESHOLD
         })
 
     nmt_word_breakdown = []
@@ -190,7 +191,7 @@ def _build_nmt_breakdowns(raw: NMTRawOutput) -> Tuple[List[str], List[str], List
             "prob": w_prob,
             "top_prediction": top_pred_word,
             "delta_l": w_delta_l,
-            "is_error": w_delta_l > 8.0
+            "is_error": w_delta_l > NMT_DELTA_L_THRESHOLD
         })
 
     return src_words, tgt_words, src_sub_groups, tgt_sub_groups, nmt_token_breakdown, nmt_word_breakdown
@@ -219,7 +220,7 @@ def _build_fluency_breakdowns(raw: FluencyRawOutput, text: str) -> Tuple[List[Di
             "prob": prob_i,
             "top_prediction": top_1_str,
             "delta_l": delta_l_i,
-            "is_error": delta_l_i > 8.0
+            "is_error": delta_l_i > NMT_DELTA_L_THRESHOLD
         })
 
     words = text.strip().split()
@@ -253,7 +254,7 @@ def _build_fluency_breakdowns(raw: FluencyRawOutput, text: str) -> Tuple[List[Di
                 "prob": w_prob,
                 "top_prediction": w_top_1,
                 "delta_l": w_delta_l,
-                "is_error": w_delta_l > 8.0
+                "is_error": w_delta_l > NMT_DELTA_L_THRESHOLD
             })
 
     return fluency_token_breakdown, fluency_word_breakdown
@@ -358,16 +359,7 @@ class MLEngine:
             return False, 0.0
 
         # Short French sentences (< 6 words) frequently trigger false negatives in fasttext
-        common_fr = {
-            'le', 'la', 'les', 'un', 'une', 'des', 'du', 'au', 'aux',
-            'ce', 'cet', 'cette', 'ces', 'je', 'tu', 'il', 'elle', 'on',
-            'nous', 'vous', 'ils', 'elles', 'j', 't', 's', 'l', 'd', 'c', 'm', 'n', 'qu',
-            'me', 'te', 'se', 'lui', 'leur', 'y', 'en', 'moi', 'toi',
-            'est', 'ai', 'suis', 'es', 'sommes', 'êtes', 'sont', 'a', 'ont', 'va', 'vais', 'vas', 'vont',
-            'bonjour', 'merci', 'oui', 'non', 'salut', 'revoir', 'bien', 'sûr', 'faim', 'soif', 'peur',
-            'très', 'plus', 'pas', 'ne', 'où', 'que', 'qui', 'quoi', 'comment', 'pourquoi', 'avec', 'sans', 'dans', 'pour', 'sur'
-        }
-        if len(words) <= 5 and any(w in common_fr for w in words):
+        if len(words) <= 5 and any(w in COMMON_FRENCH_WORDS for w in words):
             return True, 1.0
 
         try:
@@ -479,12 +471,6 @@ class MLEngine:
 
         ref_words_clean = [w.lower().strip(".,!?:;'\"-") for w in ref_words]
         ref_words_set = set(ref_words_clean)
-
-        FUNCTION_WORDS = {
-            "le", "la", "les", "l'", "un", "une", "des", "du", "de", "d'",
-            "ce", "cet", "cette", "ces", "c'", "est", "sont", "a", "ont",
-            "que", "qui", "qu'", "ne", "pas", "n'", "se", "s'", "en", "y"
-        }
 
         for item in nmt_word_breakdown:
             w_idx = item.get("index", 0)

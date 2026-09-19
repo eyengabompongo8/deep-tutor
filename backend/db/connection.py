@@ -5,6 +5,13 @@ import json
 from typing import List, Dict, Any, Optional, Set, Tuple
 from contextlib import contextmanager
 
+from backend.config import (
+    DEFAULT_CEFR_LEVEL,
+    STARTING_SCORE,
+    DEFAULT_CORRECTION_THRESHOLD,
+    DEFAULT_CARDS_PER_EXERCISE,
+)
+
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_PATH = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(ROOT_DIR, 'data', 'app.db')
 
@@ -92,13 +99,13 @@ class DBConnection:
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_created_at ON sentences(created_at);")
 
                 # Users table
-                conn.execute("""
+                conn.execute(f"""
                     CREATE TABLE IF NOT EXISTS users (
                         id TEXT PRIMARY KEY,
                         name TEXT NOT NULL DEFAULT 'Default User',
                         avatar TEXT NOT NULL DEFAULT 'owl',
-                        score REAL NOT NULL DEFAULT 1.20,
-                        level TEXT NOT NULL DEFAULT 'A1',
+                        score REAL NOT NULL DEFAULT {STARTING_SCORE},
+                        level TEXT NOT NULL DEFAULT '{DEFAULT_CEFR_LEVEL}',
                         streak INTEGER NOT NULL DEFAULT 0,
                         total_completed INTEGER NOT NULL DEFAULT 0,
                         total_skipped INTEGER NOT NULL DEFAULT 0,
@@ -172,8 +179,8 @@ class DBConnection:
                 # Seed default user if not exists
                 user_row = conn.execute("SELECT id FROM users WHERE id = 'default_user';").fetchone()
                 if not user_row:
-                    initial_score = 1.20
-                    initial_level = 'A1'
+                    initial_score = STARTING_SCORE
+                    initial_level = DEFAULT_CEFR_LEVEL
                     initial_streak = 0
                     initial_completed = 0
                     initial_skipped = 0
@@ -184,8 +191,8 @@ class DBConnection:
                         try:
                             with open(profile_path, 'r', encoding='utf-8') as f:
                                 p_data = json.load(f)
-                                initial_score = float(p_data.get('score', 1.20))
-                                initial_level = p_data.get('level', 'A1')
+                                initial_score = float(p_data.get('score', STARTING_SCORE))
+                                initial_level = p_data.get('level', DEFAULT_CEFR_LEVEL)
                                 initial_streak = int(p_data.get('streak', 0))
                                 initial_completed = int(p_data.get('total_completed', 0))
                                 initial_skipped = int(p_data.get('total_skipped', 0))
@@ -198,12 +205,12 @@ class DBConnection:
                     """, (initial_score, initial_level, initial_streak, initial_completed, initial_skipped))
 
                 # User modes table for separate exercise mode tracking
-                conn.execute("""
+                conn.execute(f"""
                     CREATE TABLE IF NOT EXISTS user_modes (
                         user_id TEXT NOT NULL,
                         mode TEXT NOT NULL,
-                        score REAL NOT NULL DEFAULT 1.20,
-                        level TEXT NOT NULL DEFAULT 'A1',
+                        score REAL NOT NULL DEFAULT {STARTING_SCORE},
+                        level TEXT NOT NULL DEFAULT '{DEFAULT_CEFR_LEVEL}',
                         streak INTEGER NOT NULL DEFAULT 0,
                         total_completed INTEGER NOT NULL DEFAULT 0,
                         total_skipped INTEGER NOT NULL DEFAULT 0,
@@ -252,8 +259,8 @@ class DBConnection:
                 trans_mode = conn.execute("SELECT mode FROM user_modes WHERE user_id = 'default_user' AND mode = 'translation';").fetchone()
                 if not trans_mode:
                     u_row = conn.execute("SELECT score, level, streak, total_completed, total_skipped FROM users WHERE id = 'default_user';").fetchone()
-                    u_score = u_row['score'] if u_row else 1.20
-                    u_level = u_row['level'] if u_row else 'A1'
+                    u_score = u_row['score'] if u_row else STARTING_SCORE
+                    u_level = u_row['level'] if u_row else DEFAULT_CEFR_LEVEL
                     u_streak = u_row['streak'] if u_row else 0
                     u_completed = u_row['total_completed'] if u_row else 0
                     u_skipped = u_row['total_skipped'] if u_row else 0
@@ -266,8 +273,28 @@ class DBConnection:
                 if not audio_mode:
                     conn.execute("""
                         INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                        VALUES ('default_user', 'transcription', 1.20, 'A1', 0, 0, 0);
-                    """)
+                        VALUES ('default_user', 'transcription', ?, ?, 0, 0, 0);
+                    """, (STARTING_SCORE, DEFAULT_CEFR_LEVEL))
+
+                # User settings table
+                conn.execute(f"""
+                    CREATE TABLE IF NOT EXISTS user_settings (
+                        user_id TEXT PRIMARY KEY,
+                        daily_goal INTEGER DEFAULT 10,
+                        theme TEXT DEFAULT 'system',
+                        preferred_voice TEXT DEFAULT 'default',
+                        correction_threshold REAL DEFAULT {DEFAULT_CORRECTION_THRESHOLD},
+                        cards_per_exercise INTEGER DEFAULT {DEFAULT_CARDS_PER_EXERCISE},
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                    );
+                """)
+
+                # Seed user_settings for default_user if not exists
+                conn.execute("""
+                    INSERT OR IGNORE INTO user_settings (user_id, daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise)
+                    VALUES ('default_user', 10, 'system', 'default', ?, ?);
+                """, (DEFAULT_CORRECTION_THRESHOLD, DEFAULT_CARDS_PER_EXERCISE))
         except sqlite3.OperationalError:
             if os.path.exists(self.db_path):
                 return

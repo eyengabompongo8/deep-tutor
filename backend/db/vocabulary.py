@@ -2,6 +2,13 @@ import json
 import os
 import re
 from typing import List, Dict, Any, Optional, Set
+from backend.config import (
+    VOCABULARY_UNLOCK_THRESHOLD,
+    DEFAULT_CEFR_LEVEL,
+    STARTING_SCORE,
+    DEFAULT_CARDS_PER_EXERCISE,
+    MAX_UNKNOWN_WORDS,
+)
 
 class VocabularyMixin:
     def get_lexemas_dict(self) -> Dict[int, Dict[str, Any]]:
@@ -25,7 +32,7 @@ class VocabularyMixin:
         self,
         lemma: str,
         pos: Optional[str] = None,
-        level: str = 'A1',
+        level: str = DEFAULT_CEFR_LEVEL,
         frequency: float = 0.0,
         is_base: bool = False,
         metadata: Optional[Dict[str, Any]] = None
@@ -35,11 +42,11 @@ class VocabularyMixin:
         meta_str = json.dumps(metadata or {}, ensure_ascii=False)
         self.invalidate_lexemas_cache()
         with self._get_connection() as conn:
-            conn.execute("""
+            conn.execute(f"""
                 INSERT INTO lexemas (lemma, pos, level, frequency, is_base, metadata)
                 VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(lemma, pos) DO UPDATE SET
-                    level = CASE WHEN excluded.level != 'A1' THEN excluded.level ELSE lexemas.level END,
+                    level = CASE WHEN excluded.level != '{DEFAULT_CEFR_LEVEL}' THEN excluded.level ELSE lexemas.level END,
                     frequency = CASE WHEN excluded.frequency > lexemas.frequency THEN excluded.frequency ELSE lexemas.frequency END,
                     is_base = CASE WHEN excluded.is_base = 1 THEN 1 ELSE lexemas.is_base END;
             """, (lemma, pos, level, float(frequency), 1 if is_base else 0, meta_str))
@@ -55,15 +62,15 @@ class VocabularyMixin:
             for item in lexemas:
                 lemma = item['lemma'].lower().strip()
                 pos = (item.get('pos') or '').upper().strip() or None
-                lvl = item.get('level', 'A1')
+                lvl = item.get('level', DEFAULT_CEFR_LEVEL)
                 freq = float(item.get('frequency', item.get('freq', 0.0)))
                 is_base = 1 if item.get('is_base') else 0
                 meta = json.dumps(item.get('metadata', {}), ensure_ascii=False)
-                conn.execute("""
+                conn.execute(f"""
                     INSERT INTO lexemas (lemma, pos, level, frequency, is_base, metadata)
                     VALUES (?, ?, ?, ?, ?, ?)
                     ON CONFLICT(lemma, pos) DO UPDATE SET
-                        level = CASE WHEN excluded.level != 'A1' THEN excluded.level ELSE lexemas.level END,
+                        level = CASE WHEN excluded.level != '{DEFAULT_CEFR_LEVEL}' THEN excluded.level ELSE lexemas.level END,
                         frequency = CASE WHEN excluded.frequency > lexemas.frequency THEN excluded.frequency ELSE lexemas.frequency END,
                         is_base = CASE WHEN excluded.is_base = 1 THEN 1 ELSE lexemas.is_base END;
                 """, (lemma, pos, lvl, freq, is_base, meta))
@@ -105,7 +112,7 @@ class VocabularyMixin:
     # Vocabulary Tracking & Appearance Counting
     # ==========================================
 
-    def get_user_known_lexema_ids(self, user_id: str = 'default_user', unlock_threshold: int = 2) -> Set[int]:
+    def get_user_known_lexema_ids(self, user_id: str = 'default_user', unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD) -> Set[int]:
         """
         Returns the set of lexema IDs known by the user:
         - Base foundational words (is_base = 1)
@@ -126,7 +133,7 @@ class VocabularyMixin:
         user_id: str,
         sentence_id: int,
         is_success: bool = True,
-        unlock_threshold: int = 2
+        unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD
     ) -> List[Dict[str, Any]]:
         """
         Increments the appearance count for every word root in the given sentence.
@@ -264,9 +271,9 @@ class VocabularyMixin:
     def get_progressive_sentences(
         self,
         user_id: str = 'default_user',
-        target_score: float = 1.20,
-        count: int = 3,
-        max_unknown: int = 2,
+        target_score: float = STARTING_SCORE,
+        count: int = DEFAULT_CARDS_PER_EXERCISE,
+        max_unknown: int = MAX_UNKNOWN_WORDS,
         exclude_ids: Optional[List[int]] = None,
         mode: Optional[str] = None
     ) -> List[Dict[str, Any]]:
@@ -471,7 +478,7 @@ class VocabularyMixin:
             first_time_lids = [
                 lid for lid in sent_lids
                 if not lex_dict.get(lid, {}).get('is_base', False)
-                and (lid not in user_counts or user_counts[lid]['count'] <= 2)
+                and (lid not in user_counts or user_counts[lid]['count'] <= VOCABULARY_UNLOCK_THRESHOLD)
             ]
             s['first_time_lexemas'] = [lex_dict[lid]['lemma'] for lid in first_time_lids if lid in lex_dict]
             if not s['first_time_lexemas'] and s['new_lexemas']:

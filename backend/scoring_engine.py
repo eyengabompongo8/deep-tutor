@@ -29,33 +29,41 @@ import re
 import difflib
 
 from backend.text_utils import levenshtein, remove_accents
+from backend.config import (
+    DEFAULT_CORRECTION_THRESHOLD,
+    DEFAULT_CEFR_LEVEL,
+    STARTING_SCORE,
+    HISTORY_LIMIT,
+    MAX_UNKNOWN_WORDS,
+    DEFAULT_CARDS_PER_EXERCISE,
+)
 
 
 class ScoringEngine:
-    def __init__(self, data_manager: Optional[Any] = None):
+    def __init__(self, data_manager: Optional[Any] = None, profile_file: Optional[str] = None):
         self.data_manager = data_manager
         self.profile = self.load_profile()
 
     def get_default_profile(self) -> Dict[str, Any]:
         return {
             "user_id": "default_user",
-            "score": 1.20,
-            "level": "A1",
+            "score": STARTING_SCORE,
+            "level": DEFAULT_CEFR_LEVEL,
             "streak": 0,
             "total_completed": 0,
             "total_skipped": 0,
             "current_mode": "translation",
             "modes": {
                 "translation": {
-                    "score": 1.20,
-                    "level": "A1",
+                    "score": STARTING_SCORE,
+                    "level": DEFAULT_CEFR_LEVEL,
                     "streak": 0,
                     "total_completed": 0,
                     "total_skipped": 0
                 },
                 "transcription": {
-                    "score": 1.20,
-                    "level": "A1",
+                    "score": STARTING_SCORE,
+                    "level": DEFAULT_CEFR_LEVEL,
                     "streak": 0,
                     "total_completed": 0,
                     "total_skipped": 0
@@ -70,12 +78,12 @@ class ScoringEngine:
             try:
                 modes_prof = self.data_manager.get_user_modes_profile(user_id)
                 mode_data = modes_prof.get("modes", {}).get(mode, {})
-                score = float(mode_data.get("score", 1.20))
+                score = float(mode_data.get("score", STARTING_SCORE))
                 level = mode_data.get("level", score_to_level(score))
                 streak = int(mode_data.get("streak", 0))
                 completed = int(mode_data.get("total_completed", 0))
                 skipped = int(mode_data.get("total_skipped", 0))
-                history = self.data_manager.get_exercise_history(user_id, mode=mode, limit=50)
+                history = self.data_manager.get_exercise_history(user_id, mode=mode, limit=HISTORY_LIMIT)
 
                 res = {
                     "user_id": user_id,
@@ -101,22 +109,22 @@ class ScoringEngine:
         if "modes" not in self.profile:
             self.profile["modes"] = {
                 "translation": {
-                    "score": self.profile.get("score", 1.20),
-                    "level": self.profile.get("level", "A1"),
+                    "score": self.profile.get("score", STARTING_SCORE),
+                    "level": self.profile.get("level", DEFAULT_CEFR_LEVEL),
                     "streak": self.profile.get("streak", 0),
                     "total_completed": self.profile.get("total_completed", 0),
                     "total_skipped": self.profile.get("total_skipped", 0)
                 },
                 "transcription": {
-                    "score": 1.20,
-                    "level": "A1",
+                    "score": STARTING_SCORE,
+                    "level": DEFAULT_CEFR_LEVEL,
                     "streak": 0,
                     "total_completed": 0,
                     "total_skipped": 0
                 }
             }
         mode_data = self.profile["modes"].get(mode, self.profile["modes"]["translation"])
-        self.profile["score"] = float(mode_data.get("score", 1.20))
+        self.profile["score"] = float(mode_data.get("score", STARTING_SCORE))
         self.profile["level"] = mode_data.get("level", score_to_level(self.profile["score"]))
         self.profile["streak"] = int(mode_data.get("streak", 0))
         self.profile["total_completed"] = int(mode_data.get("total_completed", 0))
@@ -158,7 +166,7 @@ class ScoringEngine:
 
     def reset_profile(
         self,
-        start_score: float = 1.20,
+        start_score: float = STARTING_SCORE,
         mode: str = "translation",
         user_id: str = "default_user"
     ) -> Dict[str, Any]:
@@ -197,11 +205,11 @@ class ScoringEngine:
         self,
         all_sentences: Optional[List[Dict[str, Any]]] = None,
         target_score: Optional[float] = None,
-        count: int = 3,
+        count: int = DEFAULT_CARDS_PER_EXERCISE,
         exclude_ids: Optional[List[int]] = None,
         data_manager: Optional[Any] = None,
         user_id: str = "default_user",
-        max_unknown: int = 2,
+        max_unknown: int = MAX_UNKNOWN_WORDS,
         mode: str = "translation"
     ) -> List[Dict[str, Any]]:
         """
@@ -294,7 +302,7 @@ class ScoringEngine:
         random.shuffle(selected)
         return selected[:count]
 
-    def compute_sentence_quality(self, eval_result: Optional[Dict[str, Any]], is_skipped: bool, threshold: float = 75.0) -> Dict[str, Any]:
+    def compute_sentence_quality(self, eval_result: Optional[Dict[str, Any]], is_skipped: bool, threshold: float = DEFAULT_CORRECTION_THRESHOLD) -> Dict[str, Any]:
         """
         Determines binary correctness of the translation based on the 3 core metrics.
         Returns a dictionary with 'is_correct' and 'quality' (1.0 or 0.0 for compatibility).
@@ -359,8 +367,11 @@ class ScoringEngine:
         total_count = len(evaluated_items)
 
         for item in evaluated_items:
-            # Check correctness: either explicit is_correct boolean or fallback to quality >= 1.0
-            is_correct = item.get("is_correct", item.get("quality", 0.0) >= 1.0)
+            # Check correctness: either explicit is_correct boolean or fallback to quality >= 0.70
+            if "is_correct" in item and item["is_correct"] is not None:
+                is_correct = bool(item["is_correct"])
+            else:
+                is_correct = float(item.get("quality", 0.0)) >= 0.70
             is_skipped = item.get("is_skipped", False)
             if is_skipped:
                 is_correct = False
@@ -477,8 +488,8 @@ class ScoringEngine:
             "avg_quality": avg_q,
             "batch_size": len(evaluated_items)
         })
-        if len(self.profile["history"]) > 50:
-            self.profile["history"] = self.profile["history"][-50:]
+        if len(self.profile["history"]) > HISTORY_LIMIT:
+            self.profile["history"] = self.profile["history"][-HISTORY_LIMIT:]
 
         self.save_profile()
         full_profile = self.get_profile(user_id=user_id, mode=mode)

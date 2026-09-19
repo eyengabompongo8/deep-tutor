@@ -18,17 +18,7 @@ LEXIQUE_FILE = os.path.join(LEXIQUE_DIR, 'Lexique383.tsv')
 LEVELS_VAL = {'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6}
 VAL_TO_LEVEL = {1: 'A1', 2: 'A2', 3: 'B1', 4: 'B2', 5: 'C1', 6: 'C2'}
 
-# Standard A1 vocabulary and common functional words
-A1_WORDS = {
-    'le', 'la', 'les', 'un', 'une', 'des', 'du', 'au', 'aux', 'ce', 'cet', 'cette', 'ces',
-    'je', 'tu', 'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles', 'me', 'te', 'se', 'moi', 'toi', 'lui',
-    'y', 'en', 'mon', 'ma', 'mes', 'ton', 'ta', 'tes', 'son', 'sa', 'ses', 'notre', 'nos', 'votre', 'vos', 'leur', 'leurs',
-    'à', 'de', 'pour', 'dans', 'sur', 'avec', 'sans', 'sous', 'chez', 'vers', 'par', 'entre',
-    'et', 'ou', 'mais', 'car', 'si', 'que', 'qui', 'quand', 'où', 'comme', 'donc',
-    'être', 'avoir', 'aller', 'faire', 'dire', 'pouvoir', 'vouloir', 'savoir', 'voir', 'devoir', 'venir', 'falloir',
-    'ne', 'pas', 'plus', 'très', 'bien', 'oui', 'non', 'merci', 'bonjour', 'bonsoir', 'au revoir', 'salut',
-    'm\'', 't\'', 's\'', 'c\'', 'j\'', 'l\'', 'd\'', 'n\'', 'qu\'', 'aujourd\'hui', 'hier', 'demain'
-}
+from backend.config import DEFAULT_UNLOCKED_WORDS as A1_WORDS
 
 # POS Tag mapping from spaCy POS to Lexique383 cgram
 SPACY_TO_LEXIQUE_POS = {

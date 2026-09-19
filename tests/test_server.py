@@ -224,5 +224,32 @@ class TestServerAPI(unittest.TestCase):
             err_del = self.client.delete(f"/api/users/{rem_users[0]['id']}")
             self.assertEqual(err_del.status_code, 400)
 
+    def test_user_settings_endpoints(self):
+        # 1. GET /api/user/settings
+        res = self.client.get("/api/user/settings?user_id=default_user")
+        self.assertEqual(res.status_code, 200)
+        settings = res.json()
+        self.assertEqual(settings["user_id"], "default_user")
+        self.assertEqual(settings["cards_per_exercise"], 3)
+        self.assertEqual(settings["daily_goal"], 10)
+
+        # 2. PUT /api/user/settings
+        put_res = self.client.put("/api/user/settings?user_id=default_user", json={
+            "cards_per_exercise": 2,
+            "theme": "dark",
+            "daily_goal": 20
+        })
+        self.assertEqual(put_res.status_code, 200)
+        updated = put_res.json()
+        self.assertEqual(updated["cards_per_exercise"], 2)
+        self.assertEqual(updated["theme"], "dark")
+        self.assertEqual(updated["daily_goal"], 20)
+
+        # 3. Verify get_exercises_batch without count uses configured cards_per_exercise (2)
+        batch_res = self.client.get("/api/exercises/batch?user_id=default_user")
+        self.assertEqual(batch_res.status_code, 200)
+        batch_data = batch_res.json()
+        self.assertEqual(len(batch_data["items"]), 2)
+
 if __name__ == "__main__":
     unittest.main()

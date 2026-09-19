@@ -1,5 +1,11 @@
 import json
 from typing import List, Dict, Any, Optional
+from backend.config import (
+    DEFAULT_CEFR_LEVEL,
+    STARTING_SCORE,
+    DEFAULT_CORRECTION_THRESHOLD,
+    DEFAULT_CARDS_PER_EXERCISE,
+)
 
 class UsersMixin:
     def get_or_create_user(self, user_id: str = 'default_user', name: str = 'Default User', avatar: str = 'owl') -> Dict[str, Any]:
@@ -9,8 +15,8 @@ class UsersMixin:
             if row:
                 return dict(row)
             conn.execute(
-                "INSERT INTO users (id, name, avatar, score, level) VALUES (?, ?, ?, 1.20, 'A1');",
-                (user_id, name, avatar)
+                "INSERT INTO users (id, name, avatar, score, level) VALUES (?, ?, ?, ?, ?);",
+                (user_id, name, avatar, STARTING_SCORE, DEFAULT_CEFR_LEVEL)
             )
             cursor = conn.execute("SELECT * FROM users WHERE id = ?;", (user_id,))
             return dict(cursor.fetchone())
@@ -29,10 +35,10 @@ class UsersMixin:
                        u.score, u.level, u.streak, u.total_completed, u.total_skipped, u.created_at, u.updated_at,
                        um_trans.score AS trans_score, um_trans.level AS trans_level, um_trans.streak AS trans_streak, um_trans.total_completed AS trans_completed,
                        um_audio.score AS audio_score, um_audio.level AS audio_level, um_audio.streak AS audio_streak, um_audio.total_completed AS audio_completed
-                FROM users u
-                LEFT JOIN user_modes um_trans ON u.id = um_trans.user_id AND um_trans.mode = 'translation'
-                LEFT JOIN user_modes um_audio ON u.id = um_audio.user_id AND um_audio.mode = 'transcription'
-                ORDER BY u.updated_at DESC;
+                 FROM users u
+                 LEFT JOIN user_modes um_trans ON u.id = um_trans.user_id AND um_trans.mode = 'translation'
+                 LEFT JOIN user_modes um_audio ON u.id = um_audio.user_id AND um_audio.mode = 'transcription'
+                 ORDER BY u.updated_at DESC;
             """)
             users = []
             for row in cursor.fetchall():
@@ -56,8 +62,8 @@ class UsersMixin:
                             "total_completed": d["trans_completed"] or 0,
                         },
                         "transcription": {
-                            "score": d["audio_score"] if d["audio_score"] is not None else 1.20,
-                            "level": d["audio_level"] or 'A1',
+                            "score": d["audio_score"] if d["audio_score"] is not None else STARTING_SCORE,
+                            "level": d["audio_level"] or DEFAULT_CEFR_LEVEL,
                             "streak": d["audio_streak"] or 0,
                             "total_completed": d["audio_completed"] or 0,
                         }
@@ -81,17 +87,17 @@ class UsersMixin:
         with self._get_connection() as conn:
             conn.execute("""
                 INSERT INTO users (id, name, avatar, score, level, streak, total_completed, total_skipped)
-                VALUES (?, ?, ?, 1.20, 'A1', 0, 0, 0);
-            """, (user_id, clean_name, clean_avatar))
+                VALUES (?, ?, ?, ?, ?, 0, 0, 0);
+            """, (user_id, clean_name, clean_avatar, STARTING_SCORE, DEFAULT_CEFR_LEVEL))
             
             conn.execute("""
                 INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES (?, 'translation', 1.20, 'A1', 0, 0, 0);
-            """, (user_id,))
+                VALUES (?, 'translation', ?, ?, 0, 0, 0);
+            """, (user_id, STARTING_SCORE, DEFAULT_CEFR_LEVEL))
             conn.execute("""
                 INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES (?, 'transcription', 1.20, 'A1', 0, 0, 0);
-            """, (user_id,))
+                VALUES (?, 'transcription', ?, ?, 0, 0, 0);
+            """, (user_id, STARTING_SCORE, DEFAULT_CEFR_LEVEL))
 
         return self.get_user_modes_profile(user_id)
 
@@ -171,9 +177,9 @@ class UsersMixin:
             conn.execute(
                 """
                 INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES (?, ?, 1.20, 'A1', 0, 0, 0);
+                VALUES (?, ?, ?, ?, 0, 0, 0);
                 """,
-                (user_id, mode)
+                (user_id, mode, STARTING_SCORE, DEFAULT_CEFR_LEVEL)
             )
             cursor = conn.execute(
                 "SELECT * FROM user_modes WHERE user_id = ? AND mode = ?;",
@@ -235,8 +241,8 @@ class UsersMixin:
         self,
         user_id: str = 'default_user',
         mode: str = 'translation',
-        start_score: float = 1.20,
-        level: str = 'A1'
+        start_score: float = STARTING_SCORE,
+        level: str = DEFAULT_CEFR_LEVEL
     ) -> Dict[str, Any]:
         """Resets the score and statistics for a given mode."""
         self.get_or_create_user(user_id)
@@ -271,8 +277,8 @@ class UsersMixin:
             "user_id": user_id,
             "name": u.get("name", "Default User"),
             "avatar": u.get("avatar", "owl"),
-            "score": trans_mode.get("score", 1.20),
-            "level": trans_mode.get("level", "A1"),
+            "score": trans_mode.get("score", STARTING_SCORE),
+            "level": trans_mode.get("level", DEFAULT_CEFR_LEVEL),
             "streak": trans_mode.get("streak", 0),
             "total_completed": trans_mode.get("total_completed", 0),
             "total_skipped": trans_mode.get("total_skipped", 0),
@@ -281,3 +287,61 @@ class UsersMixin:
                 "transcription": audio_mode
             }
         }
+
+    # ==========================================
+    # User Settings Methods
+    # ==========================================
+
+    def get_user_settings(self, user_id: str = 'default_user') -> Dict[str, Any]:
+        """Fetches user settings, creating default settings row if not exists."""
+        self.get_or_create_user(user_id)
+        default_daily_goal = 10
+        default_theme = 'system'
+        default_preferred_voice = 'default'
+        default_correction_threshold = DEFAULT_CORRECTION_THRESHOLD
+        default_cards_per_exercise = DEFAULT_CARDS_PER_EXERCISE
+
+        with self._get_connection() as conn:
+            cursor = conn.execute("SELECT * FROM user_settings WHERE user_id = ?;", (user_id,))
+            row = cursor.fetchone()
+            if row:
+                return dict(row)
+            conn.execute("""
+                INSERT OR IGNORE INTO user_settings (user_id, daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise)
+                VALUES (?, ?, ?, ?, ?, ?);
+            """, (user_id, default_daily_goal, default_theme, default_preferred_voice, default_correction_threshold, default_cards_per_exercise))
+            cursor = conn.execute("SELECT * FROM user_settings WHERE user_id = ?;", (user_id,))
+            return dict(cursor.fetchone())
+
+    def update_user_settings(self, user_id: str = 'default_user', **kwargs) -> Dict[str, Any]:
+        """Updates user settings fields (daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise)."""
+        self.get_user_settings(user_id)
+        allowed_fields = {
+            'daily_goal': int,
+            'theme': str,
+            'preferred_voice': str,
+            'correction_threshold': float,
+            'cards_per_exercise': int
+        }
+        updates = []
+        params = []
+        for field, ftype in allowed_fields.items():
+            if field in kwargs and kwargs[field] is not None:
+                try:
+                    val = ftype(kwargs[field])
+                    if ftype is str:
+                        val = val.strip()
+                    updates.append(f"{field} = ?")
+                    params.append(val)
+                except (ValueError, TypeError):
+                    continue
+
+        if updates:
+            updates.append("updated_at = CURRENT_TIMESTAMP")
+            set_str = ", ".join(updates)
+            params.append(user_id)
+            with self._get_connection() as conn:
+                conn.execute(f"UPDATE user_settings SET {set_str} WHERE user_id = ?;", params)
+
+        return self.get_user_settings(user_id)
+

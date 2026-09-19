@@ -193,5 +193,36 @@ class TestDataManager(unittest.TestCase):
             cannot_del = self.dm.delete_user(rem_users[0]['id'])
             self.assertFalse(cannot_del)
 
+    def test_user_settings(self):
+        # 1. Default settings for default_user
+        settings = self.dm.get_user_settings("default_user")
+        self.assertEqual(settings["user_id"], "default_user")
+        self.assertEqual(settings["daily_goal"], 10)
+        self.assertEqual(settings["theme"], "system")
+        self.assertEqual(settings["preferred_voice"], "default")
+        self.assertEqual(settings["correction_threshold"], 75.0)
+        self.assertEqual(settings["cards_per_exercise"], 3)
+
+        # 2. Update settings
+        updated = self.dm.update_user_settings(
+            "default_user",
+            daily_goal=15,
+            theme="dark",
+            preferred_voice="female",
+            correction_threshold=80.0,
+            cards_per_exercise=5
+        )
+        self.assertEqual(updated["daily_goal"], 15)
+        self.assertEqual(updated["theme"], "dark")
+        self.assertEqual(updated["preferred_voice"], "female")
+        self.assertEqual(updated["correction_threshold"], 80.0)
+        self.assertEqual(updated["cards_per_exercise"], 5)
+
+        # 3. Create another user and fetch settings (auto creates)
+        user_b = self.dm.create_user("User B")
+        b_settings = self.dm.get_user_settings(user_b["user_id"])
+        self.assertEqual(b_settings["daily_goal"], 10)
+        self.assertEqual(b_settings["cards_per_exercise"], 3)
+
 if __name__ == '__main__':
     unittest.main()

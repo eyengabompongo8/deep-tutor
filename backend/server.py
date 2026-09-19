@@ -11,6 +11,16 @@ from pydantic import BaseModel
 from backend.data_manager import DataManager
 from backend.scoring_engine import ScoringEngine, score_to_level
 from backend.tts_engine import get_tts_engine
+from backend.config import (
+    HOST,
+    PORT,
+    RELOAD,
+    DEFAULT_CEFR_LEVEL,
+    STARTING_SCORE,
+    DEFAULT_CARDS_PER_EXERCISE,
+    MAX_UNKNOWN_WORDS,
+    DEFAULT_CORRECTION_THRESHOLD,
+)
 
 # Initialize FastAPI app
 app = FastAPI(title="FrenchTutor API", version="1.0.0")
@@ -77,8 +87,15 @@ class UpdateUserRequest(BaseModel):
     name: Optional[str] = None
     avatar: Optional[str] = None
 
+class UpdateUserSettingsRequest(BaseModel):
+    daily_goal: Optional[int] = None
+    theme: Optional[str] = None
+    preferred_voice: Optional[str] = None
+    correction_threshold: Optional[float] = None
+    cards_per_exercise: Optional[int] = None
+
 class ProfileResetRequest(BaseModel):
-    start_score: float = 1.20
+    start_score: float = STARTING_SCORE
     mode: str = "translation"
     user_id: str = "default_user"
 
@@ -97,7 +114,7 @@ class EvaluateSingleRequest(BaseModel):
     reference_text: str
     sentence_score: float = 1.0
     is_skipped: bool = False
-    threshold: float = 75.0
+    threshold: float = DEFAULT_CORRECTION_THRESHOLD
     user_id: Optional[str] = "default_user"
 
 class EvaluateTranscriptionRequest(BaseModel):
@@ -149,6 +166,15 @@ def delete_user_endpoint(user_id: str):
         raise HTTPException(status_code=400, detail="Cannot delete user (at least one user must remain).")
     return {"status": "deleted", "user_id": user_id}
 
+@app.get("/api/user/settings")
+def get_user_settings_endpoint(user_id: str = "default_user"):
+    return data_manager.get_user_settings(user_id=user_id)
+
+@app.put("/api/user/settings")
+def update_user_settings_endpoint(req: UpdateUserSettingsRequest, user_id: str = "default_user"):
+    update_data = req.model_dump(exclude_unset=True) if hasattr(req, "model_dump") else req.dict(exclude_unset=True)
+    return data_manager.update_user_settings(user_id=user_id, **update_data)
+
 @app.get("/api/user/profile")
 def get_user_profile(user_id: str = "default_user", mode: str = "translation"):
     prof = scoring_engine.get_profile(user_id=user_id, mode=mode)
@@ -176,11 +202,18 @@ def reset_user_profile(req: ProfileResetRequest):
 def get_exercises_batch(
     mode: str = "translation",
     score: Optional[float] = None,
-    count: int = Query(default=3, ge=1, le=10),
+    count: Optional[int] = Query(default=None, ge=1, le=10),
     exclude: Optional[str] = None,
     user_id: str = "default_user",
-    max_unknown: int = 2
+    max_unknown: int = MAX_UNKNOWN_WORDS
 ):
+    effective_count = count
+    if effective_count is None:
+        try:
+            settings = data_manager.get_user_settings(user_id=user_id)
+            effective_count = settings.get("cards_per_exercise", DEFAULT_CARDS_PER_EXERCISE)
+        except Exception:
+            effective_count = DEFAULT_CARDS_PER_EXERCISE
     mode_prof = scoring_engine.get_profile(user_id=user_id, mode=mode)
     target_score = score if score is not None else mode_prof["score"]
     exclude_ids = []
@@ -196,7 +229,7 @@ def get_exercises_batch(
     batch = scoring_engine.get_batch_sentences(
         all_sentences=None,
         target_score=target_score,
-        count=count,
+        count=effective_count,
         exclude_ids=exclude_ids,
         data_manager=data_manager,
         user_id=user_id,
@@ -449,8 +482,8 @@ if __name__ == "__main__":
     import uvicorn
     import argparse
     parser = argparse.ArgumentParser(description="FrenchTutor API Server")
-    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8000))), help="Port to bind to")
-    parser.add_argument("--host", type=str, default=os.environ.get("HOST", "0.0.0.0"), help="Host interface to bind to")
-    parser.add_argument("--reload", action="store_true", default=True, help="Enable auto-reload")
+    parser.add_argument("--port", type=int, default=PORT, help="Port to bind to")
+    parser.add_argument("--host", type=str, default=HOST, help="Host interface to bind to")
+    parser.add_argument("--reload", action="store_true", default=RELOAD, help="Enable auto-reload")
     args = parser.parse_args()
     uvicorn.run("backend.server:app", host=args.host, port=args.port, reload=args.reload)
