@@ -19,6 +19,10 @@ export default function SettingsModal({
   onResetScore,
   transcriptionRetry = true,
   onToggleTranscriptionRetry,
+  translationThreshold = 75,
+  onChangeTranslationThreshold,
+  blindRetryEnabled = false,
+  onToggleBlindRetry,
 }) {
   if (!isOpen) return null;
 
@@ -171,6 +175,72 @@ export default function SettingsModal({
               <span
                 className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
                   transcriptionRetry ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Setting 4: Advanced Options (Threshold & Blind Retry) */}
+        <div className="space-y-4 pt-4 border-t border-neutral-100">
+          <div className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
+            Advanced Options
+          </div>
+          
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-neutral-800">
+                Translation Pass Threshold
+              </label>
+              <span className="text-xs font-mono font-medium text-neutral-600">
+                {translationThreshold}%
+              </span>
+            </div>
+            <p className="text-xs text-neutral-500">
+              Minimum score required on all metrics (Semantics, NMT, Fluency) for a translation to be marked correct.
+            </p>
+            <input
+              type="range"
+              min="50"
+              max="95"
+              step="5"
+              value={translationThreshold}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                if (!isNaN(val) && onChangeTranslationThreshold) {
+                  onChangeTranslationThreshold(Math.max(50, Math.min(100, val)));
+                }
+              }}
+              className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900 mt-2"
+            />
+            <div className="flex justify-between text-[10px] text-neutral-400 font-mono">
+              <span>50</span>
+              <span>75</span>
+              <span>95</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 pt-2">
+            <div>
+              <label className="text-xs font-medium text-neutral-800">
+                Blind Retry (Hide Correction)
+              </label>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Hide the exact reference answer when a translation is incorrect so you can try again blindly.
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={blindRetryEnabled}
+              onClick={() => onToggleBlindRetry && onToggleBlindRetry(!blindRetryEnabled)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                blindRetryEnabled ? 'bg-neutral-900' : 'bg-neutral-200'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  blindRetryEnabled ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
             </button>

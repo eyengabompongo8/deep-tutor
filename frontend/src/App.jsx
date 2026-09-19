@@ -29,6 +29,14 @@ export default function App() {
     const saved = localStorage.getItem('frenchtutor_transcription_retry');
     return saved !== null ? saved === 'true' : true;
   });
+  const [translationThreshold, setTranslationThreshold] = useState(() => {
+    const saved = localStorage.getItem('frenchtutor_translation_threshold');
+    return saved !== null ? parseInt(saved, 10) : 75;
+  });
+  const [blindRetryEnabled, setBlindRetryEnabled] = useState(() => {
+    const saved = localStorage.getItem('frenchtutor_blind_retry');
+    return saved !== null ? saved === 'true' : false;
+  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [error, setError] = useState(null);
   const [recentSentenceIds, setRecentSentenceIds] = useState([]);
@@ -228,6 +236,16 @@ export default function App() {
     localStorage.setItem('frenchtutor_transcription_retry', String(val));
   };
 
+  const handleToggleBlindRetry = (val) => {
+    setBlindRetryEnabled(val);
+    localStorage.setItem('frenchtutor_blind_retry', String(val));
+  };
+
+  const handleChangeTranslationThreshold = (val) => {
+    setTranslationThreshold(val);
+    localStorage.setItem('frenchtutor_translation_threshold', String(val));
+  };
+
   // If user selection / login screen is active, display it
   if (isSelectingUser || !activeUserId) {
     return (
@@ -290,6 +308,8 @@ export default function App() {
               mode={currentMode}
               userId={activeUserId}
               transcriptionRetry={transcriptionRetry}
+              translationThreshold={translationThreshold}
+              blindRetryEnabled={blindRetryEnabled}
               onBatchCompleted={handleBatchCompleted}
               onNextBatch={handleNextBatch}
               isLoadingNext={isLoadingNext}
@@ -309,6 +329,10 @@ export default function App() {
         onResetScore={handleResetScore}
         transcriptionRetry={transcriptionRetry}
         onToggleTranscriptionRetry={handleToggleTranscriptionRetry}
+        translationThreshold={translationThreshold}
+        onChangeTranslationThreshold={handleChangeTranslationThreshold}
+        blindRetryEnabled={blindRetryEnabled}
+        onToggleBlindRetry={handleToggleBlindRetry}
       />
 
       {/* Subtle Minimalist Footer */}
