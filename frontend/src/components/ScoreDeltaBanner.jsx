@@ -58,7 +58,11 @@ export default function ScoreDeltaBanner({
               </span>
 
               <span>
-                Accuracy: <strong className="text-neutral-800 font-medium">{Math.round(avg_quality * 100)}%</strong>
+                {batchSummary.total_count !== undefined ? (
+                  <>Accuracy: <strong className="text-neutral-800 font-medium">{batchSummary.correct_count} / {batchSummary.total_count} correctes</strong></>
+                ) : (
+                  <>Accuracy: <strong className="text-neutral-800 font-medium">{Math.round(avg_quality * 100)}%</strong></>
+                )}
               </span>
             </div>
           </div>

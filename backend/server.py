@@ -97,6 +97,7 @@ class EvaluateSingleRequest(BaseModel):
     reference_text: str
     sentence_score: float = 1.0
     is_skipped: bool = False
+    threshold: float = 75.0
     user_id: Optional[str] = "default_user"
 
 class EvaluateTranscriptionRequest(BaseModel):
@@ -112,6 +113,7 @@ class BatchItemEvaluation(BaseModel):
     sentence_score: float
     quality: float
     is_skipped: bool = False
+    is_correct: Optional[bool] = None
 
 class CompleteBatchRequest(BaseModel):
     current_score: Optional[float] = None
@@ -244,6 +246,8 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
         return {
             "sentence_id": req.sentence_id,
             "is_skipped": True,
+            "is_correct": False,
+            "threshold": req.threshold,
             "quality": 0.0,
             "composite_score": 0.0,
             "status_message": "Sentence skipped",
@@ -272,13 +276,15 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
             sentence_id=req.sentence_id
         )
 
-        quality = _safe_float(scoring_engine.compute_sentence_quality(result, is_skipped=False), 0.0)
+        eval_data = scoring_engine.compute_sentence_quality(result, is_skipped=False, threshold=req.threshold)
+        is_correct = eval_data.get("is_correct", False)
+        quality = _safe_float(eval_data.get("quality", 0.0), 0.0)
         composite_score = round(quality * 100.0, 1)
 
         # Record lexema appearances and mastery for progressive vocabulary unlock
         vocab_progress = []
         try:
-            is_success = quality >= 0.60
+            is_success = is_correct
             vocab_progress = data_manager.record_lexema_appearances(
                 user_id=req.user_id or "default_user",
                 sentence_id=req.sentence_id,
@@ -317,6 +323,8 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
         return {
             "sentence_id": req.sentence_id,
             "is_skipped": False,
+            "is_correct": is_correct,
+            "threshold": req.threshold,
             "quality": quality,
             "composite_score": composite_score,
             "vocabulary_progress": vocab_progress,
@@ -346,6 +354,8 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
         return {
             "sentence_id": req.sentence_id,
             "is_skipped": False,
+            "is_correct": False,
+            "threshold": req.threshold,
             "quality": 0.0,
             "composite_score": 0.0,
             "status_message": f"Evaluation error: {str(e)}",

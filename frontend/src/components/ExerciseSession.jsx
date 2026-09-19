@@ -9,6 +9,8 @@ export default function ExerciseSession({
   mode = 'translation',
   userId,
   transcriptionRetry = true,
+  translationThreshold = 75,
+  blindRetryEnabled = false,
   onBatchCompleted,
   onNextBatch,
   isLoadingNext,
@@ -147,6 +149,7 @@ export default function ExerciseSession({
           reference_text: sentence.fr,
           sentence_score: sentence.score_lexical ?? sentence.score ?? 1.0,
           is_skipped: isSkipped,
+          threshold: translationThreshold,
           user_id: userId || 'default_user',
         };
 
@@ -403,8 +406,11 @@ export default function ExerciseSession({
               evalResult={evaluations[sentence.id]}
               isEvaluating={evaluatingIds.has(sentence.id)}
               preloadedHint={preloadedHints[sentence.id]}
+              threshold={translationThreshold}
+              blindRetryEnabled={blindRetryEnabled}
               onSubmit={handleSentenceSubmit}
               onSkip={handleSentenceSkip}
+              onRetry={handleSentenceRetry}
               registerInput={registerInput}
             />
           )

@@ -294,15 +294,16 @@ class ScoringEngine:
         random.shuffle(selected)
         return selected[:count]
 
-    def compute_sentence_quality(self, eval_result: Optional[Dict[str, Any]], is_skipped: bool) -> float:
+    def compute_sentence_quality(self, eval_result: Optional[Dict[str, Any]], is_skipped: bool, threshold: float = 75.0) -> Dict[str, Any]:
         """
-        Computes composite translation quality Q in [0.0, 1.0].
+        Determines binary correctness of the translation based on the 3 core metrics.
+        Returns a dictionary with 'is_correct' and 'quality' (1.0 or 0.0 for compatibility).
         """
         if is_skipped or not eval_result:
-            return 0.0
+            return {"is_correct": False, "quality": 0.0}
 
         if not eval_result.get("is_french", True):
-            return 0.05
+            return {"is_correct": False, "quality": 0.0}
 
         def _clean_val(v, default=0.0):
             try:
@@ -315,15 +316,16 @@ class ScoringEngine:
         s_nmt = _clean_val(eval_result.get("s_nmt", 0.0))
         s_fluency = _clean_val(eval_result.get("s_fluency", 0.0))
 
-        # Base composite score (0-100)
-        raw_composite = (0.55 * s_sem) + (0.25 * s_nmt) + (0.20 * s_fluency)
-
-        # Syntax error deductions
-        syntax_errs = len(eval_result.get("syntactical_errors", []))
-        penalty = min(20.0, syntax_errs * 4.0)
-        final_composite = max(0.0, min(100.0, raw_composite - penalty))
-
-        return round(final_composite / 100.0, 4)
+        # Binary correctness check
+        is_correct = bool(s_sem >= threshold and s_nmt >= threshold and s_fluency >= threshold)
+        
+        # We can still apply syntax errors as an overriding failure condition if desired, 
+        # but the plan states correctness is purely based on the 3 scores. Let's strictly follow the plan.
+        
+        return {
+            "is_correct": is_correct,
+            "quality": 1.0 if is_correct else 0.0
+        }
 
     def calculate_score_adjustment(
         self,
@@ -353,31 +355,37 @@ class ScoringEngine:
 
         total_delta = 0.0
         qualities = []
+        correct_count = 0
+        total_count = len(evaluated_items)
 
         for item in evaluated_items:
-            s_difficulty = float(item.get("sentence_score", round(current_score)))
-            quality = float(item.get("quality", 0.0))
+            # Check correctness: either explicit is_correct boolean or fallback to quality >= 1.0
+            is_correct = item.get("is_correct", item.get("quality", 0.0) >= 1.0)
             is_skipped = item.get("is_skipped", False)
-            qualities.append(quality)
-
             if is_skipped:
-                if s_difficulty <= current_score:
-                    item_delta = -0.05 * (1.0 + (current_score - s_difficulty) * 0.5)
-                else:
-                    item_delta = -0.02
-            else:
-                diff = s_difficulty - current_score
-                expected_q = 1.0 / (1.0 + math.exp(-diff))
-                
-                if quality >= 0.80:
-                    base_gain = 0.08 + (0.05 * max(0.0, diff))
-                    item_delta = base_gain * quality
-                elif quality >= 0.60:
-                    item_delta = 0.03 * (quality - 0.5)
-                else:
-                    item_delta = -0.06 * (1.0 - quality)
+                is_correct = False
 
-            total_delta += item_delta
+            qualities.append(float(item.get("quality", 1.0 if is_correct else 0.0)))
+            if is_correct:
+                correct_count += 1
+
+        if total_count > 0:
+            accuracy_rate = correct_count / total_count
+            avg_difficulty = float(sum(it.get("sentence_score", current_score) for it in evaluated_items) / total_count)
+            diff = max(0.0, avg_difficulty - current_score)
+            
+            if accuracy_rate == 1.0:
+                # 3/3 correct
+                total_delta = 0.12 + (0.04 * diff)
+            elif accuracy_rate >= 0.66:
+                # 2/3 correct
+                total_delta = 0.04
+            elif accuracy_rate >= 0.33:
+                # 1/3 correct
+                total_delta = -0.04
+            else:
+                # 0/3 correct
+                total_delta = -0.12
 
         scaled_delta = max(-0.30, min(0.35, total_delta))
         new_score = round(max(1.00, min(6.00, current_score + scaled_delta)), 2)
@@ -396,9 +404,10 @@ class ScoringEngine:
                 prev_mode_data = self.data_manager.get_user_mode(user_id, mode)
                 new_streak = int(prev_mode_data.get("streak", 0))
                 if not is_retry:
-                    if avg_q >= 0.70:
+                    accuracy_rate = correct_count / max(1, total_count)
+                    if accuracy_rate >= 0.66:
                         new_streak += 1
-                    elif avg_q < 0.40:
+                    elif accuracy_rate < 0.33:
                         new_streak = 0
 
                 new_completed = int(prev_mode_data.get("total_completed", 0)) + (0 if is_retry else completed_count)
@@ -442,9 +451,10 @@ class ScoringEngine:
             if not is_retry:
                 m["total_completed"] = m.get("total_completed", 0) + completed_count
                 m["total_skipped"] = m.get("total_skipped", 0) + skipped_count
-                if avg_q >= 0.70:
+                accuracy_rate = correct_count / max(1, total_count)
+                if accuracy_rate >= 0.66:
                     m["streak"] = m.get("streak", 0) + 1
-                elif avg_q < 0.40:
+                elif accuracy_rate < 0.33:
                     m["streak"] = 0
 
         self.profile["score"] = new_score
@@ -452,9 +462,10 @@ class ScoringEngine:
         if not is_retry:
             self.profile["total_completed"] = self.profile.get("total_completed", 0) + completed_count
             self.profile["total_skipped"] = self.profile.get("total_skipped", 0) + skipped_count
-            if avg_q >= 0.70:
+            accuracy_rate = correct_count / max(1, total_count)
+            if accuracy_rate >= 0.66:
                 self.profile["streak"] = self.profile.get("streak", 0) + 1
-            elif avg_q < 0.40:
+            elif accuracy_rate < 0.33:
                 self.profile["streak"] = 0
 
         self.profile.setdefault("history", [])
@@ -480,6 +491,8 @@ class ScoringEngine:
             "new_level": new_level,
             "level_changed": old_level != new_level,
             "avg_quality": avg_q,
+            "correct_count": correct_count,
+            "total_count": total_count,
             "mode": mode,
             "profile": full_profile
         }
