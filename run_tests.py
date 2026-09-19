@@ -1,83 +1,30 @@
 #!/usr/bin/env python3
-"""Dedicated test runner script for FrenchTutor.
+"""Convenience test runner wrapper around pytest for FrenchTutor.
 
 Usage:
-    python run_tests.py          # Run fast unit and API tests (default, excludes slow ML models)
-    python run_tests.py --all    # Run all tests including heavy ML models
-    python run_tests.py --ml     # Run only ML model tests
-    python run_tests.py <path>   # Run specific test file or directory
+    python run_tests.py          # Run fast unit & API tests (excludes ML models)
+    python run_tests.py --all    # Run all tests including ML models
+    python run_tests.py --ml     # Run ML model tests only
+    python run_tests.py <args>   # Pass through any pytest arguments
 """
 
-import os
 import sys
-import argparse
 import pytest
-
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-BACKEND_DIR = os.path.join(ROOT_DIR, "backend")
-if BACKEND_DIR not in sys.path:
-    sys.path.insert(0, BACKEND_DIR)
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Run FrenchTutor test suite with automatic categorization."
-    )
-    parser.add_argument(
-        "--all",
-        action="store_true",
-        help="Run all tests including heavy ML model tests",
-    )
-    parser.add_argument(
-        "--ml",
-        action="store_true",
-        help="Run only heavy ML model tests",
-    )
-    parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="Run pytest in verbose mode",
-    )
-    parser.add_argument(
-        "-k",
-        type=str,
-        default=None,
-        help="Run tests matching given keyword expression",
-    )
-    parser.add_argument(
-        "targets",
-        nargs="*",
-        default=[],
-        help="Specific test file(s) or pattern(s) to run",
-    )
-
-    args, extra_args = parser.parse_known_args()
-
+    args = sys.argv[1:]
     pytest_args = []
-
-    if args.verbose:
-        pytest_args.append("-v")
-
-    if args.k:
-        pytest_args.extend(["-k", args.k])
-
-    if args.all:
+    
+    if "--all" in args:
+        args.remove("--all")
         pytest_args.extend(["-m", ""])
-    elif args.ml:
+    elif "--ml" in args:
+        args.remove("--ml")
         pytest_args.extend(["-m", "ml"])
-    # Default is handled by pyproject.toml addopts (-m 'not ml')
-
-    if args.targets:
-        pytest_args.extend(args.targets)
-
-    pytest_args.extend(extra_args)
-
-    print(f"🚀 Running FrenchTutor test suite with: pytest {' '.join(pytest_args)}")
-    exit_code = pytest.main(pytest_args)
-    import os
-    os._exit(int(exit_code))
+        
+    pytest_args.extend(args)
+    sys.exit(pytest.main(pytest_args))
 
 
 if __name__ == "__main__":

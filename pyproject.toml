@@ -66,6 +66,8 @@ explicit = true
 dev = [
     "pytest>=9.1.1",
     "pytest-mock>=3.15.1",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.28.0",
 ]
 
 [tool.pytest.ini_options]
@@ -75,7 +77,14 @@ markers = [
     "ml: tests requiring Hugging Face / PyTorch ML models",
     "slow: tests that take significant time to run",
 ]
-addopts = "-v -m 'not ml'"
+addopts = "-v -m 'not ml' --tb=short"
+
+[tool.coverage.run]
+source = ["backend"]
+omit = ["backend/models.py"]
+
+[tool.coverage.report]
+show_missing = true
 
 [tool.setuptools.packages.find]
 include = ["backend*"]

@@ -1,12 +1,4 @@
-try:
-    import pytest
-except ImportError:
-    pytest = None
-
-try:
-    from backend.server import autocorrect_text, remove_accents, levenshtein
-except ImportError:
-    from server import autocorrect_text, remove_accents, levenshtein
+from backend.server import autocorrect_text, remove_accents, levenshtein
 
 
 class TestSpellcheckerAndAccents:
