@@ -1,18 +1,14 @@
 import json
 import os
-import sys
-import sqlite3
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, BASE_DIR)
-sys.path.insert(0, os.path.join(BASE_DIR, 'backend'))
-
-from tqdm import tqdm
-from vocab_engine import VocabEngine
-from data_manager import DataManager, DB_PATH
 from collections import Counter
+from tqdm import tqdm
 
-JSON_BACKUP_PATH = os.path.join(BASE_DIR, 'data', 'sentences.json')
+from backend.vocab_engine import VocabEngine
+from backend.data_manager import DataManager, DB_PATH
+from backend.db.connection import ROOT_DIR
+
+JSON_BACKUP_PATH = os.path.join(ROOT_DIR, 'data', 'sentences.json')
+
 
 def rescore_dataset(db_path=DB_PATH, json_backup=True, use_ml=True):
     dm = DataManager(db_path=db_path)
@@ -93,6 +89,7 @@ def rescore_dataset(db_path=DB_PATH, json_backup=True, use_ml=True):
     print("New level distribution:")
     for lvl in ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']:
         print(f"  {lvl}: {new_levels[lvl]}")
+
 
 if __name__ == "__main__":
     rescore_dataset()

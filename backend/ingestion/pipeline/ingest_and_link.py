@@ -1,18 +1,16 @@
 import os
-import sys
 import time
 from typing import List, Dict, Any
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, BASE_DIR)
-
 from backend.data_manager import DataManager
-from scripts.vocab_engine import VocabEngine
+from backend.vocab_engine import VocabEngine
+from backend.db.connection import DB_PATH, ROOT_DIR
+
 
 def run_clear_db(db_path: str = None) -> bool:
     """Clears all sentences and sentence-lexema links from the database."""
     if db_path is None:
-        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(BASE_DIR, 'data', 'app.db')
+        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
         
     print(f"\n--- Clearing Sentences and Links from Database ({db_path}) ---")
     dm = DataManager(db_path=db_path)
@@ -23,6 +21,7 @@ def run_clear_db(db_path: str = None) -> bool:
     print("Database sentences and links cleared successfully.")
     return True
 
+
 def run_ingest_and_link(sentences: List[Dict[str, Any]], db_path: str = None, batch_size: int = 500) -> bool:
     """
     Ingests a list of standard sentence objects into the database and links them with lexemas.
@@ -32,7 +31,7 @@ def run_ingest_and_link(sentences: List[Dict[str, Any]], db_path: str = None, ba
         return False
         
     if db_path is None:
-        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(BASE_DIR, 'data', 'app.db')
+        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
         
     print(f"\n--- Ingesting and Linking {len(sentences)} Sentences ---")
     start_time = time.time()

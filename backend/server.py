@@ -1,16 +1,36 @@
 import os
 import re
+import logging
+import threading
 import unicodedata
-import numpy as np
+from contextlib import asynccontextmanager
 from typing import List, Dict, Any, Optional
+
+import numpy as np
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+
 from backend.data_manager import DataManager
 from backend.scoring_engine import ScoringEngine, score_to_level
 from backend.tts_engine import get_tts_engine
+from backend.eager_processor import EagerPrecomputeManager
+from backend.text_utils import levenshtein, remove_accents, autocorrect_text, get_aligned_targets
+from backend.schemas import (
+    CreateUserRequest,
+    UpdateUserRequest,
+    UpdateUserSettingsRequest,
+    ProfileResetRequest,
+    HintRequest,
+    EvaluateSingleRequest,
+    EvaluateTranscriptionRequest,
+    CompleteBatchRequest,
+    ExerciseBatchResponse,
+    EvaluateSingleResponse,
+    EvaluateTranscriptionResponse,
+    CompleteBatchResponse,
+)
 from backend.config import (
     HOST,
     PORT,
@@ -22,25 +42,13 @@ from backend.config import (
     DEFAULT_CORRECTION_THRESHOLD,
 )
 
-# Initialize FastAPI app
-app = FastAPI(title="FrenchTutor API", version="1.0.0")
+logger = logging.getLogger("backend.server")
 
-# CORS middleware for development
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-import threading
-
-# Initialize singletons
-print("Initializing DataManager and ScoringEngine...")
-data_manager = DataManager()
-scoring_engine = ScoringEngine(data_manager=data_manager)
-tts_engine = get_tts_engine(data_manager=data_manager)
+# Global singleton handles — initialised inside lifespan, never at import time
+data_manager = None
+scoring_engine = None
+tts_engine = None
+eager_processor = None
 
 # Lazy load MLEngine with thread-safe lock
 ml_engine = None
@@ -51,16 +59,34 @@ def get_ml_engine():
     if ml_engine is None:
         with ml_engine_lock:
             if ml_engine is None:
-                print("Loading MLEngine models...")
+                logger.info("Loading MLEngine models...")
                 from backend.models import MLEngine
                 ml_engine = MLEngine()
-                print("MLEngine ready.")
+                logger.info("MLEngine ready.")
     return ml_engine
 
-from backend.eager_processor import EagerPrecomputeManager
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global data_manager, scoring_engine, tts_engine, eager_processor
+    data_manager = DataManager()
+    scoring_engine = ScoringEngine(data_manager=data_manager)
+    tts_engine = get_tts_engine(data_manager=data_manager)
+    eager_processor = EagerPrecomputeManager(get_engine_fn=get_ml_engine, data_manager=data_manager)
+    logger.info("FrenchTutor API backend started.")
+    yield
+    logger.info("FrenchTutor API backend shutting down.")
 
-# Initialize eager background precomputer singleton
-eager_processor = EagerPrecomputeManager(get_engine_fn=get_ml_engine, data_manager=data_manager)
+# Initialize FastAPI app
+app = FastAPI(title="FrenchTutor API", version="1.0.0", lifespan=lifespan)
+
+# CORS middleware for development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def _safe_float(val, default=0.0):
     try:
@@ -72,72 +98,6 @@ def _safe_float(val, default=0.0):
         return f
     except (ValueError, TypeError):
         return default
-
-# --- Text & Alignment Helpers ---
-
-from backend.text_utils import levenshtein, remove_accents, autocorrect_text, get_aligned_targets
-
-# --- API Models ---
-
-class CreateUserRequest(BaseModel):
-    name: str
-    avatar: Optional[str] = "owl"
-
-class UpdateUserRequest(BaseModel):
-    name: Optional[str] = None
-    avatar: Optional[str] = None
-
-class UpdateUserSettingsRequest(BaseModel):
-    daily_goal: Optional[int] = None
-    theme: Optional[str] = None
-    preferred_voice: Optional[str] = None
-    correction_threshold: Optional[float] = None
-    cards_per_exercise: Optional[int] = None
-
-class ProfileResetRequest(BaseModel):
-    start_score: float = STARTING_SCORE
-    mode: str = "translation"
-    user_id: str = "default_user"
-
-class HintRequest(BaseModel):
-    sentence_id: Optional[int] = None
-    source_text: str
-    reference_text: str
-    selected_indices: Optional[List[int]] = None
-    first_time_lexemas: Optional[List[str]] = None
-    user_id: Optional[str] = "default_user"
-
-class EvaluateSingleRequest(BaseModel):
-    sentence_id: int
-    source_text: str
-    student_text: str
-    reference_text: str
-    sentence_score: float = 1.0
-    is_skipped: bool = False
-    threshold: float = DEFAULT_CORRECTION_THRESHOLD
-    user_id: Optional[str] = "default_user"
-
-class EvaluateTranscriptionRequest(BaseModel):
-    sentence_id: int
-    student_text: str
-    reference_text: str
-    sentence_score: float = 1.0
-    is_skipped: bool = False
-    user_id: Optional[str] = "default_user"
-
-class BatchItemEvaluation(BaseModel):
-    sentence_id: int
-    sentence_score: float
-    quality: float
-    is_skipped: bool = False
-    is_correct: Optional[bool] = None
-
-class CompleteBatchRequest(BaseModel):
-    current_score: Optional[float] = None
-    evaluated_items: List[BatchItemEvaluation]
-    mode: str = "translation"
-    user_id: str = "default_user"
-    is_retry: bool = False
 
 # --- API Endpoints ---
 
@@ -185,8 +145,8 @@ def get_user_profile(user_id: str = "default_user", mode: str = "translation"):
             "total_learning": vocab_stats["total_learning"],
             "by_level": vocab_stats["by_level"]
         }
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Could not fetch vocabulary stats for profile: %s", exc)
     return prof
 
 @app.get("/api/user/vocabulary")
@@ -198,7 +158,7 @@ def get_user_vocabulary(user_id: str = "default_user"):
 def reset_user_profile(req: ProfileResetRequest):
     return scoring_engine.reset_profile(start_score=req.start_score, mode=req.mode, user_id=req.user_id)
 
-@app.get("/api/exercises/batch")
+@app.get("/api/exercises/batch", response_model=ExerciseBatchResponse)
 def get_exercises_batch(
     mode: str = "translation",
     score: Optional[float] = None,
@@ -212,7 +172,8 @@ def get_exercises_batch(
         try:
             settings = data_manager.get_user_settings(user_id=user_id)
             effective_count = settings.get("cards_per_exercise", DEFAULT_CARDS_PER_EXERCISE)
-        except Exception:
+        except Exception as exc:
+            logger.warning("Failed to fetch user settings for '%s', using default: %s", user_id, exc)
             effective_count = DEFAULT_CARDS_PER_EXERCISE
     mode_prof = scoring_engine.get_profile(user_id=user_id, mode=mode)
     target_score = score if score is not None else mode_prof["score"]
@@ -220,8 +181,8 @@ def get_exercises_batch(
     if exclude:
         try:
             exclude_ids = [int(x.strip()) for x in exclude.split(",") if x.strip().isdigit()]
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Failed to parse exclude param '%s': %s", exclude, exc)
 
     # For transcription exercises, only include familiar words (no new words)
     effective_max_unknown = 0 if mode == "transcription" else max_unknown
@@ -238,11 +199,11 @@ def get_exercises_batch(
     )
 
     # If transcription mode, prewarm audio synthesis in background
-    if mode == "transcription" and batch:
+    if mode == "transcription" and batch and tts_engine is not None:
         tts_engine.prewarm_batch(batch)
 
     # If translation mode, eagerly prewarm reference passes in background (Thread 1)
-    if mode == "translation" and batch:
+    if mode == "translation" and batch and eager_processor is not None:
         eager_processor.enqueue_batch(batch)
 
     return {
@@ -263,7 +224,7 @@ def get_sentence_hint(req: HintRequest):
         first_time_lemmas=req.first_time_lexemas
     )
 
-@app.post("/api/exercises/evaluate-single")
+@app.post("/api/exercises/evaluate-single", response_model=EvaluateSingleResponse)
 def evaluate_single_sentence(req: EvaluateSingleRequest):
     if req.is_skipped or not req.student_text.strip():
         vocab_progress = []
@@ -273,8 +234,8 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
                 sentence_id=req.sentence_id,
                 is_success=False
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Failed recording skipped lexema appearance: %s", exc)
 
         return {
             "sentence_id": req.sentence_id,
@@ -323,8 +284,8 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
                 sentence_id=req.sentence_id,
                 is_success=is_success
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Failed recording lexema appearances: %s", exc)
 
         mapping_data_student = result.get("mapping_data")
         mapping_data_ref = result.get("mapping_data_ref")
@@ -382,8 +343,7 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
             "fluency_word_breakdown": result.get("fluency_word_breakdown", [])
         }
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.error("Evaluation error: %s", e, exc_info=True)
         return {
             "sentence_id": req.sentence_id,
             "is_skipped": False,
@@ -404,7 +364,7 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
             "fluency_word_breakdown": []
         }
 
-@app.post("/api/exercises/evaluate-transcription")
+@app.post("/api/exercises/evaluate-transcription", response_model=EvaluateTranscriptionResponse)
 def evaluate_transcription_sentence(req: EvaluateTranscriptionRequest):
     result = scoring_engine.evaluate_transcription(
         student_text=req.student_text,
@@ -423,13 +383,13 @@ def evaluate_transcription_sentence(req: EvaluateTranscriptionRequest):
             sentence_id=req.sentence_id,
             is_success=is_success
         )
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Failed recording transcription lexema appearances: %s", exc)
     result["vocabulary_progress"] = vocab_progress
 
     return result
 
-@app.post("/api/exercises/complete-batch")
+@app.post("/api/exercises/complete-batch", response_model=CompleteBatchResponse)
 def complete_batch(req: CompleteBatchRequest):
     mode_prof = scoring_engine.get_profile(user_id=req.user_id, mode=req.mode)
     curr_score = req.current_score if req.current_score is not None else mode_prof["score"]
@@ -460,7 +420,7 @@ def synthesize_audio(text: str, sentence_id: Optional[int] = None, voice: Option
             headers={"Cache-Control": "public, max-age=86400"}
         )
     except Exception as e:
-        print(f"Audio synthesis error: {e}")
+        logger.error("Audio synthesis error: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=f"TTS error: {str(e)}")
 
 @app.get("/api/stats")

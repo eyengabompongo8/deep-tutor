@@ -44,6 +44,29 @@ class TestExerciseEndpoints:
         assert data["is_skipped"] is True
         assert data["quality"] == 0.0
 
+    def test_evaluate_skipped_sentence_with_vocab(self, test_client, isolated_data_manager):
+        lid = isolated_data_manager.upsert_lexema(lemma="bonjour", pos="INT", level="A1")
+        isolated_data_manager.link_sentence_lexemas(1, [lid])
+
+        payload = {
+            "sentence_id": 1,
+            "source_text": "Hola mundo",
+            "student_text": "",
+            "reference_text": "Bonjour le monde",
+            "sentence_score": 1.0,
+            "is_skipped": True,
+            "user_id": "default_user"
+        }
+        res = test_client.post("/api/exercises/evaluate-single", json=payload)
+        assert res.status_code == 200
+        data = res.json()
+        assert data["is_skipped"] is True
+        assert len(data["vocabulary_progress"]) == 1
+        item = data["vocabulary_progress"][0]
+        assert item["lemma"] == "bonjour"
+        assert item["appearance_count"] == 1
+        assert "is_known" in item
+
     def test_complete_batch(self, test_client):
         payload = {
             "current_score": 1.20,

@@ -1,17 +1,15 @@
 import json
 import os
-import sys
 import torch
 from transformers import MarianMTModel, MarianTokenizer
 from tqdm import tqdm
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, BASE_DIR)
-sys.path.insert(0, os.path.join(BASE_DIR, 'backend'))
+from backend.db.connection import ROOT_DIR
+
 
 def translate_queue():
-    queue_file = os.path.join(BASE_DIR, 'data', 'translation_queue.json')
-    output_file = os.path.join(BASE_DIR, 'data', 'translated_sentences.json')
+    queue_file = os.path.join(ROOT_DIR, 'data', 'translation_queue.json')
+    output_file = os.path.join(ROOT_DIR, 'data', 'translated_sentences.json')
     
     if not os.path.exists(queue_file):
         print(f"No queue file found at {queue_file}")
@@ -55,6 +53,7 @@ def translate_queue():
         json.dump(results, f, ensure_ascii=False, indent=2)
         
     print(f"Successfully translated {len(results)} sentences and saved to {output_file}")
+
 
 if __name__ == "__main__":
     translate_queue()

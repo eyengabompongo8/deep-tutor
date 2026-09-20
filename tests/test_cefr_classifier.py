@@ -1,7 +1,7 @@
 import pytest
 import torch
 from backend.model_registry import registry, UniversalCEFRModel, CEFRClassifierModelWrapper
-from scripts.vocab_engine import VocabEngine
+from backend.vocab_engine import VocabEngine
 
 
 class TestCEFRClassifierUnit:

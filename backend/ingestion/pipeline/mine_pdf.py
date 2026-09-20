@@ -8,13 +8,11 @@ import torch
 from transformers import MarianMTModel, MarianTokenizer
 from tqdm import tqdm
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, BASE_DIR)
-
 from backend.data_manager import DataManager
-from scripts.vocab_engine import VocabEngine
+from backend.vocab_engine import VocabEngine
 
 _nlp = None
+
 
 def get_spacy_nlp():
     global _nlp
@@ -29,11 +27,13 @@ def get_spacy_nlp():
             _nlp.max_length = 5000000
     return _nlp
 
+
 def format_sentence(text: str) -> str:
     """Cleans up internal spacing and formatting."""
     text = re.sub(r'\s+', ' ', text)
     text = re.sub(r'\s*([?!:;])', r' \1', text)
     return text.strip()
+
 
 def is_valid_sentence(text: str) -> bool:
     """Heuristics to drop unwanted sentences."""
@@ -77,6 +77,7 @@ def is_valid_sentence(text: str) -> bool:
         
     return True
 
+
 def extract_sentences_from_pdf(pdf_path: str) -> list[str]:
     nlp = get_spacy_nlp()
     doc = fitz.open(pdf_path)
@@ -109,6 +110,7 @@ def extract_sentences_from_pdf(pdf_path: str) -> list[str]:
             
     return valid_sentences
 
+
 def get_lemma_minhash(text: str, num_perm=128):
     """Generates a MinHash signature based on the lemmas of a sentence."""
     nlp = get_spacy_nlp()
@@ -118,6 +120,7 @@ def get_lemma_minhash(text: str, num_perm=128):
         if not token.is_punct and not token.is_space:
             m.update(token.lemma_.encode('utf8'))
     return m
+
 
 def translate_batch(sentences: list[str]) -> list[str]:
     """Translates a list of French sentences to Spanish."""
@@ -157,6 +160,7 @@ def translate_batch(sentences: list[str]) -> list[str]:
         results.extend(translated_texts)
         
     return results
+
 
 def run_mine_pdf(pdf_path: str, interactive: bool = True) -> list[dict]:
     """Mines and scores sentences from a PDF file, returning standard sentence records."""

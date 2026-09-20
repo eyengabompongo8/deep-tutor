@@ -6,7 +6,7 @@ PORT          ?= $(BACKEND_PORT)
 FRONTEND_PORT ?= 5173
 HOST          ?= 0.0.0.0
 
-.PHONY: help install install-gpu dev start build test clean
+.PHONY: help install install-gpu dev start build test ingest clean
 
 help:
 	@echo "=================================================================="
@@ -19,6 +19,7 @@ help:
 	@echo "                    Custom port example: make start PORT=8080"
 	@echo "  make build        Build production frontend bundle into frontend/dist"
 	@echo "  make test         Run fast unit & API tests via uv pytest"
+	@echo "  make ingest       Run database ingestion & mining pipeline (pass ARGS=\"...\")"
 	@echo "  make install      Install Python dependencies (uv sync CPU) & frontend npm"
 	@echo "  make install-gpu  Install Python dependencies with CUDA 12.4 GPU acceleration"
 	@echo "  make clean        Remove build artifacts, caches, and __pycache__"
@@ -57,6 +58,9 @@ build:
 
 test:
 	uv run --no-sync pytest
+
+ingest:
+	uv run python -m backend.ingestion.orchestrator $(ARGS)
 
 clean:
 	rm -rf frontend/dist .pytest_cache

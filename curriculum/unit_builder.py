@@ -2,7 +2,7 @@ import json
 import os
 from curriculum_parser import CurriculumParser
 from spacy_clusterer import SpacyClusterer
-from vocab_engine import VocabEngine
+from backend.vocab_engine import VocabEngine
 from sentence_miner import SentenceMiner
 
 class UnitBuilder:

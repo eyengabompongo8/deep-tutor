@@ -1,8 +1,11 @@
 import os
+import logging
 import json
 import random
 import math
 from typing import List, Dict, Any, Optional
+
+logger = logging.getLogger("backend.scoring_engine")
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -101,7 +104,7 @@ class ScoringEngine:
                 self.profile = res
                 return res
             except Exception as e:
-                print(f"Warning: Could not read user mode from SQLite: {e}")
+                logger.warning("Could not read user mode from SQLite: %s", e)
 
         # Fallback to local profile dict
         self.profile.setdefault("current_mode", mode)
@@ -137,7 +140,7 @@ class ScoringEngine:
             try:
                 return self.get_profile("default_user", "translation")
             except Exception as e:
-                print(f"Warning: Could not read user from SQLite: {e}")
+                logger.warning("Could not read user from SQLite: %s", e)
 
         profile = self.get_default_profile()
         self.save_profile(profile)
@@ -179,7 +182,7 @@ class ScoringEngine:
                 self.data_manager.unlock_user_vocabulary_for_level(user_id=user_id, target_level=lvl)
                 return self.get_profile(user_id=user_id, mode=mode)
             except Exception as e:
-                print(f"Warning: Reset user mode failed in DataManager: {e}")
+                logger.warning("Reset user mode failed in DataManager: %s", e)
 
         # In-memory fallback
         if "modes" not in self.profile:
@@ -222,10 +225,17 @@ class ScoringEngine:
         if mode == "transcription":
             max_unknown = 0
 
-        if target_score is None:
-            target_score = self.profile["score"]
-
         dm = data_manager or self.data_manager
+        if target_score is None:
+            if dm is not None:
+                try:
+                    mode_info = dm.get_user_mode(user_id, mode)
+                    target_score = float(mode_info.get("score", STARTING_SCORE))
+                except Exception:
+                    target_score = float(self.profile.get("score", STARTING_SCORE))
+            else:
+                target_score = float(self.profile.get("score", STARTING_SCORE))
+
         if dm is not None:
             try:
                 prog_batch = dm.get_progressive_sentences(
@@ -245,7 +255,7 @@ class ScoringEngine:
                     else:
                         return prog_batch
             except Exception as e:
-                print(f"Warning: Progressive sentence selection fallback: {e}")
+                logger.warning("Progressive sentence selection fallback: %s", e)
 
         # Lazy-load all_sentences only if progressive selection didn't return candidates
         if all_sentences is None and dm is not None:
@@ -409,7 +419,7 @@ class ScoringEngine:
         completed_count = sum(1 for it in evaluated_items if not it.get("is_skipped"))
         skipped_count = sum(1 for it in evaluated_items if it.get("is_skipped"))
 
-        # Update SQLite if data_manager present
+        # Update SQLite if data_manager present (authoritative)
         if self.data_manager is not None:
             try:
                 prev_mode_data = self.data_manager.get_user_mode(user_id, mode)
@@ -450,48 +460,49 @@ class ScoringEngine:
                             is_skipped=it.get("is_skipped", False)
                         )
             except Exception as e:
-                print(f"Warning: Score adjustment SQLite persistence warning: {e}")
+                logger.warning("Score adjustment SQLite persistence failed: %s", e, exc_info=True)
+        else:
+            # Offline / test fallback — update in-memory profile directly
+            if "modes" not in self.profile:
+                self.get_profile(user_id, mode)
+            if mode in self.profile.get("modes", {}):
+                m = self.profile["modes"][mode]
+                m["score"] = new_score
+                m["level"] = new_level
+                if not is_retry:
+                    m["total_completed"] = m.get("total_completed", 0) + completed_count
+                    m["total_skipped"] = m.get("total_skipped", 0) + skipped_count
+                    accuracy_rate = correct_count / max(1, total_count)
+                    if accuracy_rate >= 0.66:
+                        m["streak"] = m.get("streak", 0) + 1
+                    elif accuracy_rate < 0.33:
+                        m["streak"] = 0
 
-        # In-memory profile update
-        if "modes" not in self.profile:
-            self.get_profile(user_id, mode)
-        if mode in self.profile.get("modes", {}):
-            m = self.profile["modes"][mode]
-            m["score"] = new_score
-            m["level"] = new_level
+            self.profile["score"] = new_score
+            self.profile["level"] = new_level
             if not is_retry:
-                m["total_completed"] = m.get("total_completed", 0) + completed_count
-                m["total_skipped"] = m.get("total_skipped", 0) + skipped_count
+                self.profile["total_completed"] = self.profile.get("total_completed", 0) + completed_count
+                self.profile["total_skipped"] = self.profile.get("total_skipped", 0) + skipped_count
                 accuracy_rate = correct_count / max(1, total_count)
                 if accuracy_rate >= 0.66:
-                    m["streak"] = m.get("streak", 0) + 1
+                    self.profile["streak"] = self.profile.get("streak", 0) + 1
                 elif accuracy_rate < 0.33:
-                    m["streak"] = 0
+                    self.profile["streak"] = 0
 
-        self.profile["score"] = new_score
-        self.profile["level"] = new_level
-        if not is_retry:
-            self.profile["total_completed"] = self.profile.get("total_completed", 0) + completed_count
-            self.profile["total_skipped"] = self.profile.get("total_skipped", 0) + skipped_count
-            accuracy_rate = correct_count / max(1, total_count)
-            if accuracy_rate >= 0.66:
-                self.profile["streak"] = self.profile.get("streak", 0) + 1
-            elif accuracy_rate < 0.33:
-                self.profile["streak"] = 0
+            self.profile.setdefault("history", [])
+            self.profile["history"].append({
+                "mode": mode,
+                "old_score": current_score,
+                "new_score": new_score,
+                "delta": real_delta,
+                "avg_quality": avg_q,
+                "batch_size": len(evaluated_items)
+            })
+            if len(self.profile["history"]) > HISTORY_LIMIT:
+                self.profile["history"] = self.profile["history"][-HISTORY_LIMIT:]
 
-        self.profile.setdefault("history", [])
-        self.profile["history"].append({
-            "mode": mode,
-            "old_score": current_score,
-            "new_score": new_score,
-            "delta": real_delta,
-            "avg_quality": avg_q,
-            "batch_size": len(evaluated_items)
-        })
-        if len(self.profile["history"]) > HISTORY_LIMIT:
-            self.profile["history"] = self.profile["history"][-HISTORY_LIMIT:]
+            self.save_profile()
 
-        self.save_profile()
         full_profile = self.get_profile(user_id=user_id, mode=mode)
 
         return {

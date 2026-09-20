@@ -75,7 +75,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = [".", "backend"]
+pythonpath = ["."]
 markers = [
     "ml: tests requiring Hugging Face / PyTorch ML models",
     "slow: tests that take significant time to run",
