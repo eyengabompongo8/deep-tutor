@@ -127,4 +127,4 @@ uv lock --upgrade-package transformers
 | Corrupt environment | Broken `.venv` state | Recreate: `rm -rf .venv && uv venv && uv sync` |
 
 > [!WARNING]
-> Do not attempt to work around command failures by using full paths like `/home/user/.venv/bin/python`, exporting `VIRTUAL_ENV` or `PATH`, or calling `source .venv/bin/activate`. These are anti-patterns that bypass `uv`'s dependency management and cause environment pollution. If a `uv run` command requires elevated access or network, use the `run_command` tool and wait for user approval — do not try to circumvent the sandbox.
+> Do not attempt to work around command failures by using full paths like `/home/user/.venv/bin/python` or `/home/user/.cargo/bin/uv`, exporting `VIRTUAL_ENV` or `PATH`, or calling `source .venv/bin/activate`. Always invoke `uv` simply as `uv` (bare command name). These are anti-patterns that bypass `uv`'s dependency management and cause environment pollution. If a `uv run` command requires elevated access or network, use the `run_command` tool and wait for user approval — do not try to circumvent the sandbox.

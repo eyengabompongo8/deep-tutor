@@ -15,6 +15,7 @@ make <target>               # Use a Makefile target when available
 
 | ❌ Forbidden | Why |
 | :--- | :--- |
+| `~/.cargo/bin/uv ...` / `/home/.../.cargo/bin/uv ...` | Always invoke `uv` directly by name (`uv ...`). Never use absolute or home-relative paths to `uv`. |
 | `python script.py` | Calls the system Python, not the project environment |
 | `.venv/bin/python script.py` | Bypasses uv's dependency sync and env management |
 | `.venv/bin/pytest` | Same — never call `.venv/bin/` binaries directly |
@@ -24,7 +25,7 @@ make <target>               # Use a Makefile target when available
 | `PYTHONPATH=... python ...` | Do not inject env vars to try to make a bare Python call work |
 | `/usr/bin/python3 ...` | Never use absolute paths to system Python |
 
-These patterns are anti-patterns. They **do not grant extra access** and **do not escape the sandbox**. They only cause subtly broken behavior, wrong dependency resolution, and hard-to-debug failures.
+These patterns are anti-patterns. They **do not grant extra access** and **do not escape the sandbox**. They only cause subtly broken behavior, wrong dependency resolution, and hard-to-debug failures. Always use the bare `uv` executable name.
 
 ---
 
