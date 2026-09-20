@@ -65,14 +65,17 @@ def isolated_data_manager(temp_db_path):
 
 @pytest.fixture
 def test_client(isolated_data_manager, mock_tts, monkeypatch):
-    """Provide a FastAPI TestClient wired to the isolated data manager, scoring engine, and mock TTS."""
+    """Provide a FastAPI TestClient wired to the isolated data manager, scoring engine, mock TTS, and eager processor."""
     from fastapi.testclient import TestClient
     from backend import server
     from backend.scoring_engine import ScoringEngine
+    from backend.eager_processor import EagerPrecomputeManager
     
     engine = ScoringEngine(data_manager=isolated_data_manager)
+    eager = EagerPrecomputeManager(get_engine_fn=server.get_ml_engine, data_manager=isolated_data_manager)
     monkeypatch.setattr(server, "data_manager", isolated_data_manager)
     monkeypatch.setattr(server, "scoring_engine", engine)
     monkeypatch.setattr(server, "tts_engine", mock_tts)
+    monkeypatch.setattr(server, "eager_processor", eager)
     
     return TestClient(server.app)

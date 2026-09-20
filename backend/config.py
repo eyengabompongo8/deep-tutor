@@ -3,7 +3,7 @@ import os
 # App launch settings
 HOST = os.environ.get("HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8000)))
-RELOAD = True
+RELOAD = os.environ.get("RELOAD", "false").lower() in ("1", "true", "yes")
 
 # Default user settings
 DEFAULT_CEFR_LEVEL = "A1"

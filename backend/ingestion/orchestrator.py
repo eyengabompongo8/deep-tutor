@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-import os
 import sys
 import argparse
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, BASE_DIR)
-
-from scripts.pipeline import (
+from backend.ingestion.pipeline import (
     run_init_db,
     run_seed_lexemas,
     run_mine_tatoeba,
@@ -14,6 +10,7 @@ from scripts.pipeline import (
     run_ingest_and_link,
     run_clear_db
 )
+
 
 def main():
     parser = argparse.ArgumentParser(description="FrenchTutor Database Ingestion & Mining Orchestrator")
@@ -102,6 +99,7 @@ def main():
     print("\n" + "="*50)
     print("✅ PIPELINE COMPLETED SUCCESSFULLY")
     print("="*50)
+
 
 if __name__ == "__main__":
     main()

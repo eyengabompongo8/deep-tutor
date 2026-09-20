@@ -1,17 +1,14 @@
 import os
-import sys
 import csv
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, BASE_DIR)
-
 from backend.data_manager import DataManager
+from backend.db.connection import DB_PATH, ROOT_DIR
+
 
 def run_seed_lexemas(db_path=None):
     if db_path is None:
-        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(BASE_DIR, 'data', 'app.db')
+        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
         
-    flelex_path = os.path.join(BASE_DIR, 'data', 'flelex_beacco.tsv')
+    flelex_path = os.path.join(ROOT_DIR, 'data', 'flelex_beacco.tsv')
     
     if not os.path.exists(flelex_path):
         print(f"Error: Could not find lexema vocabulary data at {flelex_path}")
@@ -65,6 +62,7 @@ def run_seed_lexemas(db_path=None):
         
     print(f"Successfully seeded database. Total lexemas in DB: {lex_count}")
     return True
+
 
 if __name__ == "__main__":
     run_seed_lexemas()

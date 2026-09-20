@@ -4,10 +4,10 @@ import queue
 import time
 import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any, Optional, TYPE_CHECKING
 
-from backend.models import MLEngine
-
+if TYPE_CHECKING:
+    from backend.models import MLEngine
 
 from backend.text_utils import get_aligned_targets
 
@@ -191,7 +191,7 @@ class EagerPrecomputeManager:
 
         if first_time_lemmas:
             pairs = []
-            from scripts.vocab_engine import get_vocab_engine
+            from backend.vocab_engine import get_vocab_engine
 
             if get_vocab_engine is not None:
                 try:

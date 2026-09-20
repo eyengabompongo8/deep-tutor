@@ -23,14 +23,16 @@ The system evaluates a given French translation based on the following pipeline:
 
 *   `backend/`: Python backend application code:
     *   `server.py`: FastAPI application serving the API and React frontend.
-    *   `app.py`: Gradio application interface and state management.
-    *   `data_manager.py`: SQLite database operations and sentence repository CRUD.
+    *   `schemas.py`: Pydantic request and response models.
+    *   `data_manager.py`: SQLite database operations and repository CRUD.
     *   `models.py`: Natural Language Processing and translation evaluation engine (`MLEngine`).
+    *   `model_registry.py`: Modular model wrappers and registry for semantic, NMT, fluency, and CEFR models.
     *   `scoring_engine.py`: Adaptive CEFR score calculation and transcription diff evaluation.
     *   `tts_engine.py`: Neural French Text-to-Speech synthesis and caching.
-    *   `vocab_engine.py`: CEFRLex / FLELex vocabulary engine for CEFR level estimation.
+    *   `vocab_engine.py`: CEFRLex / FLELex + ML vocabulary engine for CEFR level estimation.
+    *   `db/`: SQLite connection management and modular domain mixins (`sentences.py`, `users.py`, `history.py`, `audio.py`, `vocabulary.py`).
+    *   `ingestion/`: Offline sentence harvesting, mining, translation, and database ingestion pipeline (`orchestrator.py`, `pipeline/`).
 *   `frontend/`: React + Vite single page application.
-*   `scripts/`: Harvest, mining, rescoring, and migration utilities (`generate_dataset.py`, `rescore_dataset.py`, `translate_sentences.py`, `migrate_json_to_db.py`).
 *   `curriculum/`: CEFR levels curriculum definitions, module units, and parsing tools.
 *   `data/`: Processed SQLite database (`app.db`), lexicons (`flelex_beacco.tsv`), and audio cache.
 *   `Makefile`: Standard developer automation commands (`make dev`, `make start`, `make test`, `make build`, `make install`).

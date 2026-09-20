@@ -1,14 +1,12 @@
 import os
-import sys
-
-# Add parent directory to sys.path
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, BASE_DIR)
-
+import argparse
 from backend.data_manager import DataManager
+from backend.db.connection import DB_PATH, ROOT_DIR
 
-def run_init_db(reset=False):
-    db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(BASE_DIR, 'data', 'app.db')
+
+def run_init_db(reset=False, db_path=None):
+    if db_path is None:
+        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
     
     if reset and os.path.exists(db_path):
         print(f"Resetting database at {db_path} (deleting existing file)...")
@@ -29,8 +27,8 @@ def run_init_db(reset=False):
     print(f"Successfully initialized tables: {', '.join(table_names)}")
     return True
 
+
 if __name__ == "__main__":
-    import argparse
     parser = argparse.ArgumentParser(description="Initialize the FrenchTutor database.")
     parser.add_argument("--reset", action="store_true", help="Delete the existing database and start fresh.")
     args = parser.parse_args()

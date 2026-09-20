@@ -456,7 +456,7 @@ class VocabularyMixin:
 
         # Resolve accurate token derivations only for the final selected sentences
         try:
-            from scripts.vocab_engine import get_vocab_engine
+            from backend.vocab_engine import get_vocab_engine
         except ImportError:
             get_vocab_engine = None
 

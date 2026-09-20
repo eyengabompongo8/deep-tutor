@@ -45,3 +45,24 @@ class TestScoringEngine:
         res = engine.calculate_score_adjustment(2.00, items)
         assert res["delta"] < 0
         assert res["new_score"] < 2.00
+
+    def test_in_memory_fallback_mode(self):
+        engine = ScoringEngine(data_manager=None)
+        items = [
+            {"sentence_score": 1.0, "quality": 0.95, "is_skipped": False},
+            {"sentence_score": 1.0, "quality": 0.90, "is_skipped": False},
+            {"sentence_score": 2.0, "quality": 0.85, "is_skipped": False},
+        ]
+        res = engine.calculate_score_adjustment(1.0, items, mode="translation")
+        assert res["delta"] > 0
+        assert res["new_score"] > 1.0
+        assert engine.profile["modes"]["translation"]["score"] == res["new_score"]
+        assert engine.profile["modes"]["translation"]["streak"] == 1
+        assert engine.profile["modes"]["translation"]["total_completed"] == 3
+
+    def test_empty_batch_returns_current_profile(self, isolated_data_manager):
+        engine = ScoringEngine(data_manager=isolated_data_manager)
+        res = engine.calculate_score_adjustment(1.50, [])
+        assert res["new_score"] == 1.50
+        assert res["delta"] == 0.0
+        assert "profile" in res
