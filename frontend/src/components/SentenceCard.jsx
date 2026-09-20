@@ -297,13 +297,13 @@ export default function SentenceCard({
   );
 
   return (
-    <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all">
+    <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all min-h-[380px] flex flex-col justify-start">
       {/* 2-Column Side-by-Side Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch flex-1">
         
         {/* LEFT COLUMN: Sentence, Hints, & Translation Input */}
-        <div className="lg:col-span-5 space-y-4">
-          {/* Spanish Source Sentence with Raw Text Selection */}
+        <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
+          {/* Top section: Spanish Source Sentence with Raw Text Selection */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
@@ -397,35 +397,37 @@ export default function SentenceCard({
           </div>
 
           {/* Interactive Translation Input or Completed View */}
-          {!isDone ? (
-            <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-3">
-              <div>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={(e) => {
-                    // Only blur if not clicking accent buttons inside this form
-                    if (!formRef.current?.contains(e.relatedTarget)) {
-                      setIsFocused(false);
-                    }
-                  }}
-                  onKeyDown={handleKeyDown}
-                  disabled={isEvaluating}
-                  placeholder="Type French translation..."
-                  className="w-full px-4 py-3 bg-neutral-100 focus:bg-white text-neutral-900 placeholder-neutral-400 rounded-xl text-base focus:outline-none focus:ring-1 focus:ring-neutral-900/20 transition-all disabled:opacity-50"
-                  autoFocus={index === 0}
-                />
-              </div>
+          <div className="pt-2">
+            {!isDone ? (
+              <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-3">
+                <div>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={(e) => {
+                      // Only blur if not clicking accent buttons inside this form
+                      if (!formRef.current?.contains(e.relatedTarget)) {
+                        setIsFocused(false);
+                      }
+                    }}
+                    onKeyDown={handleKeyDown}
+                    disabled={isEvaluating}
+                    placeholder="Type French translation..."
+                    className="w-full px-4 py-3 bg-neutral-100 focus:bg-white text-neutral-900 placeholder-neutral-400 rounded-xl text-base focus:outline-none focus:ring-1 focus:ring-neutral-900/20 transition-all disabled:opacity-50"
+                    autoFocus={index === 0}
+                  />
+                </div>
 
-              {/* Accents Bar (HIDDEN WHEN SENTENCE IS NOT SELECTED / FOCUSED) & Actions */}
-              <div className="flex items-center justify-between gap-3 pt-1 flex-nowrap">
-                {/* Accent buttons: only rendered when this sentence is focused/selected */}
-                {isFocused ? (
+                {/* Accents Bar & Actions */}
+                <div className="flex items-center justify-between gap-3 pt-1 min-h-[36px] flex-nowrap">
+                  {/* Accent buttons: rendered with opacity when not focused to preserve height stability */}
                   <div
-                    className="flex items-center gap-1 shrink-0"
+                    className={`flex items-center gap-1 shrink-0 transition-opacity duration-150 ${
+                      isFocused ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                    }`}
                     onMouseDown={(e) => e.preventDefault()}
                   >
                     {FRENCH_ACCENTS.map((char) => (
@@ -440,64 +442,62 @@ export default function SentenceCard({
                       </button>
                     ))}
                   </div>
-                ) : (
-                  <div />
-                )}
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 ml-auto shrink-0">
-                  <button
-                    type="button"
-                    onClick={handleSkipClick}
-                    disabled={isEvaluating}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg text-neutral-400 hover:text-neutral-800 transition-colors flex items-center gap-1 disabled:opacity-40"
-                  >
-                    <FastForward className="w-3.5 h-3.5" />
-                    <span>Skip</span>
-                  </button>
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 ml-auto shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleSkipClick}
+                      disabled={isEvaluating}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg text-neutral-400 hover:text-neutral-800 transition-colors flex items-center gap-1 disabled:opacity-40"
+                    >
+                      <FastForward className="w-3.5 h-3.5" />
+                      <span>Skip</span>
+                    </button>
 
-                  <button
-                    type="submit"
-                    disabled={!inputText.trim() || isEvaluating}
-                    className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white transition-colors flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <span>Check</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </form>
-          ) : (
-            /* Completed user translation */
-            <div className="space-y-2">
-              {!isSkipped ? (
-                <div className="p-4 rounded-xl bg-neutral-50">
-                  <div className="text-xs text-neutral-400 font-medium mb-1">Your French Translation:</div>
-                  <div className="text-base text-neutral-900 font-medium">
-                    {evalResult.corrected_text || inputText}
+                    <button
+                      type="submit"
+                      disabled={!inputText.trim() || isEvaluating}
+                      className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white transition-colors flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      <span>Check</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                  {evalResult.autocorrect_msgs?.length > 0 && (
-                    <div className="text-xs text-neutral-500 mt-2 flex items-center gap-1">
-                      <span>💡 Autocorrect:</span>
-                      <span className="font-mono">{evalResult.autocorrect_msgs.join(', ')}</span>
+                </div>
+              </form>
+            ) : (
+              /* Completed user translation */
+              <div className="space-y-2">
+                {!isSkipped ? (
+                  <div className="p-4 rounded-xl bg-neutral-50 min-h-[86px] flex flex-col justify-center">
+                    <div className="text-xs text-neutral-400 font-medium mb-1">Your French Translation:</div>
+                    <div className="text-base text-neutral-900 font-medium">
+                      {evalResult.corrected_text || inputText}
                     </div>
-                  )}
-                </div>
-              ) : (
-                <div className="p-4 rounded-xl bg-neutral-50 text-neutral-400 text-sm italic">
-                  Sentence skipped.
-                </div>
-              )}
-            </div>
-          )}
+                    {evalResult.autocorrect_msgs?.length > 0 && (
+                      <div className="text-xs text-neutral-500 mt-2 flex items-center gap-1">
+                        <span>💡 Autocorrect:</span>
+                        <span className="font-mono">{evalResult.autocorrect_msgs.join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-neutral-50 text-neutral-400 text-sm italic min-h-[86px] flex items-center">
+                    Sentence skipped.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* RIGHT COLUMN: Evaluation Side */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className="lg:col-span-7 flex flex-col justify-start min-h-[280px]">
           
           {/* Evaluating State */}
           {isEvaluating && (
-            <div className="py-12 flex flex-col items-center justify-center gap-2 text-neutral-400">
+            <div className="h-full min-h-[260px] flex flex-col items-center justify-center gap-2 text-neutral-400 rounded-2xl bg-neutral-50/50 border border-neutral-100">
               <Loader2 className="w-6 h-6 animate-spin text-neutral-600" />
               <div className="text-xs font-medium text-neutral-500">Evaluating translation...</div>
             </div>
@@ -724,11 +724,14 @@ export default function SentenceCard({
 
           {/* Idle / Waiting for Submission Placeholder */}
           {!isDone && !isEvaluating && (
-            <div className="py-10 px-4 text-center text-neutral-400 space-y-2">
-              <div className="text-xs font-medium text-neutral-400">
+            <div className="h-full min-h-[260px] p-6 text-center text-neutral-400 rounded-2xl bg-neutral-50/40 border border-neutral-100/80 flex flex-col items-center justify-center space-y-2">
+              <div className="w-9 h-9 rounded-full bg-white shadow-xs border border-neutral-200/60 flex items-center justify-center text-neutral-400 mb-1">
+                <Sparkles className="w-4 h-4 text-neutral-400" />
+              </div>
+              <div className="text-xs font-medium text-neutral-500">
                 Correction & Word Mapping
               </div>
-              <p className="text-[11px] text-neutral-400 max-w-xs mx-auto">
+              <p className="text-[11px] text-neutral-400 max-w-xs leading-relaxed">
                 Submit your translation on the left to see semantic score, neural word alignment, and grammar feedback.
               </p>
             </div>
