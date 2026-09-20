@@ -1,6 +1,6 @@
 import os
 import sys
-import fitz  # PyMuPDF
+import pymupdf as fitz
 import re
 import spacy
 from datasketch import MinHash, MinHashLSH
@@ -193,14 +193,16 @@ def run_mine_pdf(pdf_path: str, interactive: bool = True) -> list[dict]:
         print("No new unique sentences found.")
         return []
         
-    print("\nCalculating CEFR Levels...")
+    print("\nCalculating CEFR Levels using ML Classifier...")
     engine = VocabEngine()
     level_groups = {'A1': [], 'A2': [], 'B1': [], 'B2': [], 'C1': [], 'C2': []}
-    
-    for sent in tqdm(unique_new_sentences, desc="Scoring"):
-        lvl, score, _ = engine.score_sentence(sent)
+
+    ml_results = engine.score_sentences_ml_batch(unique_new_sentences, batch_size=64)
+    for sent, ml_res in zip(unique_new_sentences, ml_results):
+        lvl = ml_res["level"]
+        score_ml = ml_res["score"]
         if lvl in level_groups:
-            level_groups[lvl].append((sent, score))
+            level_groups[lvl].append((sent, score_ml))
             
     print("\nCEFR Level Distribution of Extracted Sentences:")
     for lvl, sents in level_groups.items():
@@ -235,14 +237,15 @@ def run_mine_pdf(pdf_path: str, interactive: bool = True) -> list[dict]:
     
     filename = os.path.basename(pdf_path)
     records = []
-    for (fr, sc), es in zip(selected_sentences, translated_texts):
-        lvl, _, _ = engine.score_sentence(fr)
+    for (fr, score_ml), es in zip(selected_sentences, translated_texts):
+        lvl, lex_sc, _ = engine.score_sentence(fr)
         records.append({
             "fr": fr,
             "es": es,
             "level": lvl,
-            "score": float(sc),
-            "score_lexical": float(sc),
+            "score": float(score_ml),
+            "score_lexical": float(lex_sc),
+            "score_ml": float(score_ml),
             "source": "pdf",
             "metadata": {"source_file": filename}
         })

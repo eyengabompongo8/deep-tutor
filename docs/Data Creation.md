@@ -38,31 +38,23 @@ The active corpus is derived primarily from open parallel resources like **Tatoe
 
 ---
 
-## 3. Lexical Difficulty Scoring (`backend/vocab_engine.py`)
+## 3. Sentence CEFR Difficulty Scoring (`backend/vocab_engine.py`)
 
-Rather than relying on subjective manual labels, sentences are classified objectively based on empirical CEFR frequency lexicons:
+Sentences are classified into CEFR levels (A1 through C2) and assigned continuous scores using a dedicated sequence classification transformer model, complemented by empirical lexical dictionaries:
 
-### Lexical Datasets
-- **FLELex (Beacco)**: Empirical French as a Foreign Language (FLE) lexicon mapping lemmas to CEFR levels (A1 through C2).
-- **Lexique383**: Standard French lexical database used to resolve surface forms to canonical lemmas and part-of-speech categories.
+### Deep Learning CEFR Sequence Classifier (`UniversalCEFR`)
+French sentences are evaluated holistically using `UniversalCEFR/xlm-roberta-base-cefr-all-classifier` (integrated in `backend/model_registry.py`).
+- **Input**: Complete French sentence string.
+- **Output**: Categorical CEFR level (`A1`–`C2`) and calibrated continuous expectation score:
 
-### Morphosyntactic POS Tagging
-`VocabEngine` uses spaCy (`fr_core_news_sm`) to disambiguate tokens and map them to Lexique383 grammatical codes (`SPACY_TO_LEXIQUE_POS`):
-- `VERB` / `AUX` $\to$ `VER`, `AUX`
-- `NOUN` $\to$ `NOM`
-- `ADJ` $\to$ `ADJ`, `ADJ:pos`, `ADJ:dem`
-- `ADV` $\to$ `ADV`
-- `PRON` $\to$ `PRO:per`, `PRO:rel`, etc.
+$$\text{score}_{\text{ml}} = \sum_{k=1}^6 k \cdot P(\text{level}_k)$$
 
-### The Maximum-Word Difficulty Rule
-A sentence's overall CEFR tier is determined by the **maximum difficulty score of any constituent content word**:
+Where $k \in \{1: \text{A1}, 2: \text{A2}, 3: \text{B1}, 4: \text{B2}, 5: \text{C1}, 6: \text{C2}\}$.
 
-$$\text{Sentence Score} = \max_{w \in \text{Words}} \text{CEFR}(w)$$
-
-Where:
-- $\text{CEFR} \in \{1: \text{A1}, 2: \text{A2}, 3: \text{B1}, 4: \text{B2}, 5: \text{C1}, 6: \text{C2}\}$.
-- Common functional words (articles, prepositions, basic pronouns) and proper nouns are pre-classified as A1 base words and do not artificially inflate difficulty.
-- Out-of-vocabulary words not present in FLELex or the A1 list are ignored so rare loanwords or proper names do not distort scoring.
+### Lexical Baseline & Diagnostics (FLELex & Lexique383)
+- **FLELex (Beacco)**: Empirical French as a Foreign Language (FLE) lexicon mapping lemmas to CEFR levels.
+- **Lexique383**: Morphosyntactic tagger resolving surface forms to canonical lemmas and part-of-speech codes.
+- **Lexical Score**: $\text{score}_{\text{lexical}} = \max_{w \in \text{Words}} \text{CEFR}(w)$, preserved for vocabulary catalog lookup and progressive word unlocks.
 
 ---
 

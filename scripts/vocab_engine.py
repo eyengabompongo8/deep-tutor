@@ -222,6 +222,68 @@ class VocabEngine:
         final_level = VAL_TO_LEVEL.get(max_score, 'C2')
         return final_level, max_score, word_breakdown
 
+    def get_cefr_classifier(self):
+        """Lazy loader for the UniversalCEFR classifier."""
+        if not hasattr(self, '_cefr_classifier') or self._cefr_classifier is None:
+            from backend.models import resolve_device_and_dtype
+            from backend.model_registry import registry
+            device, dtype = resolve_device_and_dtype()
+            self._cefr_classifier = registry.get_cefr("universal_cefr", device, dtype)
+        return self._cefr_classifier
+
+    def score_sentence_ml(self, fr_text: str) -> Tuple[str, float, Dict[str, float]]:
+        """
+        Scores a French sentence using the sequence classification ML model.
+        Returns:
+            level (str): 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+            score_ml (float): 1.0 to 6.0 continuous expectation score
+            probabilities (dict[str, float]): Class probabilities per CEFR level
+        """
+        if not fr_text or not fr_text.strip():
+            return 'A1', 1.0, {'A1': 1.0}
+
+        classifier = self.get_cefr_classifier()
+        res = classifier.predict([fr_text.strip()])[0]
+        return res["level"], res["score"], res["probabilities"]
+
+    def score_sentences_ml_batch(self, fr_texts: List[str], batch_size: int = 64, show_progress: bool = True, desc: str = "Scoring CEFR (ML)") -> List[Dict[str, Any]]:
+        """
+        Batch scores multiple French sentences using the CEFR ML model for high ingestion throughput.
+        """
+        if not fr_texts:
+            return []
+
+        classifier = self.get_cefr_classifier()
+        all_results = []
+        
+        try:
+            from tqdm import tqdm
+            iterator = range(0, len(fr_texts), batch_size)
+            if show_progress:
+                iterator = tqdm(iterator, desc=desc, total=(len(fr_texts) + batch_size - 1) // batch_size)
+        except ImportError:
+            iterator = range(0, len(fr_texts), batch_size)
+
+        for i in iterator:
+            chunk = fr_texts[i:i + batch_size]
+            cleaned_chunk = [t.strip() if t and t.strip() else "Bonjour" for t in chunk]
+            results = classifier.predict(cleaned_chunk)
+            all_results.extend(results)
+        return all_results
+
+    def score_sentence_hybrid(self, fr_text: str) -> Tuple[str, float, float, List[Dict[str, Any]]]:
+        """
+        Computes both lexical and ML scores for a sentence.
+        Returns:
+            assigned_level (str): ML predicted CEFR level
+            score_ml (float): ML expectation score
+            score_lexical (float): Maximum lexical word score
+            word_breakdown (list[dict]): Per-word lexical diagnostics
+        """
+        lex_lvl, lex_score, breakdown = self.score_sentence(fr_text)
+        ml_lvl, ml_score, _ = self.score_sentence_ml(fr_text)
+        return ml_lvl, ml_score, float(lex_score), breakdown
+
     def extract_sentence_lexemas(self, fr_text: str) -> List[Dict[str, Any]]:
         """
         Extracts canonical word roots (lexemas) from a French sentence text.

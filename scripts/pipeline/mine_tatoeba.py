@@ -48,28 +48,38 @@ def run_mine_tatoeba(max_per_level: int = 1200) -> List[Dict[str, Any]]:
 
     print(f"Total raw Tatoeba pairs: {len(es_lines)}")
 
-    buckets = {'A1': [], 'A2': [], 'B1': [], 'B2': [], 'C1': [], 'C2': []}
+    print("Filtering valid candidate sentences...")
+    valid_pairs = []
     seen_fr = set()
-
-    for es_raw, fr_raw in tqdm(zip(es_lines, fr_lines), total=len(es_lines), desc="Scoring Tatoeba"):
+    for es_raw, fr_raw in zip(es_lines, fr_lines):
         es = clean_sentence(es_raw)
         fr = clean_sentence(fr_raw)
-
         if not is_valid_sentence(fr) or not is_valid_sentence(es):
             continue
-
         if fr.lower() in seen_fr:
             continue
         seen_fr.add(fr.lower())
+        valid_pairs.append((es, fr))
 
-        level, score, _ = engine.score_sentence(fr)
+    print(f"Scoring {len(valid_pairs)} candidate pairs using CEFR ML Model...")
+    batch_size = 64
+    all_fr_texts = [p[1] for p in valid_pairs]
+    ml_results = engine.score_sentences_ml_batch(all_fr_texts, batch_size=batch_size)
+
+    buckets = {'A1': [], 'A2': [], 'B1': [], 'B2': [], 'C1': [], 'C2': []}
+    for (es, fr), ml_res in zip(valid_pairs, ml_results):
+        level = ml_res["level"]
+        score_ml = ml_res["score"]
+        _, lex_score, _ = engine.score_sentence(fr)
+
         if len(buckets[level]) < max_per_level:
             buckets[level].append({
                 'es': es,
                 'fr': fr,
                 'level': level,
-                'score': float(score),
-                'score_lexical': float(score),
+                'score': float(score_ml),
+                'score_lexical': float(lex_score),
+                'score_ml': float(score_ml),
                 'source': 'tatoeba'
             })
 

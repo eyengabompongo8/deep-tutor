@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, Any, Tuple, List, Optional
 import torch
 import numpy as np
-from transformers import AutoModelForSeq2SeqLM, AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForSeq2SeqLM, AutoModelForCausalLM, AutoModelForSequenceClassification, AutoTokenizer
 from sentence_transformers import SentenceTransformer
 
 
@@ -205,6 +205,60 @@ class GptFrFluencyModel(FluencyModelWrapper):
         )
 
 
+# --- Concrete Implementations ---
+
+class CEFRClassifierModelWrapper(abc.ABC):
+    @abc.abstractmethod
+    def predict(self, texts: List[str]) -> List[Dict[str, Any]]:
+        """
+        Runs CEFR sequence classification on a list of French texts.
+        Returns a list of dicts with:
+            level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+            score: float (1.0 to 6.0 continuous expectation)
+            probabilities: dict[str, float]
+        """
+        pass
+
+
+class UniversalCEFRModel(CEFRClassifierModelWrapper):
+    def __init__(self, device: str, dtype: torch.dtype, model_name: str = "UniversalCEFR/xlm-roberta-base-cefr-all-classifier"):
+        self.device = device
+        self.dtype = dtype
+        self.model_name = model_name
+        print(f"Loading CEFR Classifier Model ({self.model_name}) on {self.device}...")
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            self.model_name,
+            torch_dtype=self.dtype
+        ).to(self.device)
+        self.weights = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], device=self.device)
+
+    def predict(self, texts: List[str]) -> List[Dict[str, Any]]:
+        if not texts:
+            return []
+
+        inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt").to(self.device)
+        with torch.inference_mode():
+            logits = self.model(**inputs).logits
+            probs = torch.softmax(logits, dim=-1)
+
+        results = []
+        for p in probs:
+            pred_idx = int(torch.argmax(p).item())
+            pred_level = self.model.config.id2label.get(pred_idx, "A1")
+            exp_score = float(torch.dot(p, self.weights).item())
+            prob_dict = {
+                self.model.config.id2label.get(i, f"L{i}"): float(p[i].item())
+                for i in range(len(p))
+            }
+            results.append({
+                "level": pred_level,
+                "score": exp_score,
+                "probabilities": prob_dict
+            })
+        return results
+
+
 # --- Registry ---
 
 class ModelRegistry:
@@ -212,6 +266,7 @@ class ModelRegistry:
         self._semantic_models = {}
         self._nmt_models = {}
         self._fluency_models = {}
+        self._cefr_models = {}
 
     def register_semantic(self, name: str, cls):
         self._semantic_models[name] = cls
@@ -221,6 +276,9 @@ class ModelRegistry:
 
     def register_fluency(self, name: str, cls):
         self._fluency_models[name] = cls
+
+    def register_cefr(self, name: str, cls):
+        self._cefr_models[name] = cls
 
     def get_semantic(self, name: str, device: str, dtype: torch.dtype) -> SemanticModelWrapper:
         if name not in self._semantic_models:
@@ -237,8 +295,14 @@ class ModelRegistry:
             raise ValueError(f"Fluency model '{name}' not found in registry.")
         return self._fluency_models[name](device, dtype)
 
+    def get_cefr(self, name: str, device: str, dtype: torch.dtype) -> CEFRClassifierModelWrapper:
+        if name not in self._cefr_models:
+            raise ValueError(f"CEFR model '{name}' not found in registry.")
+        return self._cefr_models[name](device, dtype)
+
 
 registry = ModelRegistry()
 registry.register_semantic("camembert", CamembertSemanticModel)
 registry.register_nmt("helsinki", HelsinkiNMTModel)
 registry.register_fluency("gpt_fr", GptFrFluencyModel)
+registry.register_cefr("universal_cefr", UniversalCEFRModel)
