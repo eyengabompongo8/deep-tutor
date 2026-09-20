@@ -40,7 +40,7 @@ dev:
 	@echo "• Frontend (HMR): http://localhost:$(FRONTEND_PORT)"
 	@echo "=================================================================="
 	@trap 'kill 0' EXIT INT TERM; \
-		(PORT=$(PORT) BACKEND_PORT=$(PORT) HOST=$(HOST) uv run python -m backend.server --port $(PORT) --host $(HOST) --reload) & \
+		(PORT=$(PORT) BACKEND_PORT=$(PORT) HOST=$(HOST) uv run --no-sync python -m backend.server --port $(PORT) --host $(HOST) --reload) & \
 		(cd frontend && BACKEND_PORT=$(PORT) PORT=$(PORT) npm run dev -- --port $(FRONTEND_PORT)) & \
 		wait
 
@@ -50,13 +50,13 @@ start:
 		$(MAKE) build; \
 	fi
 	PORT=$(PORT) BACKEND_PORT=$(PORT) HOST=$(HOST) \
-		uv run python -m backend.server --port $(PORT) --host $(HOST)
+		uv run --no-sync python -m backend.server --port $(PORT) --host $(HOST)
 
 build:
 	cd frontend && npm run build
 
 test:
-	uv run pytest
+	uv run --no-sync pytest
 
 clean:
 	rm -rf frontend/dist .pytest_cache
