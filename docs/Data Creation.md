@@ -66,18 +66,17 @@ Where:
 
 ---
 
-## 4. Lexema Indexing (`scripts/index_lexemas.py`)
+## 4. Lexema Seeding & Sentence Linking (`scripts/index_lexemas.py`)
 
-To power the progressive vocabulary acquisition engine, every sentence in the database is tokenized into canonical word roots (`lexemas`):
+To power the progressive vocabulary acquisition engine:
+1. **Catalog Seeding**: When `app.db` is initialized, the `lexemas` table is populated once with every single lemma/POS entry from `data/flelex_beacco.tsv` (14,236 entries). No dynamic insertions to `lexemas` occur after this initialization.
+2. **Sentence Linking**: Every sentence in the database is tokenized and linked to existing pre-seeded lexemas:
 
 ```bash
-uv run python scripts/index_lexemas.py
+python scripts/index_lexemas.py
 ```
 
 ### Process:
-1. **Lemma Extraction**: Parses French sentences with spaCy, extracting lemmas and POS tags for all content words.
-2. **Base vs Content Classification**:
-   - Words in the standard A1 core list (*le, la, être, avoir, je, tu, pour, dans, etc.*) are marked with `is_base = 1`.
-   - Content verbs, nouns, adjectives, and adverbs are marked with `is_base = 0`.
-3. **Relational Junction**: Populates `sentence_lexemas` with unique `(sentence_id, lexema_id)` tuples.
-4. **Seed User Counts**: New users automatically inherit `is_known = 1` for all base lexemas, ensuring their initial learning queues focus strictly on learnable content vocabulary.
+1. **Lemma Lookup**: Parses French sentences with spaCy, extracting lemmas and matching them against the pre-seeded `lexemas` catalog.
+2. **Relational Junction**: Populates `sentence_lexemas` with unique `(sentence_id, lexema_id)` tuples.
+3. **Seed User Counts**: New users automatically inherit `is_known = 1` for all foundational base lexemas (`is_base = 1`), ensuring their initial learning queues focus strictly on learnable content vocabulary.
