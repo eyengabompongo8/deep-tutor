@@ -60,7 +60,7 @@ test:
 	uv run --no-sync pytest
 
 ingest:
-	uv run python -m backend.ingestion.orchestrator $(ARGS)
+	uv run --no-sync python -m backend.ingestion.orchestrator $(ARGS)
 
 clean:
 	rm -rf frontend/dist .pytest_cache
