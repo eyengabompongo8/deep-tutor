@@ -43,12 +43,6 @@ erDiagram
     users {
         TEXT id PK
         TEXT name
-        TEXT avatar
-        REAL score
-        TEXT level
-        INTEGER streak
-        INTEGER total_completed
-        INTEGER total_skipped
     }
 
     user_modes {
@@ -91,8 +85,6 @@ erDiagram
         INTEGER lexema_id PK,FK
         INTEGER appearance_count
         INTEGER success_count
-        BOOLEAN is_known
-        TIMESTAMP last_seen_at
     }
 
     exercise_history {
@@ -131,8 +123,8 @@ Stores bilingual Spanish-French pairs, CEFR metadata, and lexical ratings.
 
 ### `users` & `user_modes`
 Enables multi-user support with independent progression per exercise modality.
-- `users`: Core profile metadata (name, avatar, cumulative streak, overall score).
-- `user_modes`: Composite primary key `(user_id, mode)`. Tracks individual proficiency in `translation` versus `transcription` modes.
+- `users`: Core profile identity (`id`, `name`).
+- `user_modes`: Composite primary key `(user_id, mode)`. Tracks individual proficiency (`score`, `level`, `streak`, `total_completed`, `total_skipped`) in `translation` versus `transcription` modes.
 
 ### `lexemas` & `sentence_lexemas`
 Canonical French vocabulary repository.
@@ -143,7 +135,10 @@ Canonical French vocabulary repository.
 Tracks progressive vocabulary acquisition per user:
 - `appearance_count`: Total times a user encountered this word root.
 - `success_count`: Times the user succeeded on an exercise containing this root ($Q \ge 0.60$).
-- `is_known`: Boolean flag flipped to `1` when a word exceeds mastery thresholds (e.g., $\ge 3$ appearances with high success).
+- Vocabulary mastery (`is_known`) is derived dynamically when:
+  - The lexema is a base stopword (`is_base = 1`), OR
+  - The lexema's CEFR level is strictly below the user's active CEFR level, OR
+  - `success_count >= VOCABULARY_UNLOCK_THRESHOLD` (default 1).
 
 ### `exercise_history`
 Audit log recording every completed or skipped sentence exercise, tracking `score_before`, `score_after`, and `delta`.
@@ -165,7 +160,6 @@ The database applies targeted indexes to keep sentence filtering and vocabulary 
 | `lexemas` | `idx_lexemas_is_base` | `is_base` | Filtering out functional stopwords |
 | `sentence_lexemas` | `idx_sl_sentence` | `sentence_id` | Sentence vocabulary extraction |
 | `sentence_lexemas` | `idx_sl_lexema` | `lexema_id` | Sentence candidate retrieval by lemma |
-| `user_lexema_counts`| `idx_ulc_user_known`| `(user_id, is_known)`| Fast identification of unlearned words |
 | `audio_cache` | `idx_audio_cache_hash`| `text_hash` | Instant audio cache lookup |
 
 ---

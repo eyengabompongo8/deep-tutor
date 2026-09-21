@@ -17,7 +17,7 @@ DB_PATH = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(ROOT_DIR, 'data'
 
 SYSTEM_COLUMNS = {
     'id', 'level', 'score_lexical', 'score_ml', 'source',
-    'metadata', 'created_at', 'updated_at'
+    'metadata'
 }
 
 class DBConnection:
@@ -99,29 +99,18 @@ class DBConnection:
                 score_lexical REAL NOT NULL DEFAULT 1.0,
                 score_ml REAL DEFAULT NULL,
                 source TEXT NOT NULL DEFAULT 'custom',
-                metadata TEXT DEFAULT '{}',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                metadata TEXT DEFAULT '{}'
             );
         """)
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_level ON sentences(level);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_score_lexical ON sentences(score_lexical);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_score_ml ON sentences(score_ml);")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_created_at ON sentences(created_at);")
 
         # Users table
-        conn.execute(f"""
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id TEXT PRIMARY KEY,
-                name TEXT NOT NULL DEFAULT 'Default User',
-                avatar TEXT NOT NULL DEFAULT 'owl',
-                score REAL NOT NULL DEFAULT {STARTING_SCORE},
-                level TEXT NOT NULL DEFAULT '{DEFAULT_CEFR_LEVEL}',
-                streak INTEGER NOT NULL DEFAULT 0,
-                total_completed INTEGER NOT NULL DEFAULT 0,
-                total_skipped INTEGER NOT NULL DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                name TEXT NOT NULL DEFAULT 'Default User'
             );
         """)
 
@@ -164,14 +153,11 @@ class DBConnection:
                 level TEXT DEFAULT 'A1',
                 appearance_count INTEGER NOT NULL DEFAULT 0,
                 success_count INTEGER NOT NULL DEFAULT 0,
-                is_known BOOLEAN NOT NULL DEFAULT 0,
-                last_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (user_id, lexema_id),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (lexema_id) REFERENCES lexemas(id) ON DELETE CASCADE
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_ulc_user_known ON user_lexema_counts(user_id, is_known);")
 
         # User modes table for separate exercise mode tracking
         conn.execute(f"""
@@ -228,7 +214,6 @@ class DBConnection:
         conn.execute(f"""
             CREATE TABLE IF NOT EXISTS user_settings (
                 user_id TEXT PRIMARY KEY,
-                daily_goal INTEGER DEFAULT 10,
                 theme TEXT DEFAULT 'system',
                 preferred_voice TEXT DEFAULT 'default',
                 correction_threshold REAL DEFAULT {DEFAULT_CORRECTION_THRESHOLD},
@@ -239,64 +224,22 @@ class DBConnection:
         """)
 
     def _run_migrations(self, conn: sqlite3.Connection):
-        # Dynamic migration check for avatar column
-        try:
-            user_cols = [c[1] for c in conn.execute("PRAGMA table_info(users);").fetchall()]
-            if 'avatar' not in user_cols:
-                conn.execute("ALTER TABLE users ADD COLUMN avatar TEXT NOT NULL DEFAULT 'owl';")
-        except Exception:
-            pass
-
-        # Dynamic migration check for level column in user_lexema_counts
-        try:
-            ulc_cols = [c[1] for c in conn.execute("PRAGMA table_info(user_lexema_counts);").fetchall()]
-            if 'level' not in ulc_cols:
-                conn.execute("ALTER TABLE user_lexema_counts ADD COLUMN level TEXT DEFAULT 'A1';")
-        except Exception:
-            pass
+        pass
 
     def _seed_defaults(self, conn: sqlite3.Connection):
         # Seed default user if not exists
-        user_row = conn.execute("SELECT id FROM users WHERE id = 'default_user';").fetchone()
-        if not user_row:
-            initial_score = STARTING_SCORE
-            initial_level = DEFAULT_CEFR_LEVEL
-            initial_streak = 0
-            initial_completed = 0
-            initial_skipped = 0
-            
-            # Check if legacy user_profile.json exists
-            profile_path = os.path.join(os.path.dirname(self.db_path), 'user_profile.json')
-            if os.path.exists(profile_path):
-                try:
-                    with open(profile_path, 'r', encoding='utf-8') as f:
-                        p_data = json.load(f)
-                        initial_score = float(p_data.get('score', STARTING_SCORE))
-                        initial_level = p_data.get('level', DEFAULT_CEFR_LEVEL)
-                        initial_streak = int(p_data.get('streak', 0))
-                        initial_completed = int(p_data.get('total_completed', 0))
-                        initial_skipped = int(p_data.get('total_skipped', 0))
-                except Exception:
-                    pass
-
-            conn.execute("""
-                INSERT OR IGNORE INTO users (id, name, avatar, score, level, streak, total_completed, total_skipped)
-                VALUES ('default_user', 'Default User', 'owl', ?, ?, ?, ?, ?);
-            """, (initial_score, initial_level, initial_streak, initial_completed, initial_skipped))
+        conn.execute("""
+            INSERT OR IGNORE INTO users (id, name)
+            VALUES ('default_user', 'Default User');
+        """)
 
         # Seed user_modes for default_user if not exists
         trans_mode = conn.execute("SELECT mode FROM user_modes WHERE user_id = 'default_user' AND mode = 'translation';").fetchone()
         if not trans_mode:
-            u_row = conn.execute("SELECT score, level, streak, total_completed, total_skipped FROM users WHERE id = 'default_user';").fetchone()
-            u_score = u_row['score'] if u_row else STARTING_SCORE
-            u_level = u_row['level'] if u_row else DEFAULT_CEFR_LEVEL
-            u_streak = u_row['streak'] if u_row else 0
-            u_completed = u_row['total_completed'] if u_row else 0
-            u_skipped = u_row['total_skipped'] if u_row else 0
             conn.execute("""
                 INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES ('default_user', 'translation', ?, ?, ?, ?, ?);
-            """, (u_score, u_level, u_streak, u_completed, u_skipped))
+                VALUES ('default_user', 'translation', ?, ?, 0, 0, 0);
+            """, (STARTING_SCORE, DEFAULT_CEFR_LEVEL))
 
         audio_mode = conn.execute("SELECT mode FROM user_modes WHERE user_id = 'default_user' AND mode = 'transcription';").fetchone()
         if not audio_mode:
@@ -307,8 +250,8 @@ class DBConnection:
 
         # Seed user_settings for default_user if not exists
         conn.execute("""
-            INSERT OR IGNORE INTO user_settings (user_id, daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise)
-            VALUES ('default_user', 10, 'system', 'default', ?, ?);
+            INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise)
+            VALUES ('default_user', 'system', 'default', ?, ?);
         """, (DEFAULT_CORRECTION_THRESHOLD, DEFAULT_CARDS_PER_EXERCISE))
 
 

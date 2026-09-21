@@ -11,14 +11,11 @@ from backend.config import (
 
 class CreateUserRequest(BaseModel):
     name: str
-    avatar: Optional[str] = "owl"
 
 class UpdateUserRequest(BaseModel):
     name: Optional[str] = None
-    avatar: Optional[str] = None
 
 class UpdateUserSettingsRequest(BaseModel):
-    daily_goal: Optional[int] = None
     theme: Optional[str] = None
     preferred_voice: Optional[str] = None
     correction_threshold: Optional[float] = None

@@ -91,7 +91,6 @@ class ScoringEngine:
                 res = {
                     "user_id": user_id,
                     "name": modes_prof.get("name", "Default User"),
-                    "avatar": modes_prof.get("avatar", "owl"),
                     "score": score,
                     "level": level,
                     "streak": streak,

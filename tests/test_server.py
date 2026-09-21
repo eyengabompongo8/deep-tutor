@@ -143,11 +143,10 @@ class TestUserEndpoints:
         assert len(users) >= 1
 
         # 2. POST /api/users
-        create_res = test_client.post("/api/users", json={"name": "Émile", "avatar": "sparkles"})
+        create_res = test_client.post("/api/users", json={"name": "Émile"})
         assert create_res.status_code == 200
         new_u = create_res.json()
         assert new_u["name"] == "Émile"
-        assert new_u["avatar"] == "sparkles"
         user_id = new_u["user_id"]
 
         # 3. GET /api/user/profile?user_id=...
@@ -155,14 +154,12 @@ class TestUserEndpoints:
         assert prof_res.status_code == 200
         prof = prof_res.json()
         assert prof["name"] == "Émile"
-        assert prof["avatar"] == "sparkles"
 
         # 4. PUT /api/users/{user_id}
-        put_res = test_client.put(f"/api/users/{user_id}", json={"name": "Émile Zola", "avatar": "book"})
+        put_res = test_client.put(f"/api/users/{user_id}", json={"name": "Émile Zola"})
         assert put_res.status_code == 200
         updated_u = put_res.json()
         assert updated_u["name"] == "Émile Zola"
-        assert updated_u["avatar"] == "book"
 
         # 5. DELETE /api/users/{user_id}
         del_res = test_client.delete(f"/api/users/{user_id}")
@@ -184,19 +181,16 @@ class TestSettingsEndpoints:
         settings = res.json()
         assert settings["user_id"] == "default_user"
         assert settings["cards_per_exercise"] == 3
-        assert settings["daily_goal"] == 10
 
         # 2. PUT /api/user/settings
         put_res = test_client.put("/api/user/settings?user_id=default_user", json={
             "cards_per_exercise": 2,
-            "theme": "dark",
-            "daily_goal": 20
+            "theme": "dark"
         })
         assert put_res.status_code == 200
         updated = put_res.json()
         assert updated["cards_per_exercise"] == 2
         assert updated["theme"] == "dark"
-        assert updated["daily_goal"] == 20
 
         # 3. Verify get_exercises_batch without count uses configured cards_per_exercise (2)
         batch_res = test_client.get("/api/exercises/batch?user_id=default_user")

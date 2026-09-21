@@ -42,8 +42,9 @@ class TestProgressiveVocabulary:
         user = self.dm.get_or_create_user("test_user", "Test Student")
         assert user["id"] == "test_user"
         assert user["name"] == "Test Student"
-        assert user["score"] == 1.20
-        assert user["level"] == "A1"
+        profile = self.dm.get_user_modes_profile("test_user")
+        assert profile["score"] == 1.20
+        assert profile["level"] == "A1"
 
     def test_base_vocabulary_unlocked_initially(self):
         known_ids = self.dm.get_user_known_lexema_ids("test_user")
@@ -63,17 +64,16 @@ class TestProgressiveVocabulary:
 
     def test_appearance_counting_and_unlock(self):
         progress1 = self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True)
-        assert any(p["id"] == self.l3 for p in progress1)
+        assert any(p["id"] == self.l3 and p["is_known"] == 1 for p in progress1)
 
         with self.dm._get_connection() as conn:
             row = conn.execute(
-                "SELECT appearance_count, success_count, is_known FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                "SELECT appearance_count, success_count FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
                 (self.l3,)
             ).fetchone()
             assert row is not None
             assert row["appearance_count"] == 1
             assert row["success_count"] == 1
-            assert row["is_known"] == 1
 
         known_ids_after = self.dm.get_user_known_lexema_ids("test_user")
         assert self.l3 in known_ids_after

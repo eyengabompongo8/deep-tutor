@@ -53,7 +53,7 @@ def rescore_dataset(db_path=DB_PATH, json_backup=True, use_ml=True):
 
         with dm._get_connection() as conn:
             conn.executemany(
-                "UPDATE sentences SET level = ?, score_lexical = ?, score_ml = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?;",
+                "UPDATE sentences SET level = ?, score_lexical = ?, score_ml = ? WHERE id = ?;",
                 updates
             )
     else:
@@ -73,7 +73,7 @@ def rescore_dataset(db_path=DB_PATH, json_backup=True, use_ml=True):
 
         with dm._get_connection() as conn:
             conn.executemany(
-                "UPDATE sentences SET level = ?, score_lexical = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?;",
+                "UPDATE sentences SET level = ?, score_lexical = ? WHERE id = ?;",
                 updates
             )
 
