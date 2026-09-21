@@ -69,6 +69,23 @@ make dev
 make dev BACKEND_PORT=8001 FRONTEND_PORT=5174
 ```
 
+#### Troubleshooting Busy Ports
+If a port (e.g. `8000` or `5173`) is already in use:
+```bash
+# Find processes listening on a port
+lsof -i :8000
+# or
+ss -tulpn | grep :8000
+
+# Kill process by PID
+kill -9 <PID>
+
+# Or kill process directly by port
+fuser -k 8000/tcp
+# or
+kill -9 $(lsof -t -i:8000)
+```
+
 ### 3. Production Build & Execution
 ```bash
 # Build frontend and serve from FastAPI (port 8000)

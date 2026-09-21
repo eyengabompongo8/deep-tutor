@@ -42,7 +42,7 @@ dev:
 	@echo "=================================================================="
 	@trap 'kill 0' EXIT INT TERM; \
 		(PORT=$(PORT) BACKEND_PORT=$(PORT) HOST=$(HOST) uv run --no-sync python -m backend.server --port $(PORT) --host $(HOST) --reload) & \
-		(cd frontend && BACKEND_PORT=$(PORT) PORT=$(PORT) npm run dev -- --port $(FRONTEND_PORT)) & \
+		(cd frontend && BACKEND_PORT=$(PORT) PORT=$(PORT) npm run dev -- --host $(HOST) --port $(FRONTEND_PORT)) & \
 		wait
 
 start:
