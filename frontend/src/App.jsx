@@ -131,7 +131,7 @@ export default function App() {
     setIsSelectingUser(true);
   };
 
-  // Profile update handler (when avatar or name is modified)
+  // Profile update handler (when name is modified)
   const handleUserUpdated = (updatedUser) => {
     if (!updatedUser) return;
     setProfile(prev => {
@@ -139,7 +139,6 @@ export default function App() {
       return {
         ...prev,
         name: updatedUser.name,
-        avatar: updatedUser.avatar,
       };
     });
   };

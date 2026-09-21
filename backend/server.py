@@ -110,11 +110,11 @@ def create_new_user(req: CreateUserRequest):
     clean_name = req.name.strip()
     if not clean_name:
         raise HTTPException(status_code=400, detail="Name cannot be empty.")
-    return data_manager.create_user(name=clean_name, avatar=req.avatar or "owl")
+    return data_manager.create_user(name=clean_name)
 
 @app.put("/api/users/{user_id}")
 def update_user_endpoint(user_id: str, req: UpdateUserRequest):
-    updated = data_manager.update_user(user_id=user_id, name=req.name, avatar=req.avatar)
+    updated = data_manager.update_user(user_id=user_id, name=req.name)
     if not updated:
         raise HTTPException(status_code=404, detail="User not found.")
     return updated

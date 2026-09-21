@@ -112,20 +112,42 @@ class VocabularyMixin:
     # Vocabulary Tracking & Appearance Counting
     # ==========================================
 
-    def get_user_known_lexema_ids(self, user_id: str = 'default_user', unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD) -> Set[int]:
+    def get_user_known_lexema_ids(
+        self,
+        user_id: str = 'default_user',
+        target_level: Optional[str] = None,
+        unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD
+    ) -> Set[int]:
         """
         Returns the set of lexema IDs known by the user:
         - Base foundational words (is_base = 1)
-        - Words marked is_known = 1
-        - Words with appearance_count >= unlock_threshold
+        - Words with CEFR level strictly below the user's level
+        - Words with success_count >= unlock_threshold
         """
+        levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
         with self._get_connection() as conn:
-            cursor = conn.execute("""
-                SELECT id FROM lexemas WHERE is_base = 1
-                UNION
-                SELECT lexema_id FROM user_lexema_counts
-                WHERE user_id = ? AND (is_known = 1 OR appearance_count >= ?);
-            """, (user_id, unlock_threshold))
+            if target_level is None:
+                row = conn.execute("SELECT level FROM user_modes WHERE user_id = ? AND mode = 'translation';", (user_id,)).fetchone()
+                target_level = row['level'] if row and row['level'] else DEFAULT_CEFR_LEVEL
+
+            idx = levels.index(target_level) if target_level in levels else 0
+            prior_levels = levels[:idx]
+
+            if prior_levels:
+                placeholders = ",".join(["?"] * len(prior_levels))
+                cursor = conn.execute(f"""
+                    SELECT id FROM lexemas WHERE is_base = 1 OR level IN ({placeholders})
+                    UNION
+                    SELECT lexema_id FROM user_lexema_counts
+                    WHERE user_id = ? AND success_count >= ?;
+                """, list(prior_levels) + [user_id, unlock_threshold])
+            else:
+                cursor = conn.execute("""
+                    SELECT id FROM lexemas WHERE is_base = 1
+                    UNION
+                    SELECT lexema_id FROM user_lexema_counts
+                    WHERE user_id = ? AND success_count >= ?;
+                """, (user_id, unlock_threshold))
             return {r[0] for r in cursor.fetchall()}
 
     def record_lexema_appearances(
@@ -136,9 +158,8 @@ class VocabularyMixin:
         unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD
     ) -> List[Dict[str, Any]]:
         """
-        Increments the appearance count for every word root in the given sentence.
-        If is_success is True or appearance threshold is reached, sets is_known = 1.
-        Returns the updated list of lexemas with their new counts.
+        Increments the appearance count and success count for every word root in the given sentence.
+        Returns the updated list of lexemas with their new counts and derived is_known.
         """
         self.get_or_create_user(user_id)
         with self._get_connection() as conn:
@@ -153,58 +174,51 @@ class VocabularyMixin:
             success_inc = 1 if is_success else 0
             for lid in lexema_ids:
                 conn.execute("""
-                    INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count, is_known, last_seen_at)
-                    SELECT ?, ?, level, 1, ?, ?, CURRENT_TIMESTAMP FROM lexemas WHERE id = ?
+                    INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count)
+                    SELECT ?, ?, level, 1, ? FROM lexemas WHERE id = ?
                     ON CONFLICT(user_id, lexema_id) DO UPDATE SET
                         appearance_count = user_lexema_counts.appearance_count + 1,
-                        success_count = user_lexema_counts.success_count + ?,
-                        is_known = CASE
-                            WHEN user_lexema_counts.is_known = 1 THEN 1
-                            WHEN (user_lexema_counts.appearance_count + 1) >= ? THEN 1
-                            WHEN (user_lexema_counts.success_count + ?) >= 1 THEN 1
-                            ELSE 0
-                        END,
-                        last_seen_at = CURRENT_TIMESTAMP;
-                """, (user_id, lid, success_inc, 1 if success_inc else 0, lid, success_inc, unlock_threshold, success_inc))
+                        success_count = user_lexema_counts.success_count + ?;
+                """, (user_id, lid, success_inc, lid, success_inc))
+
+            # Determine prior levels for active user level
+            u_mode = conn.execute("SELECT level FROM user_modes WHERE user_id = ? AND mode = 'translation';", (user_id,)).fetchone()
+            target_level = u_mode['level'] if u_mode and u_mode['level'] else DEFAULT_CEFR_LEVEL
+            levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+            idx = levels.index(target_level) if target_level in levels else 0
+            prior_levels = set(levels[:idx])
 
             placeholders = ",".join(["?"] * len(lexema_ids))
             cursor = conn.execute(f"""
-                SELECT l.id, l.lemma, l.pos, l.level, ulc.appearance_count, ulc.success_count, ulc.is_known
+                SELECT l.id, l.lemma, l.pos, l.level, l.is_base, ulc.appearance_count, ulc.success_count
                 FROM lexemas l
                 JOIN user_lexema_counts ulc ON l.id = ulc.lexema_id
                 WHERE ulc.user_id = ? AND l.id IN ({placeholders});
             """, [user_id] + lexema_ids)
-            return [dict(r) for r in cursor.fetchall()]
+
+            result = []
+            for r in cursor.fetchall():
+                d = dict(r)
+                is_base = bool(d.pop('is_base', False))
+                lvl = d.get('level', 'A1')
+                d['is_known'] = 1 if (is_base or (lvl in prior_levels) or (d.get('success_count', 0) >= unlock_threshold)) else 0
+                result.append(d)
+            return result
 
     def unlock_user_vocabulary_for_level(self, user_id: str, target_level: str):
         """
-        Synchronizes user vocabulary for target_level:
-        1. Unlocks all vocabulary of levels strictly below target_level.
-        2. Relocks any unpracticed vocabulary (appearance_count = 0 and success_count = 0)
-           at or above target_level, so if a user manually lowers their level, unpracticed words stop appearing.
+        Synchronizes user vocabulary for target_level.
+        Relocks any unpracticed vocabulary (appearance_count = 0 and success_count = 0)
+        at or above target_level.
         """
         levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
         if target_level not in levels:
             return
 
         idx = levels.index(target_level)
-        previous_levels = levels[:idx]
         current_and_higher = levels[idx:]
 
         with self._get_connection() as conn:
-            # 1. Unlock strictly previous levels
-            if previous_levels:
-                placeholders = ",".join(["?"] * len(previous_levels))
-                conn.execute(f"""
-                    INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count, is_known, last_seen_at)
-                    SELECT ?, id, level, 0, 0, 1, CURRENT_TIMESTAMP
-                    FROM lexemas
-                    WHERE level IN ({placeholders})
-                    ON CONFLICT(user_id, lexema_id) DO UPDATE SET
-                        is_known = 1;
-                """, [user_id] + previous_levels)
-
-            # 2. Relock unpracticed words at or above target_level
             if current_and_higher:
                 relock_placeholders = ",".join(["?"] * len(current_and_higher))
                 conn.execute(f"""
@@ -215,45 +229,79 @@ class VocabularyMixin:
                       AND success_count = 0;
                 """, [user_id] + current_and_higher)
 
-    def get_user_vocabulary_stats(self, user_id: str = 'default_user') -> Dict[str, Any]:
+    def get_user_vocabulary_stats(self, user_id: str = 'default_user', target_level: Optional[str] = None) -> Dict[str, Any]:
         """Returns vocabulary progress diagnostics for the user."""
+        levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
         with self._get_connection() as conn:
-            known_cursor = conn.execute("""
+            if target_level is None:
+                row = conn.execute("SELECT level FROM user_modes WHERE user_id = ? AND mode = 'translation';", (user_id,)).fetchone()
+                target_level = row['level'] if row and row['level'] else DEFAULT_CEFR_LEVEL
+
+            idx = levels.index(target_level) if target_level in levels else 0
+            prior_levels = levels[:idx]
+
+            known_conditions = ["is_base = 1"]
+            if prior_levels:
+                pl_placeholders = ",".join(["?"] * len(prior_levels))
+                known_conditions.append(f"level IN ({pl_placeholders})")
+
+            known_lex_sql = "SELECT id FROM lexemas WHERE " + " OR ".join(known_conditions)
+            pl_params = list(prior_levels)
+
+            known_cursor = conn.execute(f"""
                 SELECT COUNT(DISTINCT id) FROM (
-                    SELECT id FROM lexemas WHERE is_base = 1
+                    {known_lex_sql}
                     UNION
-                    SELECT lexema_id as id FROM user_lexema_counts WHERE user_id = ? AND is_known = 1
+                    SELECT lexema_id as id FROM user_lexema_counts WHERE user_id = ? AND success_count >= 1
                 );
-            """, (user_id,))
+            """, pl_params + [user_id])
             total_known = known_cursor.fetchone()[0]
 
-            learning_cursor = conn.execute("""
-                SELECT COUNT(*) FROM user_lexema_counts
-                WHERE user_id = ? AND is_known = 0 AND appearance_count > 0;
-            """, (user_id,))
+            learning_conditions = "ulc.user_id = ? AND ulc.success_count = 0 AND ulc.appearance_count > 0 AND l.is_base = 0"
+            learning_params = [user_id]
+            if prior_levels:
+                learning_conditions += f" AND l.level NOT IN ({pl_placeholders})"
+                learning_params.extend(prior_levels)
+
+            learning_cursor = conn.execute(f"""
+                SELECT COUNT(DISTINCT ulc.lexema_id) FROM user_lexema_counts ulc
+                JOIN lexemas l ON ulc.lexema_id = l.id
+                WHERE {learning_conditions};
+            """, learning_params)
             total_learning = learning_cursor.fetchone()[0]
 
             total_roots_cursor = conn.execute("SELECT COUNT(*) FROM lexemas;")
             total_roots = total_roots_cursor.fetchone()[0]
 
-            lvl_cursor = conn.execute("""
+            lvl_conditions = ["l.is_base = 1"]
+            lvl_params = []
+            if prior_levels:
+                lvl_conditions.append(f"l.level IN ({pl_placeholders})")
+                lvl_params.extend(prior_levels)
+            lvl_conditions.append("l.id IN (SELECT lexema_id FROM user_lexema_counts WHERE user_id = ? AND success_count >= 1)")
+            lvl_params.append(user_id)
+
+            lvl_cursor = conn.execute(f"""
                 SELECT l.level, COUNT(DISTINCT l.id) as cnt
                 FROM lexemas l
-                WHERE l.is_base = 1 OR l.id IN (
-                    SELECT lexema_id FROM user_lexema_counts WHERE user_id = ? AND is_known = 1
-                )
+                WHERE {" OR ".join(lvl_conditions)}
                 GROUP BY l.level;
-            """, (user_id,))
+            """, lvl_params)
             by_level = {r['level']: r['cnt'] for r in lvl_cursor.fetchall()}
 
+            known_ids = self.get_user_known_lexema_ids(user_id, target_level=target_level)
             recent_cursor = conn.execute("""
-                SELECT l.lemma, l.level, ulc.appearance_count, ulc.success_count, ulc.is_known, ulc.last_seen_at
+                SELECT l.id, l.lemma, l.level, ulc.appearance_count, ulc.success_count
                 FROM user_lexema_counts ulc
                 JOIN lexemas l ON ulc.lexema_id = l.id
                 WHERE ulc.user_id = ?
-                ORDER BY ulc.last_seen_at DESC LIMIT 10;
+                ORDER BY ulc.lexema_id DESC LIMIT 10;
             """, (user_id,))
-            recent_roots = [dict(r) for r in recent_cursor.fetchall()]
+            recent_roots = []
+            for r in recent_cursor.fetchall():
+                d = dict(r)
+                d['is_known'] = 1 if d['id'] in known_ids else 0
+                recent_roots.append(d)
 
             return {
                 "user_id": user_id,
@@ -345,10 +393,17 @@ class VocabularyMixin:
         lex_dict = self.get_lexemas_dict()
         with self._get_connection() as conn:
             user_counts_cursor = conn.execute(
-                "SELECT lexema_id, appearance_count, is_known FROM user_lexema_counts WHERE user_id = ?;",
+                "SELECT lexema_id, appearance_count, success_count FROM user_lexema_counts WHERE user_id = ?;",
                 (user_id,)
             )
-            user_counts = {r['lexema_id']: {'count': r['appearance_count'], 'is_known': bool(r['is_known'])} for r in user_counts_cursor.fetchall()}
+            user_counts = {
+                r['lexema_id']: {
+                    'count': r['appearance_count'],
+                    'success_count': r['success_count'],
+                    'is_known': r['lexema_id'] in known_lexema_ids
+                }
+                for r in user_counts_cursor.fetchall()
+            }
 
         for row in all_rows:
             raw_lids = row['lexema_ids']

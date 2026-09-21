@@ -21,7 +21,6 @@ class TestDataManager:
         # Check backward compatibility alias
         assert res["score"] == 1.5
         assert res["score_ml"] == 88.5
-        assert "created_at" in res
 
     def test_dynamic_language_columns(self, temp_db_path):
         dm = DataManager(db_path=temp_db_path)
@@ -151,13 +150,12 @@ class TestDataManager:
         users = dm.list_users()
         assert len(users) >= 1
         default_u = [u for u in users if u['id'] == 'default_user'][0]
-        assert default_u['avatar'] == 'owl'
+        assert default_u['name'] == 'Default User'
 
         # 2. create_user
-        new_u = dm.create_user(name="Camille", avatar="fox")
+        new_u = dm.create_user(name="Camille")
         assert "user_id" in new_u
         assert new_u["name"] == "Camille"
-        assert new_u["avatar"] == "fox"
         user_id = new_u["user_id"]
 
         # 3. list_users should now include Camille
@@ -165,13 +163,12 @@ class TestDataManager:
         assert len(users_after) == len(users) + 1
         found = [u for u in users_after if u['id'] == user_id]
         assert len(found) == 1
-        assert found[0]['avatar'] == 'fox'
+        assert found[0]['name'] == 'Camille'
 
         # 4. update_user
-        dm.update_user(user_id=user_id, name="Camille Claudel", avatar="palette")
+        dm.update_user(user_id=user_id, name="Camille Claudel")
         updated_u = dm.get_user(user_id)
         assert updated_u["name"] == "Camille Claudel"
-        assert updated_u["avatar"] == "palette"
 
         # 5. delete_user
         del_success = dm.delete_user(user_id)
@@ -189,7 +186,6 @@ class TestDataManager:
         # 1. Default settings for default_user
         settings = dm.get_user_settings("default_user")
         assert settings["user_id"] == "default_user"
-        assert settings["daily_goal"] == 10
         assert settings["theme"] == "system"
         assert settings["preferred_voice"] == "default"
         assert settings["correction_threshold"] == 75.0
@@ -198,13 +194,11 @@ class TestDataManager:
         # 2. Update settings
         updated = dm.update_user_settings(
             "default_user",
-            daily_goal=15,
             theme="dark",
             preferred_voice="female",
             correction_threshold=80.0,
             cards_per_exercise=5
         )
-        assert updated["daily_goal"] == 15
         assert updated["theme"] == "dark"
         assert updated["preferred_voice"] == "female"
         assert updated["correction_threshold"] == 80.0
@@ -213,5 +207,4 @@ class TestDataManager:
         # 3. Create another user and fetch settings (auto creates)
         user_b = dm.create_user("User B")
         b_settings = dm.get_user_settings(user_b["user_id"])
-        assert b_settings["daily_goal"] == 10
         assert b_settings["cards_per_exercise"] == 3

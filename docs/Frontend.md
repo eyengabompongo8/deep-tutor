@@ -5,7 +5,7 @@ The FrenchTutor client is a single-page application built with React 18, Vite, a
 ```mermaid
 graph TD
     App["App.jsx (Session & User State)"]
-    App --> Login["LoginScreen.jsx (User Selection & Avatars)"]
+    App --> Login["LoginScreen.jsx (User Selection & Profile Creation)"]
     App --> Header["Header.jsx (CEFR Badge, Continuous Bar, Streak, Mode Switcher)"]
     App --> Settings["SettingsModal.jsx (Calibration, Batch Size, Vocab Explorer)"]
     App --> Session["ExerciseSession.jsx (Batch Flow Orchestrator)"]
@@ -15,7 +15,7 @@ graph TD
     Session --> Banner["ScoreDeltaBanner.jsx (CEFR Adjustment & Level Up)"]
     
     SC --> WAV["WordAlignmentView.jsx (Cross-Attention Matrix)"]
-    Header --> Menu["UserMenu.jsx & UserAvatar.jsx"]
+    Header --> Menu["UserMenu.jsx"]
 ```
 
 ---
@@ -73,9 +73,9 @@ Batch completion celebration modal:
 - Triggers celebratory animations if the user graduated to a new CEFR tier (e.g. A1 $\to$ A2).
 - Lists newly unlocked vocabulary words mastered during the batch.
 
-### `LoginScreen.jsx`, `UserMenu.jsx`, `UserAvatar.jsx`
+### `LoginScreen.jsx`, `UserMenu.jsx`
 Multi-user management:
-- Visual avatar picker (Owl, Cat, Fox, Bear, Rabbit, Panda, etc.).
+- Clean learner profile switching and creation interface.
 - Allows creating, switching, and deleting profiles directly from the client.
 
 ### `SettingsModal.jsx`

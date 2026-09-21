@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import UserAvatar, { AVATAR_PRESETS } from './UserAvatar';
 import {
+  User,
   ChevronDown,
   UserCheck,
   Users,
@@ -24,7 +24,6 @@ export default function UserMenu({
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
-  const [editAvatar, setEditAvatar] = useState('owl');
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState(null);
 
@@ -36,7 +35,6 @@ export default function UserMenu({
   const streak = modeData?.streak ?? 0;
   const completed = modeData?.total_completed ?? 0;
   const userName = profile?.name || 'Default User';
-  const userAvatar = profile?.avatar || 'owl';
   const knownWords = profile?.vocabulary?.total_known ?? 0;
 
   // Close menu when clicking outside
@@ -56,7 +54,6 @@ export default function UserMenu({
 
   const handleOpenEdit = () => {
     setEditName(userName);
-    setEditAvatar(userAvatar);
     setEditError(null);
     setIsEditing(true);
     setIsOpen(false);
@@ -76,7 +73,6 @@ export default function UserMenu({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: editName.trim(),
-          avatar: editAvatar,
         }),
       });
       if (!res.ok) throw new Error('Erreur lors de la mise à jour du profil');
@@ -95,7 +91,7 @@ export default function UserMenu({
 
   return (
     <div className="relative inline-block text-left" ref={menuRef}>
-      {/* Trigger Button: User Pill with Avatar Icon */}
+      {/* Trigger Button: User Pill */}
       <button
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
@@ -103,7 +99,9 @@ export default function UserMenu({
         aria-label="Menu utilisateur"
         title={`Profil actif: ${userName}`}
       >
-        <UserAvatar avatar={userAvatar} size="sm" />
+        <div className="w-5 h-5 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[10px] font-bold uppercase">
+          {userName.charAt(0) || <User className="w-3 h-3" />}
+        </div>
         <span className="text-xs font-semibold text-neutral-800 max-w-[110px] sm:max-w-[140px] truncate">
           {userName}
         </span>
@@ -118,7 +116,9 @@ export default function UserMenu({
         <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl bg-white border border-neutral-200/90 shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
           {/* User Profile Header Card */}
           <div className="px-4 py-3 border-b border-neutral-100 flex items-center gap-3 bg-neutral-50/50 rounded-t-2xl">
-            <UserAvatar avatar={userAvatar} size="lg" ring />
+            <div className="w-10 h-10 rounded-full bg-neutral-900 text-white flex items-center justify-center text-sm font-bold uppercase shadow-xs">
+              {userName.charAt(0) || <User className="w-5 h-5" />}
+            </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm font-bold text-neutral-900 truncate">
@@ -175,7 +175,7 @@ export default function UserMenu({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-neutral-100 transition-colors text-left"
             >
               <Edit3 className="w-4 h-4 text-neutral-500" />
-              <span>Modifier mon profil & icône</span>
+              <span>Modifier mon nom</span>
             </button>
 
             <button
@@ -237,35 +237,6 @@ export default function UserMenu({
                   className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:ring-2 focus:ring-neutral-800 text-sm font-medium text-neutral-900"
                   autoFocus
                 />
-              </div>
-
-              {/* Avatar Picker Grid */}
-              <div>
-                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-2">
-                  Choisir une icône
-                </label>
-                <div className="grid grid-cols-4 gap-2.5 max-h-56 overflow-y-auto p-1">
-                  {AVATAR_PRESETS.map((preset) => {
-                    const isSelected = editAvatar === preset.id;
-                    return (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        onClick={() => setEditAvatar(preset.id)}
-                        className={`flex flex-col items-center p-2 rounded-2xl border transition-all text-center ${
-                          isSelected
-                            ? 'border-neutral-900 bg-neutral-900/5 shadow-xs ring-2 ring-neutral-900'
-                            : 'border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50'
-                        }`}
-                      >
-                        <UserAvatar avatar={preset.id} size="md" />
-                        <span className="text-[10px] font-medium text-neutral-700 mt-1.5 truncate max-w-full">
-                          {preset.name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
               {editError && (

@@ -237,7 +237,6 @@ class SentencesMixin:
         if not updates:
             return False
 
-        updates.append("updated_at = CURRENT_TIMESTAMP")
         set_str = ", ".join(updates)
         params.append(item_id)
 

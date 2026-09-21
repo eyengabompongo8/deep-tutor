@@ -75,8 +75,8 @@ flowchart LR
 | Method | Endpoint | Description | Key Parameters / Payload |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/users` | List all registered user profiles | None |
-| `POST` | `/api/users` | Create a new user profile | `{"name": "...", "avatar": "owl"}` |
-| `PUT` | `/api/users/{user_id}` | Update profile name or avatar | `{"name": "...", "avatar": "..."}` |
+| `POST` | `/api/users` | Create a new user profile | `{"name": "..."}` |
+| `PUT` | `/api/users/{user_id}` | Update profile name | `{"name": "..."}` |
 | `DELETE`| `/api/users/{user_id}`| Delete profile (prevents deleting last remaining user) | None |
 | `GET` | `/api/user/profile` | Retrieve active user stats for mode | `?user_id=...&mode=translation` |
 | `GET` | `/api/user/vocab` | Get total known, learning, and CEFR counts | `?user_id=...` |
