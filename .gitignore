@@ -33,6 +33,7 @@ frontend/dist/
 # Database files
 data/app.db
 data/sentences.db
+data/books/
 *.db
 *.db-wal
 *.db-shm
