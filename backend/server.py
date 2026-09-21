@@ -79,6 +79,11 @@ async def lifespan(app: FastAPI):
             eager_processor.shutdown(wait=False)
         except Exception:
             pass
+    if ml_engine is not None:
+        try:
+            ml_engine.close()
+        except Exception:
+            pass
     logger.info("FrenchTutor API backend shutting down.")
 
 # Initialize FastAPI app

@@ -13,6 +13,8 @@ except Exception:
 import torch
 import re
 from typing import Dict, Any, Tuple, List, Optional
+import atexit
+import weakref
 from sentence_transformers import util
 import fasttext
 from huggingface_hub import hf_hub_download
@@ -346,6 +348,8 @@ class MLEngine:
         # 5. Syntax Evaluator (LanguageTool)
         print("Loading LanguageTool (fr)...")
         self.lang_tool = language_tool_python.LanguageTool('fr')
+        # Register process exit cleanup to prevent orphaned Java LanguageTool servers
+        atexit.register(self.close)
 
         print(f"All ML models loaded successfully on {self.device} ({self.dtype}).")
 
@@ -628,4 +632,14 @@ class MLEngine:
             "fluency_token_breakdown": fluency_token_breakdown,
             "fluency_word_breakdown": fluency_word_breakdown
         }
+
+    def close(self):
+        """Clean up external sub-processes (such as LanguageTool Java HTTPServer)."""
+        if hasattr(self, "lang_tool") and self.lang_tool is not None:
+            try:
+                self.lang_tool.close()
+            except Exception:
+                pass
+            self.lang_tool = None
+
 

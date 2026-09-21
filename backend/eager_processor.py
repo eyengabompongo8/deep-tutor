@@ -140,7 +140,8 @@ class EagerPrecomputeManager:
                 if event:
                     event.set()
         except Exception as ex:
-            print(f"[EagerMLWorker] Error precomputing reference bundle for {key}: {ex}")
+            if not self._is_shutdown and "interpreter shutdown" not in str(ex):
+                print(f"[EagerMLWorker] Error precomputing reference bundle for {key}: {ex}")
             with self._cache_lock:
                 event = self._inflight_events.pop(key, None)
                 if event:
