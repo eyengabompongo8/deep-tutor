@@ -47,18 +47,7 @@ class TTSEngine:
             communicate = edge_tts.Communicate(text, voice=voice)
             await communicate.save(output_path)
 
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                new_loop = asyncio.new_event_loop()
-                try:
-                    new_loop.run_until_complete(_run())
-                finally:
-                    new_loop.close()
-            else:
-                loop.run_until_complete(_run())
-        except RuntimeError:
-            asyncio.run(_run())
+        asyncio.run(_run())
 
     def _ensure_fallback_loaded(self):
         """Lazy-loads local MMS-TTS model if offline."""

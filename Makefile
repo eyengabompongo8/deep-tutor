@@ -33,6 +33,8 @@ install-gpu:
 	uv sync --extra cu124
 	cd frontend && npm install
 
+SHELL := /bin/bash
+
 dev:
 	@echo "=================================================================="
 	@echo "🇫🇷  Starting FrenchTutor Full-Stack Development Environment"
@@ -40,10 +42,20 @@ dev:
 	@echo "• API Docs:       http://localhost:$(PORT)/docs"
 	@echo "• Frontend (HMR): http://localhost:$(FRONTEND_PORT)"
 	@echo "=================================================================="
-	@trap 'kill 0' EXIT INT TERM; \
-		(PORT=$(PORT) BACKEND_PORT=$(PORT) HOST=$(HOST) uv run --no-sync python -m backend.server --port $(PORT) --host $(HOST) --reload) & \
-		(cd frontend && BACKEND_PORT=$(PORT) PORT=$(PORT) npm run dev -- --host $(HOST) --port $(FRONTEND_PORT)) & \
-		wait
+	@set -m; \
+	cleanup() { \
+		trap - EXIT INT TERM; \
+		kill -- -$${BACKEND_PID} 2>/dev/null || true; \
+		kill -- -$${FRONTEND_PID} 2>/dev/null || true; \
+		wait 2>/dev/null || true; \
+	}; \
+	trap cleanup EXIT INT TERM; \
+	(PORT=$(PORT) BACKEND_PORT=$(PORT) HOST=$(HOST) uv run --no-sync python -m backend.server --port $(PORT) --host $(HOST) --reload --reload-dir backend) & \
+	BACKEND_PID=$$!; \
+	(cd frontend && BACKEND_PORT=$(PORT) PORT=$(PORT) npm run dev -- --host $(HOST) --port $(FRONTEND_PORT)) & \
+	FRONTEND_PID=$$!; \
+	wait $${BACKEND_PID} $${FRONTEND_PID} 2>/dev/null || true
+
 
 start:
 	@if [ ! -d "frontend/dist" ]; then \

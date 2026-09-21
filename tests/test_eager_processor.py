@@ -51,6 +51,8 @@ class TestEagerProcessor:
             data_manager=None,
             max_cache_size=10
         )
+        yield
+        self.manager.shutdown(wait=True)
 
     def test_get_aligned_targets(self):
         matrix = np.array([
@@ -115,3 +117,31 @@ class TestEagerProcessor:
         assert res["is_french"] is True
         assert res["s_sem"] == 95.0
         self.mock_engine.evaluate_student_against_bundle.assert_called_once()
+
+    def test_sequential_execution(self):
+        execution_order = []
+
+        def side_effect_nmt(src, ref):
+            execution_order.append(f"start:{src}")
+            time.sleep(0.05)
+            execution_order.append(f"end:{src}")
+            return (
+                5.0,
+                (["w"], ["w"], np.array([[1.0]])),
+                [],
+                []
+            )
+
+        self.mock_engine.evaluate_nmt_and_map.side_effect = side_effect_nmt
+
+        batch = [
+            {"id": 1, "es": "uno", "fr": "un"},
+            {"id": 2, "es": "dos", "fr": "deux"},
+        ]
+
+        self.manager.enqueue_batch(batch)
+        # Wait for both to finish via get_or_compute_bundle
+        self.manager.get_or_compute_bundle("dos", "deux", timeout=2.0)
+
+        # Confirm strict sequential order: uno finishes completely before dos starts
+        assert execution_order == ["start:uno", "end:uno", "start:dos", "end:dos"]

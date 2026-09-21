@@ -2,6 +2,7 @@ import os
 import sys
 import csv
 import re
+import threading
 import spacy
 import urllib.request
 import zipfile
@@ -518,12 +519,15 @@ class VocabEngine:
     index_database_lexemas = link_sentence_lexemas_to_database
 
 _vocab_engine_instance = None
+_vocab_engine_lock = threading.Lock()
 
 
 def get_vocab_engine() -> VocabEngine:
     global _vocab_engine_instance
     if _vocab_engine_instance is None:
-        _vocab_engine_instance = VocabEngine()
+        with _vocab_engine_lock:
+            if _vocab_engine_instance is None:
+                _vocab_engine_instance = VocabEngine()
     return _vocab_engine_instance
 
 
