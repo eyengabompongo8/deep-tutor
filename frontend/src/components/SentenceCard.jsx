@@ -296,12 +296,12 @@ export default function SentenceCard({
   );
 
   return (
-    <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all min-h-[380px] flex flex-col justify-start">
+    <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all min-h-[440px] lg:h-[440px] flex flex-col justify-start">
       {/* 2-Column Side-by-Side Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch flex-1">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch flex-1 h-full min-h-0">
         
         {/* LEFT COLUMN: Sentence, Hints, & Translation Input */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-5 flex flex-col justify-between h-full min-h-0 space-y-4">
           {/* Top section: Spanish Source Sentence with Raw Text Selection */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
@@ -486,7 +486,7 @@ export default function SentenceCard({
         </div>
 
         {/* RIGHT COLUMN: Evaluation Side */}
-        <div className="lg:col-span-7 flex flex-col justify-start min-h-[280px]">
+        <div className="lg:col-span-7 flex flex-col justify-start h-full min-h-0">
           
           {/* Evaluating State */}
           {isEvaluating && (
@@ -498,10 +498,10 @@ export default function SentenceCard({
 
           {/* Evaluated & Completed State (Split into Sub-Left and Sub-Right) */}
           {isDone && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch h-full min-h-0">
               
               {/* SUB-LEFT: Only Reference sentence & Word Alignment with both target & student */}
-              <div className="md:col-span-7 space-y-3.5">
+              <div className="md:col-span-7 space-y-3 flex flex-col justify-start overflow-y-auto pr-1">
                 {isBlindRetryActive ? (
                   <div className="p-5 rounded-2xl bg-neutral-100/50 border border-neutral-200/50 flex flex-col items-center justify-center text-center h-full min-h-[160px]">
                     <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-neutral-400 mb-3">
@@ -517,8 +517,8 @@ export default function SentenceCard({
                 ) : (
                   <>
                     {/* Reference Translation */}
-                    <div className="p-3.5 rounded-xl bg-neutral-50">
-                      <div className="text-xs text-neutral-500 font-medium flex items-center gap-1 mb-1.5">
+                    <div className="p-3 rounded-xl bg-neutral-50 shrink-0">
+                      <div className="text-xs text-neutral-500 font-medium flex items-center gap-1 mb-1">
                         <BookOpen className="w-3.5 h-3.5 text-neutral-500" />
                         <span>Reference Translation:</span>
                       </div>
@@ -564,118 +564,119 @@ export default function SentenceCard({
               </div>
 
               {/* SUB-RIGHT: Scores, Unexpected words, Language warning, Grammar feedback */}
-              <div className="md:col-span-5 space-y-3.5">
-                {/* Score Badge */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
-                    Evaluation
-                  </span>
-                  {scoreBadge && (
-                    <div className={`flex items-center text-xs font-medium px-3 py-1 rounded-full ${scoreBadge.bg}`}>
-                      <span>{scoreBadge.label}</span>
+              <div className="md:col-span-5 flex flex-col justify-between h-full min-h-0 space-y-3 overflow-y-auto pr-1">
+                <div className="space-y-3">
+                  {/* Score Badge */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
+                      Evaluation
+                    </span>
+                    {scoreBadge && (
+                      <div className={`flex items-center text-xs font-medium px-3 py-1 rounded-full ${scoreBadge.bg}`}>
+                        <span>{scoreBadge.label}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Submetrics Breakdown */}
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="p-2 rounded-xl bg-neutral-50">
+                      <div className="text-[10px] text-neutral-400 font-medium">Semantic</div>
+                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_sem ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {evalResult.s_sem ?? 0}%
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-neutral-50">
+                      <div className="text-[10px] text-neutral-400 font-medium">NMT</div>
+                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_nmt ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {evalResult.s_nmt ?? 0}%
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-neutral-50">
+                      <div className="text-[10px] text-neutral-400 font-medium">Fluency</div>
+                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_fluency ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {evalResult.s_fluency ?? 0}%
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* High Surprise Anomaly Flags (Unexpected Words) */}
+                  {errorWords.length > 0 && (
+                    <div className="p-2.5 rounded-xl bg-neutral-50 text-xs space-y-1 text-neutral-800">
+                      <div className="font-semibold text-neutral-700 flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 text-neutral-500" />
+                        <span>Unexpected Words:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {errorWords.map((item, i) => (
+                          <span
+                            key={i}
+                            className="px-2 py-0.5 rounded bg-neutral-200 text-neutral-800 text-[11px]"
+                            title={item.source_word ? `Expected "${item.top_prediction}" for "${item.source_word}" (ΔL: ${item.delta_l.toFixed(1)})` : `Expected: "${item.top_prediction}" (ΔL: ${item.delta_l.toFixed(1)})`}
+                          >
+                            "{item.word}" → <strong>{item.top_prediction}</strong>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Grammar & Syntax Error Notice */}
+                  {evalResult.syntactical_errors?.length > 0 && (
+                    <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/70 text-xs shadow-xs space-y-2">
+                      <div className="flex items-center gap-2 text-amber-900 font-semibold tracking-tight">
+                        <div className="p-1 rounded-md bg-amber-100/80 text-amber-700">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                        </div>
+                        <span>Grammar & Syntax Feedback</span>
+                        <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-200/60 text-amber-800">
+                          {evalResult.syntactical_errors.length} {evalResult.syntactical_errors.length === 1 ? 'issue' : 'issues'}
+                        </span>
+                      </div>
+                      <div className="space-y-1.5 pt-0.5 max-h-36 overflow-y-auto">
+                        {evalResult.syntactical_errors.map((err, i) => {
+                          // Extract context prefix like On 'phrase': if present
+                          const match = err.match(/^On '([^']+)':\s*(.+)$/);
+                          if (match) {
+                            const [, contextPhrase, explanation] = match;
+                            return (
+                              <div key={i} className="flex items-start gap-2 bg-white/70 border border-amber-100 rounded-lg p-2 text-neutral-800 leading-relaxed">
+                                <span className="shrink-0 px-1.5 py-0.5 rounded bg-amber-100/90 text-amber-900 font-mono text-[11px] font-semibold">
+                                  {contextPhrase}
+                                </span>
+                                <span className="text-neutral-700 text-[11px] pt-0.5">{explanation}</span>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={i} className="bg-white/70 border border-amber-100 rounded-lg p-2 text-neutral-700 text-[11px] leading-relaxed">
+                              {err}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Language warning (only if genuine non-French) */}
+                  {!evalResult.is_french && (
+                    <div className="p-2.5 rounded-xl bg-red-50 text-red-800 text-xs flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold">Language Warning:</span> Input was not recognized as French
+                        {typeof evalResult.lid_prob === 'number' && !isNaN(evalResult.lid_prob) && evalResult.lid_prob > 0 && (
+                          <span> (Confidence: {(evalResult.lid_prob * 100).toFixed(0)}%)</span>
+                        )}.
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* Submetrics Breakdown */}
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-2.5 rounded-xl bg-neutral-50">
-                    <div className="text-[10px] text-neutral-400 font-medium">Semantic</div>
-                    <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_sem ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {evalResult.s_sem ?? 0}%
-                    </div>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-neutral-50">
-                    <div className="text-[10px] text-neutral-400 font-medium">NMT</div>
-                    <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_nmt ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {evalResult.s_nmt ?? 0}%
-                    </div>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-neutral-50">
-                    <div className="text-[10px] text-neutral-400 font-medium">Fluency</div>
-                    <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_fluency ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {evalResult.s_fluency ?? 0}%
-                    </div>
-                  </div>
-                </div>
-
-                {/* High Surprise Anomaly Flags (Unexpected Words) */}
-                {errorWords.length > 0 && (
-                  <div className="p-3 rounded-xl bg-neutral-50 text-xs space-y-1 text-neutral-800">
-                    <div className="font-semibold text-neutral-700 flex items-center gap-1.5">
-                      <AlertCircle className="w-3.5 h-3.5 text-neutral-500" />
-                      <span>Unexpected Words:</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {errorWords.map((item, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 rounded bg-neutral-200 text-neutral-800 text-[11px]"
-                          title={item.source_word ? `Expected "${item.top_prediction}" for "${item.source_word}" (ΔL: ${item.delta_l.toFixed(1)})` : `Expected: "${item.top_prediction}" (ΔL: ${item.delta_l.toFixed(1)})`}
-                        >
-                          "{item.word}" → <strong>{item.top_prediction}</strong>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Grammar & Syntax Error Notice */}
-                {evalResult.syntactical_errors?.length > 0 && (
-                  <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-200/70 text-xs shadow-xs space-y-2">
-                    <div className="flex items-center gap-2 text-amber-900 font-semibold tracking-tight">
-                      <div className="p-1 rounded-md bg-amber-100/80 text-amber-700">
-                        <AlertCircle className="w-3.5 h-3.5" />
-                      </div>
-                      <span>Grammar & Syntax Feedback</span>
-                      <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-200/60 text-amber-800">
-                        {evalResult.syntactical_errors.length} {evalResult.syntactical_errors.length === 1 ? 'issue' : 'issues'}
-                      </span>
-                    </div>
-                    <div className="space-y-1.5 pt-0.5">
-                      {evalResult.syntactical_errors.map((err, i) => {
-                        // Extract context prefix like On 'phrase': if present
-                        const match = err.match(/^On '([^']+)':\s*(.+)$/);
-                        if (match) {
-                          const [, contextPhrase, explanation] = match;
-                          return (
-                            <div key={i} className="flex items-start gap-2 bg-white/70 border border-amber-100 rounded-lg p-2 text-neutral-800 leading-relaxed">
-                              <span className="shrink-0 px-1.5 py-0.5 rounded bg-amber-100/90 text-amber-900 font-mono text-[11px] font-semibold">
-                                {contextPhrase}
-                              </span>
-                              <span className="text-neutral-700 text-[11px] pt-0.5">{explanation}</span>
-                            </div>
-                          );
-                        }
-                        return (
-                          <div key={i} className="bg-white/70 border border-amber-100 rounded-lg p-2 text-neutral-700 text-[11px] leading-relaxed">
-                            {err}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-
-                {/* Language warning (only if genuine non-French) */}
-                {!evalResult.is_french && (
-                  <div className="p-3 rounded-xl bg-red-50 text-red-800 text-xs flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-semibold">Language Warning:</span> Input was not recognized as French
-                      {typeof evalResult.lid_prob === 'number' && !isNaN(evalResult.lid_prob) && evalResult.lid_prob > 0 && (
-                        <span> (Confidence: {(evalResult.lid_prob * 100).toFixed(0)}%)</span>
-                      )}.
-                    </div>
-                  </div>
-                )}
-
                 {/* Actions: Retry */}
-                <div className="pt-2 mt-4 border-t border-neutral-100 flex items-center justify-between">
+                <div className="pt-2 border-t border-neutral-100 flex items-center justify-between shrink-0">
                   {evalResult.is_retry ? (
                     <div className="text-xs text-neutral-400 italic">
-                      Premier essai enregistré pour le score.
+                      Premier essai enregistré.
                     </div>
                   ) : (
                     <div className="text-[10px] text-neutral-400">
@@ -687,7 +688,7 @@ export default function SentenceCard({
                       <button
                         type="button"
                         onClick={handleRevealClick}
-                        className="px-3 py-2 text-xs font-medium rounded-xl border border-neutral-200 hover:bg-neutral-100 text-neutral-600 transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium rounded-xl border border-neutral-200 hover:bg-neutral-100 text-neutral-600 transition-colors"
                       >
                         Voir la réponse
                       </button>
@@ -695,7 +696,7 @@ export default function SentenceCard({
                     <button
                       type="button"
                       onClick={handleRetryClick}
-                      className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white transition-colors flex items-center gap-1.5"
+                      className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white transition-colors flex items-center gap-1.5 shadow-sm"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>Réessayer</span>
@@ -709,7 +710,7 @@ export default function SentenceCard({
 
           {/* Idle / Waiting for Submission Placeholder */}
           {!isDone && !isEvaluating && (
-            <div className="h-full min-h-[260px] p-6 text-center text-neutral-400 rounded-2xl bg-neutral-50/40 border border-neutral-100/80 flex flex-col items-center justify-center space-y-2">
+            <div className="h-full p-6 text-center text-neutral-400 rounded-2xl bg-neutral-50/40 border border-neutral-100/80 flex flex-col items-center justify-center space-y-2">
               <div className="w-9 h-9 rounded-full bg-white shadow-xs border border-neutral-200/60 flex items-center justify-center text-neutral-400 mb-1">
                 <Sparkles className="w-4 h-4 text-neutral-400" />
               </div>
