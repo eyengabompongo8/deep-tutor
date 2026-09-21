@@ -11,6 +11,7 @@ export default function ExerciseSession({
   transcriptionRetry = true,
   translationThreshold = 75,
   blindRetryEnabled = false,
+  autoJumpEnabled = true,
   onProgressUpdate,
   onBatchCompleted,
   onNextBatch,
@@ -26,12 +27,20 @@ export default function ExerciseSession({
   const hasCompletedBatchRef = useRef(false);
   const initialScoreRef = useRef(currentScore);
 
-  // Store refs to sentence inputs for smooth Enter navigation
+  // Store refs to sentence inputs and card containers for smooth animated navigation
   const inputRefs = useRef({});
+  const cardRefs = useRef({});
+  const scrollAnimRef = useRef(null);
 
   const registerInput = (index, ref) => {
     if (ref) {
       inputRefs.current[index] = ref;
+    }
+  };
+
+  const registerCard = (index, el) => {
+    if (el) {
+      cardRefs.current[index] = el;
     }
   };
 
@@ -43,7 +52,11 @@ export default function ExerciseSession({
     setBatchSummary(null);
     setIsFinishingBatch(false);
     inputRefs.current = {};
-    setPreloadedHints({});
+    cardRefs.current = {};
+    if (scrollAnimRef.current) {
+      cancelAnimationFrame(scrollAnimRef.current);
+      scrollAnimRef.current = null;
+    }
     hasCompletedBatchRef.current = false;
     initialScoreRef.current = currentScore;
 
@@ -101,18 +114,59 @@ export default function ExerciseSession({
     }
   }, [evaluations, batch, batchSummary, isFinishingBatch]);
 
-  // Focus the next card input
+  // Smoothly animates the jump down from the current card to the following card when auto-jump is enabled
   const focusNextInput = (currentIndex) => {
+    if (!autoJumpEnabled) return;
+
     const nextIdx = currentIndex + 1;
-    if (nextIdx < batch.length && inputRefs.current[nextIdx]) {
-      setTimeout(() => {
-        const nextElem = inputRefs.current[nextIdx];
-        if (nextElem) {
-          nextElem.focus();
-          nextElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 50);
+    if (nextIdx >= batch.length) return;
+
+    if (scrollAnimRef.current) {
+      cancelAnimationFrame(scrollAnimRef.current);
+      scrollAnimRef.current = null;
     }
+
+    setTimeout(() => {
+      const targetCard = cardRefs.current[nextIdx];
+      const nextElem = inputRefs.current[nextIdx];
+
+      if (targetCard) {
+        const rect = targetCard.getBoundingClientRect();
+        const startY = window.pageYOffset || document.documentElement.scrollTop;
+        const targetY = Math.max(0, startY + rect.top - Math.max(20, (window.innerHeight - rect.height) / 2));
+
+        const distance = targetY - startY;
+        const duration = 450;
+        const startTime = performance.now();
+
+        // Focus without instant scroll jumping
+        if (nextElem) {
+          nextElem.focus({ preventScroll: true });
+        }
+
+        const step = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Eased animation (easeInOutCubic)
+          const ease = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+          window.scrollTo(0, startY + distance * ease);
+
+          if (progress < 1) {
+            scrollAnimRef.current = requestAnimationFrame(step);
+          } else {
+            scrollAnimRef.current = null;
+          }
+        };
+
+        scrollAnimRef.current = requestAnimationFrame(step);
+      } else if (nextElem) {
+        nextElem.focus({ preventScroll: true });
+        nextElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 60);
   };
 
   // Dispatches single sentence evaluation asynchronously
@@ -377,38 +431,42 @@ export default function ExerciseSession({
       {/* Sentence Cards List */}
       <div className="space-y-4">
         {batch.map((sentence, index) => (
-          mode === 'transcription' ? (
-            <TranscriptionCard
-              key={sentence.id}
-              sentence={sentence}
-              index={index}
-              total={totalCount}
-              evalResult={evaluations[sentence.id]}
-              isEvaluating={evaluatingIds.has(sentence.id)}
-              retryEnabled={transcriptionRetry}
-              onValidateAttempt={handleValidateTranscriptionAttempt}
-              onSubmit={handleSentenceSubmit}
-              onSkip={handleSentenceSkip}
-              onRetry={handleSentenceRetry}
-              registerInput={registerInput}
-            />
-          ) : (
-            <SentenceCard
-              key={sentence.id}
-              sentence={sentence}
-              index={index}
-              total={totalCount}
-              evalResult={evaluations[sentence.id]}
-              isEvaluating={evaluatingIds.has(sentence.id)}
-              preloadedHint={preloadedHints[sentence.id]}
-              threshold={translationThreshold}
-              blindRetryEnabled={blindRetryEnabled}
-              onSubmit={handleSentenceSubmit}
-              onSkip={handleSentenceSkip}
-              onRetry={handleSentenceRetry}
-              registerInput={registerInput}
-            />
-          )
+          <div
+            key={sentence.id}
+            ref={(el) => registerCard(index, el)}
+            className="w-full"
+          >
+            {mode === 'transcription' ? (
+              <TranscriptionCard
+                sentence={sentence}
+                index={index}
+                total={totalCount}
+                evalResult={evaluations[sentence.id]}
+                isEvaluating={evaluatingIds.has(sentence.id)}
+                retryEnabled={transcriptionRetry}
+                onValidateAttempt={handleValidateTranscriptionAttempt}
+                onSubmit={handleSentenceSubmit}
+                onSkip={handleSentenceSkip}
+                onRetry={handleSentenceRetry}
+                registerInput={registerInput}
+              />
+            ) : (
+              <SentenceCard
+                sentence={sentence}
+                index={index}
+                total={totalCount}
+                evalResult={evaluations[sentence.id]}
+                isEvaluating={evaluatingIds.has(sentence.id)}
+                preloadedHint={preloadedHints[sentence.id]}
+                threshold={translationThreshold}
+                blindRetryEnabled={blindRetryEnabled}
+                onSubmit={handleSentenceSubmit}
+                onSkip={handleSentenceSkip}
+                onRetry={handleSentenceRetry}
+                registerInput={registerInput}
+              />
+            )}
+          </div>
         ))}
       </div>
 

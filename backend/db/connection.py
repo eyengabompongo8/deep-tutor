@@ -233,6 +233,7 @@ class DBConnection:
                 preferred_voice TEXT DEFAULT 'default',
                 correction_threshold REAL DEFAULT {DEFAULT_CORRECTION_THRESHOLD},
                 cards_per_exercise INTEGER DEFAULT {DEFAULT_CARDS_PER_EXERCISE},
+                auto_jump INTEGER DEFAULT 1,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
@@ -252,6 +253,14 @@ class DBConnection:
             ulc_cols = [c[1] for c in conn.execute("PRAGMA table_info(user_lexema_counts);").fetchall()]
             if 'level' not in ulc_cols:
                 conn.execute("ALTER TABLE user_lexema_counts ADD COLUMN level TEXT DEFAULT 'A1';")
+        except Exception:
+            pass
+
+        # Dynamic migration check for auto_jump column in user_settings
+        try:
+            settings_cols = [c[1] for c in conn.execute("PRAGMA table_info(user_settings);").fetchall()]
+            if 'auto_jump' not in settings_cols:
+                conn.execute("ALTER TABLE user_settings ADD COLUMN auto_jump INTEGER DEFAULT 1;")
         except Exception:
             pass
 
@@ -307,8 +316,8 @@ class DBConnection:
 
         # Seed user_settings for default_user if not exists
         conn.execute("""
-            INSERT OR IGNORE INTO user_settings (user_id, daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise)
-            VALUES ('default_user', 10, 'system', 'default', ?, ?);
+            INSERT OR IGNORE INTO user_settings (user_id, daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump)
+            VALUES ('default_user', 10, 'system', 'default', ?, ?, 1);
         """, (DEFAULT_CORRECTION_THRESHOLD, DEFAULT_CARDS_PER_EXERCISE))
 
 

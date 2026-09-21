@@ -300,28 +300,36 @@ class UsersMixin:
         default_preferred_voice = 'default'
         default_correction_threshold = DEFAULT_CORRECTION_THRESHOLD
         default_cards_per_exercise = DEFAULT_CARDS_PER_EXERCISE
+        default_auto_jump = 1
 
         with self._get_connection() as conn:
             cursor = conn.execute("SELECT * FROM user_settings WHERE user_id = ?;", (user_id,))
             row = cursor.fetchone()
             if row:
-                return dict(row)
+                res = dict(row)
+                if 'auto_jump' in res and res['auto_jump'] is not None:
+                    res['auto_jump'] = bool(res['auto_jump'])
+                return res
             conn.execute("""
-                INSERT OR IGNORE INTO user_settings (user_id, daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise)
-                VALUES (?, ?, ?, ?, ?, ?);
-            """, (user_id, default_daily_goal, default_theme, default_preferred_voice, default_correction_threshold, default_cards_per_exercise))
+                INSERT OR IGNORE INTO user_settings (user_id, daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump)
+                VALUES (?, ?, ?, ?, ?, ?, ?);
+            """, (user_id, default_daily_goal, default_theme, default_preferred_voice, default_correction_threshold, default_cards_per_exercise, default_auto_jump))
             cursor = conn.execute("SELECT * FROM user_settings WHERE user_id = ?;", (user_id,))
-            return dict(cursor.fetchone())
+            res = dict(cursor.fetchone())
+            if 'auto_jump' in res and res['auto_jump'] is not None:
+                res['auto_jump'] = bool(res['auto_jump'])
+            return res
 
     def update_user_settings(self, user_id: str = 'default_user', **kwargs) -> Dict[str, Any]:
-        """Updates user settings fields (daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise)."""
+        """Updates user settings fields (daily_goal, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump)."""
         self.get_user_settings(user_id)
         allowed_fields = {
             'daily_goal': int,
             'theme': str,
             'preferred_voice': str,
             'correction_threshold': float,
-            'cards_per_exercise': int
+            'cards_per_exercise': int,
+            'auto_jump': lambda v: 1 if v in (True, 1, 'true', 'True', '1') else 0,
         }
         updates = []
         params = []

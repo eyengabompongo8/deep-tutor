@@ -23,6 +23,7 @@ class UpdateUserSettingsRequest(BaseModel):
     preferred_voice: Optional[str] = None
     correction_threshold: Optional[float] = None
     cards_per_exercise: Optional[int] = None
+    auto_jump: Optional[bool] = None
 
 class ProfileResetRequest(BaseModel):
     start_score: float = STARTING_SCORE

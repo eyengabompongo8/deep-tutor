@@ -37,6 +37,12 @@ export default function App() {
     const saved = localStorage.getItem('frenchtutor_blind_retry');
     return saved !== null ? saved === 'true' : false;
   });
+  const [autoJumpEnabled, setAutoJumpEnabled] = useState(() => {
+    const saved = localStorage.getItem('frenchtutor_auto_jump');
+    if (saved !== null) return saved === 'true';
+    const legacySaved = localStorage.getItem('frenchtutor_jump_animation');
+    return legacySaved !== null ? legacySaved === 'true' : true;
+  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [error, setError] = useState(null);
   const [recentSentenceIds, setRecentSentenceIds] = useState([]);
@@ -78,6 +84,31 @@ export default function App() {
     }
   }, [batchSize, recentSentenceIds, currentMode, activeUserId]);
 
+  // Fetch user settings from backend
+  const fetchSettings = useCallback(async (uid = activeUserId) => {
+    if (!uid) return;
+    try {
+      const res = await fetch(`/api/user/settings?user_id=${encodeURIComponent(uid)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.auto_jump !== undefined && data.auto_jump !== null) {
+          setAutoJumpEnabled(Boolean(data.auto_jump));
+          localStorage.setItem('frenchtutor_auto_jump', String(Boolean(data.auto_jump)));
+        }
+        if (data.cards_per_exercise) {
+          setBatchSize(data.cards_per_exercise);
+          localStorage.setItem('frenchtutor_batch_size', String(data.cards_per_exercise));
+        }
+        if (data.correction_threshold) {
+          setTranslationThreshold(data.correction_threshold);
+          localStorage.setItem('frenchtutor_translation_threshold', String(data.correction_threshold));
+        }
+      }
+    } catch (err) {
+      console.warn('Could not fetch user settings from backend:', err);
+    }
+  }, [activeUserId]);
+
   // Initial load when activeUserId is available
   useEffect(() => {
     if (!activeUserId) {
@@ -86,6 +117,7 @@ export default function App() {
     }
     const init = async () => {
       setIsLoading(true);
+      fetchSettings(activeUserId);
       const userProfile = await fetchProfile(currentMode, activeUserId);
       if (userProfile) {
         const score = userProfile.score ?? 1.20;
@@ -106,6 +138,7 @@ export default function App() {
     setSessionProgress({ completed: 0, total: 0 });
     setIsLoading(true);
     try {
+      fetchSettings(userId);
       const userProfile = await fetchProfile(currentMode, userId);
       const score = userProfile?.score ?? 1.20;
       await fetchBatch(score, batchSize, [], currentMode, userId);
@@ -208,6 +241,13 @@ export default function App() {
     localStorage.setItem('frenchtutor_batch_size', String(newSize));
     const scoreToUse = profile?.modes?.[currentMode]?.score ?? profile?.score ?? 1.20;
     fetchBatch(scoreToUse, newSize, recentSentenceIds, currentMode, activeUserId);
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cards_per_exercise: newSize }),
+      }).catch(err => console.warn('Failed to update cards_per_exercise:', err));
+    }
   };
 
   // Reset or adjust user score from settings
@@ -248,6 +288,25 @@ export default function App() {
   const handleChangeTranslationThreshold = (val) => {
     setTranslationThreshold(val);
     localStorage.setItem('frenchtutor_translation_threshold', String(val));
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correction_threshold: val }),
+      }).catch(err => console.warn('Failed to update correction_threshold:', err));
+    }
+  };
+
+  const handleToggleAutoJump = (val) => {
+    setAutoJumpEnabled(val);
+    localStorage.setItem('frenchtutor_auto_jump', String(val));
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auto_jump: val }),
+      }).catch(err => console.warn('Failed to update auto_jump setting:', err));
+    }
   };
 
   // If user selection / login screen is active, display it
@@ -315,6 +374,7 @@ export default function App() {
               transcriptionRetry={transcriptionRetry}
               translationThreshold={translationThreshold}
               blindRetryEnabled={blindRetryEnabled}
+              autoJumpEnabled={autoJumpEnabled}
               onProgressUpdate={setSessionProgress}
               onBatchCompleted={handleBatchCompleted}
               onNextBatch={handleNextBatch}
@@ -339,6 +399,8 @@ export default function App() {
         onChangeTranslationThreshold={handleChangeTranslationThreshold}
         blindRetryEnabled={blindRetryEnabled}
         onToggleBlindRetry={handleToggleBlindRetry}
+        autoJumpEnabled={autoJumpEnabled}
+        onToggleAutoJump={handleToggleAutoJump}
       />
 
       {/* Subtle Minimalist Footer */}
