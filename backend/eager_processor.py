@@ -1,7 +1,7 @@
 import re
 import threading
-import queue
 import time
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Any, Optional, TYPE_CHECKING
@@ -55,13 +55,18 @@ class EagerPrecomputeManager:
         # In-flight events: key -> threading.Event (allows requests to await active precomputations)
         self._inflight_events: Dict[Tuple[str, str], threading.Event] = {}
 
-        # Thread 1: Eager precomputation queue & worker
-        self._eager_queue: queue.Queue = queue.Queue()
-        self._eager_thread = threading.Thread(target=self._eager_worker_loop, daemon=True, name="EagerMLWorker")
-        self._eager_thread.start()
+        # Event-driven worker pool with max_workers=1 for strictly sequential processing
+        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="EagerMLWorker")
+        self._is_shutdown = False
 
         # Thread 2: Evaluation lock to serialize active student sentence evaluations
         self._eval_lock = threading.Lock()
+
+    def shutdown(self, wait: bool = False) -> None:
+        """Shuts down the background executor."""
+        with self._cache_lock:
+            self._is_shutdown = True
+        self._executor.shutdown(wait=wait)
 
     def _normalize_key(self, source_text: str, reference_text: str) -> Tuple[str, str]:
         return (source_text.strip(), reference_text.strip())
@@ -69,7 +74,7 @@ class EagerPrecomputeManager:
     def enqueue_batch(self, batch: List[Dict[str, Any]]) -> None:
         """
         Enqueues an entire exercise batch for eager background reference computation.
-        Invoked by GET /api/exercises/next.
+        Invoked by GET /api/exercises/next / batch.
         """
         if not batch:
             return
@@ -90,59 +95,56 @@ class EagerPrecomputeManager:
                 if key in self._cache:
                     continue
                 if key not in self._inflight_events:
-                    self._inflight_events[key] = threading.Event()
-                    self._eager_queue.put({
-                        "key": key,
-                        "sentence_id": s_id,
-                        "source_text": src,
-                        "reference_text": ref,
-                        "first_time_lexemas": first_time_lexemas
-                    })
-
-    def _eager_worker_loop(self):
-        """Worker loop for Thread 1: eagerly processes reference passes for enqueued sentences."""
-        while True:
-            try:
-                task = self._eager_queue.get()
-                if task is None:
-                    break
-
-                key = task["key"]
-                # Skip if already computed by an eager or on-demand pass
-                with self._cache_lock:
-                    if key in self._cache:
-                        event = self._inflight_events.pop(key, None)
-                        if event:
-                            event.set()
-                        self._eager_queue.task_done()
+                    if self._is_shutdown:
                         continue
-
-                try:
-                    bundle = self._compute_reference_bundle(
-                        sentence_id=task.get("sentence_id"),
-                        source_text=task["source_text"],
-                        reference_text=task["reference_text"],
-                        first_time_lemmas=task.get("first_time_lexemas") or []
-                    )
-                    with self._cache_lock:
-                        # Manage cache size (evict oldest if full)
-                        if len(self._cache) >= self.max_cache_size:
-                            oldest_key = min(self._cache, key=lambda k: self._cache[k].created_at)
-                            del self._cache[oldest_key]
-
-                        self._cache[key] = bundle
-                        event = self._inflight_events.pop(key, None)
-                        if event:
-                            event.set()
-                except Exception as ex:
-                    print(f"[EagerMLWorker] Error precomputing reference bundle for {key}: {ex}")
-                    event = self._inflight_events.pop(key, None)
-                    if event:
+                    event = threading.Event()
+                    self._inflight_events[key] = event
+                    try:
+                        self._executor.submit(self._process_single_task, {
+                            "key": key,
+                            "sentence_id": s_id,
+                            "source_text": src,
+                            "reference_text": ref,
+                            "first_time_lexemas": first_time_lexemas
+                        })
+                    except RuntimeError:
+                        self._inflight_events.pop(key, None)
                         event.set()
-                finally:
-                    self._eager_queue.task_done()
-            except Exception as e:
-                print(f"[EagerMLWorker] Worker error: {e}")
+
+    def _process_single_task(self, task: Dict[str, Any]) -> None:
+        """Processes reference passes for an enqueued sentence task."""
+        key = task["key"]
+        # Skip if already computed by an eager or on-demand pass
+        with self._cache_lock:
+            if key in self._cache:
+                event = self._inflight_events.pop(key, None)
+                if event:
+                    event.set()
+                return
+
+        try:
+            bundle = self._compute_reference_bundle(
+                sentence_id=task.get("sentence_id"),
+                source_text=task["source_text"],
+                reference_text=task["reference_text"],
+                first_time_lemmas=task.get("first_time_lexemas") or []
+            )
+            with self._cache_lock:
+                # Manage cache size (evict oldest if full)
+                if len(self._cache) >= self.max_cache_size:
+                    oldest_key = min(self._cache, key=lambda k: self._cache[k].created_at)
+                    del self._cache[oldest_key]
+
+                self._cache[key] = bundle
+                event = self._inflight_events.pop(key, None)
+                if event:
+                    event.set()
+        except Exception as ex:
+            print(f"[EagerMLWorker] Error precomputing reference bundle for {key}: {ex}")
+            with self._cache_lock:
+                event = self._inflight_events.pop(key, None)
+                if event:
+                    event.set()
 
     def _compute_reference_bundle(
         self,

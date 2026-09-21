@@ -41,7 +41,7 @@ dev:
 	@echo "• Frontend (HMR): http://localhost:$(FRONTEND_PORT)"
 	@echo "=================================================================="
 	@trap 'kill 0' EXIT INT TERM; \
-		(PORT=$(PORT) BACKEND_PORT=$(PORT) HOST=$(HOST) uv run --no-sync python -m backend.server --port $(PORT) --host $(HOST) --reload) & \
+		(PORT=$(PORT) BACKEND_PORT=$(PORT) HOST=$(HOST) uv run --no-sync python -m backend.server --port $(PORT) --host $(HOST) --reload --reload-dir backend) & \
 		(cd frontend && BACKEND_PORT=$(PORT) PORT=$(PORT) npm run dev -- --host $(HOST) --port $(FRONTEND_PORT)) & \
 		wait
 

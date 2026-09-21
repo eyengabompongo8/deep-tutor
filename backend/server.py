@@ -74,6 +74,11 @@ async def lifespan(app: FastAPI):
     eager_processor = EagerPrecomputeManager(get_engine_fn=get_ml_engine, data_manager=data_manager)
     logger.info("FrenchTutor API backend started.")
     yield
+    if eager_processor is not None:
+        try:
+            eager_processor.shutdown(wait=False)
+        except Exception:
+            pass
     logger.info("FrenchTutor API backend shutting down.")
 
 # Initialize FastAPI app
@@ -445,5 +450,7 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=PORT, help="Port to bind to")
     parser.add_argument("--host", type=str, default=HOST, help="Host interface to bind to")
     parser.add_argument("--reload", action="store_true", default=RELOAD, help="Enable auto-reload")
+    parser.add_argument("--reload-dir", type=str, default="backend", help="Directory to monitor for auto-reload")
     args = parser.parse_args()
-    uvicorn.run("backend.server:app", host=args.host, port=args.port, reload=args.reload)
+    reload_dirs = [args.reload_dir] if args.reload and args.reload_dir else None
+    uvicorn.run("backend.server:app", host=args.host, port=args.port, reload=args.reload, reload_dirs=reload_dirs)
