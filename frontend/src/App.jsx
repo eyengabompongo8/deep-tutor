@@ -37,9 +37,16 @@ export default function App() {
     const saved = localStorage.getItem('frenchtutor_blind_retry');
     return saved !== null ? saved === 'true' : false;
   });
+  const [autoJumpEnabled, setAutoJumpEnabled] = useState(() => {
+    const saved = localStorage.getItem('frenchtutor_auto_jump');
+    if (saved !== null) return saved === 'true';
+    const legacySaved = localStorage.getItem('frenchtutor_jump_animation');
+    return legacySaved !== null ? legacySaved === 'true' : true;
+  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [error, setError] = useState(null);
   const [recentSentenceIds, setRecentSentenceIds] = useState([]);
+  const [sessionProgress, setSessionProgress] = useState({ completed: 0, total: 0 });
 
   // Fetch user profile for a specific mode and user
   const fetchProfile = useCallback(async (mode = currentMode, uid = activeUserId) => {
@@ -77,6 +84,34 @@ export default function App() {
     }
   }, [batchSize, recentSentenceIds, currentMode, activeUserId]);
 
+  // Fetch user settings from backend
+  const fetchSettings = useCallback(async (uid = activeUserId) => {
+    if (!uid) return null;
+    try {
+      const res = await fetch(`/api/user/settings?user_id=${encodeURIComponent(uid)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.auto_jump !== undefined && data.auto_jump !== null) {
+          setAutoJumpEnabled(Boolean(data.auto_jump));
+          localStorage.setItem('frenchtutor_auto_jump', String(Boolean(data.auto_jump)));
+        }
+        if (data.cards_per_exercise != null) {
+          setBatchSize(data.cards_per_exercise);
+          localStorage.setItem('frenchtutor_batch_size', String(data.cards_per_exercise));
+        }
+        if (data.correction_threshold != null) {
+          setTranslationThreshold(data.correction_threshold);
+          localStorage.setItem('frenchtutor_translation_threshold', String(data.correction_threshold));
+        }
+        return data;
+      }
+      return null;
+    } catch (err) {
+      console.warn('Could not fetch user settings from backend:', err);
+      return null;
+    }
+  }, [activeUserId]);
+
   // Initial load when activeUserId is available
   useEffect(() => {
     if (!activeUserId) {
@@ -85,10 +120,14 @@ export default function App() {
     }
     const init = async () => {
       setIsLoading(true);
-      const userProfile = await fetchProfile(currentMode, activeUserId);
+      const [userProfile, userSettings] = await Promise.all([
+        fetchProfile(currentMode, activeUserId),
+        fetchSettings(activeUserId),
+      ]);
       if (userProfile) {
         const score = userProfile.score ?? 1.20;
-        await fetchBatch(score, batchSize, [], currentMode, activeUserId);
+        const effectiveBatchSize = userSettings?.cards_per_exercise ?? batchSize;
+        await fetchBatch(score, effectiveBatchSize, [], currentMode, activeUserId);
       }
       setIsLoading(false);
     };
@@ -102,11 +141,16 @@ export default function App() {
     setIsSelectingUser(false);
     setInitialCreateMode(false);
     setRecentSentenceIds([]);
+    setSessionProgress({ completed: 0, total: 0 });
     setIsLoading(true);
     try {
-      const userProfile = await fetchProfile(currentMode, userId);
+      const [userProfile, userSettings] = await Promise.all([
+        fetchProfile(currentMode, userId),
+        fetchSettings(userId),
+      ]);
       const score = userProfile?.score ?? 1.20;
-      await fetchBatch(score, batchSize, [], currentMode, userId);
+      const effectiveBatchSize = userSettings?.cards_per_exercise ?? batchSize;
+      await fetchBatch(score, effectiveBatchSize, [], currentMode, userId);
     } catch (err) {
       console.error('Failed to initialize selected user:', err);
     } finally {
@@ -127,6 +171,7 @@ export default function App() {
     setProfile(null);
     setBatch([]);
     setRecentSentenceIds([]);
+    setSessionProgress({ completed: 0, total: 0 });
     setInitialCreateMode(false);
     setIsSelectingUser(true);
   };
@@ -148,6 +193,7 @@ export default function App() {
     if (newMode === currentMode) return;
     setCurrentMode(newMode);
     localStorage.setItem('frenchtutor_mode', newMode);
+    setSessionProgress({ completed: 0, total: 0 });
     setIsLoading(true);
     try {
       const userProfile = await fetchProfile(newMode, activeUserId);
@@ -203,6 +249,13 @@ export default function App() {
     localStorage.setItem('frenchtutor_batch_size', String(newSize));
     const scoreToUse = profile?.modes?.[currentMode]?.score ?? profile?.score ?? 1.20;
     fetchBatch(scoreToUse, newSize, recentSentenceIds, currentMode, activeUserId);
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cards_per_exercise: newSize }),
+      }).catch(err => console.warn('Failed to update cards_per_exercise:', err));
+    }
   };
 
   // Reset or adjust user score from settings
@@ -243,6 +296,25 @@ export default function App() {
   const handleChangeTranslationThreshold = (val) => {
     setTranslationThreshold(val);
     localStorage.setItem('frenchtutor_translation_threshold', String(val));
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correction_threshold: val }),
+      }).catch(err => console.warn('Failed to update correction_threshold:', err));
+    }
+  };
+
+  const handleToggleAutoJump = (val) => {
+    setAutoJumpEnabled(val);
+    localStorage.setItem('frenchtutor_auto_jump', String(val));
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auto_jump: val }),
+      }).catch(err => console.warn('Failed to update auto_jump setting:', err));
+    }
   };
 
   // If user selection / login screen is active, display it
@@ -264,6 +336,7 @@ export default function App() {
       <Header
         profile={profile}
         currentMode={currentMode}
+        sessionProgress={sessionProgress}
         onSwitchMode={handleSwitchMode}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onSwitchUser={handleSwitchUser}
@@ -309,6 +382,8 @@ export default function App() {
               transcriptionRetry={transcriptionRetry}
               translationThreshold={translationThreshold}
               blindRetryEnabled={blindRetryEnabled}
+              autoJumpEnabled={autoJumpEnabled}
+              onProgressUpdate={setSessionProgress}
               onBatchCompleted={handleBatchCompleted}
               onNextBatch={handleNextBatch}
               isLoadingNext={isLoadingNext}
@@ -332,6 +407,8 @@ export default function App() {
         onChangeTranslationThreshold={handleChangeTranslationThreshold}
         blindRetryEnabled={blindRetryEnabled}
         onToggleBlindRetry={handleToggleBlindRetry}
+        autoJumpEnabled={autoJumpEnabled}
+        onToggleAutoJump={handleToggleAutoJump}
       />
 
       {/* Subtle Minimalist Footer */}

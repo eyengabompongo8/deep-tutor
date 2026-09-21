@@ -143,7 +143,8 @@ def get_user_settings_endpoint(user_id: str = "default_user"):
 @app.put("/api/user/settings")
 def update_user_settings_endpoint(req: UpdateUserSettingsRequest, user_id: str = "default_user"):
     update_data = req.model_dump(exclude_unset=True) if hasattr(req, "model_dump") else req.dict(exclude_unset=True)
-    return data_manager.update_user_settings(user_id=user_id, **update_data)
+    target_user_id = update_data.pop("user_id", None) or user_id
+    return data_manager.update_user_settings(user_id=target_user_id, **update_data)
 
 @app.get("/api/user/profile")
 def get_user_profile(user_id: str = "default_user", mode: str = "translation"):

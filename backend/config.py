@@ -8,6 +8,7 @@ RELOAD = os.environ.get("RELOAD", "false").lower() in ("1", "true", "yes")
 # Default user settings
 DEFAULT_CEFR_LEVEL = "A1"
 STARTING_SCORE = 1.20
+DEFAULT_AUTO_JUMP = True
 
 # Exercise & session limits
 DEFAULT_CARDS_PER_EXERCISE = 3

@@ -16,10 +16,12 @@ class UpdateUserRequest(BaseModel):
     name: Optional[str] = None
 
 class UpdateUserSettingsRequest(BaseModel):
+    user_id: Optional[str] = None
     theme: Optional[str] = None
     preferred_voice: Optional[str] = None
     correction_threshold: Optional[float] = None
     cards_per_exercise: Optional[int] = None
+    auto_jump: Optional[bool] = None
 
 class ProfileResetRequest(BaseModel):
     start_score: float = STARTING_SCORE

@@ -45,7 +45,6 @@ export default function TranscriptionCard({
   const inputRef = useRef(null);
 
   const isDone = Boolean(evalResult);
-  const isSkipped = evalResult?.is_skipped ?? false;
 
   const audioUrl = `/api/audio/synthesize?text=${encodeURIComponent(sentence.fr)}&sentence_id=${sentence.id}`;
 
@@ -434,19 +433,15 @@ export default function TranscriptionCard({
         <div className="space-y-6 pt-2">
           {/* Status Banner */}
           <div className={`p-5 rounded-2xl border ${
-            isSkipped 
-              ? 'bg-neutral-50 border-neutral-200 text-neutral-600'
-              : evalResult.is_exact
-                ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
-                : evalResult.quality >= 0.75
-                  ? 'bg-amber-50/70 border-amber-200 text-amber-950'
-                  : 'bg-rose-50/70 border-rose-200 text-rose-950'
+            evalResult.is_exact
+              ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+              : evalResult.quality >= 0.75
+                ? 'bg-amber-50/70 border-amber-200 text-amber-950'
+                : 'bg-rose-50/70 border-rose-200 text-rose-950'
           }`}>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                {isSkipped ? (
-                  <AlertCircle className="w-5 h-5 text-neutral-400" />
-                ) : evalResult.is_exact ? (
+                {evalResult.is_exact ? (
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 ) : evalResult.quality >= 0.75 ? (
                   <Sparkles className="w-5 h-5 text-amber-600" />
@@ -455,20 +450,18 @@ export default function TranscriptionCard({
                 )}
                 <div>
                   <h4 className="font-semibold text-sm">
-                    {isSkipped 
-                      ? 'Phrase passée' 
-                      : evalResult.is_exact 
-                        ? (evalResult.attempts_taken > 1 ? `Parfait ! Réussi au ${evalResult.attempts_taken}e essai` : 'Parfait ! Transcription exacte')
-                        : evalResult.quality >= 0.75 
-                          ? 'Très bien ! Quelques détails à ajuster' 
-                          : 'À retravailler'}
+                    {evalResult.is_exact 
+                      ? (evalResult.attempts_taken > 1 ? `Parfait ! Réussi au ${evalResult.attempts_taken}e essai` : 'Parfait ! Transcription exacte')
+                      : evalResult.quality >= 0.75 
+                        ? 'Très bien ! Quelques détails à ajuster' 
+                        : 'À retravailler'}
                   </h4>
-                  {!isSkipped && evalResult.first_try_score !== undefined && evalResult.first_try_score !== evalResult.composite_score && (
+                  {evalResult.first_try_score !== undefined && evalResult.first_try_score !== evalResult.composite_score && (
                     <p className="text-[11px] font-medium opacity-85 mt-0.5">
                       Score CEFR calculé sur le 1er essai : {evalResult.first_try_score}%
                     </p>
                   )}
-                  {!isSkipped && evalResult.notes?.length > 0 && (
+                  {evalResult.notes?.length > 0 && (
                     <p className="text-xs opacity-80 mt-0.5">
                       {evalResult.notes.slice(0, 2).join(' · ')}
                     </p>
@@ -477,14 +470,12 @@ export default function TranscriptionCard({
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                {!isSkipped && (
-                  <div className="text-right font-mono">
-                    <span className="text-lg font-bold">
-                      {evalResult.composite_score}%
-                    </span>
-                    <span className="text-[10px] block opacity-70">Précision</span>
-                  </div>
-                )}
+                <div className="text-right font-mono">
+                  <span className="text-lg font-bold">
+                    {evalResult.composite_score ?? 0}%
+                  </span>
+                  <span className="text-[10px] block opacity-70">Précision</span>
+                </div>
                 {retryEnabled && (
                   <button
                     type="button"
@@ -502,7 +493,7 @@ export default function TranscriptionCard({
           </div>
 
           {/* Interactive Word Diff View */}
-          {!isSkipped && evalResult.diff && (
+          {evalResult.diff && evalResult.diff.length > 0 && (
             <div className="space-y-2">
               <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider block">
                 Votre transcription

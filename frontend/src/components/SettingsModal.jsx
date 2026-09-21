@@ -23,6 +23,8 @@ export default function SettingsModal({
   onChangeTranslationThreshold,
   blindRetryEnabled = false,
   onToggleBlindRetry,
+  autoJumpEnabled = true,
+  onToggleAutoJump,
 }) {
   if (!isOpen) return null;
 
@@ -205,6 +207,32 @@ export default function SettingsModal({
               <span
                 className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
                   blindRetryEnabled ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 pt-2">
+            <div>
+              <label className="text-xs font-medium text-neutral-800">
+                Auto-Jump to Next Card
+              </label>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Automatically jump down with animation to the following card when a card is completed.
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={autoJumpEnabled}
+              onClick={() => onToggleAutoJump && onToggleAutoJump(!autoJumpEnabled)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                autoJumpEnabled ? 'bg-neutral-900' : 'bg-neutral-200'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  autoJumpEnabled ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
             </button>
