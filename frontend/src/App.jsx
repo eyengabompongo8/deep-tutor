@@ -40,6 +40,7 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [error, setError] = useState(null);
   const [recentSentenceIds, setRecentSentenceIds] = useState([]);
+  const [sessionProgress, setSessionProgress] = useState({ completed: 0, total: 0 });
 
   // Fetch user profile for a specific mode and user
   const fetchProfile = useCallback(async (mode = currentMode, uid = activeUserId) => {
@@ -102,6 +103,7 @@ export default function App() {
     setIsSelectingUser(false);
     setInitialCreateMode(false);
     setRecentSentenceIds([]);
+    setSessionProgress({ completed: 0, total: 0 });
     setIsLoading(true);
     try {
       const userProfile = await fetchProfile(currentMode, userId);
@@ -127,6 +129,7 @@ export default function App() {
     setProfile(null);
     setBatch([]);
     setRecentSentenceIds([]);
+    setSessionProgress({ completed: 0, total: 0 });
     setInitialCreateMode(false);
     setIsSelectingUser(true);
   };
@@ -149,6 +152,7 @@ export default function App() {
     if (newMode === currentMode) return;
     setCurrentMode(newMode);
     localStorage.setItem('frenchtutor_mode', newMode);
+    setSessionProgress({ completed: 0, total: 0 });
     setIsLoading(true);
     try {
       const userProfile = await fetchProfile(newMode, activeUserId);
@@ -265,6 +269,7 @@ export default function App() {
       <Header
         profile={profile}
         currentMode={currentMode}
+        sessionProgress={sessionProgress}
         onSwitchMode={handleSwitchMode}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onSwitchUser={handleSwitchUser}
@@ -310,6 +315,7 @@ export default function App() {
               transcriptionRetry={transcriptionRetry}
               translationThreshold={translationThreshold}
               blindRetryEnabled={blindRetryEnabled}
+              onProgressUpdate={setSessionProgress}
               onBatchCompleted={handleBatchCompleted}
               onNextBatch={handleNextBatch}
               isLoadingNext={isLoadingNext}

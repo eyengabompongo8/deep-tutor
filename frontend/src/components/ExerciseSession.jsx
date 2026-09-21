@@ -11,6 +11,7 @@ export default function ExerciseSession({
   transcriptionRetry = true,
   translationThreshold = 75,
   blindRetryEnabled = false,
+  onProgressUpdate,
   onBatchCompleted,
   onNextBatch,
   isLoadingNext,
@@ -362,23 +363,17 @@ export default function ExerciseSession({
   const completedCount = Object.keys(evaluations).length;
   const totalCount = batch.length;
 
+  useEffect(() => {
+    if (onProgressUpdate) {
+      onProgressUpdate({
+        completed: completedCount,
+        total: totalCount,
+      });
+    }
+  }, [completedCount, totalCount, onProgressUpdate]);
+
   return (
     <div className="space-y-6">
-      {/* Session Progress Bar */}
-      {totalCount > 1 && (
-        <div className="flex items-center justify-between gap-3 pb-1">
-          <div className="text-xs text-neutral-400 font-medium">
-            Progress <span className="text-neutral-700 font-mono font-semibold">{completedCount}</span> of {totalCount}
-          </div>
-          <div className="w-20 sm:w-28 bg-neutral-200 rounded-full h-1 overflow-hidden">
-            <div
-              className="bg-neutral-800 h-full rounded-full transition-all duration-300"
-              style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
-            />
-          </div>
-        </div>
-      )}
-
       {/* Sentence Cards List */}
       <div className="space-y-4">
         {batch.map((sentence, index) => (
