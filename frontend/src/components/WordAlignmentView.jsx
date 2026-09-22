@@ -191,13 +191,13 @@ export default function WordAlignmentView({
   const selectedStudentWords = selectedStudentIndices.map(i => studentWords[i]).filter(Boolean).join(' ');
 
   return (
-    <div className="p-3.5 rounded-xl bg-neutral-50 space-y-3">
+    <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/50 dark:border-neutral-700/60 space-y-3">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-700">
-          <Link2 className="w-3.5 h-3.5 text-neutral-500" />
+        <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+          <Link2 className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
           <span>Word Alignment Mapping</span>
         </div>
-        <div className="text-[11px] text-neutral-400 flex items-center gap-1">
+        <div className="text-[11px] text-neutral-400 dark:text-neutral-500 flex items-center gap-1">
           <Lightbulb className="w-3 h-3 text-amber-500" />
           <span>Highlight words in any sentence to inspect alignment</span>
         </div>
@@ -205,10 +205,10 @@ export default function WordAlignmentView({
 
       {/* 1. Spanish Source */}
       <div className="space-y-1">
-        <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider flex items-center justify-between">
+        <div className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider flex items-center justify-between">
           <span>🇪🇸 Spanish</span>
           {selectedSrcIndices.length > 0 && (
-            <span className="text-[10px] text-neutral-500 lowercase">
+            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
               ({activeOrigin === 'src' ? 'selected' : 'aligned'})
             </span>
           )}
@@ -218,7 +218,7 @@ export default function WordAlignmentView({
           onMouseUp={handleSrcSelection}
           onTouchEnd={handleSrcSelection}
           onKeyUp={handleSrcSelection}
-          className="p-2.5 rounded-lg bg-white text-xs leading-relaxed text-neutral-800 select-text selection:bg-amber-200 selection:text-neutral-900 cursor-text"
+          className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-750 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
         >
           {srcWords.map((word, idx) => {
             const isSelected = selectedSrcIndices.includes(idx);
@@ -230,10 +230,10 @@ export default function WordAlignmentView({
                 className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
                   isSelected
                     ? activeOrigin === 'src'
-                      ? 'bg-neutral-200 text-neutral-900 font-medium'
-                      : 'bg-amber-100 text-amber-950 font-semibold'
+                      ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                      : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
                     : isFirstTime
-                      ? 'bg-purple-100 text-purple-900 font-semibold border-b-2 border-purple-400'
+                      ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border-b-2 border-purple-400 dark:border-purple-500'
                       : ''
                 }`}
                 title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
@@ -248,10 +248,10 @@ export default function WordAlignmentView({
       {/* 2. French Reference (Target) */}
       {effectiveRefWords.length > 0 && (
         <div className="space-y-1">
-          <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider flex items-center justify-between">
             <span>🇫🇷 Reference (Target)</span>
             {selectedRefIndices.length > 0 && (
-              <span className="text-[10px] text-neutral-500 lowercase">
+              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
                 ({activeOrigin === 'ref' ? 'selected' : 'aligned'})
               </span>
             )}
@@ -261,7 +261,7 @@ export default function WordAlignmentView({
             onMouseUp={handleRefSelection}
             onTouchEnd={handleRefSelection}
             onKeyUp={handleRefSelection}
-            className="p-2.5 rounded-lg bg-white text-xs leading-relaxed text-neutral-800 select-text selection:bg-amber-200 selection:text-neutral-900 cursor-text"
+            className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-750 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
           >
             {effectiveRefWords.map((word, idx) => {
               const isSelected = selectedRefIndices.includes(idx);
@@ -273,10 +273,10 @@ export default function WordAlignmentView({
                   className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
                     isSelected
                       ? activeOrigin === 'ref'
-                        ? 'bg-neutral-200 text-neutral-900 font-medium'
-                        : 'bg-amber-100 text-amber-950 font-semibold'
+                        ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                        : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
                       : isFirstTime
-                        ? 'bg-purple-100 text-purple-900 font-semibold border border-purple-300 shadow-sm'
+                        ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border border-purple-300 dark:border-purple-800 shadow-xs'
                         : ''
                   }`}
                   title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
@@ -292,10 +292,10 @@ export default function WordAlignmentView({
       {/* 3. Your Translation (Student) */}
       {studentWords.length > 0 && (
         <div className="space-y-1">
-          <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider flex items-center justify-between">
             <span>✍️ Your Translation</span>
             {selectedStudentIndices.length > 0 && (
-              <span className="text-[10px] text-neutral-500 lowercase">
+              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
                 ({activeOrigin === 'student' ? 'selected' : 'aligned'})
               </span>
             )}
@@ -305,7 +305,7 @@ export default function WordAlignmentView({
             onMouseUp={handleStudentSelection}
             onTouchEnd={handleStudentSelection}
             onKeyUp={handleStudentSelection}
-            className="p-2.5 rounded-lg bg-white text-xs leading-relaxed text-neutral-800 select-text selection:bg-amber-200 selection:text-neutral-900 cursor-text"
+            className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-750 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
           >
             {studentWords.map((word, idx) => {
               const isSelected = selectedStudentIndices.includes(idx);
@@ -316,8 +316,8 @@ export default function WordAlignmentView({
                   className={`inline transition-colors duration-150 rounded px-0.5 ${
                     isSelected
                       ? activeOrigin === 'student'
-                        ? 'bg-neutral-200 text-neutral-900 font-medium'
-                        : 'bg-amber-100 text-amber-950 font-semibold'
+                        ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                        : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
                       : ''
                   }`}
                 >
@@ -331,21 +331,21 @@ export default function WordAlignmentView({
 
       {/* Alignment Mapping Breakdown Banner */}
       {hasSelection && (
-        <div className="p-2.5 rounded-lg bg-amber-50 text-neutral-800 flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150">
+        <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/50 text-neutral-800 dark:text-neutral-200 flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150">
           <div className="flex items-center gap-2">
-            <Link2 className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+            <Link2 className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
             <div className="space-y-0.5">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-neutral-500 text-[11px]">Spanish:</span>
-                <span className="font-semibold text-neutral-900">{selectedSrcWords || '—'}</span>
-                <span className="text-neutral-400">·</span>
-                <span className="text-neutral-500 text-[11px]">Reference:</span>
-                <span className="font-semibold text-neutral-900">{selectedRefWords || '—'}</span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-[11px]">Spanish:</span>
+                <span className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedSrcWords || '—'}</span>
+                <span className="text-neutral-400 dark:text-neutral-600">·</span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-[11px]">Reference:</span>
+                <span className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedRefWords || '—'}</span>
                 {studentWords.length > 0 && (
                   <>
-                    <span className="text-neutral-400">·</span>
-                    <span className="text-neutral-500 text-[11px]">You:</span>
-                    <span className="font-semibold text-neutral-900">{selectedStudentWords || '—'}</span>
+                    <span className="text-neutral-400 dark:text-neutral-600">·</span>
+                    <span className="text-neutral-500 dark:text-neutral-400 text-[11px]">You:</span>
+                    <span className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedStudentWords || '—'}</span>
                   </>
                 )}
               </div>
@@ -354,7 +354,7 @@ export default function WordAlignmentView({
           <button
             type="button"
             onClick={clearSelection}
-            className="p-1 rounded text-neutral-400 hover:text-neutral-700 transition-colors"
+            className="p-1 rounded text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
             title="Clear selection"
           >
             <X className="w-3.5 h-3.5" />
