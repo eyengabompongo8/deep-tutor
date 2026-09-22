@@ -168,11 +168,11 @@ export default function TranscriptionCard({
 
   return (
     <div 
-      className={`relative w-full max-w-4xl mx-auto rounded-3xl transition-all duration-300 ${
+      className={`relative w-full max-w-4xl mx-auto rounded-3xl transition-colors duration-200 border border-neutral-200/60 dark:border-neutral-800 ${
         isFocused 
-          ? 'bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] ring-1 ring-neutral-900/5' 
-          : 'bg-white/80 shadow-[0_2px_10px_rgb(0,0,0,0.03)] ring-1 ring-neutral-900/[0.03]'
-      } p-6 sm:p-8 space-y-6`}
+          ? 'bg-white dark:bg-neutral-900 shadow-[0_8px_30px_rgb(0,0,0,0.06)] ring-1 ring-neutral-900/5 dark:ring-neutral-100/5' 
+          : 'bg-white/80 dark:bg-neutral-900/80 shadow-[0_2px_10px_rgb(0,0,0,0.03)] ring-1 ring-neutral-900/[0.03] dark:ring-neutral-100/[0.03]'
+      } p-6 sm:p-8 space-y-6 text-neutral-900 dark:text-neutral-100`}
       onFocus={() => setIsFocused(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -189,20 +189,20 @@ export default function TranscriptionCard({
       />
 
       {/* Header Info */}
-      <div className="flex items-center justify-between text-xs text-neutral-400 font-medium">
+      <div className="flex items-center justify-between text-xs text-neutral-400 dark:text-neutral-500 font-medium">
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 font-semibold uppercase tracking-wider">
+          <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-semibold uppercase tracking-wider">
             Écoute #{index + 1}
           </span>
-          <span className="text-neutral-300">/</span>
+          <span className="text-neutral-300 dark:text-neutral-600">/</span>
           <span>{total}</span>
-          <span className="ml-2 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100/60 font-mono">
+          <span className="ml-2 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-100/60 dark:border-amber-900/50 font-mono">
             {sentence.level || 'A1'}
           </span>
         </div>
 
         {playCount > 0 && (
-          <span className="text-neutral-400 flex items-center gap-1">
+          <span className="text-neutral-400 dark:text-neutral-500 flex items-center gap-1">
             <Volume2 className="w-3.5 h-3.5" />
             Écouté {playCount} {playCount === 1 ? 'fois' : 'fois'}
           </span>
@@ -210,16 +210,16 @@ export default function TranscriptionCard({
       </div>
 
       {/* Audio Playback Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-neutral-50/80 border border-neutral-100">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-neutral-50/80 dark:bg-neutral-850/60 border border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center gap-3 w-full sm:w-auto">
           {/* Main Play Button */}
           <button
             type="button"
             onClick={() => togglePlay(1.0)}
-            className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-sm transition-all shadow-sm ${
+            className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-sm transition-all shadow-xs ${
               isPlaying && playbackSpeed === 1.0
-                ? 'bg-neutral-900 text-white shadow-neutral-900/20'
-                : 'bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-200/80'
+                ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-neutral-900/20'
+                : 'bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-750 text-neutral-800 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700'
             }`}
           >
             {isPlaying && playbackSpeed === 1.0 ? (
@@ -236,8 +236,8 @@ export default function TranscriptionCard({
             onClick={() => togglePlay(0.75)}
             className={`flex items-center gap-1.5 px-4 py-3 rounded-xl font-medium text-xs transition-all ${
               isPlaying && playbackSpeed === 0.75
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'bg-white hover:bg-neutral-100 text-neutral-700 border border-neutral-200/80'
+                ? 'bg-amber-600 text-white shadow-xs'
+                : 'bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-750 text-neutral-700 dark:text-neutral-300 border border-neutral-200/80 dark:border-neutral-700'
             }`}
             title="Écouter à vitesse réduite (0.75x)"
           >
@@ -252,7 +252,7 @@ export default function TranscriptionCard({
             <div
               key={i}
               className={`w-1 rounded-full transition-all duration-300 ${
-                isPlaying ? 'bg-neutral-800 animate-pulse' : 'bg-neutral-200'
+                isPlaying ? 'bg-neutral-800 dark:bg-neutral-200 animate-pulse' : 'bg-neutral-200 dark:bg-neutral-700'
               }`}
               style={{ 
                 height: isPlaying ? `${Math.max(8, (h * 0.25))}px` : '6px',
@@ -260,7 +260,7 @@ export default function TranscriptionCard({
               }}
             />
           ))}
-          <span className="text-[11px] text-neutral-400 ml-2 hidden sm:inline">
+          <span className="text-[11px] text-neutral-400 dark:text-neutral-500 ml-2 hidden sm:inline">
             Ctrl+Espace pour rejouer
           </span>
         </div>
@@ -271,32 +271,32 @@ export default function TranscriptionCard({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Error Feedback Banner & Marked Words (When retryEnabled is on and previous attempt had errors) */}
           {retryEnabled && attemptFeedback && (
-            <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-3 animate-in fade-in duration-200">
+            <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 space-y-3 animate-in fade-in duration-200">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-xs font-semibold text-amber-950">
-                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <div className="flex items-center gap-2 text-xs font-semibold text-amber-950 dark:text-amber-200">
+                  <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                   <span>
                     {attemptFeedback.errorCount <= 1
                       ? 'Erreur détectée dans votre transcription. Réécoutez et corrigez :'
                       : `${attemptFeedback.errorCount} erreurs détectées. Réécoutez et corrigez :`}
                   </span>
                 </div>
-                <span className="text-[11px] font-mono font-semibold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-200/70">
+                <span className="text-[11px] font-mono font-semibold text-amber-800 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-900/60 px-2 py-0.5 rounded-full border border-amber-200/70 dark:border-amber-800/60">
                   Essai #{attemptCount}
                 </span>
               </div>
 
               {/* Marked Words Breakdown */}
-              <div className="flex flex-wrap items-center gap-2 p-3.5 rounded-xl bg-white/90 border border-amber-200/60 shadow-xs">
+              <div className="flex flex-wrap items-center gap-2 p-3.5 rounded-xl bg-white/90 dark:bg-neutral-900/90 border border-amber-200/60 dark:border-amber-900/50 shadow-2xs">
                 {attemptFeedback.diff && attemptFeedback.diff.map((item, i) => {
                   if (item.type === 'exact') {
                     return (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/90 font-medium text-xs sm:text-sm flex items-center gap-1"
+                        className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-800/60 font-medium text-xs sm:text-sm flex items-center gap-1"
                         title="Mot correct"
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         <span>{item.word}</span>
                       </span>
                     );
@@ -304,11 +304,11 @@ export default function TranscriptionCard({
                     return (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-300 font-medium text-xs sm:text-sm flex items-center gap-1"
+                        className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800/80 font-medium text-xs sm:text-sm flex items-center gap-1"
                         title="Accent à corriger"
                       >
                         <span>{item.word}</span>
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-200/80 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                        <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-200/80 dark:bg-amber-900/80 px-1.5 py-0.5 rounded uppercase tracking-wider">
                           accent
                         </span>
                       </span>
@@ -317,11 +317,11 @@ export default function TranscriptionCard({
                     return (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded-lg bg-orange-50 text-orange-950 border border-orange-300 font-medium text-xs sm:text-sm flex items-center gap-1"
+                        className="px-2.5 py-1 rounded-lg bg-orange-50 dark:bg-orange-950/50 text-orange-950 dark:text-orange-300 border border-orange-300 dark:border-orange-800/80 font-medium text-xs sm:text-sm flex items-center gap-1"
                         title="Coquille"
                       >
                         <span>{item.word}</span>
-                        <span className="text-[10px] font-bold text-orange-700 bg-orange-200/80 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                        <span className="text-[10px] font-bold text-orange-700 dark:text-orange-300 bg-orange-200/80 dark:bg-orange-900/80 px-1.5 py-0.5 rounded uppercase tracking-wider">
                           coquille
                         </span>
                       </span>
@@ -330,7 +330,7 @@ export default function TranscriptionCard({
                     return (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded-lg border-2 border-dashed border-rose-400 bg-rose-50/70 text-rose-800 font-medium text-xs sm:text-sm flex items-center gap-1"
+                        className="px-2.5 py-1 rounded-lg border-2 border-dashed border-rose-400 dark:border-rose-600 bg-rose-50/70 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 font-medium text-xs sm:text-sm flex items-center gap-1"
                         title="Un mot manque à cet endroit"
                       >
                         <span className="text-rose-500 font-bold">+</span>
@@ -341,11 +341,11 @@ export default function TranscriptionCard({
                     return (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-500 border border-neutral-300 font-medium text-xs sm:text-sm line-through flex items-center gap-1"
+                        className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-300 dark:border-neutral-700 font-medium text-xs sm:text-sm line-through flex items-center gap-1"
                         title="Mot en trop"
                       >
                         <span>{item.word}</span>
-                        <span className="text-[10px] font-semibold text-neutral-400 no-underline">
+                        <span className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 no-underline">
                           (en trop)
                         </span>
                       </span>
@@ -354,11 +354,11 @@ export default function TranscriptionCard({
                     return (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-900 border border-rose-300 font-medium text-xs sm:text-sm flex items-center gap-1"
+                        className="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-900 dark:text-rose-300 border border-rose-300 dark:border-rose-800/80 font-medium text-xs sm:text-sm flex items-center gap-1"
                         title="Mot incorrect"
                       >
                         <span>{item.word}</span>
-                        <span className="text-[10px] font-bold text-rose-700 bg-rose-200/80 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                        <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-200/80 dark:bg-rose-900/80 px-1.5 py-0.5 rounded uppercase tracking-wider">
                           incorrect
                         </span>
                       </span>
@@ -378,7 +378,7 @@ export default function TranscriptionCard({
               onKeyDown={handleKeyDown}
               disabled={isEvaluating || isSubmittingAttempt}
               placeholder="Tapez ce que vous avez entendu en français..."
-              className="w-full px-5 py-4 text-base sm:text-lg bg-neutral-50/50 hover:bg-neutral-50 focus:bg-white rounded-2xl border border-neutral-200 focus:border-neutral-900 focus:ring-4 focus:ring-neutral-900/5 transition-all outline-none font-sans text-neutral-900 placeholder:text-neutral-400"
+              className="w-full px-5 py-4 text-base sm:text-lg bg-neutral-50/50 dark:bg-neutral-800/50 hover:bg-neutral-50 dark:hover:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-850 rounded-2xl border border-neutral-200 dark:border-neutral-700 focus:border-neutral-900 dark:focus:border-neutral-300 focus:ring-4 focus:ring-neutral-900/5 dark:focus:ring-neutral-100/5 transition-all outline-hidden font-sans text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
             />
           </div>
 
@@ -391,7 +391,7 @@ export default function TranscriptionCard({
                   type="button"
                   onClick={() => handleAccentClick(char)}
                   disabled={isEvaluating}
-                  className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-neutral-100 hover:bg-neutral-200/80 active:bg-neutral-300 text-xs sm:text-sm font-medium text-neutral-700 transition-colors"
+                  className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200/80 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 text-xs sm:text-sm font-medium text-neutral-700 dark:text-neutral-300 transition-colors"
                 >
                   {char}
                 </button>
@@ -404,14 +404,14 @@ export default function TranscriptionCard({
                 type="button"
                 onClick={handleSkip}
                 disabled={isEvaluating}
-                className="px-3.5 py-2 rounded-xl text-xs font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 transition-colors"
+                className="px-3.5 py-2 rounded-xl text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
               >
                 Passer
               </button>
               <button
                 type="submit"
                 disabled={isEvaluating || !inputText.trim()}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 active:bg-black text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-neutral-900 dark:bg-neutral-100 hover:bg-neutral-800 dark:hover:bg-neutral-200 active:bg-black text-white dark:text-neutral-900 text-xs font-semibold shadow-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isEvaluating ? (
                   <>
@@ -434,19 +434,19 @@ export default function TranscriptionCard({
           {/* Status Banner */}
           <div className={`p-5 rounded-2xl border ${
             evalResult.is_exact
-              ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+              ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-200'
               : evalResult.quality >= 0.75
-                ? 'bg-amber-50/70 border-amber-200 text-amber-950'
-                : 'bg-rose-50/70 border-rose-200 text-rose-950'
+                ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-950 dark:text-amber-200'
+                : 'bg-rose-50/70 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-950 dark:text-rose-200'
           }`}>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
                 {evalResult.is_exact ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 ) : evalResult.quality >= 0.75 ? (
-                  <Sparkles className="w-5 h-5 text-amber-600" />
+                  <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 ) : (
-                  <AlertCircle className="w-5 h-5 text-rose-600" />
+                  <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
                 )}
                 <div>
                   <h4 className="font-semibold text-sm">
@@ -481,7 +481,7 @@ export default function TranscriptionCard({
                     type="button"
                     onClick={handleRetry}
                     disabled={isEvaluating}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/90 hover:bg-white text-neutral-800 border border-neutral-200/80 shadow-xs transition-all hover:shadow-sm hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/90 dark:bg-neutral-800 hover:bg-white dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700 shadow-2xs transition-all hover:shadow-xs hover:scale-[1.02] active:scale-95 disabled:opacity-50"
                     title="Réessayer cette phrase"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
@@ -495,16 +495,16 @@ export default function TranscriptionCard({
           {/* Interactive Word Diff View */}
           {evalResult.diff && evalResult.diff.length > 0 && (
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider block">
+              <label className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
                 Votre transcription
               </label>
-              <div className="flex flex-wrap items-center gap-2 p-4 rounded-2xl bg-neutral-50/50 border border-neutral-200/70">
+              <div className="flex flex-wrap items-center gap-2 p-4 rounded-2xl bg-neutral-50/50 dark:bg-neutral-850/60 border border-neutral-200/70 dark:border-neutral-800">
                 {evalResult.diff.map((item, i) => {
                   if (item.type === 'exact') {
                     return (
                       <span 
                         key={i} 
-                        className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium text-sm"
+                        className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-medium text-sm"
                       >
                         {item.word}
                       </span>
@@ -513,11 +513,11 @@ export default function TranscriptionCard({
                     return (
                       <span 
                         key={i} 
-                        className="group relative px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-medium text-sm cursor-help"
+                        className="group relative px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-medium text-sm cursor-help"
                         title={`Accent attendu: ${item.ref_word}`}
                       >
                         {item.word}
-                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block px-2 py-0.5 bg-neutral-900 text-white text-[10px] rounded whitespace-nowrap z-10">
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block px-2 py-0.5 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-[10px] rounded whitespace-nowrap z-10">
                           Attendu: {item.ref_word}
                         </span>
                       </span>
@@ -526,11 +526,11 @@ export default function TranscriptionCard({
                     return (
                       <span 
                         key={i} 
-                        className="group relative px-2.5 py-1 rounded-lg bg-orange-50 text-orange-800 border border-orange-200 font-medium text-sm cursor-help"
+                        className="group relative px-2.5 py-1 rounded-lg bg-orange-50 dark:bg-orange-950/50 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800/60 font-medium text-sm cursor-help"
                         title={`Coquille. Attendu: ${item.ref_word}`}
                       >
                         {item.word}
-                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block px-2 py-0.5 bg-neutral-900 text-white text-[10px] rounded whitespace-nowrap z-10">
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block px-2 py-0.5 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-[10px] rounded whitespace-nowrap z-10">
                           Attendu: {item.ref_word}
                         </span>
                       </span>
@@ -539,7 +539,7 @@ export default function TranscriptionCard({
                     return (
                       <span 
                         key={i} 
-                        className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/80 font-medium text-sm line-through decoration-rose-400"
+                        className="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/60 font-medium text-sm line-through decoration-rose-400"
                         title="Mot manquant"
                       >
                         {item.word}
@@ -549,7 +549,7 @@ export default function TranscriptionCard({
                     return (
                       <span 
                         key={i} 
-                        className="px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-500 text-sm line-through"
+                        className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-300 dark:border-neutral-700 text-sm line-through"
                         title="Mot en trop"
                       >
                         {item.word}
@@ -563,21 +563,21 @@ export default function TranscriptionCard({
 
           {/* Canonical French Reference */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider block">
+            <label className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
               Phrase de référence
             </label>
-            <div className="p-4 rounded-2xl bg-neutral-100/70 text-neutral-900 text-base font-medium">
+            <div className="p-4 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/70 text-neutral-900 dark:text-neutral-100 text-base font-medium">
               {sentence.fr}
             </div>
           </div>
 
           {/* Action Footer: Translation Reveal Toggle & Retry Button */}
-          <div className="space-y-3 pt-3 border-t border-neutral-100">
+          <div className="space-y-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
             <div className="flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => setShowTranslation(!showTranslation)}
-                className="text-xs text-neutral-500 hover:text-neutral-900 flex items-center gap-1.5 transition-colors"
+                className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 flex items-center gap-1.5 transition-colors"
               >
                 <Languages className="w-3.5 h-3.5" />
                 <span>{showTranslation ? 'Masquer la traduction' : 'Afficher la traduction'}</span>
@@ -588,7 +588,7 @@ export default function TranscriptionCard({
                   type="button"
                   onClick={handleRetry}
                   disabled={isEvaluating}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-neutral-900 hover:bg-neutral-800 text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-neutral-900 dark:bg-neutral-100 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-900 shadow-xs transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Réessayer</span>
@@ -597,7 +597,7 @@ export default function TranscriptionCard({
             </div>
 
             {showTranslation && (
-              <p className="text-sm text-neutral-600 italic bg-neutral-50 p-3 rounded-xl border border-neutral-100">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 italic bg-neutral-50 dark:bg-neutral-800/70 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
                 {sentence.es}
               </p>
             )}

@@ -43,10 +43,39 @@ export default function App() {
     const legacySaved = localStorage.getItem('frenchtutor_jump_animation');
     return legacySaved !== null ? legacySaved === 'true' : true;
   });
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('frenchtutor_theme') || 'system';
+  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [error, setError] = useState(null);
   const [recentSentenceIds, setRecentSentenceIds] = useState([]);
   const [sessionProgress, setSessionProgress] = useState({ completed: 0, total: 0 });
+
+  // Sync theme with document class and system preference changes
+  useEffect(() => {
+    const root = document.documentElement;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const applyTheme = () => {
+      const isDark = theme === 'dark' || (theme === 'system' && mediaQuery.matches);
+      if (isDark) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    };
+
+    applyTheme();
+
+    const handleChange = () => {
+      if (theme === 'system') {
+        applyTheme();
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
 
   // Fetch user profile for a specific mode and user
   const fetchProfile = useCallback(async (mode = currentMode, uid = activeUserId) => {
@@ -110,6 +139,10 @@ export default function App() {
         if (data.blind_retry !== undefined && data.blind_retry !== null) {
           setBlindRetryEnabled(Boolean(data.blind_retry));
           localStorage.setItem('frenchtutor_blind_retry', String(Boolean(data.blind_retry)));
+        }
+        if (data.theme) {
+          setTheme(data.theme);
+          localStorage.setItem('frenchtutor_theme', data.theme);
         }
         if (data.active_mode) {
           setCurrentMode(data.active_mode);
@@ -348,6 +381,31 @@ export default function App() {
     }
   };
 
+  const handleToggleTheme = (specificTheme) => {
+    let nextTheme;
+    if (typeof specificTheme === 'string') {
+      nextTheme = specificTheme;
+    } else {
+      // Cycle: system -> light -> dark -> system
+      if (theme === 'system') {
+        nextTheme = 'light';
+      } else if (theme === 'light') {
+        nextTheme = 'dark';
+      } else {
+        nextTheme = 'system';
+      }
+    }
+    setTheme(nextTheme);
+    localStorage.setItem('frenchtutor_theme', nextTheme);
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme: nextTheme }),
+      }).catch(err => console.warn('Failed to update theme setting:', err));
+    }
+  };
+
   // If user selection / login screen is active, display it
   if (isSelectingUser || !activeUserId) {
     return (
@@ -362,12 +420,14 @@ export default function App() {
   const activeScore = profile?.modes?.[currentMode]?.score ?? profile?.score ?? 1.20;
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-neutral-900 flex flex-col">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col transition-colors duration-200">
       {/* Top Navigation with Active User Avatar Icon */}
       <Header
         profile={profile}
         currentMode={currentMode}
         sessionProgress={sessionProgress}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
         onSwitchMode={handleSwitchMode}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onSwitchUser={handleSwitchUser}
@@ -399,8 +459,8 @@ export default function App() {
         {/* Initial Loading State */}
         {isLoading ? (
           <div className="py-24 flex flex-col items-center justify-center gap-2.5 text-neutral-400">
-            <Loader2 className="w-6 h-6 animate-spin text-neutral-600" />
-            <div className="text-xs font-medium text-neutral-500">Chargement des exercices...</div>
+            <Loader2 className="w-6 h-6 animate-spin text-neutral-600 dark:text-neutral-400" />
+            <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Chargement des exercices...</div>
           </div>
         ) : (
           <div>
@@ -440,10 +500,12 @@ export default function App() {
         onToggleBlindRetry={handleToggleBlindRetry}
         autoJumpEnabled={autoJumpEnabled}
         onToggleAutoJump={handleToggleAutoJump}
+        theme={theme}
+        onChangeTheme={handleToggleTheme}
       />
 
       {/* Subtle Minimalist Footer */}
-      <footer className="py-8 text-center text-xs text-neutral-400">
+      <footer className="py-8 text-center text-xs text-neutral-400 dark:text-neutral-500">
         <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Spanish → French Practice</span>
           <span>Adaptive CEFR Engine</span>

@@ -286,7 +286,9 @@ export default function SentenceCard({
   const isBlindRetryActive = blindRetryEnabled && isDone && !isCorrect && !forceReveal;
 
   const scoreBadge = evalResult ? {
-    bg: isCorrect ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200',
+    bg: isCorrect 
+      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60' 
+      : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60',
     label: isCorrect ? 'Traduction correcte' : 'À corriger',
     icon: isCorrect ? CheckCircle2 : AlertCircle,
   } : null;
@@ -296,7 +298,7 @@ export default function SentenceCard({
   );
 
   return (
-    <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all min-h-[440px] lg:h-[440px] flex flex-col justify-start">
+    <div className="bg-white dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800 rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors min-h-[440px] lg:h-[440px] flex flex-col justify-start text-neutral-900 dark:text-neutral-100">
       {/* 2-Column Side-by-Side Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch flex-1 h-full min-h-0">
         
@@ -305,11 +307,11 @@ export default function SentenceCard({
           {/* Top section: Spanish Source Sentence with Raw Text Selection */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
+              <span className="text-[11px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
                 {sourceLanguageLabel}
               </span>
               {!isDone && (
-                <span className="text-[11px] text-neutral-400 flex items-center gap-1 font-normal">
+                <span className="text-[11px] text-neutral-400 dark:text-neutral-500 flex items-center gap-1 font-normal">
                   <Lightbulb className="w-3 h-3 text-amber-500" />
                   <span>Highlight for hints</span>
                 </span>
@@ -318,11 +320,11 @@ export default function SentenceCard({
 
             {/* First-time vocabulary introduction badge */}
             {firstTimePairs.length > 0 && (
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 border border-purple-200/80 text-xs font-medium mb-2.5">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/80 dark:border-purple-800/60 text-xs font-medium mb-2.5">
                 <Sparkles className="w-3.5 h-3.5 text-purple-500 shrink-0" />
                 <span>
                   Nouveau vocabulaire :{' '}
-                  <strong className="text-purple-900 font-semibold">
+                  <strong className="text-purple-900 dark:text-purple-200 font-semibold">
                     {firstTimePairs.map(p => {
                       const wordStr = (p.word || '').trim();
                       const lemmaStr = (p.lemma || '').trim();
@@ -340,7 +342,7 @@ export default function SentenceCard({
               onMouseUp={handleTextSelection}
               onTouchEnd={handleTextSelection}
               onKeyUp={handleTextSelection}
-              className="text-lg sm:text-xl font-medium text-neutral-900 leading-relaxed select-text selection:bg-amber-200 selection:text-neutral-900 py-1 transition-colors cursor-text"
+              className="text-lg sm:text-xl font-medium text-neutral-900 dark:text-neutral-100 leading-relaxed select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 py-1 transition-colors cursor-text"
             >
               {spanishWords.map((word, wIdx) => {
                 const isSelected = selectedWordIndices.includes(wIdx);
@@ -351,9 +353,9 @@ export default function SentenceCard({
                     data-word-idx={wIdx}
                     className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
                       isSelected
-                        ? 'bg-amber-100 text-amber-900 font-medium'
+                        ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 font-medium'
                         : isFirstTime
-                          ? 'bg-purple-100 text-purple-900 font-semibold border-b-2 border-purple-400'
+                          ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border-b-2 border-purple-400 dark:border-purple-500'
                           : ''
                     }`}
                     title={isFirstTime ? `Nouveau mot à apprendre (${firstTimeLemmas.join(', ')})` : undefined}
@@ -366,27 +368,27 @@ export default function SentenceCard({
 
             {/* Hint Translation Result */}
             {selectedWordIndices.length > 0 && (
-              <div className="mt-2.5 p-3 rounded-xl bg-amber-50 text-neutral-800 flex items-center justify-between gap-3 text-xs">
+              <div className="mt-2.5 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/50 text-neutral-800 dark:text-neutral-200 flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <Lightbulb className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                   <div>
                     {isLoadingHint ? (
-                      <span className="text-neutral-500">Translating...</span>
+                      <span className="text-neutral-500 dark:text-neutral-400">Translating...</span>
                     ) : hintData?.hint_translation ? (
                       <div>
-                        <span className="text-neutral-600">"{hintData.selected_source_words?.join(' ')}"</span>
+                        <span className="text-neutral-600 dark:text-neutral-400">"{hintData.selected_source_words?.join(' ')}"</span>
                         {' → '}
-                        <strong className="text-neutral-900 font-semibold">{hintData.hint_translation}</strong>
+                        <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">{hintData.hint_translation}</strong>
                       </div>
                     ) : (
-                      <span className="text-neutral-500">Select words to see mapping</span>
+                      <span className="text-neutral-500 dark:text-neutral-400">Select words to see mapping</span>
                     )}
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={clearHint}
-                  className="p-1 rounded text-neutral-400 hover:text-neutral-700 transition-colors"
+                  className="p-1 rounded text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
                   title="Clear hint"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -415,7 +417,7 @@ export default function SentenceCard({
                     onKeyDown={handleKeyDown}
                     disabled={isEvaluating}
                     placeholder="Type French translation..."
-                    className="w-full px-4 py-3 bg-neutral-100 focus:bg-white text-neutral-900 placeholder-neutral-400 rounded-xl text-base focus:outline-none focus:ring-1 focus:ring-neutral-900/20 transition-all disabled:opacity-50"
+                    className="w-full px-4 py-3 bg-neutral-100 dark:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-850 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 border border-transparent dark:border-neutral-700 rounded-xl text-base focus:outline-none focus:ring-1 focus:ring-neutral-900/20 dark:focus:ring-neutral-100/20 transition-all disabled:opacity-50"
                     autoFocus={index === 0}
                   />
                 </div>
@@ -435,7 +437,7 @@ export default function SentenceCard({
                         type="button"
                         onClick={() => insertAccent(char)}
                         disabled={isEvaluating}
-                        className="w-7 h-7 flex items-center justify-center rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-medium transition-colors disabled:opacity-50"
+                        className="w-7 h-7 flex items-center justify-center rounded bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors disabled:opacity-50"
                       >
                         {char}
                       </button>
@@ -448,7 +450,7 @@ export default function SentenceCard({
                       type="button"
                       onClick={handleSkipClick}
                       disabled={isEvaluating}
-                      className="px-3 py-1.5 text-xs font-medium rounded-lg text-neutral-400 hover:text-neutral-800 transition-colors flex items-center gap-1 disabled:opacity-40"
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors flex items-center gap-1 disabled:opacity-40"
                     >
                       <FastForward className="w-3.5 h-3.5" />
                       <span>Skip</span>
@@ -457,7 +459,7 @@ export default function SentenceCard({
                     <button
                       type="submit"
                       disabled={!inputText.trim() || isEvaluating}
-                      className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white transition-colors flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-900 dark:bg-neutral-100 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-900 transition-colors flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <span>Check</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -468,13 +470,13 @@ export default function SentenceCard({
             ) : (
               /* Completed user translation */
               <div className="space-y-2">
-                <div className="p-4 rounded-xl bg-neutral-50 min-h-[86px] flex flex-col justify-center">
-                  <div className="text-xs text-neutral-400 font-medium mb-1">Your French Translation:</div>
-                  <div className="text-base text-neutral-900 font-medium">
+                <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200/40 dark:border-neutral-800 min-h-[86px] flex flex-col justify-center">
+                  <div className="text-xs text-neutral-400 dark:text-neutral-500 font-medium mb-1">Your French Translation:</div>
+                  <div className="text-base text-neutral-900 dark:text-neutral-100 font-medium">
                     {evalResult.corrected_text || inputText || <span className="text-neutral-400 italic font-normal">—</span>}
                   </div>
                   {evalResult.autocorrect_msgs?.length > 0 && (
-                    <div className="text-xs text-neutral-500 mt-2 flex items-center gap-1">
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 flex items-center gap-1">
                       <span>💡 Autocorrect:</span>
                       <span className="font-mono">{evalResult.autocorrect_msgs.join(', ')}</span>
                     </div>
@@ -490,9 +492,9 @@ export default function SentenceCard({
           
           {/* Evaluating State */}
           {isEvaluating && (
-            <div className="h-full min-h-[260px] flex flex-col items-center justify-center gap-2 text-neutral-400 rounded-2xl bg-neutral-50/50 border border-neutral-100">
-              <Loader2 className="w-6 h-6 animate-spin text-neutral-600" />
-              <div className="text-xs font-medium text-neutral-500">Evaluating translation...</div>
+            <div className="h-full min-h-[260px] flex flex-col items-center justify-center gap-2 text-neutral-400 rounded-2xl bg-neutral-50/50 dark:bg-neutral-800/30 border border-neutral-100 dark:border-neutral-800">
+              <Loader2 className="w-6 h-6 animate-spin text-neutral-600 dark:text-neutral-400" />
+              <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Evaluating translation...</div>
             </div>
           )}
 
@@ -503,26 +505,26 @@ export default function SentenceCard({
               {/* SUB-LEFT: Only Reference sentence & Word Alignment with both target & student */}
               <div className="md:col-span-7 space-y-3 flex flex-col justify-start overflow-y-auto pr-1">
                 {isBlindRetryActive ? (
-                  <div className="p-5 rounded-2xl bg-neutral-100/50 border border-neutral-200/50 flex flex-col items-center justify-center text-center h-full min-h-[160px]">
-                    <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-neutral-400 mb-3">
+                  <div className="p-5 rounded-2xl bg-neutral-100/50 dark:bg-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50 flex flex-col items-center justify-center text-center h-full min-h-[160px]">
+                    <div className="w-10 h-10 rounded-full bg-white dark:bg-neutral-900 shadow-sm flex items-center justify-center text-neutral-400 mb-3">
                       <AlertCircle className="w-5 h-5" />
                     </div>
-                    <div className="text-sm font-medium text-neutral-800 mb-1">
+                    <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-1">
                       Correction masquée
                     </div>
-                    <div className="text-xs text-neutral-500 max-w-[200px]">
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400 max-w-[200px]">
                       Corrigez vos erreurs en vous aidant des scores à droite, puis réessayez.
                     </div>
                   </div>
                 ) : (
                   <>
                     {/* Reference Translation */}
-                    <div className="p-3 rounded-xl bg-neutral-50 shrink-0">
-                      <div className="text-xs text-neutral-500 font-medium flex items-center gap-1 mb-1">
-                        <BookOpen className="w-3.5 h-3.5 text-neutral-500" />
+                    <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200/40 dark:border-neutral-800 shrink-0">
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400 font-medium flex items-center gap-1 mb-1">
+                        <BookOpen className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
                         <span>Reference Translation:</span>
                       </div>
-                      <div className="text-base text-neutral-900 font-medium leading-relaxed">
+                      <div className="text-base text-neutral-900 dark:text-neutral-100 font-medium leading-relaxed">
                         {sentence.fr.split(/(\s+)/).map((part, pIdx) => {
                           const cleanPart = part.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '')
                             .replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
@@ -535,7 +537,7 @@ export default function SentenceCard({
                             return (
                               <span
                                 key={pIdx}
-                                className="bg-purple-100 text-purple-900 font-semibold px-1 py-0.5 rounded border border-purple-300"
+                                className="bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold px-1 py-0.5 rounded border border-purple-300 dark:border-purple-800"
                                 title={`Nouveau mot (${firstTimeLemmas.join(', ')})`}
                               >
                                 {part}
@@ -568,7 +570,7 @@ export default function SentenceCard({
                 <div className="space-y-3">
                   {/* Score Badge */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
+                    <span className="text-[11px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
                       Evaluation
                     </span>
                     {scoreBadge && (
@@ -580,21 +582,21 @@ export default function SentenceCard({
 
                   {/* Submetrics Breakdown */}
                   <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="p-2 rounded-xl bg-neutral-50">
-                      <div className="text-[10px] text-neutral-400 font-medium">Semantic</div>
-                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_sem ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <div className="p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/40 dark:border-neutral-800">
+                      <div className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">Semantic</div>
+                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_sem ?? 0) >= threshold ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                         {evalResult.s_sem ?? 0}%
                       </div>
                     </div>
-                    <div className="p-2 rounded-xl bg-neutral-50">
-                      <div className="text-[10px] text-neutral-400 font-medium">NMT</div>
-                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_nmt ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <div className="p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/40 dark:border-neutral-800">
+                      <div className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">NMT</div>
+                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_nmt ?? 0) >= threshold ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                         {evalResult.s_nmt ?? 0}%
                       </div>
                     </div>
-                    <div className="p-2 rounded-xl bg-neutral-50">
-                      <div className="text-[10px] text-neutral-400 font-medium">Fluency</div>
-                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_fluency ?? 0) >= threshold ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <div className="p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/40 dark:border-neutral-800">
+                      <div className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">Fluency</div>
+                      <div className={`text-sm font-semibold font-mono mt-0.5 ${(evalResult.s_fluency ?? 0) >= threshold ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                         {evalResult.s_fluency ?? 0}%
                       </div>
                     </div>
@@ -602,8 +604,8 @@ export default function SentenceCard({
 
                   {/* High Surprise Anomaly Flags (Unexpected Words) */}
                   {errorWords.length > 0 && (
-                    <div className="p-2.5 rounded-xl bg-neutral-50 text-xs space-y-1 text-neutral-800">
-                      <div className="font-semibold text-neutral-700 flex items-center gap-1.5">
+                    <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/40 dark:border-neutral-800 text-xs space-y-1 text-neutral-800 dark:text-neutral-200">
+                      <div className="font-semibold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
                         <AlertCircle className="w-3.5 h-3.5 text-neutral-500" />
                         <span>Unexpected Words:</span>
                       </div>
@@ -611,7 +613,7 @@ export default function SentenceCard({
                         {errorWords.map((item, i) => (
                           <span
                             key={i}
-                            className="px-2 py-0.5 rounded bg-neutral-200 text-neutral-800 text-[11px]"
+                            className="px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-[11px]"
                             title={item.source_word ? `Expected "${item.top_prediction}" for "${item.source_word}" (ΔL: ${item.delta_l.toFixed(1)})` : `Expected: "${item.top_prediction}" (ΔL: ${item.delta_l.toFixed(1)})`}
                           >
                             "{item.word}" → <strong>{item.top_prediction}</strong>
@@ -623,33 +625,32 @@ export default function SentenceCard({
 
                   {/* Grammar & Syntax Error Notice */}
                   {evalResult.syntactical_errors?.length > 0 && (
-                    <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/70 text-xs shadow-xs space-y-2">
-                      <div className="flex items-center gap-2 text-amber-900 font-semibold tracking-tight">
-                        <div className="p-1 rounded-md bg-amber-100/80 text-amber-700">
+                    <div className="p-3 rounded-xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-900/60 text-xs shadow-xs space-y-2">
+                      <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-semibold tracking-tight">
+                        <div className="p-1 rounded-md bg-amber-100/80 dark:bg-amber-900/80 text-amber-700 dark:text-amber-300">
                           <AlertCircle className="w-3.5 h-3.5" />
                         </div>
                         <span>Grammar & Syntax Feedback</span>
-                        <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-200/60 text-amber-800">
+                        <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-200/60 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200">
                           {evalResult.syntactical_errors.length} {evalResult.syntactical_errors.length === 1 ? 'issue' : 'issues'}
                         </span>
                       </div>
                       <div className="space-y-1.5 pt-0.5 max-h-36 overflow-y-auto">
                         {evalResult.syntactical_errors.map((err, i) => {
-                          // Extract context prefix like On 'phrase': if present
                           const match = err.match(/^On '([^']+)':\s*(.+)$/);
                           if (match) {
                             const [, contextPhrase, explanation] = match;
                             return (
-                              <div key={i} className="flex items-start gap-2 bg-white/70 border border-amber-100 rounded-lg p-2 text-neutral-800 leading-relaxed">
-                                <span className="shrink-0 px-1.5 py-0.5 rounded bg-amber-100/90 text-amber-900 font-mono text-[11px] font-semibold">
+                              <div key={i} className="flex items-start gap-2 bg-white/70 dark:bg-neutral-900/70 border border-amber-100 dark:border-amber-900/40 rounded-lg p-2 text-neutral-800 dark:text-neutral-200 leading-relaxed">
+                                <span className="shrink-0 px-1.5 py-0.5 rounded bg-amber-100/90 dark:bg-amber-900/90 text-amber-900 dark:text-amber-200 font-mono text-[11px] font-semibold">
                                   {contextPhrase}
                                 </span>
-                                <span className="text-neutral-700 text-[11px] pt-0.5">{explanation}</span>
+                                <span className="text-neutral-700 dark:text-neutral-300 text-[11px] pt-0.5">{explanation}</span>
                               </div>
                             );
                           }
                           return (
-                            <div key={i} className="bg-white/70 border border-amber-100 rounded-lg p-2 text-neutral-700 text-[11px] leading-relaxed">
+                            <div key={i} className="bg-white/70 dark:bg-neutral-900/70 border border-amber-100 dark:border-amber-900/40 rounded-lg p-2 text-neutral-700 dark:text-neutral-300 text-[11px] leading-relaxed">
                               {err}
                             </div>
                           );
@@ -660,7 +661,7 @@ export default function SentenceCard({
 
                   {/* Language warning (only if genuine non-French) */}
                   {!evalResult.is_french && (
-                    <div className="p-2.5 rounded-xl bg-red-50 text-red-800 text-xs flex items-start gap-2">
+                    <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200/60 dark:border-red-900/60 text-red-800 dark:text-red-200 text-xs flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                       <div>
                         <span className="font-semibold">Language Warning:</span> Input was not recognized as French
@@ -673,13 +674,13 @@ export default function SentenceCard({
                 </div>
 
                 {/* Actions: Retry */}
-                <div className="pt-2 border-t border-neutral-100 flex items-center justify-between shrink-0">
+                <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between shrink-0">
                   {evalResult.is_retry ? (
-                    <div className="text-xs text-neutral-400 italic">
+                    <div className="text-xs text-neutral-400 dark:text-neutral-500 italic">
                       Premier essai enregistré.
                     </div>
                   ) : (
-                    <div className="text-[10px] text-neutral-400">
+                    <div className="text-[10px] text-neutral-400 dark:text-neutral-500">
                       Score first try only
                     </div>
                   )}
@@ -688,7 +689,7 @@ export default function SentenceCard({
                       <button
                         type="button"
                         onClick={handleRevealClick}
-                        className="px-3 py-1.5 text-xs font-medium rounded-xl border border-neutral-200 hover:bg-neutral-100 text-neutral-600 transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium rounded-xl border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-colors"
                       >
                         Voir la réponse
                       </button>
@@ -696,7 +697,7 @@ export default function SentenceCard({
                     <button
                       type="button"
                       onClick={handleRetryClick}
-                      className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white transition-colors flex items-center gap-1.5 shadow-sm"
+                      className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-900 dark:bg-neutral-100 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-900 transition-colors flex items-center gap-1.5 shadow-sm"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>Réessayer</span>
@@ -710,14 +711,14 @@ export default function SentenceCard({
 
           {/* Idle / Waiting for Submission Placeholder */}
           {!isDone && !isEvaluating && (
-            <div className="h-full p-6 text-center text-neutral-400 rounded-2xl bg-neutral-50/40 border border-neutral-100/80 flex flex-col items-center justify-center space-y-2">
-              <div className="w-9 h-9 rounded-full bg-white shadow-xs border border-neutral-200/60 flex items-center justify-center text-neutral-400 mb-1">
+            <div className="h-full p-6 text-center text-neutral-400 dark:text-neutral-500 rounded-2xl bg-neutral-50/40 dark:bg-neutral-800/30 border border-neutral-100/80 dark:border-neutral-800/80 flex flex-col items-center justify-center space-y-2">
+              <div className="w-9 h-9 rounded-full bg-white dark:bg-neutral-900 shadow-xs border border-neutral-200/60 dark:border-neutral-800 flex items-center justify-center text-neutral-400 mb-1">
                 <Sparkles className="w-4 h-4 text-neutral-400" />
               </div>
-              <div className="text-xs font-medium text-neutral-500">
+              <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                 Correction & Word Mapping
               </div>
-              <p className="text-[11px] text-neutral-400 max-w-xs leading-relaxed">
+              <p className="text-[11px] text-neutral-400 dark:text-neutral-500 max-w-xs leading-relaxed">
                 Submit your translation on the left to see semantic score, neural word alignment, and grammar feedback.
               </p>
             </div>
