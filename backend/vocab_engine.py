@@ -37,6 +37,7 @@ SPACY_TO_LEXIQUE_POS = {
 }
 
 
+
 class VocabEngine:
     def __init__(self):
         self.flelex_data = {}        # lemma -> {'level': str, 'score': int, 'freq': float}
@@ -451,6 +452,162 @@ class VocabEngine:
         return pairs
 
 
+    def resolve_token_lexema_id(
+        self,
+        tok,
+        lemma_pos_to_id: Dict[Tuple[str, Optional[str]], int],
+        lemma_fallback_to_id: Dict[str, int]
+    ) -> Optional[int]:
+        """
+        Resolves a spaCy token to its corresponding database lexema ID.
+        Uses spaCy's native French lemmatizer (which handles elisions/contractions such as j', l', d', qu'),
+        Lexique383 POS-based mapping, and surface derivations.
+        Returns the integer lexema ID, or None if no matching lexema exists in the database.
+        """
+        if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
+            return None
+
+        text_raw = tok.text.strip()
+        if not text_raw:
+            return None
+
+        text_lower = text_raw.lower()
+        clean_text = text_lower.rstrip("'’")
+        pos = tok.pos_
+
+        # 1. spaCy native French lemma (handles elisions and contractions like j' -> je, l' -> le, d' -> de, qu' -> que, etc.)
+        spacy_lem = tok.lemma_.lower().strip().rstrip("'’")
+        if spacy_lem:
+            lid = lemma_pos_to_id.get((spacy_lem, pos)) or lemma_fallback_to_id.get(spacy_lem)
+            if lid:
+                return lid
+
+        # 2. Candidate lemma from get_word_level (checks Lexique POS, A1 words, FLELex)
+        _, _, lvl_lemma = self.get_word_level(tok)
+        if lvl_lemma:
+            lvl_clean = lvl_lemma.lower().strip().rstrip("'’")
+            lid = lemma_pos_to_id.get((lvl_clean, pos)) or lemma_fallback_to_id.get(lvl_clean)
+            if lid:
+                return lid
+
+        # 3. Lexique POS-specific lookup
+        target_cgrams = SPACY_TO_LEXIQUE_POS.get(pos, [])
+        for cg in target_cgrams:
+            if (clean_text, cg) in self.lexique_pos_lemma:
+                lx_lem = self.lexique_pos_lemma[(clean_text, cg)][0].lower().strip().rstrip("'’")
+                lid = lemma_pos_to_id.get((lx_lem, pos)) or lemma_fallback_to_id.get(lx_lem)
+                if lid:
+                    return lid
+
+        # 4. Lexique best lemma lookup
+        if clean_text in self.lexique_best_lemma:
+            lx_lem = self.lexique_best_lemma[clean_text][0].lower().strip().rstrip("'’")
+            lid = lemma_pos_to_id.get((lx_lem, pos)) or lemma_fallback_to_id.get(lx_lem)
+            if lid:
+                return lid
+
+        # 5. Surface text fallback
+        if clean_text:
+            lid = lemma_pos_to_id.get((clean_text, pos)) or lemma_fallback_to_id.get(clean_text)
+            if lid:
+                return lid
+
+        return None
+
+    def is_sentence_fully_covered(
+        self,
+        doc_or_text: Any,
+        lemma_pos_to_id: Dict[Tuple[str, Optional[str]], int],
+        lemma_fallback_to_id: Dict[str, int]
+    ) -> Tuple[bool, List[int]]:
+        """
+        Checks whether ALL words in a sentence have a corresponding lexema in the database.
+        Returns:
+            is_valid (bool): True if every word has a lexema, False if any word is missing a lexema or sentence has no words.
+            lexema_ids (list[int]): Unique list of lexema IDs for the sentence words.
+        """
+        if isinstance(doc_or_text, str):
+            if not doc_or_text.strip():
+                return False, []
+            doc = self.nlp(doc_or_text.strip())
+        else:
+            doc = doc_or_text
+
+        has_words = False
+        seen_lids = []
+        for tok in doc:
+            if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
+                continue
+            has_words = True
+            lid = self.resolve_token_lexema_id(tok, lemma_pos_to_id, lemma_fallback_to_id)
+            if lid is None:
+                return False, []
+            if lid not in seen_lids:
+                seen_lids.append(lid)
+
+        return has_words, seen_lids
+
+    def filter_sentences_with_complete_lexemas(
+        self,
+        sentences: List[Dict[str, Any]],
+        data_manager: Any,
+        batch_size: int = 500,
+        show_progress: bool = True
+    ) -> Tuple[List[Dict[str, Any]], int]:
+        """
+        Filters a list of sentences to only include those where EVERY word has a lexema in the database.
+        Sentences with any missing lexema are skipped.
+        Returns:
+            accepted_sentences (list[dict]): Sentences where all words have DB lexemas.
+            skipped_count (int): Count of skipped sentences.
+        """
+        if not sentences:
+            return [], 0
+
+        # Load DB lexemas map
+        with data_manager._get_connection() as conn:
+            cursor = conn.execute("SELECT id, lemma, pos FROM lexemas;")
+            rows = cursor.fetchall()
+            lemma_pos_to_id = {}
+            lemma_fallback_to_id = {}
+            for r in rows:
+                lem = r['lemma']
+                pos = r['pos']
+                lid = r['id']
+                if pos:
+                    lemma_pos_to_id[(lem, pos)] = lid
+                if lem not in lemma_fallback_to_id:
+                    lemma_fallback_to_id[lem] = lid
+
+        if not lemma_pos_to_id and not lemma_fallback_to_id:
+            # If lexemas table is empty, all sentences are skipped
+            return [], len(sentences)
+
+        accepted_sentences = []
+        skipped_count = 0
+
+        try:
+            from tqdm import tqdm
+            iterator = range(0, len(sentences), batch_size)
+            if show_progress:
+                iterator = tqdm(iterator, desc="Filtering lexema coverage", total=(len(sentences) + batch_size - 1) // batch_size)
+        except ImportError:
+            iterator = range(0, len(sentences), batch_size)
+
+        for i in iterator:
+            chunk = sentences[i:i + batch_size]
+            texts = [s.get('fr', '').strip() for s in chunk]
+            docs = list(self.nlp.pipe(texts, batch_size=batch_size))
+
+            for s_dict, doc in zip(chunk, docs):
+                is_valid, _ = self.is_sentence_fully_covered(doc, lemma_pos_to_id, lemma_fallback_to_id)
+                if is_valid:
+                    accepted_sentences.append(s_dict)
+                else:
+                    skipped_count += 1
+
+        return accepted_sentences, skipped_count
+
     def link_sentence_lexemas_to_database(self, data_manager, batch_size: int = 500, verbose: bool = True):
         """
         Links all sentences in the database to the pre-seeded lexemas table:
@@ -498,16 +655,7 @@ class VocabEngine:
                 s_id = s_dict['id']
                 seen_lids = set()
                 for tok in doc:
-                    if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
-                        continue
-                    _, _, lemma = self.get_word_level(tok)
-                    if not lemma:
-                        lemma = tok.lemma_.lower().strip()
-                    lemma = lemma.lower().strip()
-                    if lemma.endswith("'") or lemma.endswith("’"):
-                        continue
-                    pos = tok.pos_
-                    lid = lemma_pos_to_id.get((lemma, pos)) or lemma_fallback_to_id.get(lemma)
+                    lid = self.resolve_token_lexema_id(tok, lemma_pos_to_id, lemma_fallback_to_id)
                     if lid and lid not in seen_lids:
                         seen_lids.add(lid)
                         chunk_links.append((s_id, lid))
