@@ -6,6 +6,7 @@ import time
 from unittest.mock import MagicMock
 import pytest
 from fastapi.testclient import TestClient
+from backend.db.connection import ROOT_DIR
 
 
 def get_ephemeral_port():
@@ -99,7 +100,7 @@ class TestLifecycleCleanup:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             preexec_fn=os.setsid,
-            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            cwd=str(ROOT_DIR),
         )
 
         try:

@@ -10,6 +10,7 @@ from backend.ingestion.pipeline import (
     run_ingest_and_link,
     run_clear_db
 )
+from backend.ingestion.pipeline.mine_hf_dataset import run_mine_hf_dataset
 
 
 def main():
@@ -21,11 +22,12 @@ def main():
     parser.add_argument("--seed-lexemas", action="store_true", help="Seed the lexemas catalog table from flelex_beacco.tsv")
     parser.add_argument("--mine-tatoeba", action="store_true", help="Mine and score sentences from Tatoeba dataset")
     parser.add_argument("--mine-pdf", type=str, metavar="PATH", help="Mine, score, and translate sentences from a monolingual French PDF")
+    parser.add_argument("--mine-hf", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
     parser.add_argument("--ingest", action="store_true", help="Ingest mined sentences into the database and build relational lexema links")
     
     args = parser.parse_args()
     
-    actions = [args.all, args.init_db, args.reset_db, args.clear_db, args.seed_lexemas, args.mine_tatoeba, args.mine_pdf, args.ingest]
+    actions = [args.all, args.init_db, args.reset_db, args.clear_db, args.seed_lexemas, args.mine_tatoeba, args.mine_pdf, args.mine_hf, args.ingest]
     if not any(actions):
         parser.print_help()
         sys.exit(0)
@@ -79,6 +81,14 @@ def main():
         print("="*50)
         pdf_sentences = run_mine_pdf(args.mine_pdf)
         mined_sentences.extend(pdf_sentences)
+
+    # 5b. Mine HuggingFace
+    if args.all or args.mine_hf:
+        print("\n" + "="*50)
+        print("STEP: Mining HuggingFace Dataset (UniversalCEFR)")
+        print("="*50)
+        hf_sentences = run_mine_hf_dataset()
+        mined_sentences.extend(hf_sentences)
 
     # 6. Ingest & Link
     if args.all or args.ingest:
