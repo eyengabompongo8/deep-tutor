@@ -417,7 +417,7 @@ export default function SentenceCard({
                     onKeyDown={handleKeyDown}
                     disabled={isEvaluating}
                     placeholder="Type French translation..."
-                    className="w-full px-4 py-3 bg-neutral-100 dark:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-850 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 border border-transparent dark:border-neutral-700 rounded-xl text-base focus:outline-none focus:ring-1 focus:ring-neutral-900/20 dark:focus:ring-neutral-100/20 transition-all disabled:opacity-50"
+                    className="w-full px-4 py-3 bg-neutral-100 dark:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 border border-transparent dark:border-neutral-700 rounded-xl text-base focus:outline-none focus:ring-1 focus:ring-neutral-900/20 dark:focus:ring-neutral-100/20 transition-all disabled:opacity-50"
                     autoFocus={index === 0}
                   />
                 </div>
