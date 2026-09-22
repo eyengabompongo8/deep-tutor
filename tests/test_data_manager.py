@@ -190,6 +190,10 @@ class TestDataManager:
         assert settings["preferred_voice"] == "default"
         assert settings["correction_threshold"] == 75.0
         assert settings["cards_per_exercise"] == 3
+        assert settings["auto_jump"] is True
+        assert settings["transcription_retry"] is True
+        assert settings["blind_retry"] is False
+        assert settings["active_mode"] == "translation"
 
         # 2. Update settings
         updated = dm.update_user_settings(
@@ -197,14 +201,26 @@ class TestDataManager:
             theme="dark",
             preferred_voice="female",
             correction_threshold=80.0,
-            cards_per_exercise=5
+            cards_per_exercise=5,
+            auto_jump=False,
+            transcription_retry=False,
+            blind_retry=True,
+            active_mode="transcription"
         )
         assert updated["theme"] == "dark"
         assert updated["preferred_voice"] == "female"
         assert updated["correction_threshold"] == 80.0
         assert updated["cards_per_exercise"] == 5
+        assert updated["auto_jump"] is False
+        assert updated["transcription_retry"] is False
+        assert updated["blind_retry"] is True
+        assert updated["active_mode"] == "transcription"
 
         # 3. Create another user and fetch settings (auto creates)
         user_b = dm.create_user("User B")
         b_settings = dm.get_user_settings(user_b["user_id"])
         assert b_settings["cards_per_exercise"] == 3
+        assert b_settings["auto_jump"] is True
+        assert b_settings["transcription_retry"] is True
+        assert b_settings["blind_retry"] is False
+        assert b_settings["active_mode"] == "translation"

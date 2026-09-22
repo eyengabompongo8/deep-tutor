@@ -103,6 +103,18 @@ export default function App() {
           setTranslationThreshold(data.correction_threshold);
           localStorage.setItem('frenchtutor_translation_threshold', String(data.correction_threshold));
         }
+        if (data.transcription_retry !== undefined && data.transcription_retry !== null) {
+          setTranscriptionRetry(Boolean(data.transcription_retry));
+          localStorage.setItem('frenchtutor_transcription_retry', String(Boolean(data.transcription_retry)));
+        }
+        if (data.blind_retry !== undefined && data.blind_retry !== null) {
+          setBlindRetryEnabled(Boolean(data.blind_retry));
+          localStorage.setItem('frenchtutor_blind_retry', String(Boolean(data.blind_retry)));
+        }
+        if (data.active_mode) {
+          setCurrentMode(data.active_mode);
+          localStorage.setItem('frenchtutor_mode', data.active_mode);
+        }
         return data;
       }
       return null;
@@ -120,14 +132,13 @@ export default function App() {
     }
     const init = async () => {
       setIsLoading(true);
-      const [userProfile, userSettings] = await Promise.all([
-        fetchProfile(currentMode, activeUserId),
-        fetchSettings(activeUserId),
-      ]);
+      const userSettings = await fetchSettings(activeUserId);
+      const modeToUse = userSettings?.active_mode || currentMode;
+      const userProfile = await fetchProfile(modeToUse, activeUserId);
       if (userProfile) {
         const score = userProfile.score ?? 1.20;
         const effectiveBatchSize = userSettings?.cards_per_exercise ?? batchSize;
-        await fetchBatch(score, effectiveBatchSize, [], currentMode, activeUserId);
+        await fetchBatch(score, effectiveBatchSize, [], modeToUse, activeUserId);
       }
       setIsLoading(false);
     };
@@ -144,13 +155,12 @@ export default function App() {
     setSessionProgress({ completed: 0, total: 0 });
     setIsLoading(true);
     try {
-      const [userProfile, userSettings] = await Promise.all([
-        fetchProfile(currentMode, userId),
-        fetchSettings(userId),
-      ]);
+      const userSettings = await fetchSettings(userId);
+      const modeToUse = userSettings?.active_mode || currentMode;
+      const userProfile = await fetchProfile(modeToUse, userId);
       const score = userProfile?.score ?? 1.20;
       const effectiveBatchSize = userSettings?.cards_per_exercise ?? batchSize;
-      await fetchBatch(score, effectiveBatchSize, [], currentMode, userId);
+      await fetchBatch(score, effectiveBatchSize, [], modeToUse, userId);
     } catch (err) {
       console.error('Failed to initialize selected user:', err);
     } finally {
@@ -193,6 +203,13 @@ export default function App() {
     if (newMode === currentMode) return;
     setCurrentMode(newMode);
     localStorage.setItem('frenchtutor_mode', newMode);
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active_mode: newMode }),
+      }).catch(err => console.warn('Failed to update active_mode setting:', err));
+    }
     setSessionProgress({ completed: 0, total: 0 });
     setIsLoading(true);
     try {
@@ -286,11 +303,25 @@ export default function App() {
   const handleToggleTranscriptionRetry = (val) => {
     setTranscriptionRetry(val);
     localStorage.setItem('frenchtutor_transcription_retry', String(val));
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcription_retry: val }),
+      }).catch(err => console.warn('Failed to update transcription_retry setting:', err));
+    }
   };
 
   const handleToggleBlindRetry = (val) => {
     setBlindRetryEnabled(val);
     localStorage.setItem('frenchtutor_blind_retry', String(val));
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blind_retry: val }),
+      }).catch(err => console.warn('Failed to update blind_retry setting:', err));
+    }
   };
 
   const handleChangeTranslationThreshold = (val) => {

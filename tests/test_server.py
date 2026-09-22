@@ -181,16 +181,28 @@ class TestSettingsEndpoints:
         settings = res.json()
         assert settings["user_id"] == "default_user"
         assert settings["cards_per_exercise"] == 3
+        assert settings["auto_jump"] is True
+        assert settings["transcription_retry"] is True
+        assert settings["blind_retry"] is False
+        assert settings["active_mode"] == "translation"
 
         # 2. PUT /api/user/settings
         put_res = test_client.put("/api/user/settings?user_id=default_user", json={
             "cards_per_exercise": 2,
-            "theme": "dark"
+            "theme": "dark",
+            "auto_jump": False,
+            "transcription_retry": False,
+            "blind_retry": True,
+            "active_mode": "transcription"
         })
         assert put_res.status_code == 200
         updated = put_res.json()
         assert updated["cards_per_exercise"] == 2
         assert updated["theme"] == "dark"
+        assert updated["auto_jump"] is False
+        assert updated["transcription_retry"] is False
+        assert updated["blind_retry"] is True
+        assert updated["active_mode"] == "transcription"
 
         # 3. Verify get_exercises_batch without count uses configured cards_per_exercise (2)
         batch_res = test_client.get("/api/exercises/batch?user_id=default_user")

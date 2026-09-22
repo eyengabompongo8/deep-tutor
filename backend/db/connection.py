@@ -219,6 +219,9 @@ class DBConnection:
                 correction_threshold REAL DEFAULT {DEFAULT_CORRECTION_THRESHOLD},
                 cards_per_exercise INTEGER DEFAULT {DEFAULT_CARDS_PER_EXERCISE},
                 auto_jump INTEGER DEFAULT 1,
+                transcription_retry INTEGER DEFAULT 1,
+                blind_retry INTEGER DEFAULT 0,
+                active_mode TEXT DEFAULT 'translation',
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
@@ -227,11 +230,17 @@ class DBConnection:
     def _run_migrations(self, conn: sqlite3.Connection):
         pass
 
-        # Dynamic migration check for auto_jump column in user_settings
+        # Dynamic migration check for user_settings columns
         try:
             settings_cols = [c[1] for c in conn.execute("PRAGMA table_info(user_settings);").fetchall()]
             if 'auto_jump' not in settings_cols:
                 conn.execute("ALTER TABLE user_settings ADD COLUMN auto_jump INTEGER DEFAULT 1;")
+            if 'transcription_retry' not in settings_cols:
+                conn.execute("ALTER TABLE user_settings ADD COLUMN transcription_retry INTEGER DEFAULT 1;")
+            if 'blind_retry' not in settings_cols:
+                conn.execute("ALTER TABLE user_settings ADD COLUMN blind_retry INTEGER DEFAULT 0;")
+            if 'active_mode' not in settings_cols:
+                conn.execute("ALTER TABLE user_settings ADD COLUMN active_mode TEXT DEFAULT 'translation';")
         except Exception:
             pass
 
@@ -259,8 +268,8 @@ class DBConnection:
 
         # Seed user_settings for default_user if not exists
         conn.execute("""
-            INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump)
-            VALUES ('default_user', 'system', 'default', ?, ?, 1);
+            INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, transcription_retry, blind_retry, active_mode)
+            VALUES ('default_user', 'system', 'default', ?, ?, 1, 1, 0, 'translation');
         """, (DEFAULT_CORRECTION_THRESHOLD, DEFAULT_CARDS_PER_EXERCISE))
 
 
