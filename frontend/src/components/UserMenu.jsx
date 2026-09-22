@@ -95,7 +95,7 @@ export default function UserMenu({
       <button
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
-        className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 hover:bg-neutral-50/80 dark:hover:bg-neutral-750 shadow-2xs transition-all focus:outline-hidden focus:ring-2 focus:ring-neutral-400"
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 hover:bg-neutral-50/80 dark:hover:bg-neutral-700 shadow-2xs transition-all focus:outline-hidden focus:ring-2 focus:ring-neutral-400"
         aria-label="Menu utilisateur"
         title={`Profil actif: ${userName}`}
       >
@@ -115,7 +115,7 @@ export default function UserMenu({
       {isOpen && (
         <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/90 dark:border-neutral-800 shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
           {/* User Profile Header Card */}
-          <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center gap-3 bg-neutral-50/50 dark:bg-neutral-850/50 rounded-t-2xl">
+          <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center gap-3 bg-neutral-50/50 dark:bg-neutral-800/50 rounded-t-2xl">
             <div className="w-10 h-10 rounded-full bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold uppercase shadow-xs">
               {userName.charAt(0) || <User className="w-5 h-5" />}
             </div>

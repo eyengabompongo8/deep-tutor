@@ -210,7 +210,7 @@ export default function TranscriptionCard({
       </div>
 
       {/* Audio Playback Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-neutral-50/80 dark:bg-neutral-850/60 border border-neutral-100 dark:border-neutral-800">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-neutral-50/80 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center gap-3 w-full sm:w-auto">
           {/* Main Play Button */}
           <button
@@ -219,7 +219,7 @@ export default function TranscriptionCard({
             className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-sm transition-all shadow-xs ${
               isPlaying && playbackSpeed === 1.0
                 ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-neutral-900/20'
-                : 'bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-750 text-neutral-800 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700'
+                : 'bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700'
             }`}
           >
             {isPlaying && playbackSpeed === 1.0 ? (
@@ -237,7 +237,7 @@ export default function TranscriptionCard({
             className={`flex items-center gap-1.5 px-4 py-3 rounded-xl font-medium text-xs transition-all ${
               isPlaying && playbackSpeed === 0.75
                 ? 'bg-amber-600 text-white shadow-xs'
-                : 'bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-750 text-neutral-700 dark:text-neutral-300 border border-neutral-200/80 dark:border-neutral-700'
+                : 'bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 border border-neutral-200/80 dark:border-neutral-700'
             }`}
             title="Écouter à vitesse réduite (0.75x)"
           >
@@ -378,7 +378,7 @@ export default function TranscriptionCard({
               onKeyDown={handleKeyDown}
               disabled={isEvaluating || isSubmittingAttempt}
               placeholder="Tapez ce que vous avez entendu en français..."
-              className="w-full px-5 py-4 text-base sm:text-lg bg-neutral-50/50 dark:bg-neutral-800/50 hover:bg-neutral-50 dark:hover:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-850 rounded-2xl border border-neutral-200 dark:border-neutral-700 focus:border-neutral-900 dark:focus:border-neutral-300 focus:ring-4 focus:ring-neutral-900/5 dark:focus:ring-neutral-100/5 transition-all outline-hidden font-sans text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+              className="w-full px-5 py-4 text-base sm:text-lg bg-neutral-50/50 dark:bg-neutral-800/50 hover:bg-neutral-50 dark:hover:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 focus:border-neutral-900 dark:focus:border-neutral-300 focus:ring-4 focus:ring-neutral-900/5 dark:focus:ring-neutral-100/5 transition-all outline-hidden font-sans text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
             />
           </div>
 
@@ -498,7 +498,7 @@ export default function TranscriptionCard({
               <label className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
                 Votre transcription
               </label>
-              <div className="flex flex-wrap items-center gap-2 p-4 rounded-2xl bg-neutral-50/50 dark:bg-neutral-850/60 border border-neutral-200/70 dark:border-neutral-800">
+              <div className="flex flex-wrap items-center gap-2 p-4 rounded-2xl bg-neutral-50/50 dark:bg-neutral-800/60 border border-neutral-200/70 dark:border-neutral-800">
                 {evalResult.diff.map((item, i) => {
                   if (item.type === 'exact') {
                     return (

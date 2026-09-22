@@ -218,7 +218,7 @@ export default function WordAlignmentView({
           onMouseUp={handleSrcSelection}
           onTouchEnd={handleSrcSelection}
           onKeyUp={handleSrcSelection}
-          className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-750 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
+          className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-700 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
         >
           {srcWords.map((word, idx) => {
             const isSelected = selectedSrcIndices.includes(idx);
@@ -261,7 +261,7 @@ export default function WordAlignmentView({
             onMouseUp={handleRefSelection}
             onTouchEnd={handleRefSelection}
             onKeyUp={handleRefSelection}
-            className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-750 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
+            className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-700 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
           >
             {effectiveRefWords.map((word, idx) => {
               const isSelected = selectedRefIndices.includes(idx);
@@ -305,7 +305,7 @@ export default function WordAlignmentView({
             onMouseUp={handleStudentSelection}
             onTouchEnd={handleStudentSelection}
             onKeyUp={handleStudentSelection}
-            className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-750 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
+            className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-700 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
           >
             {studentWords.map((word, idx) => {
               const isSelected = selectedStudentIndices.includes(idx);
