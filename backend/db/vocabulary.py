@@ -24,9 +24,10 @@ class VocabularyMixin:
             return self._lexemas_cache
 
     def invalidate_lexemas_cache(self):
-        """Invalidates the in-memory lexemas cache."""
+        """Invalidates the in-memory lexemas cache and candidate sentence buffer."""
         with self._lexemas_cache_lock:
             self._lexemas_cache = None
+            self._user_candidates_buffer = {}
 
     def upsert_lexema(
         self,
@@ -321,75 +322,144 @@ class VocabularyMixin:
         user_id: str = 'default_user',
         target_score: float = STARTING_SCORE,
         count: int = DEFAULT_CARDS_PER_EXERCISE,
-        max_unknown: int = MAX_UNKNOWN_WORDS,
+        max_unknown: int = 2,
         exclude_ids: Optional[List[int]] = None,
         mode: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
-        Progressively picks sentences where the user knows almost all words,
-        and only a small number (0 to max_unknown) of words they do not know.
-        If max_unknown == 0 or mode == 'transcription', guarantees that returned
-        sentences contain 0 unknown words (only words the user is familiar with).
+        Progressively selects sentences filtered strictly by CEFR level and number of unknown lexemas (0 to max_unknown).
+        Maintains an in-memory buffer to pop sentences quickly for subsequent exercises without redundant SQL queries.
         """
         import random
+        from backend.scoring_engine import score_to_level
+
         if mode == 'transcription':
             max_unknown = 0
 
-        known_lexema_ids = self.get_user_known_lexema_ids(user_id)
+        target_level = score_to_level(target_score)
         exclude_set = set(exclude_ids or [])
+        buffer_key = f"{user_id}_{target_level}_{mode}"
 
-        # Tiered candidate query to leverage idx_sentences_score_lexical range scans
-        min_candidates = max(10, count * 4)
-        with self._get_connection() as conn:
-            # Tier 1: narrow window (+/- 0.8)
-            cursor = conn.execute("""
-                SELECT s.*, GROUP_CONCAT(sl.lexema_id) as lexema_ids
+        if not hasattr(self, '_user_candidates_buffer') or self._user_candidates_buffer is None:
+            self._user_candidates_buffer = {}
+
+        if buffer_key not in self._user_candidates_buffer:
+            self._user_candidates_buffer[buffer_key] = {'reinforcement': [], 'progression': []}
+
+        buffer = self._user_candidates_buffer[buffer_key]
+
+        # Clean out any excludes from the buffer
+        buffer['reinforcement'] = [c for c in buffer['reinforcement'] if c.get('id') not in exclude_set]
+        buffer['progression'] = [c for c in buffer['progression'] if c.get('id') not in exclude_set]
+
+        num_prog = max(1, round(count * 0.67)) if mode != 'transcription' else 0
+        num_reinf = count - num_prog if mode != 'transcription' else count
+
+        # If the buffer is running low, perform the SQL query to refill it
+        if len(buffer['reinforcement']) < num_reinf or len(buffer['progression']) < num_prog:
+            levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+            idx = levels.index(target_level) if target_level in levels else 0
+            prior_levels = levels[:idx]
+
+            known_conditions = ["is_base = 1"]
+            params = []
+            if prior_levels:
+                pl_placeholders = ",".join(["?"] * len(prior_levels))
+                known_conditions.append(f"level IN ({pl_placeholders})")
+                params.extend(prior_levels)
+
+            known_sql = " OR ".join(known_conditions)
+
+            query = f"""
+                WITH known_lexemas AS (
+                    SELECT id FROM lexemas WHERE {known_sql}
+                    UNION
+                    SELECT lexema_id FROM user_lexema_counts WHERE user_id = ? AND success_count >= ?
+                )
+                SELECT 
+                    s.*, 
+                    GROUP_CONCAT(sl.lexema_id) as all_lexema_ids,
+                    SUM(CASE WHEN kl.id IS NULL THEN 1 ELSE 0 END) as unknown_count,
+                    GROUP_CONCAT(CASE WHEN kl.id IS NULL THEN sl.lexema_id ELSE NULL END) as unknown_lexema_ids
                 FROM sentences s
                 JOIN sentence_lexemas sl ON s.id = sl.sentence_id
-                WHERE s.score_lexical BETWEEN ? AND ?
+                LEFT JOIN known_lexemas kl ON sl.lexema_id = kl.id
+                WHERE s.level = ?
                 GROUP BY s.id
-                ORDER BY ABS(s.score_lexical - ?) ASC
-                LIMIT 150;
-            """, (target_score - 0.8, target_score + 0.8, target_score))
-            all_rows = cursor.fetchall()
+                HAVING unknown_count <= ?
+            """
 
-            # Tier 2: wider window (+/- 1.6) if insufficient candidates
-            if len(all_rows) < min_candidates:
-                cursor = conn.execute("""
-                    SELECT s.*, GROUP_CONCAT(sl.lexema_id) as lexema_ids
-                    FROM sentences s
-                    JOIN sentence_lexemas sl ON s.id = sl.sentence_id
-                    WHERE s.score_lexical BETWEEN ? AND ?
-                    GROUP BY s.id
-                    ORDER BY ABS(s.score_lexical - ?) ASC
-                    LIMIT 250;
-                """, (target_score - 1.6, target_score + 1.6, target_score))
+            params.extend([user_id, VOCABULARY_UNLOCK_THRESHOLD, target_level, max_unknown])
+
+            with self._get_connection() as conn:
+                cursor = conn.execute(query, params)
                 all_rows = cursor.fetchall()
 
-            # Tier 3: full corpus fallback if still insufficient
-            if len(all_rows) < min_candidates:
-                cursor = conn.execute("""
-                    SELECT s.*, GROUP_CONCAT(sl.lexema_id) as lexema_ids
-                    FROM sentences s
-                    JOIN sentence_lexemas sl ON s.id = sl.sentence_id
-                    GROUP BY s.id
-                    ORDER BY ABS(s.score_lexical - ?) ASC
-                    LIMIT 350;
-                """, (target_score,))
-                all_rows = cursor.fetchall()
+            new_reinf = []
+            new_prog = []
+            excluded_reinf = []
 
-        if not all_rows:
-            all_s = self.get_all_sentences()
-            candidates = [s for s in all_s if s['id'] not in exclude_set]
-            if not candidates:
-                candidates = all_s
-            return candidates[:count]
+            for row in all_rows:
+                s_dict = self._row_to_dict(row)
+                unknown_count = row['unknown_count']
+                s_dict['unknown_count'] = unknown_count
 
-        reinforcement_candidates = []
-        excluded_reinforcement = []
-        progression_candidates = []
-        fallback_candidates = []
+                raw_all = row['all_lexema_ids']
+                s_dict['_sent_lids'] = {int(x) for x in raw_all.split(',')} if raw_all else set()
 
+                raw_unk = row['unknown_lexema_ids']
+                s_dict['_unknown_lids'] = {int(x) for x in raw_unk.split(',')} if raw_unk else set()
+
+                if s_dict['id'] in exclude_set:
+                    if unknown_count == 0:
+                        excluded_reinf.append(s_dict)
+                    continue
+
+                if unknown_count == 0:
+                    new_reinf.append(s_dict)
+                else:
+                    new_prog.append(s_dict)
+
+            # Shuffle and refill buffer
+            random.shuffle(new_reinf)
+            random.shuffle(new_prog)
+            random.shuffle(excluded_reinf)
+            buffer['reinforcement'] = new_reinf
+            buffer['progression'] = new_prog
+            buffer['excluded_reinforcement'] = excluded_reinf
+
+        selected = []
+
+        if mode == 'transcription':
+            actual_reinf = min(count, len(buffer['reinforcement']))
+            for _ in range(actual_reinf):
+                selected.append(buffer['reinforcement'].pop())
+
+            # In transcription mode, if still needed, recycle familiar sentences from excluded
+            if len(selected) < count and buffer.get('excluded_reinforcement'):
+                needed = count - len(selected)
+                recycled = buffer['excluded_reinforcement'][:needed]
+                selected.extend(recycled)
+        else:
+            actual_prog = min(num_prog, len(buffer['progression']))
+            for _ in range(actual_prog):
+                selected.append(buffer['progression'].pop())
+
+            needed_reinf = count - len(selected)
+            actual_reinf = min(needed_reinf, len(buffer['reinforcement']))
+            for _ in range(actual_reinf):
+                selected.append(buffer['reinforcement'].pop())
+
+            # If still needed and progression has remaining cards, use them
+            if len(selected) < count and buffer['progression']:
+                extra_prog = min(count - len(selected), len(buffer['progression']))
+                for _ in range(extra_prog):
+                    selected.append(buffer['progression'].pop())
+
+        if not selected:
+            return []
+
+        # Load lex_dict and user_counts for token derivation
         lex_dict = self.get_lexemas_dict()
         with self._get_connection() as conn:
             user_counts_cursor = conn.execute(
@@ -400,114 +470,9 @@ class VocabularyMixin:
                 r['lexema_id']: {
                     'count': r['appearance_count'],
                     'success_count': r['success_count'],
-                    'is_known': r['lexema_id'] in known_lexema_ids
                 }
                 for r in user_counts_cursor.fetchall()
             }
-
-        for row in all_rows:
-            raw_lids = row['lexema_ids']
-            if not raw_lids:
-                continue
-
-            sent_lids = {int(x) for x in raw_lids.split(',') if x}
-            if not sent_lids:
-                continue
-
-            s_dict = self._row_to_dict(row)
-            is_excluded = s_dict['id'] in exclude_set
-            unknown_lids = sent_lids - known_lexema_ids
-
-            s_dict['unknown_count'] = len(unknown_lids)
-            s_dict['_sent_lids'] = sent_lids
-            s_dict['_unknown_lids'] = unknown_lids
-            score_diff = abs(s_dict.get('score', 1.0) - target_score)
-            s_dict['_score_diff'] = score_diff
-
-            if len(unknown_lids) == 0:
-                if not is_excluded:
-                    reinforcement_candidates.append(s_dict)
-                else:
-                    excluded_reinforcement.append(s_dict)
-            elif max_unknown > 0:
-                if not is_excluded:
-                    if 1 <= len(unknown_lids) <= max_unknown:
-                        progression_candidates.append(s_dict)
-                    else:
-                        fallback_candidates.append(s_dict)
-
-        reinforcement_candidates.sort(key=lambda x: x['_score_diff'])
-        excluded_reinforcement.sort(key=lambda x: x['_score_diff'])
-        progression_candidates.sort(key=lambda x: (x['_score_diff'], x['unknown_count']))
-        fallback_candidates.sort(key=lambda x: (x['unknown_count'], x['_score_diff']))
-
-        selected = []
-        if max_unknown == 0:
-            # Transcription / familiar words only: strictly zero unknown words
-            top_reinf = reinforcement_candidates[:max(10, count * 3)]
-            random.shuffle(top_reinf)
-            selected.extend(top_reinf[:count])
-
-            # If not enough unexcluded familiar sentences, recycle familiar sentences that were excluded
-            needed = count - len(selected)
-            if needed > 0 and excluded_reinforcement:
-                top_ex_reinf = excluded_reinforcement[:max(10, needed * 3)]
-                random.shuffle(top_ex_reinf)
-                selected.extend(top_ex_reinf[:needed])
-
-            # In transcription mode, if still needed, search full corpus for familiar sentences
-            if len(selected) < count:
-                with self._get_connection() as conn:
-                    cursor = conn.execute("""
-                        SELECT s.*, GROUP_CONCAT(sl.lexema_id) as lexema_ids
-                        FROM sentences s
-                        JOIN sentence_lexemas sl ON s.id = sl.sentence_id
-                        GROUP BY s.id
-                        ORDER BY ABS(s.score_lexical - ?) ASC;
-                    """, (target_score,))
-                    extra_rows = cursor.fetchall()
-                selected_ids = {s['id'] for s in selected}
-                for row in extra_rows:
-                    raw_lids = row['lexema_ids']
-                    if not raw_lids:
-                        continue
-                    sent_lids = {int(x) for x in raw_lids.split(',') if x}
-                    if not sent_lids:
-                        continue
-                    if sent_lids.issubset(known_lexema_ids):
-                        s_dict = self._row_to_dict(row)
-                        if s_dict['id'] not in selected_ids:
-                            s_dict['unknown_count'] = 0
-                            s_dict['_sent_lids'] = sent_lids
-                            s_dict['_unknown_lids'] = set()
-                            selected.append(s_dict)
-                            selected_ids.add(s_dict['id'])
-                            if len(selected) == count:
-                                break
-        else:
-            num_prog = max(1, round(count * 0.67))
-            num_reinf = count - num_prog
-
-            top_prog = progression_candidates[:max(10, num_prog * 3)]
-            random.shuffle(top_prog)
-            selected.extend(top_prog[:num_prog])
-
-            needed_reinf = count - len(selected)
-            top_reinf = reinforcement_candidates[:max(10, needed_reinf * 3)]
-            random.shuffle(top_reinf)
-            selected.extend(top_reinf[:needed_reinf])
-
-            if len(selected) < count:
-                selected_ids = {s['id'] for s in selected}
-                for pool in [progression_candidates, reinforcement_candidates, fallback_candidates]:
-                    for item in pool:
-                        if item['id'] not in selected_ids:
-                            selected.append(item)
-                            selected_ids.add(item['id'])
-                            if len(selected) == count:
-                                break
-                    if len(selected) == count:
-                        break
 
         # Resolve accurate token derivations only for the final selected sentences
         try:
@@ -570,3 +535,4 @@ class VocabularyMixin:
             s['first_time_pairs'] = pairs
 
         return selected
+

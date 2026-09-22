@@ -99,7 +99,7 @@ class TestLifecycleCleanup:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             preexec_fn=os.setsid,
-            cwd="/home/eyenga/Projects/french-exercices",
+            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         )
 
         try:
