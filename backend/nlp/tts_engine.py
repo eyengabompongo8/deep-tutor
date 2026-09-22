@@ -4,7 +4,7 @@ import threading
 import asyncio
 from typing import Optional, List, Dict, Any
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 AUDIO_CACHE_DIR = os.path.join(ROOT_DIR, "data", "audio_cache")
 
 # Preferred high-fidelity Parisian French voices
@@ -182,4 +182,3 @@ def get_tts_engine(data_manager: Optional[Any] = None) -> TTSEngine:
     elif data_manager is not None and _tts_instance.data_manager is None:
         _tts_instance.data_manager = data_manager
     return _tts_instance
-

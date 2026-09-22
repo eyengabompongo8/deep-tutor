@@ -86,7 +86,7 @@ addopts = "-v -m 'not ml' --tb=short"
 
 [tool.coverage.run]
 source = ["backend"]
-omit = ["backend/models.py"]
+omit = ["backend/ml/engine.py"]
 
 [tool.coverage.report]
 show_missing = true

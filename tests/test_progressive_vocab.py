@@ -1,6 +1,6 @@
 import pytest
-from backend.data_manager import DataManager
-from backend.scoring_engine import ScoringEngine
+from backend.db import DataManager
+from backend.scoring.engine import ScoringEngine
 
 
 class TestProgressiveVocabulary:

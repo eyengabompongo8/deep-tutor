@@ -1,6 +1,6 @@
-from .data_manager import DataManager
-from .scoring_engine import ScoringEngine, score_to_level
-from .tts_engine import TTSEngine, get_tts_engine
+from .db import DataManager
+from .scoring import ScoringEngine, score_to_level
+from .nlp.tts_engine import TTSEngine, get_tts_engine
 
 __all__ = [
     "DataManager",

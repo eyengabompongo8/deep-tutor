@@ -331,7 +331,7 @@ class VocabularyMixin:
         Maintains an in-memory buffer to pop sentences quickly for subsequent exercises without redundant SQL queries.
         """
         import random
-        from backend.scoring_engine import score_to_level
+        from backend.scoring.cefr import score_to_level
 
         if mode == 'transcription':
             max_unknown = 0
@@ -476,7 +476,7 @@ class VocabularyMixin:
 
         # Resolve accurate token derivations only for the final selected sentences
         try:
-            from backend.vocab_engine import get_vocab_engine
+            from backend.nlp.vocab_engine import get_vocab_engine
         except ImportError:
             get_vocab_engine = None
 

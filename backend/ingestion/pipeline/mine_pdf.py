@@ -8,8 +8,8 @@ import torch
 from transformers import MarianMTModel, MarianTokenizer
 from tqdm import tqdm
 
-from backend.data_manager import DataManager
-from backend.vocab_engine import VocabEngine
+from backend.db import DataManager
+from backend.nlp.vocab_engine import VocabEngine
 
 _nlp = None
 

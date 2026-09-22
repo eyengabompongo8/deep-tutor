@@ -1,6 +1,6 @@
 import os
 import csv
-from backend.data_manager import DataManager
+from backend.db import DataManager
 from backend.db.connection import DB_PATH, ROOT_DIR
 
 

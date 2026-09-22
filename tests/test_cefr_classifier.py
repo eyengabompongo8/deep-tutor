@@ -1,7 +1,7 @@
 import pytest
 import torch
-from backend.model_registry import registry, UniversalCEFRModel, CEFRClassifierModelWrapper
-from backend.vocab_engine import VocabEngine
+from backend.ml.registry import registry, UniversalCEFRModel, CEFRClassifierModelWrapper
+from backend.nlp.vocab_engine import VocabEngine
 
 
 class TestCEFRClassifierUnit:
@@ -21,8 +21,8 @@ class TestCEFRClassifierUnit:
         mock_model.return_value.logits = torch.tensor([[10.0, 1.0, 0.0, 0.0, 0.0, 0.0]])
         mock_model.config.id2label = {0: "A1", 1: "A2", 2: "B1", 3: "B2", 4: "C1", 5: "C2"}
 
-        mocker.patch("backend.model_registry.AutoTokenizer.from_pretrained", return_value=mock_tokenizer)
-        mocker.patch("backend.model_registry.AutoModelForSequenceClassification.from_pretrained", return_value=mock_model)
+        mocker.patch("backend.ml.registry.AutoTokenizer.from_pretrained", return_value=mock_tokenizer)
+        mocker.patch("backend.ml.registry.AutoModelForSequenceClassification.from_pretrained", return_value=mock_model)
 
         wrapper = UniversalCEFRModel(device="cpu", dtype=torch.float32)
         res = wrapper.predict(["Bonjour tout le monde."])

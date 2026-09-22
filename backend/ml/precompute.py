@@ -7,9 +7,11 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from backend.models import MLEngine
+    from backend.ml.engine import MLEngine
 
-from backend.text_utils import get_aligned_targets
+from backend.nlp.text_utils import get_aligned_targets
+from backend.nlp.vocab_engine import get_vocab_engine
+
 
 @dataclass
 class ReferenceBundle:
@@ -194,12 +196,10 @@ class EagerPrecomputeManager:
 
         if first_time_lemmas:
             pairs = []
-            from backend.vocab_engine import get_vocab_engine
-
             if get_vocab_engine is not None:
                 try:
-                    engine = get_vocab_engine()
-                    pairs = engine.extract_sentence_token_pairs(reference_text, first_time_lemmas)
+                    vocab_engine = get_vocab_engine()
+                    pairs = vocab_engine.extract_sentence_token_pairs(reference_text, first_time_lemmas)
                 except Exception:
                     pairs = []
 

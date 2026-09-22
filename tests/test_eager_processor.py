@@ -2,7 +2,8 @@ import time
 import pytest
 import numpy as np
 from unittest.mock import MagicMock
-from backend.eager_processor import EagerPrecomputeManager, get_aligned_targets
+from backend.ml.precompute import EagerPrecomputeManager
+from backend.nlp.text_utils import get_aligned_targets
 
 
 class TestEagerProcessor:

@@ -1,5 +1,5 @@
-from backend.scoring_engine import ScoringEngine, score_to_level
-from backend.data_manager import DataManager
+from backend.scoring import ScoringEngine, score_to_level
+from backend.db import DataManager
 
 
 class TestScoringEngine:

@@ -9,7 +9,7 @@ import zipfile
 import io
 from typing import List, Dict, Any, Optional, Set, Tuple
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
 FLELEX_PATH = os.path.join(DATA_DIR, 'flelex_beacco.tsv')
 LEXIQUE_DIR = os.path.join(DATA_DIR, 'lexique')
@@ -227,8 +227,8 @@ class VocabEngine:
     def get_cefr_classifier(self):
         """Lazy loader for the UniversalCEFR classifier."""
         if not hasattr(self, '_cefr_classifier') or self._cefr_classifier is None:
-            from backend.models import resolve_device_and_dtype
-            from backend.model_registry import registry
+            from backend.ml.engine import resolve_device_and_dtype
+            from backend.ml.registry import registry
             device, dtype = resolve_device_and_dtype()
             self._cefr_classifier = registry.get_cefr("universal_cefr", device, dtype)
         return self._cefr_classifier

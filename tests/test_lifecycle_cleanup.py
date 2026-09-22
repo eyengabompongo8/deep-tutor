@@ -25,18 +25,18 @@ def is_port_in_use(port: int, host: str = "127.0.0.1") -> bool:
 
 class TestLifecycleCleanup:
     def test_ml_engine_close_cleans_up_resources(self, mocker):
-        from backend.models import MLEngine
+        from backend.ml.engine import MLEngine
 
         # Avoid downloading/loading full models during unit test
-        mocker.patch("backend.models.resolve_device_and_dtype", return_value=("cpu", "float32"))
-        mocker.patch("backend.models.registry.get_semantic", return_value=MagicMock())
-        mocker.patch("backend.models.registry.get_nmt", return_value=MagicMock())
-        mocker.patch("backend.models.registry.get_fluency", return_value=MagicMock())
-        mocker.patch("backend.models.hf_hub_download", return_value="/tmp/fake_lid.bin")
-        mocker.patch("backend.models.fasttext.load_model", return_value=MagicMock())
+        mocker.patch("backend.ml.engine.resolve_device_and_dtype", return_value=("cpu", "float32"))
+        mocker.patch("backend.ml.engine.registry.get_semantic", return_value=MagicMock())
+        mocker.patch("backend.ml.engine.registry.get_nmt", return_value=MagicMock())
+        mocker.patch("backend.ml.engine.registry.get_fluency", return_value=MagicMock())
+        mocker.patch("backend.ml.engine.hf_hub_download", return_value="/tmp/fake_lid.bin")
+        mocker.patch("backend.ml.engine.fasttext.load_model", return_value=MagicMock())
 
         mock_lang_tool = MagicMock()
-        mocker.patch("backend.models.language_tool_python.LanguageTool", return_value=mock_lang_tool)
+        mocker.patch("backend.ml.engine.language_tool_python.LanguageTool", return_value=mock_lang_tool)
 
         engine = MLEngine()
         assert engine.lang_tool is mock_lang_tool
@@ -49,7 +49,7 @@ class TestLifecycleCleanup:
         engine.close()
 
     def test_eager_precompute_manager_shutdown(self, isolated_data_manager):
-        from backend.eager_processor import EagerPrecomputeManager
+        from backend.ml.precompute import EagerPrecomputeManager
 
         mock_engine_fn = MagicMock()
         manager = EagerPrecomputeManager(get_engine_fn=mock_engine_fn, data_manager=isolated_data_manager)

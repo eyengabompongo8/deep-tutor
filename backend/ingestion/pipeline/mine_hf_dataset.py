@@ -3,8 +3,8 @@ from typing import List, Dict, Any
 from datasets import load_dataset, concatenate_datasets
 from tqdm import tqdm
 
-from backend.data_manager import DataManager
-from backend.vocab_engine import VocabEngine
+from backend.db import DataManager
+from backend.nlp.vocab_engine import VocabEngine
 from backend.ingestion.pipeline.mine_tatoeba import is_valid_sentence, clean_sentence
 from backend.ingestion.pipeline.mine_pdf import translate_batch
 

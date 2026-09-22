@@ -1,5 +1,5 @@
 import os
-from backend.data_manager import DataManager
+from backend.db import DataManager
 
 
 class TestDataManager:

@@ -2,8 +2,8 @@ import os
 import time
 from typing import List, Dict, Any
 
-from backend.data_manager import DataManager
-from backend.vocab_engine import VocabEngine
+from backend.db import DataManager
+from backend.nlp.vocab_engine import VocabEngine
 from backend.db.connection import DB_PATH, ROOT_DIR
 
 

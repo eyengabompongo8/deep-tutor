@@ -1,5 +1,5 @@
-from backend.scoring_engine import ScoringEngine
-from backend.data_manager import DataManager
+from backend.scoring import ScoringEngine
+from backend.db import DataManager
 
 
 class TestTranscriptionEvaluation:

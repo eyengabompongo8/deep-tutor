@@ -1,8 +1,8 @@
 import os
 import pytest
 import sqlite3
-from backend.data_manager import DataManager
-from backend.vocab_engine import VocabEngine, get_vocab_engine
+from backend.db import DataManager
+from backend.nlp.vocab_engine import VocabEngine, get_vocab_engine
 from backend.ingestion.pipeline.ingest_and_link import run_ingest_and_link, run_clear_db
 
 

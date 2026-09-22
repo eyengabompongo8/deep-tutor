@@ -1,4 +1,4 @@
-from backend.server import autocorrect_text, remove_accents, levenshtein
+from backend.nlp.text_utils import autocorrect_text, remove_accents, levenshtein
 
 
 class TestSpellcheckerAndAccents:

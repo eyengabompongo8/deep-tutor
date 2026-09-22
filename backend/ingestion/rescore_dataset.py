@@ -3,8 +3,8 @@ import os
 from collections import Counter
 from tqdm import tqdm
 
-from backend.vocab_engine import VocabEngine
-from backend.data_manager import DataManager, DB_PATH
+from backend.nlp.vocab_engine import VocabEngine
+from backend.db import DataManager, DB_PATH
 from backend.db.connection import ROOT_DIR
 
 JSON_BACKUP_PATH = os.path.join(ROOT_DIR, 'data', 'sentences.json')

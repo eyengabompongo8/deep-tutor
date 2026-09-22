@@ -1,5 +1,5 @@
 import pytest
-from backend.models import MLEngine
+from backend.ml.engine import MLEngine
 
 
 @pytest.mark.ml

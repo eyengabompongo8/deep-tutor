@@ -1,7 +1,7 @@
 import os
 import re
 from typing import List, Dict, Any
-from backend.vocab_engine import VocabEngine
+from backend.nlp.vocab_engine import VocabEngine
 from backend.db.connection import ROOT_DIR
 
 

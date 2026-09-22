@@ -57,7 +57,7 @@ def mock_tts(tmp_path):
 @pytest.fixture
 def isolated_data_manager(temp_db_path):
     """Provide a DataManager attached to an isolated database with initial seed data."""
-    from backend.data_manager import DataManager
+    from backend.db import DataManager
     dm = DataManager(db_path=temp_db_path)
     dm.bulk_insert_sentences(SEED_SENTENCES)
     return dm
@@ -68,14 +68,15 @@ def test_client(isolated_data_manager, mock_tts, monkeypatch):
     """Provide a FastAPI TestClient wired to the isolated data manager, scoring engine, mock TTS, and eager processor."""
     from fastapi.testclient import TestClient
     from backend import server
-    from backend.scoring_engine import ScoringEngine
-    from backend.eager_processor import EagerPrecomputeManager
+    from backend.api import deps
+    from backend.scoring import ScoringEngine
+    from backend.ml.precompute import EagerPrecomputeManager
     
     engine = ScoringEngine(data_manager=isolated_data_manager)
     eager = EagerPrecomputeManager(get_engine_fn=server.get_ml_engine, data_manager=isolated_data_manager)
-    monkeypatch.setattr(server, "data_manager", isolated_data_manager)
-    monkeypatch.setattr(server, "scoring_engine", engine)
-    monkeypatch.setattr(server, "tts_engine", mock_tts)
-    monkeypatch.setattr(server, "eager_processor", eager)
+    monkeypatch.setattr(deps, "data_manager", isolated_data_manager)
+    monkeypatch.setattr(deps, "scoring_engine", engine)
+    monkeypatch.setattr(deps, "tts_engine", mock_tts)
+    monkeypatch.setattr(deps, "eager_processor", eager)
     
     return TestClient(server.app)
