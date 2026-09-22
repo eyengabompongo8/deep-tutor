@@ -64,43 +64,14 @@ def aggregate_sentencepiece_tokens_to_words(tokens: List[str]) -> Tuple[List[str
 
     words = []
     final_subtoken_indices = []
-    # Generic regex for dynamic apostrophe contraction splitting (NO hardcoded words)
-    contraction_pattern = re.compile(r"^([a-zA-Z]+['’])(.+)$")
 
     for sub_indices in word_subtoken_indices:
         parts = [_strip_boundary(tokens[i]) for i in sub_indices]
         word_text = "".join(parts).strip()
         if not word_text:
             continue
-
-        m = contraction_pattern.match(word_text)
-        if m and m.group(2).strip():
-            prefix = m.group(1)
-            rest = m.group(2).strip()
-
-            words.append(prefix)
-            words.append(rest)
-
-            if len(sub_indices) > 1:
-                prefix_subs = []
-                rest_subs = []
-                running = ""
-                for idx_i, sub_idx in enumerate(sub_indices):
-                    running += parts[idx_i]
-                    if len(prefix_subs) == 0 or len(running) <= len(prefix):
-                        prefix_subs.append(sub_idx)
-                    else:
-                        rest_subs.append(sub_idx)
-                if not rest_subs:
-                    rest_subs = [sub_indices[-1]]
-                final_subtoken_indices.append(prefix_subs)
-                final_subtoken_indices.append(rest_subs)
-            else:
-                final_subtoken_indices.append(sub_indices)
-                final_subtoken_indices.append(sub_indices)
-        else:
-            words.append(word_text)
-            final_subtoken_indices.append(sub_indices)
+        words.append(word_text)
+        final_subtoken_indices.append(sub_indices)
 
     return words, final_subtoken_indices
 

@@ -51,16 +51,18 @@ export default function WordAlignmentView({
     return rev;
   }, [alignedStudentMap]);
 
+  const ELISION_PREFIX_RE = /^(se\s+|qu['’]|jusqu['’]|lorsqu['’]|puisqu['’]|[ldjcmnstLDJCMNST]['’])/i;
+
   // Set of target reference indices that match first-time roots
   const firstTimeTgtSet = useMemo(() => {
     if (!effectiveRefWords.length || (!firstTimeLemmas.length && !firstTimePairs.length)) return new Set();
     const set = new Set();
     effectiveRefWords.forEach((word, idx) => {
-      const cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '')
-        .replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+      const cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F'-]+|[^\w\u00C0-\u017F'-]+$/g, '')
+        .replace(ELISION_PREFIX_RE, '');
       const isMatch = isWordMatchingLemma(word, firstTimeLemmas) ||
         firstTimePairs.some(p => {
-          const pWord = (p.word || '').toLowerCase().replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+          const pWord = (p.word || '').toLowerCase().replace(ELISION_PREFIX_RE, '');
           return pWord && pWord === cleanWord;
         });
       if (isMatch) {
@@ -224,22 +226,24 @@ export default function WordAlignmentView({
             const isSelected = selectedSrcIndices.includes(idx);
             const isFirstTime = !isSelected && firstTimeSrcSet.has(idx);
             return (
-              <span
-                key={idx}
-                data-src-idx={idx}
-                className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
-                  isSelected
-                    ? activeOrigin === 'src'
-                      ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
-                      : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
-                    : isFirstTime
-                      ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border-b-2 border-purple-400 dark:border-purple-500'
-                      : ''
-                }`}
-                title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
-              >
-                {word}{idx < srcWords.length - 1 ? ' ' : ''}
-              </span>
+              <React.Fragment key={idx}>
+                <span
+                  data-src-idx={idx}
+                  className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
+                    isSelected
+                      ? activeOrigin === 'src'
+                        ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                        : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
+                      : isFirstTime
+                        ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border-b-2 border-purple-400 dark:border-purple-500'
+                        : ''
+                  }`}
+                  title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
+                >
+                  {word}
+                </span>
+                {idx < srcWords.length - 1 ? ' ' : ''}
+              </React.Fragment>
             );
           })}
         </div>
@@ -267,22 +271,24 @@ export default function WordAlignmentView({
               const isSelected = selectedRefIndices.includes(idx);
               const isFirstTime = !isSelected && firstTimeTgtSet.has(idx);
               return (
-                <span
-                  key={idx}
-                  data-ref-idx={idx}
-                  className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
-                    isSelected
-                      ? activeOrigin === 'ref'
-                        ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
-                        : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
-                      : isFirstTime
-                        ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border border-purple-300 dark:border-purple-800 shadow-xs'
-                        : ''
-                  }`}
-                  title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
-                >
-                  {word}{idx < effectiveRefWords.length - 1 ? ' ' : ''}
-                </span>
+                <React.Fragment key={idx}>
+                  <span
+                    data-ref-idx={idx}
+                    className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
+                      isSelected
+                        ? activeOrigin === 'ref'
+                          ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                          : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
+                        : isFirstTime
+                          ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border border-purple-300 dark:border-purple-800 shadow-xs'
+                          : ''
+                    }`}
+                    title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
+                  >
+                    {word}
+                  </span>
+                  {idx < effectiveRefWords.length - 1 ? ' ' : ''}
+                </React.Fragment>
               );
             })}
           </div>
@@ -310,19 +316,21 @@ export default function WordAlignmentView({
             {studentWords.map((word, idx) => {
               const isSelected = selectedStudentIndices.includes(idx);
               return (
-                <span
-                  key={idx}
-                  data-student-idx={idx}
-                  className={`inline transition-colors duration-150 rounded px-0.5 ${
-                    isSelected
-                      ? activeOrigin === 'student'
-                        ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
-                        : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
-                      : ''
-                  }`}
-                >
-                  {word}{idx < studentWords.length - 1 ? ' ' : ''}
-                </span>
+                <React.Fragment key={idx}>
+                  <span
+                    data-student-idx={idx}
+                    className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
+                      isSelected
+                        ? activeOrigin === 'student'
+                          ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                          : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
+                        : ''
+                    }`}
+                  >
+                    {word}
+                  </span>
+                  {idx < studentWords.length - 1 ? ' ' : ''}
+                </React.Fragment>
               );
             })}
           </div>

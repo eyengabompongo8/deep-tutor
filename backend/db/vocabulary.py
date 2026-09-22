@@ -515,22 +515,23 @@ class VocabularyMixin:
                     except Exception:
                         pairs = []
                 if not pairs:
-                    fr_tokens = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", s.get('fr', ''), re.UNICODE)
+                    fr_tokens = re.findall(r"[^\W\d_]+(?:[-'][^\W\d_]+)*", s.get('fr', ''), re.UNICODE)
+                    elision_prefix = r"^(se\s+|qu['’]|jusqu['’]|lorsqu['’]|puisqu['’]|[ldjcmnstLDJCMNST]['’])"
                     for lem in s['first_time_lexemas']:
-                        lem_clean = re.sub(r"^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])", "", lem.lower()).strip()
+                        lem_clean = re.sub(elision_prefix, "", lem.lower(), flags=re.IGNORECASE).strip()
                         matched_word = lem_clean
                         for tok in fr_tokens:
-                            tok_clean = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", tok).lower().strip()
+                            tok_clean = re.sub(elision_prefix, "", tok.lower(), flags=re.IGNORECASE).strip()
                             if not tok_clean:
                                 continue
                             if tok_clean == lem_clean:
-                                matched_word = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", tok)
+                                matched_word = re.sub(elision_prefix, "", tok, flags=re.IGNORECASE)
                                 break
                             min_len = min(len(tok_clean), len(lem_clean))
                             if min_len >= 4 and tok_clean[:4] == lem_clean[:4]:
-                                matched_word = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", tok)
+                                matched_word = re.sub(elision_prefix, "", tok, flags=re.IGNORECASE)
                             elif min_len >= 3 and tok_clean[:3] == lem_clean[:3] and abs(len(tok_clean) - len(lem_clean)) <= 2:
-                                matched_word = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", tok)
+                                matched_word = re.sub(elision_prefix, "", tok, flags=re.IGNORECASE)
                         pairs.append({'word': matched_word, 'lemma': lem})
             s['first_time_pairs'] = pairs
 

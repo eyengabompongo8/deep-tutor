@@ -9,7 +9,7 @@ from typing import Dict, List, Tuple, Any, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from backend.ml.engine import MLEngine
 
-from backend.nlp.text_utils import get_aligned_targets
+from backend.nlp.text_utils import get_aligned_targets, normalize_french_typography
 from backend.nlp.vocab_engine import get_vocab_engine
 
 
@@ -159,9 +159,12 @@ class EagerPrecomputeManager:
         """Computes all source-reference passes using MLEngine."""
         engine = self.get_engine()
 
+        # Symmetrically normalize reference text typography and punctuation spacing
+        norm_ref = normalize_french_typography(reference_text)
+
         # 1. NMT perplexity and cross-attention alignment matrix on reference sentence
         nmt_ppl_ref, (src_words, ref_words, attn_matrix_ref), _, _ = engine.evaluate_nmt_and_map(
-            source_text, reference_text
+            source_text, norm_ref
         )
 
         num_tgt = len(ref_words)
@@ -171,13 +174,13 @@ class EagerPrecomputeManager:
         }
 
         # 2. Fluency perplexity on reference sentence
-        fluency_ppl_ref, _, _ = engine.evaluate_fluency(reference_text)
+        fluency_ppl_ref, _, _ = engine.evaluate_fluency(norm_ref)
 
         # 3. Semantic embedding on reference sentence
         if hasattr(engine, "encode_semantics"):
-            ref_sem_emb = engine.encode_semantics([reference_text])
+            ref_sem_emb = engine.encode_semantics([norm_ref])
         else:
-            ref_sem_emb = engine.sem_model.encode([reference_text], convert_to_tensor=True)
+            ref_sem_emb = engine.sem_model.encode([norm_ref], convert_to_tensor=True)
 
         # 4. First-time lemmas mapping (if database is present)
         if not first_time_lemmas and sentence_id and self.data_manager:

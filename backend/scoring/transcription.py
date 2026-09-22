@@ -2,7 +2,9 @@ import difflib
 import re
 from typing import Any, Dict
 
-from backend.nlp.text_utils import levenshtein, remove_accents
+from backend.nlp.text_utils import levenshtein, remove_accents, normalize_french_typography
+
+WORD_RE = re.compile(r"\b[^\W\d_]+(?:[-'][^\W\d_]+)*\b", flags=re.UNICODE)
 
 
 def evaluate_transcription(
@@ -15,8 +17,11 @@ def evaluate_transcription(
     Computes token-level and character-level alignment, identifying exact matches,
     accent errors, typos, missing words, and extra words.
     """
+    reference_text = normalize_french_typography(reference_text)
+    student_text = normalize_french_typography(student_text)
+
     if is_skipped or not student_text.strip():
-        ref_words = re.findall(r"\b[^\W\d_]+(?:['’][^\W\d_]+)?\b", reference_text, flags=re.UNICODE)
+        ref_words = WORD_RE.findall(reference_text)
         diff = [{"word": w, "ref_word": w, "type": "missing"} for w in ref_words]
         return {
             "quality": 0.0,
@@ -29,8 +34,8 @@ def evaluate_transcription(
             "student_text": student_text
         }
 
-    ref_words = re.findall(r"\b[^\W\d_]+(?:['’][^\W\d_]+)?\b", reference_text, flags=re.UNICODE)
-    stu_words = re.findall(r"\b[^\W\d_]+(?:['’][^\W\d_]+)?\b", student_text, flags=re.UNICODE)
+    ref_words = WORD_RE.findall(reference_text)
+    stu_words = WORD_RE.findall(student_text)
 
     ref_norm = [remove_accents(w.lower()) for w in ref_words]
     stu_norm = [remove_accents(w.lower()) for w in stu_words]
@@ -95,8 +100,8 @@ def evaluate_transcription(
                 token_scores.append(0.0)
 
     # Character similarity fallback
-    clean_ref = re.sub(r'[^\w\s]', '', reference_text.lower()).strip()
-    clean_stu = re.sub(r'[^\w\s]', '', student_text.lower()).strip()
+    clean_ref = re.sub(r"[^\w\s'-]", '', reference_text.lower()).strip()
+    clean_stu = re.sub(r"[^\w\s'-]", '', student_text.lower()).strip()
     max_c = max(1, max(len(clean_ref), len(clean_stu)))
     c_dist = levenshtein(clean_ref, clean_stu)
     char_sim = max(0.0, 1.0 - (c_dist / max_c))

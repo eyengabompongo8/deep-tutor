@@ -23,13 +23,49 @@ def remove_accents(input_str: str) -> str:
     nfkd_form = unicodedata.normalize('NFKD', input_str)
     return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
 
+def normalize_french_typography(text: str) -> str:
+    """
+    Normalizes typography for French text symmetrically:
+    - Normalizes Unicode single quotes/apostrophes (’ ‘ ` ´ ′) to standard ASCII '.
+    - Normalizes Unicode dashes/hyphens (‑ – — −) to standard ASCII -.
+    - Normalizes non-breaking and special spaces (\u00a0 \u202f \u2009) to standard spaces.
+    - Ensures standard French spacing before high punctuation marks (?, !, :, ;).
+    - Collapses redundant spaces and strips leading/trailing whitespace.
+    """
+    if not text:
+        return ""
+
+    # 1. Normalize Unicode apostrophes
+    text = re.sub(r"[’‘`´′]", "'", text)
+
+    # 2. Normalize Unicode dashes
+    text = re.sub(r"[‑–—−]", "-", text)
+
+    # 3. Normalize non-breaking and special spaces
+    text = re.sub(r"[\u00a0\u202f\u2009]", " ", text)
+    text = re.sub(r"[\u200b\ufeff]", "", text)
+
+    # 4. French high punctuation spacing (?, !, :, ;)
+    for mark in [r"\?", r"!", r":", r";"]:
+        pattern = r"(\S)" + mark
+        def add_space(m):
+            return f"{m.group(1)} {m.group(0)[-1]}"
+        text = re.sub(pattern, add_space, text)
+
+    # 5. Clean up redundant spaces around punctuation and words
+    text = re.sub(r"\s+([?!:;])", r" \1", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    return text.strip()
+
+
 def autocorrect_text(student_text: str, reference_text: str, lang_tool=None):
     if not student_text:
         return student_text, []
 
     corrections_made = []
-    text = student_text.strip()
-    ref = reference_text.strip() if reference_text else ""
+    # Normalize typography symmetrically
+    text = normalize_french_typography(student_text)
+    ref = normalize_french_typography(reference_text) if reference_text else ""
 
     # 1. Punctuation Reconciliation: terminal marks (. ? !) from reference
     if ref and ref[-1] in {".", "?", "!"}:
@@ -42,12 +78,8 @@ def autocorrect_text(student_text: str, reference_text: str, lang_tool=None):
             text = f"{text[:-1]}{target_mark}"
             corrections_made.append(f"'{old_mark}' -> '{target_mark}'")
 
-    # 2. French punctuation spacing: high punctuation (?, !, :, ;) requires a preceding space
-    for mark in [r"\?", r"!", r":", r";"]:
-        pattern = r"(\S)" + mark
-        def add_space(m):
-            return f"{m.group(1)} {m.group(0)[-1]}"
-        text = re.sub(pattern, add_space, text)
+    # 2. Re-apply typography spacing after terminal punctuation reconciliation
+    text = normalize_french_typography(text)
 
     # 3. LanguageTool Minor Typo Correction (Tier 1: strictly typos, edit distance <= 2)
     ignored_words = {'j', 'l', 'c', 'd', 'm', 't', 's', 'n', 'qu'}

@@ -369,7 +369,7 @@ class VocabEngine:
             if not lemma and not spacy_lemma:
                 continue
             raw_text = tok.text
-            clean_word = re.sub(r"^[ldjcmnstLDJCMNST]['’]", "", raw_text)
+            clean_word = re.sub(r"^(qu['’]|jusqu['’]|lorsqu['’]|puisqu['’]|[ldjcmnstLDJCMNST]['’])", "", raw_text, flags=re.IGNORECASE)
             results.append((raw_text, clean_word, lemma or spacy_lemma, spacy_lemma))
         return results
 
@@ -389,7 +389,7 @@ class VocabEngine:
             if not s:
                 return ""
             s = s.lower().replace('œ', 'oe').replace('æ', 'ae').strip()
-            s = re.sub(r"^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])", "", s)
+            s = re.sub(r"^(se\s+|qu['’]|jusqu['’]|lorsqu['’]|puisqu['’]|[ldjcmnstLDJCMNST]['’])", "", s, flags=re.IGNORECASE)
             return s.strip().rstrip("'’")
 
         def _stem_match(a: str, b: str) -> bool:

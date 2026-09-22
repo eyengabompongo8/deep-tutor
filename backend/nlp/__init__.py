@@ -1,6 +1,7 @@
 from backend.nlp.text_utils import (
     levenshtein,
     remove_accents,
+    normalize_french_typography,
     autocorrect_text,
     get_aligned_targets,
 )
@@ -16,6 +17,7 @@ from backend.nlp.vocab_engine import (
 __all__ = [
     "levenshtein",
     "remove_accents",
+    "normalize_french_typography",
     "autocorrect_text",
     "get_aligned_targets",
     "TTSEngine",

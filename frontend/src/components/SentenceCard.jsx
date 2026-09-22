@@ -4,14 +4,16 @@ import WordAlignmentView from './WordAlignmentView';
 
 const FRENCH_ACCENTS = ['é', 'è', 'ê', 'ë', 'à', 'ç', 'ù', 'ô', 'î', 'œ'];
 
+const ELISION_PREFIX_RE = /^(se\s+|qu['’]|jusqu['’]|lorsqu['’]|puisqu['’]|[ldjcmnstLDJCMNST]['’])/i;
+
 export function isWordMatchingLemma(word, lemmas = []) {
   if (!word || !lemmas || lemmas.length === 0) return false;
-  let cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '');
-  cleanWord = cleanWord.replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '').trim();
+  let cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F'-]+|[^\w\u00C0-\u017F'-]+$/g, '');
+  cleanWord = cleanWord.replace(ELISION_PREFIX_RE, '').trim();
   if (!cleanWord || cleanWord.length < 2) return false;
   return lemmas.some(lemma => {
     let cleanLemma = lemma.toLowerCase().trim();
-    cleanLemma = cleanLemma.replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '').trim();
+    cleanLemma = cleanLemma.replace(ELISION_PREFIX_RE, '').trim();
     if (cleanWord === cleanLemma) return true;
     const minLen = Math.min(cleanWord.length, cleanLemma.length);
     if (minLen >= 4 && cleanWord.slice(0, 4) === cleanLemma.slice(0, 4)) return true;
@@ -348,20 +350,22 @@ export default function SentenceCard({
                 const isSelected = selectedWordIndices.includes(wIdx);
                 const isFirstTime = firstTimeSrcIndices.has(wIdx);
                 return (
-                  <span
-                    key={wIdx}
-                    data-word-idx={wIdx}
-                    className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
-                      isSelected
-                        ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 font-medium'
-                        : isFirstTime
-                          ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border-b-2 border-purple-400 dark:border-purple-500'
-                          : ''
-                    }`}
-                    title={isFirstTime ? `Nouveau mot à apprendre (${firstTimeLemmas.join(', ')})` : undefined}
-                  >
-                    {word}{wIdx < spanishWords.length - 1 ? ' ' : ''}
-                  </span>
+                  <React.Fragment key={wIdx}>
+                    <span
+                      data-word-idx={wIdx}
+                      className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
+                        isSelected
+                          ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 font-medium'
+                          : isFirstTime
+                            ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border-b-2 border-purple-400 dark:border-purple-500'
+                            : ''
+                      }`}
+                      title={isFirstTime ? `Nouveau mot à apprendre (${firstTimeLemmas.join(', ')})` : undefined}
+                    >
+                      {word}
+                    </span>
+                    {wIdx < spanishWords.length - 1 ? ' ' : ''}
+                  </React.Fragment>
                 );
               })}
             </div>

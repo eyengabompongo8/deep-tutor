@@ -28,6 +28,7 @@ from backend.ml.token_utils import (
     _build_fluency_breakdowns,
     _compute_hybrid_alignment_matrix,
 )
+from backend.nlp.text_utils import normalize_french_typography
 
 
 def resolve_device_and_dtype():
@@ -199,13 +200,20 @@ class MLEngine:
         stu_words = mapping_data_student[1] if mapping_data_student is not None else []
         stu_matrix = mapping_data_student[2] if mapping_data_student is not None else None
 
-        ref_words_clean = [w.lower().strip(".,!?:;'\"-") for w in ref_words]
+        def _clean_word(w: str) -> str:
+            if not w:
+                return ""
+            w = re.sub(r"[’‘`´′]", "'", w)
+            w = re.sub(r"[‑–—−]", "-", w)
+            return w.lower().strip(".,!?:;\"«»()[]{}").strip()
+
+        ref_words_clean = [_clean_word(w) for w in ref_words]
         ref_words_set = set(ref_words_clean)
 
         for item in nmt_word_breakdown:
             w_idx = item.get("index", 0)
             raw_w = item.get("word", "")
-            clean_w = raw_w.lower().strip(".,!?:;'\"-")
+            clean_w = _clean_word(raw_w)
 
             if clean_w in ref_words_set:
                 item["is_error"] = False
@@ -228,7 +236,7 @@ class MLEngine:
             if not expected_ref_word and ref_words:
                 expected_ref_word = ref_words[-1]
 
-            clean_expected = expected_ref_word.lower().strip(".,!?:;'\"-")
+            clean_expected = _clean_word(expected_ref_word)
 
             is_sound = False
             if clean_expected and clean_w:
@@ -320,14 +328,15 @@ class MLEngine:
         """
         Direct evaluation of a student submission against a reference text without precomputed bundles.
         """
-        nmt_ppl_ref, (src_words, ref_words, attn_matrix_ref), _, _ = self.evaluate_nmt_and_map(source_text, reference_text)
-        fluency_ppl_ref, _, _ = self.evaluate_fluency(reference_text)
-        ref_sem_emb = self.encode_semantics([reference_text])
+        norm_ref = normalize_french_typography(reference_text)
+        nmt_ppl_ref, (src_words, ref_words, attn_matrix_ref), _, _ = self.evaluate_nmt_and_map(source_text, norm_ref)
+        fluency_ppl_ref, _, _ = self.evaluate_fluency(norm_ref)
+        ref_sem_emb = self.encode_semantics([norm_ref])
 
         mapping_data_ref = (src_words, ref_words, attn_matrix_ref)
 
         is_french, lid_prob = self.check_language(student_text)
-        s_sem, raw_cos = self.evaluate_semantics(student_text, [reference_text], ref_embs=ref_sem_emb)
+        s_sem, raw_cos = self.evaluate_semantics(student_text, [norm_ref], ref_embs=ref_sem_emb)
 
         nmt_ppl_student, mapping_data_student, nmt_token_breakdown, nmt_word_breakdown = self.evaluate_nmt_and_map(source_text, student_text)
         s_nmt = max(0.0, min(100.0, (nmt_ppl_ref / max(nmt_ppl_student, 1e-5)) * 100.0))
