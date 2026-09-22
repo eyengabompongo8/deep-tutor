@@ -11,6 +11,8 @@ dependencies = [
     "sentence-transformers",
     "fasttext",
     "huggingface_hub",
+    "datasets",
+    "pyarrow",
     "numpy<2",
     "sentencepiece",
     "sacremoses",
