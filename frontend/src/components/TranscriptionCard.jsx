@@ -33,7 +33,7 @@ export default function TranscriptionCard({
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [playCount, setPlayCount] = useState(0);
-  const [showTranslation, setShowTranslation] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(true);
   const [isFocused, setIsFocused] = useState(index === 0);
 
   // Retry tracking state
@@ -151,7 +151,7 @@ export default function TranscriptionCard({
     if (isEvaluating || isSubmittingAttempt) return;
     setAttemptFeedback(null);
     setAttemptCount(1);
-    setShowTranslation(false);
+    setShowTranslation(true);
     setIsFocused(true);
     if (onRetry) {
       onRetry(sentence.id, sentence, index);
@@ -561,47 +561,52 @@ export default function TranscriptionCard({
             </div>
           )}
 
-          {/* Canonical French Reference */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
-              Phrase de référence
-            </label>
-            <div className="p-4 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/70 text-neutral-900 dark:text-neutral-100 text-base font-medium">
-              {sentence.fr}
+          {/* Canonical French Reference & Translation */}
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
+                Phrase de référence
+              </label>
+              <div className="p-4 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/70 text-neutral-900 dark:text-neutral-100 text-base font-medium">
+                {sentence.fr}
+              </div>
             </div>
-          </div>
 
-          {/* Action Footer: Translation Reveal Toggle & Retry Button */}
-          <div className="space-y-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
-            <div className="flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={() => setShowTranslation(!showTranslation)}
-                className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 flex items-center gap-1.5 transition-colors"
-              >
-                <Languages className="w-3.5 h-3.5" />
-                <span>{showTranslation ? 'Masquer la traduction' : 'Afficher la traduction'}</span>
-              </button>
-
-              {retryEnabled && (
+            {/* Translation under reference sentence with toggle */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={handleRetry}
-                  disabled={isEvaluating}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-neutral-900 dark:bg-neutral-100 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-900 shadow-xs transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                  onClick={() => setShowTranslation(!showTranslation)}
+                  className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 flex items-center gap-1.5 transition-colors"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Réessayer</span>
+                  <Languages className="w-3.5 h-3.5" />
+                  <span>{showTranslation ? 'Masquer la traduction' : 'Afficher la traduction'}</span>
                 </button>
+              </div>
+
+              {showTranslation && (
+                <p className="text-sm text-neutral-600 dark:text-neutral-300 italic bg-neutral-50 dark:bg-neutral-800/70 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                  {sentence.es}
+                </p>
               )}
             </div>
-
-            {showTranslation && (
-              <p className="text-sm text-neutral-600 dark:text-neutral-300 italic bg-neutral-50 dark:bg-neutral-800/70 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
-                {sentence.es}
-              </p>
-            )}
           </div>
+
+          {/* Action Footer: Réessayer button underneath the translation */}
+          {retryEnabled && (
+            <div className="flex items-center justify-end pt-3 border-t border-neutral-100 dark:border-neutral-800">
+              <button
+                type="button"
+                onClick={handleRetry}
+                disabled={isEvaluating}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-neutral-900 dark:bg-neutral-100 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-900 shadow-xs transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Réessayer</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
