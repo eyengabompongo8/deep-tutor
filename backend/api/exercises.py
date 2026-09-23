@@ -78,8 +78,8 @@ def get_exercises_batch(
         mode=mode,
     )
 
-    # If transcription mode, prewarm audio synthesis in background
-    if mode == "transcription" and batch and deps.tts_engine is not None:
+    # Prewarm audio synthesis in background for smooth instant playback
+    if batch and deps.tts_engine is not None:
         deps.tts_engine.prewarm_batch(batch)
 
     # If translation mode, eagerly prewarm reference passes in background (Thread 1)

@@ -22,6 +22,7 @@ class UpdateUserSettingsRequest(BaseModel):
     correction_threshold: Optional[float] = None
     cards_per_exercise: Optional[int] = None
     auto_jump: Optional[bool] = None
+    auto_play_audio: Optional[bool] = None
     transcription_retry: Optional[bool] = None
     blind_retry: Optional[bool] = None
     active_mode: Optional[str] = None

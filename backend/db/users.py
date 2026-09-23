@@ -246,6 +246,7 @@ class UsersMixin:
         default_correction_threshold = DEFAULT_CORRECTION_THRESHOLD
         default_cards_per_exercise = DEFAULT_CARDS_PER_EXERCISE
         default_auto_jump = 1
+        default_auto_play_audio = 1
         default_transcription_retry = 1
         default_blind_retry = 0
         default_active_mode = 'translation'
@@ -253,6 +254,8 @@ class UsersMixin:
         def _format_settings_row(res: Dict[str, Any]) -> Dict[str, Any]:
             if 'auto_jump' in res:
                 res['auto_jump'] = bool(res['auto_jump']) if res['auto_jump'] is not None else True
+            if 'auto_play_audio' in res:
+                res['auto_play_audio'] = bool(res['auto_play_audio']) if res['auto_play_audio'] is not None else True
             if 'transcription_retry' in res:
                 res['transcription_retry'] = bool(res['transcription_retry']) if res['transcription_retry'] is not None else True
             if 'blind_retry' in res:
@@ -267,14 +270,14 @@ class UsersMixin:
             if row:
                 return _format_settings_row(dict(row))
             conn.execute("""
-                INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, transcription_retry, blind_retry, active_mode)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-            """, (user_id, default_theme, default_preferred_voice, default_correction_threshold, default_cards_per_exercise, default_auto_jump, default_transcription_retry, default_blind_retry, default_active_mode))
+                INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """, (user_id, default_theme, default_preferred_voice, default_correction_threshold, default_cards_per_exercise, default_auto_jump, default_auto_play_audio, default_transcription_retry, default_blind_retry, default_active_mode))
             cursor = conn.execute("SELECT * FROM user_settings WHERE user_id = ?;", (user_id,))
             return _format_settings_row(dict(cursor.fetchone()))
 
     def update_user_settings(self, user_id: str = 'default_user', **kwargs) -> Dict[str, Any]:
-        """Updates user settings fields (theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, transcription_retry, blind_retry, active_mode)."""
+        """Updates user settings fields (theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode)."""
         self.get_user_settings(user_id)
         bool_coercion = lambda v: 1 if v in (True, 1, 'true', 'True', '1') else 0
         allowed_fields = {
@@ -283,6 +286,7 @@ class UsersMixin:
             'correction_threshold': float,
             'cards_per_exercise': int,
             'auto_jump': bool_coercion,
+            'auto_play_audio': bool_coercion,
             'transcription_retry': bool_coercion,
             'blind_retry': bool_coercion,
             'active_mode': lambda v: str(v).strip().lower() if str(v).strip().lower() in ('translation', 'transcription') else 'translation',

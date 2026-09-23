@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Link2, Lightbulb, X, Sparkles } from 'lucide-react';
+import { Link2, Lightbulb, X, Sparkles, Volume2, Pause } from 'lucide-react';
 import { isWordMatchingLemma } from './SentenceCard';
 
 export default function WordAlignmentView({
@@ -12,6 +12,10 @@ export default function WordAlignmentView({
   alignedStudentMap = {},
   firstTimeLemmas = [],
   firstTimePairs = [],
+  playingSource = null,
+  onTogglePlay,
+  isCorrect = false,
+  hasUserAudio = false,
 }) {
   const effectiveRefWords = refWords.length > 0 ? refWords : tgtWords;
   const effectiveRefMap = Object.keys(alignedRefMap).length > 0 ? alignedRefMap : alignedTargetsMap;
@@ -253,11 +257,35 @@ export default function WordAlignmentView({
       {effectiveRefWords.length > 0 && (
         <div className="space-y-1">
           <div className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider flex items-center justify-between">
-            <span>🇫🇷 Reference (Target)</span>
-            {selectedRefIndices.length > 0 && (
-              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
-                ({activeOrigin === 'ref' ? 'selected' : 'aligned'})
-              </span>
+            <div className="flex items-center gap-1.5">
+              <span>🇫🇷 Reference (Target)</span>
+              {selectedRefIndices.length > 0 && (
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
+                  ({activeOrigin === 'ref' ? 'selected' : 'aligned'})
+                </span>
+              )}
+            </div>
+            {onTogglePlay && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePlay('target');
+                }}
+                className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                  playingSource === 'target'
+                    ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-xs'
+                    : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/60 dark:hover:bg-neutral-800'
+                }`}
+                title="Écouter la prononciation de référence (Ctrl+Espace)"
+              >
+                {playingSource === 'target' ? (
+                  <Pause className="w-2.5 h-2.5 fill-current" />
+                ) : (
+                  <Volume2 className="w-2.5 h-2.5" />
+                )}
+                <span>{playingSource === 'target' ? 'Pause' : 'Écouter'}</span>
+              </button>
             )}
           </div>
           <div
@@ -299,11 +327,35 @@ export default function WordAlignmentView({
       {studentWords.length > 0 && (
         <div className="space-y-1">
           <div className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider flex items-center justify-between">
-            <span>✍️ Your Translation</span>
-            {selectedStudentIndices.length > 0 && (
-              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
-                ({activeOrigin === 'student' ? 'selected' : 'aligned'})
-              </span>
+            <div className="flex items-center gap-1.5">
+              <span>✍️ Your Translation</span>
+              {selectedStudentIndices.length > 0 && (
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
+                  ({activeOrigin === 'student' ? 'selected' : 'aligned'})
+                </span>
+              )}
+            </div>
+            {onTogglePlay && isCorrect && hasUserAudio && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePlay('user');
+                }}
+                className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                  playingSource === 'user'
+                    ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-xs'
+                    : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/60 dark:hover:bg-neutral-800'
+                }`}
+                title="Écouter votre traduction"
+              >
+                {playingSource === 'user' ? (
+                  <Pause className="w-2.5 h-2.5 fill-current" />
+                ) : (
+                  <Volume2 className="w-2.5 h-2.5" />
+                )}
+                <span>{playingSource === 'user' ? 'Pause' : 'Écouter'}</span>
+              </button>
             )}
           </div>
           <div
