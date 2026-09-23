@@ -241,10 +241,23 @@ docker-compose up backend-gpu -d --build
 docker-compose logs -f backend-gpu
 ```
 
+### Development with Live Reloading
+
+For active development using Docker, a separate compose file is provided. This mounts your local files so that changes instantly hot-reload without rebuilding the image:
+
+```bash
+# Option A: CPU development (Frontend + Backend CPU)
+docker compose -f docker-compose.dev.yml up backend-dev frontend-dev --build
+
+# Option B: GPU development (Frontend + Backend GPU with CUDA acceleration)
+BACKEND_URL=http://backend-dev-gpu:8000 docker compose -f docker-compose.dev.yml up backend-dev-gpu frontend-dev --build
+```
+
 ### Accessing the Application
-Once the Docker container is running, the unified application (serving both the React frontend and the API) will be accessible at:
-- **Web App:** [http://localhost:8000](http://localhost:8000) (or `8001` for the GPU deployment)
-- **API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+Once the Docker container(s) are running, the application will be accessible at:
+- **Production Web App:** [http://localhost:8000](http://localhost:8000) (or `8001` for the GPU deployment)
+- **Development Web App (Live Reload):** [http://localhost:5173](http://localhost:5173)
+- **API & Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
