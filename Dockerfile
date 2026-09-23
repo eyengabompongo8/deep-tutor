@@ -21,9 +21,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install uv (astral-sh/uv)
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Configure uv behavior
+# Configure uv and Hugging Face cache behavior
 ENV UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy
+    UV_LINK_MODE=copy \
+    HF_HOME=/root/.cache/huggingface
 
 # Define the build argument for the PyTorch hardware target
 # Available options in pyproject.toml: cpu, cu118, cu124

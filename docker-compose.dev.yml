@@ -13,6 +13,8 @@ services:
       - /app/.venv
       # Also mount the data directory
       - ${DATA_DIR:-./data}:/app/data
+      # Mount Hugging Face model cache from host
+      - ${HF_CACHE_DIR:-~/.cache/huggingface}:/root/.cache/huggingface
     environment:
       - PORT=8000
       - HOST=0.0.0.0
@@ -32,6 +34,7 @@ services:
       - .:/app
       - /app/.venv
       - ${DATA_DIR:-./data}:/app/data
+      - ${HF_CACHE_DIR:-~/.cache/huggingface}:/root/.cache/huggingface
     environment:
       - PORT=8000
       - HOST=0.0.0.0

@@ -259,6 +259,11 @@ Once the Docker container(s) are running, the application will be accessible at:
 - **Development Web App (Live Reload):** [http://localhost:5173](http://localhost:5173)
 - **API & Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
 
+### Persistent Model Caching
+All Docker configurations mount your local Hugging Face cache (`~/.cache/huggingface`) into `/root/.cache/huggingface` inside the container. This ensures:
+- Model weights are shared directly from your host and are not re-downloaded on container rebuilds.
+- To override the cache location, set `HF_CACHE_DIR=/your/custom/path` in your `.env` file.
+
 ---
 
 ## 💻 Development Workflows
