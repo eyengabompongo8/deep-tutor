@@ -1,0 +1,35 @@
+services:
+  # CPU-only deployment
+  backend-cpu:
+    build:
+      context: .
+      args:
+        UV_EXTRA: cpu
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - ${DATA_DIR:-./data}:/app/data
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+
+  # GPU-accelerated deployment (Requires NVIDIA Container Toolkit installed on the host)
+  backend-gpu:
+    build:
+      context: .
+      args:
+        UV_EXTRA: cu124
+    ports:
+      - "${PORT:-8001}:8000"
+    volumes:
+      - ${DATA_DIR:-./data}:/app/data
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
