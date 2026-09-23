@@ -13,6 +13,7 @@ The platform combines a modular **FastAPI** backend organized into clean subpack
 - [Project Directory Structure](#-project-directory-structure)
 - [Prerequisites](#-prerequisites)
 - [Installation & Setup](#-installation--setup)
+- [Docker Deployment](#-docker-deployment)
 - [Development Workflows](#-development-workflows)
 - [CLI Commands & Task Automation](#-cli-commands--task-automation)
   - [Makefile Targets Reference](#makefile-targets-reference)
@@ -209,6 +210,59 @@ make install-gpu
 ```
 
 *(Under the hood, `make install` runs `uv sync --extra cpu` followed by `cd frontend && npm install`)*.
+
+---
+
+## 🐳 Docker Deployment
+
+The application is fully containerized using Docker, allowing you to run the entire stack (FastAPI backend + React frontend) in a single unified container without needing to manually configure Python, `uv`, or Node.js on your host machine.
+
+### CPU-Only Deployment (Default)
+If you do not have an NVIDIA GPU, or want a lightweight deployment, use the `backend-cpu` service:
+
+```bash
+# Build and start the container in detached mode
+docker-compose up backend-cpu -d --build
+
+# View the logs
+docker-compose logs -f backend-cpu
+```
+
+### GPU-Accelerated Deployment (CUDA)
+If your host machine has an NVIDIA GPU and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) installed, you can run the GPU-accelerated version. 
+
+This version uses PyTorch with CUDA 12.4 support, dramatically speeding up the NLP evaluation pipeline:
+
+```bash
+# Build and start the GPU container in detached mode
+docker-compose up backend-gpu -d --build
+
+# View the logs
+docker-compose logs -f backend-gpu
+```
+
+### Development with Live Reloading
+
+For active development using Docker, a separate compose file is provided. This mounts your local files so that changes instantly hot-reload without rebuilding the image:
+
+```bash
+# Option A: CPU development (Frontend + Backend CPU)
+docker compose -f docker-compose.dev.yml up backend-dev frontend-dev --build
+
+# Option B: GPU development (Frontend + Backend GPU with CUDA acceleration)
+BACKEND_URL=http://backend-dev-gpu:8000 docker compose -f docker-compose.dev.yml up backend-dev-gpu frontend-dev --build
+```
+
+### Accessing the Application
+Once the Docker container(s) are running, the application will be accessible at:
+- **Production Web App:** [http://localhost:8000](http://localhost:8000) (or `8001` for the GPU deployment)
+- **Development Web App (Live Reload):** [http://localhost:5173](http://localhost:5173)
+- **API & Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Persistent Model Caching
+All Docker configurations mount your local Hugging Face cache (`~/.cache/huggingface`) into `/root/.cache/huggingface` inside the container. This ensures:
+- Model weights are shared directly from your host and are not re-downloaded on container rebuilds.
+- To override the cache location, set `HF_CACHE_DIR=/your/custom/path` in your `.env` file.
 
 ---
 
