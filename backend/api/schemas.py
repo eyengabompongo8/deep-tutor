@@ -40,7 +40,18 @@ class HintRequest(BaseModel):
     reference_text: str
     selected_indices: Optional[List[int]] = None
     first_time_lexemas: Optional[List[str]] = None
+    first_time_lemmas: Optional[List[str]] = None
     user_id: Optional[str] = "default_user"
+
+    @model_validator(mode="before")
+    @classmethod
+    def populate_hint_compat(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            lemmas = data.get("first_time_lemmas") or data.get("first_time_lexemas")
+            if lemmas is not None:
+                data.setdefault("first_time_lemmas", lemmas)
+                data.setdefault("first_time_lexemas", lemmas)
+        return data
 
 class EvaluateSingleRequest(BaseModel):
     sentence_id: int
@@ -80,6 +91,7 @@ class VocabProgressItem(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     id: Optional[int] = None
+    lemma_id: Optional[int] = None
     lemma: Optional[str] = None
     pos: Optional[str] = None
     level: Optional[str] = None
@@ -96,15 +108,21 @@ class VocabProgressItem(BaseModel):
     @classmethod
     def populate_compat_fields(cls, data: Any) -> Any:
         if isinstance(data, dict):
-            lemma = data.get("lemma") or data.get("lexema") or ""
-            data.setdefault("lemma", lemma)
-            data.setdefault("lexema", lemma)
+            lemma_id = data.get("lemma_id") if data.get("lemma_id") is not None else data.get("id")
+            if lemma_id is not None:
+                data.setdefault("id", lemma_id)
+                data.setdefault("lemma_id", lemma_id)
 
-            appearances = data.get("appearance_count", data.get("appearances", 0))
+            lemma = data.get("lemma") if data.get("lemma") is not None else data.get("lexema")
+            if lemma is not None:
+                data.setdefault("lemma", lemma)
+                data.setdefault("lexema", lemma)
+
+            appearances = data.get("appearance_count") if data.get("appearance_count") is not None else data.get("appearances", 0)
             data.setdefault("appearance_count", appearances)
             data.setdefault("appearances", appearances)
 
-            is_known = data.get("is_known", 1 if data.get("mastered") else 0)
+            is_known = data.get("is_known") if data.get("is_known") is not None else (1 if data.get("mastered") else 0)
             data.setdefault("is_known", is_known)
             data.setdefault("mastered", bool(is_known))
         return data

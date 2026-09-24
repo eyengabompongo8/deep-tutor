@@ -244,3 +244,19 @@ class TestIngestionLexemaFilter:
         assert "Je voudrais un café s'il vous plaît." in stored_texts
         assert "Le blubzorp florpait tranquillement." not in stored_texts
 
+        # Verify lemmas and words junction links
+        sent_pomme = next(s for s in stored if s["fr"] == "Je mange une pomme.")
+        lemma_links = dm.get_sentence_lemmas(sent_pomme["id"])
+        lemmas_found = {l["lemma"] for l in lemma_links}
+        assert "je" in lemmas_found
+        assert "manger" in lemmas_found
+        assert "un" in lemmas_found
+        assert "pomme" in lemmas_found
+
+        word_links = dm.get_sentence_words(sent_pomme["id"])
+        words_found = {w["word"] for w in word_links}
+        assert "je" in words_found
+        assert "mange" in words_found
+        assert "une" in words_found
+        assert "pomme" in words_found
+
