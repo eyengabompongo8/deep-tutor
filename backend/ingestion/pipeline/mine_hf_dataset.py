@@ -6,7 +6,7 @@ from tqdm import tqdm
 from backend.db import DataManager
 from backend.nlp.vocab_engine import VocabEngine
 from backend.ingestion.pipeline.mine_tatoeba import is_valid_sentence, clean_sentence
-from backend.ingestion.pipeline.mine_pdf import translate_batch
+from backend.ingestion.pipeline.common import translate_batch
 
 def run_mine_hf_dataset() -> List[Dict[str, Any]]:
     print("\n--- Mining HuggingFace Dataset (UniversalCEFR/readme_fr) ---")
