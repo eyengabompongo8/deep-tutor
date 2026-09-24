@@ -1,20 +1,29 @@
 import os
 import csv
+import zipfile
+import urllib.request
+import io
 from backend.db import DataManager
 from backend.db.connection import DB_PATH, ROOT_DIR
-
 
 def run_seed_lexemas(db_path=None):
     if db_path is None:
         db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
         
-    flelex_path = os.path.join(ROOT_DIR, 'data', 'flelex_beacco.tsv')
+    lexique_dir = os.path.join(ROOT_DIR, 'data', 'lexique')
+    lexique_file = os.path.join(lexique_dir, 'Lexique4', 'Lexique4.tsv')
     
-    if not os.path.exists(flelex_path):
-        print(f"Error: Could not find lexema vocabulary data at {flelex_path}")
-        return False
+    if not os.path.exists(lexique_file):
+        print("Downloading Lexique 4 dataset...")
+        os.makedirs(lexique_dir, exist_ok=True)
+        url = 'http://www.lexique.org/databases/Lexique400/Lexique400.zip'
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as resp:
+            with zipfile.ZipFile(io.BytesIO(resp.read())) as z:
+                z.extractall(lexique_dir)
+        print("Lexique 4 dataset downloaded and extracted.")
 
-    print(f"Loading vocabulary from {flelex_path}...")
+    print(f"Loading vocabulary from {lexique_file}...")
     
     core_a1_lemmas = {
         'le', 'la', 'un', 'ce', 'cet', 'cette', 'je', 'tu', 'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles',
@@ -27,22 +36,27 @@ def run_seed_lexemas(db_path=None):
     }
 
     records = []
-    with open(flelex_path, 'r', encoding='utf-8') as f:
+    seen = set()
+    with open(lexique_file, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
-            word = row['word'].lower().strip()
-            pos = (row.get('tag') or '').upper().strip() or None
-            level = (row.get('level') or 'A1').upper().strip()
+            word = row.get('4_Lemme')
+            if not word:
+                continue
+            word = word.lower().strip()
+            
+            if word in seen:
+                continue
+            seen.add(word)
+            
+            pos = (row.get('5_Cgram') or '').upper().strip() or None
+            level = 'A1'  # Default level as requested
             try:
-                freq = float(row.get('freq_total', 0.0) or 0.0)
+                freq = float(row.get('12_FreqLemme', 0.0) or 0.0)
             except (ValueError, TypeError):
                 freq = 0.0
 
-            is_base = 1 if (
-                word in core_a1_lemmas or
-                pos in ('DET:ART', 'DET:POS', 'PRO', 'PRP', 'PRP:DET', 'KON') or
-                (level == 'A1' and word in ('être', 'avoir', 'aller', 'faire', 'dire', 'pouvoir', 'vouloir', 'voir', 'savoir'))
-            ) else 0
+            is_base = 1 if word in core_a1_lemmas else 0
 
             records.append((word, pos, level, freq, is_base, '{}'))
             
@@ -62,7 +76,6 @@ def run_seed_lexemas(db_path=None):
         
     print(f"Successfully seeded database. Total lexemas in DB: {lex_count}")
     return True
-
 
 if __name__ == "__main__":
     run_seed_lexemas()

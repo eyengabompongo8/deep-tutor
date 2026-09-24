@@ -11,9 +11,6 @@ from typing import List, Dict, Any, Optional, Set, Tuple
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
-FLELEX_PATH = os.path.join(DATA_DIR, 'flelex_beacco.tsv')
-LEXIQUE_DIR = os.path.join(DATA_DIR, 'lexique')
-LEXIQUE_FILE = os.path.join(LEXIQUE_DIR, 'Lexique383.tsv')
 
 # CEFR level mappings
 LEVELS_VAL = {'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6}
@@ -21,33 +18,12 @@ VAL_TO_LEVEL = {1: 'A1', 2: 'A2', 3: 'B1', 4: 'B2', 5: 'C1', 6: 'C2'}
 
 from backend.config import DEFAULT_UNLOCKED_WORDS as A1_WORDS
 
-# POS Tag mapping from spaCy POS to Lexique383 cgram
-SPACY_TO_LEXIQUE_POS = {
-    'VERB': ['VER', 'AUX'],
-    'AUX': ['AUX', 'VER'],
-    'NOUN': ['NOM'],
-    'ADJ': ['ADJ', 'ADJ:num', 'ADJ:pos', 'ADJ:dem', 'ADJ:ind'],
-    'ADV': ['ADV'],
-    'PRON': ['PRO:per', 'PRO:pos', 'PRO:dem', 'PRO:ind', 'PRO:rel', 'PRO'],
-    'DET': ['ART:def', 'ART:ind', 'ART', 'ADJ:pos', 'ADJ:dem'],
-    'ADP': ['PRE'],
-    'CCONJ': ['CON'],
-    'SCONJ': ['CON'],
-    'NUM': ['ADJ:num', 'NOM']
-}
+
 
 
 
 class VocabEngine:
     def __init__(self):
-        self.flelex_data = {}        # lemma -> {'level': str, 'score': int, 'freq': float}
-        self.lexique_pos_lemma = {}  # (ortho, cgram) -> (lemme, freq)
-        self.lexique_best_lemma = {} # ortho -> (lemme, freq)
-
-        self._ensure_resources()
-        self._load_lexique()
-        self._load_flelex()
-
         try:
             self.nlp = spacy.load('fr_core_news_sm')
         except OSError:
@@ -55,95 +31,10 @@ class VocabEngine:
             os.system(f'{sys.executable} -m spacy download fr_core_news_sm')
             self.nlp = spacy.load('fr_core_news_sm')
 
-    def _ensure_resources(self):
-        os.makedirs(DATA_DIR, exist_ok=True)
-        os.makedirs(LEXIQUE_DIR, exist_ok=True)
-
-        if not os.path.exists(FLELEX_PATH):
-            print("Downloading FLELex / CEFRLex (Beacco)...")
-            url = 'https://cental.uclouvain.be/cefrlex/static/resources/fr/FleLex_TT_Beacco.tsv'
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req) as resp, open(FLELEX_PATH, 'wb') as f:
-                f.write(resp.read())
-            print("FLELex dataset downloaded.")
-
-        if not os.path.exists(LEXIQUE_FILE):
-            print("Downloading Lexique383 dataset...")
-            url = 'http://www.lexique.org/databases/Lexique383/Lexique383.zip'
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req) as resp:
-                with zipfile.ZipFile(io.BytesIO(resp.read())) as z:
-                    z.extractall(LEXIQUE_DIR)
-            print("Lexique383 dataset downloaded and extracted.")
-
-    def _load_lexique(self):
-        if not os.path.exists(LEXIQUE_FILE):
-            return
-
-        with open(LEXIQUE_FILE, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f, delimiter='\t')
-            for row in reader:
-                ortho = row['ortho'].lower()
-                lemme = row['lemme'].lower()
-                cgram = row['cgram']
-                try:
-                    freq = float(row.get('freqlemlivres', 0) or 0)
-                except (ValueError, TypeError):
-                    freq = 0.0
-
-                key = (ortho, cgram)
-                if key not in self.lexique_pos_lemma or freq > self.lexique_pos_lemma[key][1]:
-                    self.lexique_pos_lemma[key] = (lemme, freq)
-
-                if ortho not in self.lexique_best_lemma or freq > self.lexique_best_lemma[ortho][1]:
-                    self.lexique_best_lemma[ortho] = (lemme, freq)
-
-    def _load_flelex(self):
-        if not os.path.exists(FLELEX_PATH):
-            return
-
-        with open(FLELEX_PATH, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f, delimiter='\t')
-            for row in reader:
-                word = row['word'].lower()
-                try:
-                    freq = float(row.get('freq_total', 0) or 0)
-                except (ValueError, TypeError):
-                    freq = 0.0
-
-                cefr_levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-                level_freqs = {}
-                total_cefr_freq = 0.0
-                for lvl in cefr_levels:
-                    try:
-                        lvl_freq = float(row.get(f'freq_{lvl}', 0) or 0)
-                    except (ValueError, TypeError):
-                        lvl_freq = 0.0
-                    level_freqs[lvl] = lvl_freq
-                    total_cefr_freq += lvl_freq
-                
-                assigned_lvl = 'C2'
-                if total_cefr_freq > 0:
-                    cum = 0.0
-                    for lvl in cefr_levels:
-                        cum += (level_freqs[lvl] / total_cefr_freq)
-                        if cum >= 0.20:
-                            assigned_lvl = lvl
-                            break
-                else:
-                    assigned_lvl = row.get('level', 'C2').upper()
-                    if assigned_lvl not in LEVELS_VAL:
-                        assigned_lvl = 'C2'
-
-                self.flelex_data[word] = {
-                    'level': assigned_lvl,
-                    'score': LEVELS_VAL[assigned_lvl],
-                    'freq': freq
-                }
-
     def get_word_level(self, tok):
         """
         Computes the CEFR level for an individual spaCy token.
+        Since we no longer cache levels in memory, this just determines the lemma.
         Returns: (cefr_level: str, score_val: int, lemma: str)
         """
         if tok.is_punct or tok.is_space or tok.is_digit:
@@ -153,41 +44,14 @@ class VocabEngine:
         if text_lower in A1_WORDS or tok.pos_ == 'PROPN':
             return 'A1', 1, text_lower
 
-        # Find lemma using POS matching
-        target_cgrams = SPACY_TO_LEXIQUE_POS.get(tok.pos_, [])
-        lemma = None
-        for cg in target_cgrams:
-            if (text_lower, cg) in self.lexique_pos_lemma:
-                lemma = self.lexique_pos_lemma[(text_lower, cg)][0]
-                break
-
-        if not lemma:
-            if text_lower in self.lexique_best_lemma:
-                lemma = self.lexique_best_lemma[text_lower][0]
-            else:
-                lemma = tok.lemma_.lower()
+        lemma = tok.lemma_.lower()
 
         if lemma in A1_WORDS:
             return 'A1', 1, lemma
 
-        # Check FLELex by lemma
-        if lemma in self.flelex_data:
-            info = self.flelex_data[lemma]
-            return info['level'], info['score'], lemma
-
-        # Check FLELex by surface text
-        if text_lower in self.flelex_data:
-            info = self.flelex_data[text_lower]
-            return info['level'], info['score'], text_lower
-
-        # Check spaCy's native lemma
-        spacy_lemma = tok.lemma_.lower()
-        if spacy_lemma in self.flelex_data:
-            info = self.flelex_data[spacy_lemma]
-            return info['level'], info['score'], spacy_lemma
-
-        # Word not found in FLELex dictionary or A1 list: ignore the word
-        return None, None, None
+        # By default we don't have level in memory anymore
+        # The sentence scorer might need a level, so we default to A1 as requested
+        return 'A1', 1, lemma
 
     def score_sentence(self, fr_text):
         """
@@ -490,22 +354,8 @@ class VocabEngine:
             if lid:
                 return lid
 
-        # 3. Lexique POS-specific lookup
-        target_cgrams = SPACY_TO_LEXIQUE_POS.get(pos, [])
-        for cg in target_cgrams:
-            if (clean_text, cg) in self.lexique_pos_lemma:
-                lx_lem = self.lexique_pos_lemma[(clean_text, cg)][0].lower().strip().rstrip("'’")
-                lid = lemma_pos_to_id.get((lx_lem, pos)) or lemma_fallback_to_id.get(lx_lem)
-                if lid:
-                    return lid
-
-        # 4. Lexique best lemma lookup
-        if clean_text in self.lexique_best_lemma:
-            lx_lem = self.lexique_best_lemma[clean_text][0].lower().strip().rstrip("'’")
-            lid = lemma_pos_to_id.get((lx_lem, pos)) or lemma_fallback_to_id.get(lx_lem)
-            if lid:
-                return lid
-
+        # We removed Lexique from memory, so we skip steps 3 and 4.
+        
         # 5. Surface text fallback
         if clean_text:
             lid = lemma_pos_to_id.get((clean_text, pos)) or lemma_fallback_to_id.get(clean_text)
