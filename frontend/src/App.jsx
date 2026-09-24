@@ -43,6 +43,10 @@ export default function App() {
     const legacySaved = localStorage.getItem('frenchtutor_jump_animation');
     return legacySaved !== null ? legacySaved === 'true' : true;
   });
+  const [autoPlayAudio, setAutoPlayAudio] = useState(() => {
+    const saved = localStorage.getItem('frenchtutor_auto_play_audio');
+    return saved !== null ? saved === 'true' : true;
+  });
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('frenchtutor_theme') || 'system';
   });
@@ -123,6 +127,10 @@ export default function App() {
         if (data.auto_jump !== undefined && data.auto_jump !== null) {
           setAutoJumpEnabled(Boolean(data.auto_jump));
           localStorage.setItem('frenchtutor_auto_jump', String(Boolean(data.auto_jump)));
+        }
+        if (data.auto_play_audio !== undefined && data.auto_play_audio !== null) {
+          setAutoPlayAudio(Boolean(data.auto_play_audio));
+          localStorage.setItem('frenchtutor_auto_play_audio', String(Boolean(data.auto_play_audio)));
         }
         if (data.cards_per_exercise != null) {
           setBatchSize(data.cards_per_exercise);
@@ -381,6 +389,18 @@ export default function App() {
     }
   };
 
+  const handleToggleAutoPlayAudio = (val) => {
+    setAutoPlayAudio(val);
+    localStorage.setItem('frenchtutor_auto_play_audio', String(val));
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auto_play_audio: val }),
+      }).catch(err => console.warn('Failed to update auto_play_audio setting:', err));
+    }
+  };
+
   const handleToggleTheme = (specificTheme) => {
     let nextTheme;
     if (typeof specificTheme === 'string') {
@@ -474,6 +494,7 @@ export default function App() {
               translationThreshold={translationThreshold}
               blindRetryEnabled={blindRetryEnabled}
               autoJumpEnabled={autoJumpEnabled}
+              autoPlayAudio={autoPlayAudio}
               onProgressUpdate={setSessionProgress}
               onBatchCompleted={handleBatchCompleted}
               onNextBatch={handleNextBatch}
@@ -500,6 +521,8 @@ export default function App() {
         onToggleBlindRetry={handleToggleBlindRetry}
         autoJumpEnabled={autoJumpEnabled}
         onToggleAutoJump={handleToggleAutoJump}
+        autoPlayAudio={autoPlayAudio}
+        onToggleAutoPlayAudio={handleToggleAutoPlayAudio}
         theme={theme}
         onChangeTheme={handleToggleTheme}
       />

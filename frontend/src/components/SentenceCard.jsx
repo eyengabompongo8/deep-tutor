@@ -1,10 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { CheckCircle2, AlertCircle, Sparkles, FastForward, Loader2, ArrowRight, BookOpen, AlertTriangle, Lightbulb, X, RotateCcw } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Sparkles, FastForward, Loader2, ArrowRight, BookOpen, AlertTriangle, Lightbulb, X, RotateCcw, Volume2, Pause } from 'lucide-react';
 import WordAlignmentView from './WordAlignmentView';
 
 const FRENCH_ACCENTS = ['é', 'è', 'ê', 'ë', 'à', 'ç', 'ù', 'ô', 'î', 'œ'];
 
 const ELISION_PREFIX_RE = /^(se\s+|qu['’]|jusqu['’]|lorsqu['’]|puisqu['’]|[ldjcmnstLDJCMNST]['’])/i;
+
+export function normalizeForAudio(text) {
+  return (text || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[.,!?;:«»"']/g, '')
+    .replace(/\s+/g, ' ');
+}
 
 export function isWordMatchingLemma(word, lemmas = []) {
   if (!word || !lemmas || lemmas.length === 0) return false;
@@ -31,6 +39,8 @@ export default function SentenceCard({
   preloadedHint,
   threshold = 75,
   blindRetryEnabled = false,
+  autoPlayAudio = true,
+  onAudioPlay,
   onSubmit,
   onSkip,
   onRetry,
@@ -38,16 +48,75 @@ export default function SentenceCard({
 }) {
   const [inputText, setInputText] = useState('');
   const [isFocused, setIsFocused] = useState(index === 0);
+  const [forceReveal, setForceReveal] = useState(false);
+  const [playingSource, setPlayingSource] = useState(null); // 'user' | 'target' | null
   const inputRef = useRef(null);
   const formRef = useRef(null);
   const sentenceTextRef = useRef(null);
+  const audioRef = useRef(null);
+  const hasPlayedForCorrectionRef = useRef(false);
+
+  const isDone = Boolean(evalResult);
+  const isCorrect = evalResult?.is_correct ?? false;
+  const isBlindRetryActive = blindRetryEnabled && isDone && !isCorrect && !forceReveal;
+  const isCorrectionShown = isDone && !isBlindRetryActive;
+
+  const targetAudioUrl = `/api/audio/synthesize?text=${encodeURIComponent(sentence.fr)}&sentence_id=${sentence.id}`;
+
+  const userText = (evalResult?.corrected_text || inputText || '').trim();
+  const isSentencesEqual = normalizeForAudio(userText) === normalizeForAudio(sentence.fr);
+
+  // ONLY generate the audio of the user sentence if it is correct.
+  // If the sentences are equal, reuse targetAudioUrl so synthesis happens only once.
+  const userAudioUrl = isCorrect && userText
+    ? (isSentencesEqual ? targetAudioUrl : `/api/audio/synthesize?text=${encodeURIComponent(userText)}`)
+    : null;
+
+  const playSource = (source = 'target') => {
+    if (!audioRef.current) return;
+    const urlToPlay = source === 'user' ? userAudioUrl : targetAudioUrl;
+    if (!urlToPlay) return;
+
+    if (onAudioPlay) {
+      onAudioPlay(sentence.id, audioRef.current);
+    }
+
+    const resolvedUrl = new URL(urlToPlay, window.location.origin).href;
+    if (audioRef.current.src !== resolvedUrl) {
+      audioRef.current.src = urlToPlay;
+      audioRef.current.load();
+    }
+    audioRef.current.currentTime = 0;
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setPlayingSource(source);
+        })
+        .catch(() => {
+          setPlayingSource(null);
+        });
+    }
+  };
+
+  const togglePlay = (source = 'target') => {
+    if (!audioRef.current) return;
+    if (playingSource === source) {
+      audioRef.current.pause();
+      setPlayingSource(null);
+    } else {
+      playSource(source);
+    }
+  };
+
+  const handleAudioEnded = () => {
+    setPlayingSource(null);
+  };
 
   // Hints state
   const [selectedWordIndices, setSelectedWordIndices] = useState([]);
   const [hintData, setHintData] = useState(null);
   const [isLoadingHint, setIsLoadingHint] = useState(false);
-
-  const isDone = Boolean(evalResult);
 
   // First-time vocabulary roots tracking
   const firstTimeLemmas = React.useMemo(() => {
@@ -248,7 +317,35 @@ export default function SentenceCard({
     }, 10);
   };
 
+  // Auto-play French pronunciation strictly when the target correction is shown
+  useEffect(() => {
+    if (isCorrectionShown) {
+      if (autoPlayAudio && !hasPlayedForCorrectionRef.current) {
+        hasPlayedForCorrectionRef.current = true;
+        if (isCorrect && userAudioUrl) {
+          playSource('user');
+        } else {
+          playSource('target');
+        }
+      }
+    } else {
+      hasPlayedForCorrectionRef.current = false;
+    }
+  }, [isCorrectionShown, autoPlayAudio, isCorrect, userAudioUrl]);
+
   const handleKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.code === 'Space') {
+      if (isCorrectionShown) {
+        e.preventDefault();
+        const primarySource = (isCorrect && userAudioUrl) ? 'user' : 'target';
+        if (playingSource) {
+          togglePlay(playingSource);
+        } else {
+          playSource(primarySource);
+        }
+        return;
+      }
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (!isDone && !isEvaluating && inputText.trim()) {
@@ -263,8 +360,6 @@ export default function SentenceCard({
       onSubmit(sentence.id, inputText.trim(), sentence, index);
     }
   };
-
-  const [forceReveal, setForceReveal] = useState(false);
 
   const handleSkipClick = () => {
     if (!isDone && !isEvaluating) {
@@ -284,9 +379,6 @@ export default function SentenceCard({
     }
   };
 
-  const isCorrect = evalResult?.is_correct ?? false;
-  const isBlindRetryActive = blindRetryEnabled && isDone && !isCorrect && !forceReveal;
-
   const scoreBadge = evalResult ? {
     bg: isCorrect 
       ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60' 
@@ -301,6 +393,15 @@ export default function SentenceCard({
 
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800 rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors min-h-[440px] lg:h-[440px] flex flex-col justify-start text-neutral-900 dark:text-neutral-100">
+      {/* Hidden audio element */}
+      <audio
+        ref={audioRef}
+        src={targetAudioUrl}
+        preload="auto"
+        onEnded={handleAudioEnded}
+        onPause={() => setPlayingSource(null)}
+      />
+
       {/* 2-Column Side-by-Side Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch flex-1 h-full min-h-0">
         
@@ -557,12 +658,16 @@ export default function SentenceCard({
                     {((evalResult.src_words && evalResult.src_words.length > 0) || (preloadedHint?.src_words && preloadedHint.src_words.length > 0) || spanishWords.length > 0) && (
                       <WordAlignmentView
                         srcWords={evalResult.src_words?.length ? evalResult.src_words : (preloadedHint?.src_words || spanishWords)}
-                        refWords={evalResult.ref_words?.length ? evalResult.ref_words : (evalResult.tgt_words?.length ? evalResult.tgt_words : (preloadedHint?.tgt_words || []))}
+                        refWords={evalResult.ref_words?.length ? evalResult.ref_words : (evalResult.tgt_words?.length ? evalResult.tgt_words : (preloadedHint?.tgt_words || sentence.fr.trim().split(/\s+/)))}
                         alignedRefMap={evalResult.aligned_ref_map && Object.keys(evalResult.aligned_ref_map).length > 0 ? evalResult.aligned_ref_map : (evalResult.aligned_targets_map && Object.keys(evalResult.aligned_targets_map).length > 0 ? evalResult.aligned_targets_map : (preloadedHint?.aligned_targets_map || {}))}
-                        studentWords={evalResult.student_words || []}
+                        studentWords={evalResult.student_words?.length ? evalResult.student_words : (userText ? userText.split(/\s+/) : [])}
                         alignedStudentMap={evalResult.aligned_student_map || {}}
                         firstTimeLemmas={firstTimeLemmas}
                         firstTimePairs={firstTimePairs}
+                        playingSource={playingSource}
+                        onTogglePlay={togglePlay}
+                        isCorrect={isCorrect}
+                        hasUserAudio={Boolean(userAudioUrl)}
                       />
                     )}
                   </>

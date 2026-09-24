@@ -219,6 +219,7 @@ class DBConnection:
                 correction_threshold REAL DEFAULT {DEFAULT_CORRECTION_THRESHOLD},
                 cards_per_exercise INTEGER DEFAULT {DEFAULT_CARDS_PER_EXERCISE},
                 auto_jump INTEGER DEFAULT 1,
+                auto_play_audio INTEGER DEFAULT 1,
                 transcription_retry INTEGER DEFAULT 1,
                 blind_retry INTEGER DEFAULT 0,
                 active_mode TEXT DEFAULT 'translation',
@@ -235,6 +236,8 @@ class DBConnection:
             settings_cols = [c[1] for c in conn.execute("PRAGMA table_info(user_settings);").fetchall()]
             if 'auto_jump' not in settings_cols:
                 conn.execute("ALTER TABLE user_settings ADD COLUMN auto_jump INTEGER DEFAULT 1;")
+            if 'auto_play_audio' not in settings_cols:
+                conn.execute("ALTER TABLE user_settings ADD COLUMN auto_play_audio INTEGER DEFAULT 1;")
             if 'transcription_retry' not in settings_cols:
                 conn.execute("ALTER TABLE user_settings ADD COLUMN transcription_retry INTEGER DEFAULT 1;")
             if 'blind_retry' not in settings_cols:
@@ -268,8 +271,8 @@ class DBConnection:
 
         # Seed user_settings for default_user if not exists
         conn.execute("""
-            INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, transcription_retry, blind_retry, active_mode)
-            VALUES ('default_user', 'system', 'default', ?, ?, 1, 1, 0, 'translation');
+            INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode)
+            VALUES ('default_user', 'system', 'default', ?, ?, 1, 1, 1, 0, 'translation');
         """, (DEFAULT_CORRECTION_THRESHOLD, DEFAULT_CARDS_PER_EXERCISE))
 
 

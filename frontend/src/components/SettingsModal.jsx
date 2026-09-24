@@ -25,6 +25,8 @@ export default function SettingsModal({
   onToggleBlindRetry,
   autoJumpEnabled = true,
   onToggleAutoJump,
+  autoPlayAudio = true,
+  onToggleAutoPlayAudio,
   theme = 'system',
   onChangeTheme,
 }) {
@@ -287,6 +289,32 @@ export default function SettingsModal({
               <span
                 className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-neutral-900 shadow ring-0 transition duration-200 ease-in-out ${
                   autoJumpEnabled ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 pt-2">
+            <div>
+              <label className="text-xs font-medium text-neutral-800 dark:text-neutral-200">
+                Lecture audio automatique
+              </label>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                Jouer automatiquement l'audio français lorsque la correction est affichée.
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={autoPlayAudio}
+              onClick={() => onToggleAutoPlayAudio && onToggleAutoPlayAudio(!autoPlayAudio)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                autoPlayAudio ? 'bg-neutral-900 dark:bg-neutral-100' : 'bg-neutral-200 dark:bg-neutral-700'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-neutral-900 shadow ring-0 transition duration-200 ease-in-out ${
+                  autoPlayAudio ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
             </button>

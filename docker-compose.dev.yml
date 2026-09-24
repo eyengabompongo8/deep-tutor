@@ -1,0 +1,67 @@
+services:
+  backend-dev:
+    build:
+      context: .
+      args:
+        UV_EXTRA: cpu
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      # Mount the local codebase into the container so changes are reflected immediately
+      - .:/app
+      # Keep the container's virtual environment separate from any local one you might have
+      - /app/.venv
+      # Also mount the data directory
+      - ${DATA_DIR:-./data}:/app/data
+      # Mount Hugging Face model cache from host
+      - ${HF_CACHE_DIR:-~/.cache/huggingface}:/root/.cache/huggingface
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+    # Override the default command to use FastAPI's --reload flag
+    command: >
+      bash -c "uv sync --extra cpu && uv run --no-sync python -m backend.server --host 0.0.0.0 --port 8000 --reload --reload-dir backend"
+
+  # GPU development service (Requires NVIDIA Container Toolkit on host)
+  backend-dev-gpu:
+    build:
+      context: .
+      args:
+        UV_EXTRA: cu124
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - .:/app
+      - /app/.venv
+      - ${DATA_DIR:-./data}:/app/data
+      - ${HF_CACHE_DIR:-~/.cache/huggingface}:/root/.cache/huggingface
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      bash -c "uv sync --extra cu124 && uv run --no-sync python -m backend.server --host 0.0.0.0 --port 8000 --reload --reload-dir backend"
+
+  frontend-dev:
+    image: node:20-alpine
+    working_dir: /app/frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount the frontend code
+      - ./frontend:/app/frontend
+      # Use an anonymous volume for node_modules to avoid cross-platform issues
+      - /app/frontend/node_modules
+    environment:
+      # Point the frontend proxy to the backend container (defaults to backend-dev:8000, set to http://backend-dev-gpu:8000 if using GPU)
+      - BACKEND_URL=${BACKEND_URL:-http://backend-dev:8000}
+      - FRONTEND_PORT=5173
+    # Install dependencies and start Vite with live reload
+    command: >
+      sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"

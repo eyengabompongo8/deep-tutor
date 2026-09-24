@@ -191,6 +191,7 @@ class TestDataManager:
         assert settings["correction_threshold"] == 75.0
         assert settings["cards_per_exercise"] == 3
         assert settings["auto_jump"] is True
+        assert settings["auto_play_audio"] is True
         assert settings["transcription_retry"] is True
         assert settings["blind_retry"] is False
         assert settings["active_mode"] == "translation"
@@ -203,6 +204,7 @@ class TestDataManager:
             correction_threshold=80.0,
             cards_per_exercise=5,
             auto_jump=False,
+            auto_play_audio=False,
             transcription_retry=False,
             blind_retry=True,
             active_mode="transcription"
@@ -212,6 +214,7 @@ class TestDataManager:
         assert updated["correction_threshold"] == 80.0
         assert updated["cards_per_exercise"] == 5
         assert updated["auto_jump"] is False
+        assert updated["auto_play_audio"] is False
         assert updated["transcription_retry"] is False
         assert updated["blind_retry"] is True
         assert updated["active_mode"] == "transcription"

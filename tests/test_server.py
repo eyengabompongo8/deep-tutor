@@ -182,6 +182,7 @@ class TestSettingsEndpoints:
         assert settings["user_id"] == "default_user"
         assert settings["cards_per_exercise"] == 3
         assert settings["auto_jump"] is True
+        assert settings["auto_play_audio"] is True
         assert settings["transcription_retry"] is True
         assert settings["blind_retry"] is False
         assert settings["active_mode"] == "translation"
@@ -191,6 +192,7 @@ class TestSettingsEndpoints:
             "cards_per_exercise": 2,
             "theme": "dark",
             "auto_jump": False,
+            "auto_play_audio": False,
             "transcription_retry": False,
             "blind_retry": True,
             "active_mode": "transcription"
@@ -200,6 +202,7 @@ class TestSettingsEndpoints:
         assert updated["cards_per_exercise"] == 2
         assert updated["theme"] == "dark"
         assert updated["auto_jump"] is False
+        assert updated["auto_play_audio"] is False
         assert updated["transcription_retry"] is False
         assert updated["blind_retry"] is True
         assert updated["active_mode"] == "transcription"

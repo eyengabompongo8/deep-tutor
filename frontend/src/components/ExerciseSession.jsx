@@ -12,6 +12,7 @@ export default function ExerciseSession({
   translationThreshold = 75,
   blindRetryEnabled = false,
   autoJumpEnabled = true,
+  autoPlayAudio = true,
   onProgressUpdate,
   onBatchCompleted,
   onNextBatch,
@@ -31,6 +32,19 @@ export default function ExerciseSession({
   const inputRefs = useRef({});
   const cardRefs = useRef({});
   const scrollAnimRef = useRef(null);
+  const currentPlayingAudioRef = useRef(null);
+
+  const handleAudioPlay = (sentenceId, audioElem) => {
+    if (currentPlayingAudioRef.current && currentPlayingAudioRef.current !== audioElem) {
+      try {
+        currentPlayingAudioRef.current.pause();
+        currentPlayingAudioRef.current.currentTime = 0;
+      } catch (err) {
+        console.warn('Error pausing previously playing audio:', err);
+      }
+    }
+    currentPlayingAudioRef.current = audioElem;
+  };
 
   const registerInput = (index, ref) => {
     if (ref) {
@@ -53,6 +67,13 @@ export default function ExerciseSession({
     setIsFinishingBatch(false);
     inputRefs.current = {};
     cardRefs.current = {};
+    if (currentPlayingAudioRef.current) {
+      try {
+        currentPlayingAudioRef.current.pause();
+        currentPlayingAudioRef.current.currentTime = 0;
+      } catch (e) {}
+      currentPlayingAudioRef.current = null;
+    }
     if (scrollAnimRef.current) {
       cancelAnimationFrame(scrollAnimRef.current);
       scrollAnimRef.current = null;
@@ -460,6 +481,8 @@ export default function ExerciseSession({
                 preloadedHint={preloadedHints[sentence.id]}
                 threshold={translationThreshold}
                 blindRetryEnabled={blindRetryEnabled}
+                autoPlayAudio={autoPlayAudio}
+                onAudioPlay={handleAudioPlay}
                 onSubmit={handleSentenceSubmit}
                 onSkip={handleSentenceSkip}
                 onRetry={handleSentenceRetry}
