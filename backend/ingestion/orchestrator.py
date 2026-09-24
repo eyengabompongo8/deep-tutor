@@ -7,6 +7,7 @@ from backend.ingestion.pipeline import (
     run_seed_lexemas,
     run_mine_tatoeba,
     run_mine_pdf,
+    run_mine_lingua,
     run_ingest_and_link,
     run_clear_db
 )
@@ -23,11 +24,24 @@ def main():
     parser.add_argument("--mine-tatoeba", action="store_true", help="Mine and score sentences from Tatoeba dataset")
     parser.add_argument("--mine-pdf", type=str, metavar="PATH", help="Mine, score, and translate sentences from a monolingual French PDF")
     parser.add_argument("--mine-hf", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
+    parser.add_argument("--mine-lingua", action="store_true", help="Download and mine sentences from Lingua.com learner PDFs")
+    parser.add_argument("--lingua-limit", type=int, default=None, metavar="N", help="Limit number of Lingua PDFs to download/mine")
     parser.add_argument("--ingest", action="store_true", help="Ingest mined sentences into the database and build relational lexema links")
     
     args = parser.parse_args()
     
-    actions = [args.all, args.init_db, args.reset_db, args.clear_db, args.seed_lexemas, args.mine_tatoeba, args.mine_pdf, args.mine_hf, args.ingest]
+    actions = [
+        args.all,
+        args.init_db,
+        args.reset_db,
+        args.clear_db,
+        args.seed_lexemas,
+        args.mine_tatoeba,
+        args.mine_pdf,
+        args.mine_hf,
+        args.mine_lingua,
+        args.ingest
+    ]
     if not any(actions):
         parser.print_help()
         sys.exit(0)
@@ -89,6 +103,14 @@ def main():
         print("="*50)
         hf_sentences = run_mine_hf_dataset()
         mined_sentences.extend(hf_sentences)
+
+    # 5c. Mine Lingua.com Learner PDFs
+    if args.mine_lingua:
+        print("\n" + "="*50)
+        print("STEP: Mining Lingua.com Learner PDFs")
+        print("="*50)
+        lingua_sentences = run_mine_lingua(limit=args.lingua_limit, interactive=False)
+        mined_sentences.extend(lingua_sentences)
 
     # 6. Ingest & Link
     if args.all or args.ingest:
