@@ -30,8 +30,18 @@ def get_spacy_nlp():
     return _nlp
 
 
+def clean_quotes_and_symbols(text: str) -> str:
+    """Strips leading/trailing quotes, dialog marks (« », < >, “ ”), and removes stray brackets/angle quotes."""
+    clean_text = text.strip().replace('\n', ' ')
+    clean_text = re.sub(r'^[\s\-—–«"<>“”]+', '', clean_text)
+    clean_text = re.sub(r'[\s»"<>“”]+$', '', clean_text)
+    clean_text = clean_text.replace('«', '').replace('»', '').replace('<', '').replace('>', '')
+    return clean_text.strip()
+
+
 def format_sentence(text: str) -> str:
     """Cleans up internal spacing and formats punctuation spacing for French."""
+    text = clean_quotes_and_symbols(text)
     text = re.sub(r'\s+', ' ', text)
     text = re.sub(r'\s*([?!:;])', r' \1', text)
     return text.strip()
@@ -156,16 +166,9 @@ def extract_sentences_from_pdf(
 
     valid_sentences = []
     for sent in doc_spacy.sents:
-        clean_text = sent.text.strip().replace('\n', ' ')
-        clean_text = re.sub(r'^[\s\-—–«"<>]+', '', clean_text)
-        clean_text = re.sub(r'[\s»"<>]+$', '', clean_text)
-        clean_text = clean_text.replace('«', '').replace('»', '').replace('<', '').replace('>', '')
-        clean_text = clean_text.strip()
-
+        clean_text = format_sentence(sent.text)
         if not clean_text:
             continue
-
-        clean_text = format_sentence(clean_text)
 
         if is_valid_sentence(clean_text):
             valid_sentences.append(clean_text)

@@ -7,6 +7,9 @@ from backend.ingestion.pipeline import (
     run_seed_lexemas,
     run_mine_tatoeba,
     run_mine_pdf,
+    run_mine_lingua,
+    run_mine_vekkt_cefr,
+    run_mine_catie_conversations,
     run_ingest_and_link,
     run_clear_db
 )
@@ -21,13 +24,34 @@ def main():
     parser.add_argument("--clear-db", action="store_true", help="Clear all sentences and lexema links from the database")
     parser.add_argument("--seed-lexemas", action="store_true", help="Seed the lexemas catalog table from flelex_beacco.tsv")
     parser.add_argument("--mine-tatoeba", action="store_true", help="Mine and score sentences from Tatoeba dataset")
+    parser.add_argument("--tatoeba-mode", type=str, choices=["parallel", "monolingual", "both"], default="both", help="Tatoeba mining mode: parallel (fra-spa), monolingual (fra + MarianMT), or both (default: both)")
+    parser.add_argument("--tatoeba-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine/extract from Tatoeba")
     parser.add_argument("--mine-pdf", type=str, metavar="PATH", help="Mine, score, and translate sentences from a monolingual French PDF")
     parser.add_argument("--mine-hf", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
+    parser.add_argument("--mine-lingua", action="store_true", help="Download and mine sentences from Lingua.com learner PDFs")
+    parser.add_argument("--lingua-limit", type=int, default=None, metavar="N", help="Limit number of Lingua PDFs to download/mine")
+    parser.add_argument("--mine-vekkt", action="store_true", help="Mine sentences from vekkt/french_CEFR HuggingFace dataset")
+    parser.add_argument("--vekkt-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine from vekkt/french_CEFR")
+    parser.add_argument("--mine-conversations", action="store_true", help="Mine everyday spoken sentences from CATIE-AQ conversations")
+    parser.add_argument("--conversations-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine from conversations")
     parser.add_argument("--ingest", action="store_true", help="Ingest mined sentences into the database and build relational lexema links")
     
     args = parser.parse_args()
     
-    actions = [args.all, args.init_db, args.reset_db, args.clear_db, args.seed_lexemas, args.mine_tatoeba, args.mine_pdf, args.mine_hf, args.ingest]
+    actions = [
+        args.all,
+        args.init_db,
+        args.reset_db,
+        args.clear_db,
+        args.seed_lexemas,
+        args.mine_tatoeba,
+        args.mine_pdf,
+        args.mine_hf,
+        args.mine_lingua,
+        args.mine_vekkt,
+        args.mine_conversations,
+        args.ingest
+    ]
     if not any(actions):
         parser.print_help()
         sys.exit(0)
@@ -71,7 +95,11 @@ def main():
         print("\n" + "="*50)
         print("STEP: Mining Tatoeba Sentences")
         print("="*50)
-        tatoeba_sentences = run_mine_tatoeba(max_per_level=1200)
+        tatoeba_sentences = run_mine_tatoeba(
+            mode=args.tatoeba_mode,
+            max_per_level=1200,
+            limit=args.tatoeba_limit
+        )
         mined_sentences.extend(tatoeba_sentences)
 
     # 5. Mine PDF
@@ -89,6 +117,30 @@ def main():
         print("="*50)
         hf_sentences = run_mine_hf_dataset()
         mined_sentences.extend(hf_sentences)
+
+    # 5c. Mine Lingua.com Learner PDFs
+    if args.mine_lingua:
+        print("\n" + "="*50)
+        print("STEP: Mining Lingua.com Learner PDFs")
+        print("="*50)
+        lingua_sentences = run_mine_lingua(limit=args.lingua_limit, interactive=False)
+        mined_sentences.extend(lingua_sentences)
+
+    # 5d. Mine vekkt/french_CEFR
+    if args.mine_vekkt:
+        print("\n" + "="*50)
+        print("STEP: Mining vekkt/french_CEFR Dataset")
+        print("="*50)
+        vekkt_sentences = run_mine_vekkt_cefr(limit=args.vekkt_limit)
+        mined_sentences.extend(vekkt_sentences)
+
+    # 5e. Mine CATIE-AQ Everyday Conversations
+    if args.mine_conversations:
+        print("\n" + "="*50)
+        print("STEP: Mining Spoken French (CATIE-AQ Conversations)")
+        print("="*50)
+        catie_sentences = run_mine_catie_conversations(limit=args.conversations_limit)
+        mined_sentences.extend(catie_sentences)
 
     # 6. Ingest & Link
     if args.all or args.ingest:
