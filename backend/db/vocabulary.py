@@ -248,12 +248,13 @@ class VocabularyMixin:
         user_id: str,
         sentence_id: int,
         is_success: bool = True,
-        unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD
+        unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD,
+        is_retry: bool = False
     ) -> List[Dict[str, Any]]:
         """
-        Increments appearance_count (and success_count if is_success) in user_lemmas and user_words
-        for all lemmas and words associated with the sentence.
-        Returns the updated list of lemmas with their new counts and derived is_known.
+        Increments the appearance count and success count for every word root in the given sentence.
+        If is_retry is True, skips incrementing counts and returns current counts/progress.
+        Returns the updated list of lexemas with their new counts and derived is_known.
         """
         self.get_or_create_user(user_id)
         with self._get_connection() as conn:
@@ -269,15 +270,16 @@ class VocabularyMixin:
             )
             word_ids = [r[0] for r in cursor.fetchall()]
 
-            success_inc = 1 if is_success else 0
-            for lid in lemma_ids:
-                conn.execute("""
-                    INSERT INTO user_lemmas (user_id, lemma_id, level, appearance_count, success_count)
-                    SELECT ?, ?, level, 1, ? FROM lemmas WHERE id = ?
-                    ON CONFLICT(user_id, lemma_id) DO UPDATE SET
-                        appearance_count = user_lemmas.appearance_count + 1,
-                        success_count = user_lemmas.success_count + ?;
-                """, (user_id, lid, success_inc, lid, success_inc))
+            if not is_retry:
+                success_inc = 1 if is_success else 0
+                for lid in lexema_ids:
+                    conn.execute("""
+                        INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count)
+                        SELECT ?, ?, level, 1, ? FROM lexemas WHERE id = ?
+                        ON CONFLICT(user_id, lexema_id) DO UPDATE SET
+                            appearance_count = user_lexema_counts.appearance_count + 1,
+                            success_count = user_lexema_counts.success_count + ?;
+                    """, (user_id, lid, success_inc, lid, success_inc))
 
             for wid in word_ids:
                 conn.execute("""

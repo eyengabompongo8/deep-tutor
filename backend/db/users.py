@@ -5,6 +5,7 @@ from backend.config import (
     STARTING_SCORE,
     DEFAULT_CORRECTION_THRESHOLD,
     DEFAULT_CARDS_PER_EXERCISE,
+    DEFAULT_MIXED_TRANSLATION_RATIO,
 )
 
 class UsersMixin:
@@ -250,6 +251,7 @@ class UsersMixin:
         default_transcription_retry = 1
         default_blind_retry = 0
         default_active_mode = 'translation'
+        default_mixed_translation_ratio = DEFAULT_MIXED_TRANSLATION_RATIO
 
         def _format_settings_row(res: Dict[str, Any]) -> Dict[str, Any]:
             if 'auto_jump' in res:
@@ -262,6 +264,8 @@ class UsersMixin:
                 res['blind_retry'] = bool(res['blind_retry']) if res['blind_retry'] is not None else False
             if 'active_mode' in res and not res['active_mode']:
                 res['active_mode'] = 'translation'
+            if 'mixed_translation_ratio' in res:
+                res['mixed_translation_ratio'] = int(res['mixed_translation_ratio']) if res['mixed_translation_ratio'] is not None else DEFAULT_MIXED_TRANSLATION_RATIO
             return res
 
         with self._get_connection() as conn:
@@ -270,14 +274,14 @@ class UsersMixin:
             if row:
                 return _format_settings_row(dict(row))
             conn.execute("""
-                INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-            """, (user_id, default_theme, default_preferred_voice, default_correction_threshold, default_cards_per_exercise, default_auto_jump, default_auto_play_audio, default_transcription_retry, default_blind_retry, default_active_mode))
+                INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode, mixed_translation_ratio)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """, (user_id, default_theme, default_preferred_voice, default_correction_threshold, default_cards_per_exercise, default_auto_jump, default_auto_play_audio, default_transcription_retry, default_blind_retry, default_active_mode, default_mixed_translation_ratio))
             cursor = conn.execute("SELECT * FROM user_settings WHERE user_id = ?;", (user_id,))
             return _format_settings_row(dict(cursor.fetchone()))
 
     def update_user_settings(self, user_id: str = 'default_user', **kwargs) -> Dict[str, Any]:
-        """Updates user settings fields (theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode)."""
+        """Updates user settings fields (theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode, mixed_translation_ratio)."""
         self.get_user_settings(user_id)
         bool_coercion = lambda v: 1 if v in (True, 1, 'true', 'True', '1') else 0
         allowed_fields = {
@@ -289,7 +293,8 @@ class UsersMixin:
             'auto_play_audio': bool_coercion,
             'transcription_retry': bool_coercion,
             'blind_retry': bool_coercion,
-            'active_mode': lambda v: str(v).strip().lower() if str(v).strip().lower() in ('translation', 'transcription') else 'translation',
+            'active_mode': lambda v: str(v).strip().lower() if str(v).strip().lower() in ('translation', 'transcription', 'mixed') else 'translation',
+            'mixed_translation_ratio': lambda v: max(0, min(100, int(v))),
         }
         updates = []
         params = []

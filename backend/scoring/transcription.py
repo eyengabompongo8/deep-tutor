@@ -27,6 +27,7 @@ def evaluate_transcription(
             "quality": 0.0,
             "composite_score": 0.0,
             "is_exact": False,
+            "is_correct": False,
             "status_message": "Sentence skipped" if is_skipped else "No transcription submitted",
             "diff": diff,
             "notes": ["Sentence skipped" if is_skipped else "No transcription submitted"],
@@ -42,7 +43,6 @@ def evaluate_transcription(
 
     matcher = difflib.SequenceMatcher(None, ref_norm, stu_norm)
     diff_items = []
-    token_scores = []
     notes = []
 
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
@@ -52,10 +52,8 @@ def evaluate_transcription(
                 s_orig = stu_words[s_idx]
                 if r_orig.lower() == s_orig.lower():
                     diff_items.append({"word": s_orig, "ref_word": r_orig, "type": "exact"})
-                    token_scores.append(1.0)
                 else:
                     diff_items.append({"word": s_orig, "ref_word": r_orig, "type": "accent"})
-                    token_scores.append(0.85)
                     notes.append(f"Accent: '{s_orig}' → '{r_orig}'")
         elif tag == 'replace':
             r_slice = list(range(i1, i2))
@@ -67,57 +65,45 @@ def evaluate_transcription(
                 dist = levenshtein(s_orig.lower(), r_orig.lower())
                 if remove_accents(s_orig.lower()) == remove_accents(r_orig.lower()):
                     diff_items.append({"word": s_orig, "ref_word": r_orig, "type": "accent"})
-                    token_scores.append(0.85)
                     notes.append(f"Accent: '{s_orig}' → '{r_orig}'")
                 elif dist <= 2:
                     diff_items.append({"word": s_orig, "ref_word": r_orig, "type": "typo"})
-                    token_scores.append(0.50)
                     notes.append(f"Typo: '{s_orig}' → '{r_orig}'")
                 else:
                     diff_items.append({"word": s_orig, "ref_word": r_orig, "type": "mismatch"})
-                    token_scores.append(0.0)
 
             for k in range(min_len, len(r_slice)):
                 r_orig = ref_words[r_slice[k]]
                 diff_items.append({"word": r_orig, "ref_word": r_orig, "type": "missing"})
-                token_scores.append(0.0)
                 notes.append(f"Missing: '{r_orig}'")
 
             for k in range(min_len, len(s_slice)):
                 s_orig = stu_words[s_slice[k]]
                 diff_items.append({"word": s_orig, "ref_word": "", "type": "extra"})
-                token_scores.append(0.0)
         elif tag == 'delete':
             for r_idx in range(i1, i2):
                 r_orig = ref_words[r_idx]
                 diff_items.append({"word": r_orig, "ref_word": r_orig, "type": "missing"})
-                token_scores.append(0.0)
                 notes.append(f"Missing: '{r_orig}'")
         elif tag == 'insert':
             for s_idx in range(j1, j2):
                 s_orig = stu_words[s_idx]
                 diff_items.append({"word": s_orig, "ref_word": "", "type": "extra"})
-                token_scores.append(0.0)
 
-    # Character similarity fallback
-    clean_ref = re.sub(r"[^\w\s'-]", '', reference_text.lower()).strip()
-    clean_stu = re.sub(r"[^\w\s'-]", '', student_text.lower()).strip()
-    max_c = max(1, max(len(clean_ref), len(clean_stu)))
-    c_dist = levenshtein(clean_ref, clean_stu)
-    char_sim = max(0.0, 1.0 - (c_dist / max_c))
+    # Determine binary correctness: all tokens must be exact matches
+    has_errors = any(item.get("type") != "exact" for item in diff_items)
+    is_correct = bool(len(diff_items) > 0 and not has_errors and len(diff_items) == len(ref_words))
+    is_exact = is_correct
 
-    token_quality = sum(token_scores) / max(1, len(ref_words))
-    raw_quality = 0.70 * token_quality + 0.30 * char_sim
-    quality = round(max(0.0, min(1.0, raw_quality)), 4)
-    composite_score = round(quality * 100.0, 1)
-
-    is_exact = quality >= 0.98
-    status_msg = "Exact match!" if is_exact else ("Minor corrections" if quality >= 0.70 else "Transcription reviewed")
+    quality = 1.0 if is_correct else 0.0
+    composite_score = 100.0 if is_correct else 0.0
+    status_msg = "Transcription correcte" if is_correct else "À corriger"
 
     return {
         "quality": quality,
         "composite_score": composite_score,
         "is_exact": is_exact,
+        "is_correct": is_correct,
         "status_message": status_msg,
         "diff": diff_items,
         "notes": notes,

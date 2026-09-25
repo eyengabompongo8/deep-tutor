@@ -10,6 +10,7 @@ from backend.config import (
     STARTING_SCORE,
     DEFAULT_CORRECTION_THRESHOLD,
     DEFAULT_CARDS_PER_EXERCISE,
+    DEFAULT_MIXED_TRANSLATION_RATIO,
 )
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -274,6 +275,7 @@ class DBConnection:
                 transcription_retry INTEGER DEFAULT 1,
                 blind_retry INTEGER DEFAULT 0,
                 active_mode TEXT DEFAULT 'translation',
+                mixed_translation_ratio INTEGER DEFAULT {DEFAULT_MIXED_TRANSLATION_RATIO},
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
@@ -319,6 +321,8 @@ class DBConnection:
                 conn.execute("ALTER TABLE user_settings ADD COLUMN blind_retry INTEGER DEFAULT 0;")
             if 'active_mode' not in settings_cols:
                 conn.execute("ALTER TABLE user_settings ADD COLUMN active_mode TEXT DEFAULT 'translation';")
+            if 'mixed_translation_ratio' not in settings_cols:
+                conn.execute(f"ALTER TABLE user_settings ADD COLUMN mixed_translation_ratio INTEGER DEFAULT {DEFAULT_MIXED_TRANSLATION_RATIO};")
         except Exception:
             pass
 
@@ -346,9 +350,9 @@ class DBConnection:
 
         # Seed user_settings for default_user if not exists
         conn.execute("""
-            INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode)
-            VALUES ('default_user', 'system', 'default', ?, ?, 1, 1, 1, 0, 'translation');
-        """, (DEFAULT_CORRECTION_THRESHOLD, DEFAULT_CARDS_PER_EXERCISE))
+            INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode, mixed_translation_ratio)
+            VALUES ('default_user', 'system', 'default', ?, ?, 1, 1, 1, 0, 'translation', ?);
+        """, (DEFAULT_CORRECTION_THRESHOLD, DEFAULT_CARDS_PER_EXERCISE, DEFAULT_MIXED_TRANSLATION_RATIO))
 
 
     def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:

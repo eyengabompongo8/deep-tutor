@@ -72,6 +72,24 @@ class TestExerciseEndpoints:
         assert "is_known" in item
         assert "mastered" in item
 
+        # Retry evaluation of same card
+        retry_payload = {
+            "sentence_id": 1,
+            "source_text": "Hola mundo",
+            "student_text": "",
+            "reference_text": "Bonjour le monde",
+            "sentence_score": 1.0,
+            "is_skipped": True,
+            "user_id": "default_user",
+            "is_retry": True
+        }
+        res_retry = test_client.post("/api/exercises/evaluate-single", json=retry_payload)
+        assert res_retry.status_code == 200
+        data_retry = res_retry.json()
+        assert len(data_retry["vocabulary_progress"]) == 1
+        retry_item = data_retry["vocabulary_progress"][0]
+        assert retry_item["appearance_count"] == 1  # Unchanged!
+
     def test_complete_batch(self, test_client):
         payload = {
             "current_score": 1.20,
@@ -121,8 +139,30 @@ class TestTranscriptionEndpoints:
         data_eval = res_eval.json()
         assert data_eval["sentence_id"] == 42
         assert data_eval["is_exact"] is True
+        assert data_eval["is_correct"] is True
+        assert data_eval["quality"] == 1.0
         assert data_eval["composite_score"] == 100.0
         assert "diff" in data_eval
+        assert data_eval["corrected_text"] == "Bonjour tout le monde"
+        assert data_eval["autocorrect_msgs"] == []
+
+    def test_evaluate_transcription_autocorrects_punctuation(self, test_client):
+        eval_payload = {
+            "sentence_id": 43,
+            "student_text": "Comment vas-tu",
+            "reference_text": "Comment vas-tu ?",
+            "sentence_score": 1.0,
+            "is_skipped": False
+        }
+        res_eval = test_client.post("/api/exercises/evaluate-transcription", json=eval_payload)
+        assert res_eval.status_code == 200
+        data_eval = res_eval.json()
+        assert data_eval["student_text"] == "Comment vas-tu"
+        assert data_eval["corrected_text"] == "Comment vas-tu ?"
+        assert "added '?'" in data_eval["autocorrect_msgs"]
+        assert data_eval["is_exact"] is True
+        assert data_eval["is_correct"] is True
+        assert data_eval["quality"] == 1.0
 
     def test_evaluate_transcription_with_vocab(self, test_client, isolated_data_manager):
         lid = isolated_data_manager.upsert_lexema(lemma="bonjour", pos="INT", level="A1")
@@ -243,6 +283,55 @@ class TestSettingsEndpoints:
         assert batch_res.status_code == 200
         batch_data = batch_res.json()
         assert len(batch_data["items"]) == 2
+
+    def test_mixed_mode_settings_and_batch(self, test_client):
+        # 1. Update mixed_translation_ratio and active_mode to mixed
+        put_res = test_client.put("/api/user/settings?user_id=default_user", json={
+            "mixed_translation_ratio": 60,
+            "active_mode": "mixed"
+        })
+        assert put_res.status_code == 200
+        data = put_res.json()
+        assert data["mixed_translation_ratio"] == 60
+        assert data["active_mode"] == "mixed"
+
+        # 2. Request mixed batch
+        res = test_client.get("/api/exercises/batch?mode=mixed&count=4&user_id=default_user")
+        assert res.status_code == 200
+        batch = res.json()
+        assert "items" in batch
+        assert len(batch["items"]) == 4
+
+        # Verify card_type tags
+        card_types = [item.get("card_type") for item in batch["items"]]
+        assert "translation" in card_types
+        assert "transcription" in card_types
+
+        # Verify transcription cards have unknown_count == 0 (no new lemmas)
+        for item in batch["items"]:
+            if item.get("card_type") == "transcription":
+                assert item.get("unknown_count", 0) == 0
+
+        # 3. Complete batch in mixed mode: score must not change (delta == 0.0)
+        profile_before = test_client.get("/api/user/profile?mode=mixed&user_id=default_user").json()
+        score_before = profile_before["score"]
+
+        complete_res = test_client.post("/api/exercises/complete-batch", json={
+            "current_score": score_before,
+            "mode": "mixed",
+            "user_id": "default_user",
+            "evaluated_items": [
+                {"sentence_id": batch["items"][0]["id"], "sentence_score": 1.0, "quality": 1.0, "is_correct": True, "is_skipped": False},
+                {"sentence_id": batch["items"][1]["id"], "sentence_score": 1.0, "quality": 1.0, "is_correct": True, "is_skipped": False},
+            ]
+        })
+        assert complete_res.status_code == 200
+        summary = complete_res.json()
+        assert summary["delta"] == 0.0
+        assert summary["new_score"] == score_before
+
+        profile_after = test_client.get("/api/user/profile?mode=mixed&user_id=default_user").json()
+        assert profile_after["score"] == score_before
 
 
 @pytest.mark.ml

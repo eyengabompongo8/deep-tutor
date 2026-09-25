@@ -26,6 +26,7 @@ class UpdateUserSettingsRequest(BaseModel):
     transcription_retry: Optional[bool] = None
     blind_retry: Optional[bool] = None
     active_mode: Optional[str] = None
+    mixed_translation_ratio: Optional[int] = None
 
 class ProfileResetRequest(BaseModel):
     start_score: float = STARTING_SCORE
@@ -62,6 +63,7 @@ class EvaluateSingleRequest(BaseModel):
     is_skipped: bool = False
     threshold: float = DEFAULT_CORRECTION_THRESHOLD
     user_id: Optional[str] = "default_user"
+    is_retry: bool = False
 
 class EvaluateTranscriptionRequest(BaseModel):
     sentence_id: int
@@ -70,6 +72,7 @@ class EvaluateTranscriptionRequest(BaseModel):
     sentence_score: float = 1.0
     is_skipped: bool = False
     user_id: Optional[str] = "default_user"
+    is_retry: bool = False
 
 class BatchItemEvaluation(BaseModel):
     sentence_id: int
@@ -176,11 +179,14 @@ class EvaluateTranscriptionResponse(BaseModel):
     quality: float = 0.0
     composite_score: float = 0.0
     is_exact: bool = False
+    is_correct: bool = False
     status_message: str = ""
     diff: List[TranscriptionDiffItem] = []
     notes: List[str] = []
     reference_text: str = ""
     student_text: str = ""
+    corrected_text: str = ""
+    autocorrect_msgs: List[str] = []
     vocabulary_progress: List[VocabProgressItem] = []
 
 class CompleteBatchResponse(BaseModel):

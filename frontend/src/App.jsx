@@ -25,6 +25,10 @@ export default function App() {
     const saved = localStorage.getItem('frenchtutor_batch_size');
     return saved ? parseInt(saved, 10) : 3;
   });
+  const [mixedTranslationRatio, setMixedTranslationRatio] = useState(() => {
+    const saved = localStorage.getItem('frenchtutor_mixed_translation_ratio');
+    return saved !== null ? parseInt(saved, 10) : 50;
+  });
   const [transcriptionRetry, setTranscriptionRetry] = useState(() => {
     const saved = localStorage.getItem('frenchtutor_transcription_retry');
     return saved !== null ? saved === 'true' : true;
@@ -135,6 +139,10 @@ export default function App() {
         if (data.cards_per_exercise != null) {
           setBatchSize(data.cards_per_exercise);
           localStorage.setItem('frenchtutor_batch_size', String(data.cards_per_exercise));
+        }
+        if (data.mixed_translation_ratio != null) {
+          setMixedTranslationRatio(data.mixed_translation_ratio);
+          localStorage.setItem('frenchtutor_mixed_translation_ratio', String(data.mixed_translation_ratio));
         }
         if (data.correction_threshold != null) {
           setTranslationThreshold(data.correction_threshold);
@@ -377,6 +385,18 @@ export default function App() {
     }
   };
 
+  const handleChangeMixedTranslationRatio = (val) => {
+    setMixedTranslationRatio(val);
+    localStorage.setItem('frenchtutor_mixed_translation_ratio', String(val));
+    if (activeUserId) {
+      fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mixed_translation_ratio: val }),
+      }).catch(err => console.warn('Failed to update mixed_translation_ratio:', err));
+    }
+  };
+
   const handleToggleAutoJump = (val) => {
     setAutoJumpEnabled(val);
     localStorage.setItem('frenchtutor_auto_jump', String(val));
@@ -517,6 +537,8 @@ export default function App() {
         onToggleTranscriptionRetry={handleToggleTranscriptionRetry}
         translationThreshold={translationThreshold}
         onChangeTranslationThreshold={handleChangeTranslationThreshold}
+        mixedTranslationRatio={mixedTranslationRatio}
+        onChangeMixedTranslationRatio={handleChangeMixedTranslationRatio}
         blindRetryEnabled={blindRetryEnabled}
         onToggleBlindRetry={handleToggleBlindRetry}
         autoJumpEnabled={autoJumpEnabled}
