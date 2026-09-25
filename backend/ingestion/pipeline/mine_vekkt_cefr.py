@@ -12,16 +12,13 @@ from backend.ingestion.pipeline.common import (
 
 
 def extract_sentences_from_vekkt_cefr(
-    target_levels: Optional[List[str]] = None,
     limit: Optional[int] = None
 ) -> List[str]:
     """
     Loads vekkt/french_CEFR dataset and extracts candidate sentences
-    matching the requested CEFR difficulty levels (defaults to A1, A2, B1, B2).
+    across all CEFR difficulty levels (A1-C2).
     """
-    if target_levels is None:
-        target_levels = ["A1", "A2", "B1", "B2"]
-    target_levels_set = set(target_levels)
+    target_levels_set = {"A1", "A2", "B1", "B2", "C1", "C2"}
 
     print("Loading vekkt/french_CEFR dataset from HuggingFace...")
     dataset_dict = load_dataset("vekkt/french_CEFR")
@@ -62,17 +59,16 @@ def extract_sentences_from_vekkt_cefr(
 
 
 def run_mine_vekkt_cefr(
-    target_levels: Optional[List[str]] = None,
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
     Mines sentences from vekkt/french_CEFR:
-    1. Extracts validated sentences matching target CEFR levels.
+    1. Extracts validated sentences across all CEFR levels (A1-C2).
     2. Deduplicates against existing database sentences.
     3. Evaluates CEFR ML levels, lexical scores, and Spanish translations.
     """
     print("\n--- Mining HuggingFace Dataset (vekkt/french_CEFR) ---")
-    candidates = extract_sentences_from_vekkt_cefr(target_levels=target_levels, limit=limit)
+    candidates = extract_sentences_from_vekkt_cefr(limit=limit)
     print(f"Found {len(candidates)} candidate sentences from vekkt/french_CEFR.")
 
     if not candidates:
