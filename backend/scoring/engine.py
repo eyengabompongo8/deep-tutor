@@ -57,13 +57,15 @@ class ScoringEngine:
         if self.data_manager is not None:
             try:
                 modes_prof = self.data_manager.get_user_modes_profile(user_id)
-                mode_data = modes_prof.get("modes", {}).get(mode, {})
+                # 'mixed' mode shares the translation baseline without modifying it
+                query_mode = "translation" if mode == "mixed" else mode
+                mode_data = modes_prof.get("modes", {}).get(query_mode, {})
                 score = float(mode_data.get("score", STARTING_SCORE))
                 level = mode_data.get("level", score_to_level(score))
                 streak = int(mode_data.get("streak", 0))
                 completed = int(mode_data.get("total_completed", 0))
                 skipped = int(mode_data.get("total_skipped", 0))
-                history = self.data_manager.get_exercise_history(user_id, mode=mode, limit=HISTORY_LIMIT)
+                history = self.data_manager.get_exercise_history(user_id, mode=query_mode, limit=HISTORY_LIMIT)
 
                 res = {
                     "user_id": user_id,
@@ -331,8 +333,14 @@ class ScoringEngine:
         Updates SQLite user_modes & exercise_history if data_manager is available,
         or falls back to local in-memory/JSON profile.
         """
-        if not evaluated_items:
+        if not evaluated_items or mode == "mixed":
             prof = self.get_profile(user_id=user_id, mode=mode)
+            qualities = [
+                float(it.get("quality", 1.0 if it.get("is_correct") else 0.0))
+                for it in evaluated_items
+            ] if evaluated_items else []
+            avg_q = round(float(sum(qualities) / max(1, len(qualities))), 2) if qualities else 0.0
+            correct_count = sum(1 for it in evaluated_items if it.get("is_correct") or float(it.get("quality", 0.0)) >= 0.70)
             return {
                 "old_score": current_score,
                 "new_score": current_score,
@@ -340,7 +348,10 @@ class ScoringEngine:
                 "old_level": score_to_level(current_score),
                 "new_level": score_to_level(current_score),
                 "level_changed": False,
-                "avg_quality": 0.0,
+                "avg_quality": avg_q,
+                "correct_count": correct_count,
+                "total_count": len(evaluated_items),
+                "mode": mode,
                 "profile": prof
             }
 

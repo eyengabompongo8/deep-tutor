@@ -29,13 +29,15 @@ export default function SettingsModal({
   onToggleAutoPlayAudio,
   theme = 'system',
   onChangeTheme,
+  mixedTranslationRatio = 50,
+  onChangeMixedTranslationRatio,
 }) {
   if (!isOpen) return null;
 
-  const modeData = profile?.modes?.[currentMode] || profile;
+  const modeData = profile?.modes?.[currentMode] || profile?.modes?.translation || profile;
   const currentScore = modeData?.score ?? 1.20;
   const currentLevel = modeData?.level ?? 'A1';
-  const modeLabel = currentMode === 'transcription' ? 'Transcription' : 'Translation';
+  const modeLabel = currentMode === 'transcription' ? 'Transcription' : (currentMode === 'mixed' ? 'Mixte' : 'Translation');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/40 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
@@ -136,47 +138,85 @@ export default function SettingsModal({
           </div>
         </div>
 
-        {/* Setting 2: Skill Level & Score Preset */}
+        {/* Setting: Ratio Translation / Transcription (Mixed Mode Setting) */}
         <div className="space-y-2 pt-2 border-t border-neutral-100 dark:border-neutral-800">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-              Starting Level
+              Ratio Traduction / Transcription (Mode Mixte)
             </label>
-            <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
-              {modeLabel}
+            <span className="text-[11px] font-mono font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
+              {mixedTranslationRatio}% Traduction · {100 - mixedTranslationRatio}% Écoute
             </span>
           </div>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Current proficiency: <span className="font-mono font-medium text-neutral-800 dark:text-neutral-200">{currentScore.toFixed(2)}</span> ({currentLevel})
+            Définit la proportion de cartes de traduction par rapport aux cartes de transcription dans le mode Mixte.
           </p>
-
-          <div className="pt-1">
-            <select
-              value={CEFR_PRESETS.some(p => p.level === currentLevel) ? currentLevel : 'A1'}
+          <div className="pt-2 px-1">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="10"
+              value={mixedTranslationRatio}
               onChange={(e) => {
-                const preset = CEFR_PRESETS.find(p => p.level === e.target.value);
-                if (preset) {
-                  onResetScore(preset.score, currentMode);
+                const val = parseInt(e.target.value, 10);
+                if (!isNaN(val) && onChangeMixedTranslationRatio) {
+                  onChangeMixedTranslationRatio(val);
                 }
               }}
-              className="w-full py-2 px-3 bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900/10 dark:focus:ring-neutral-100/10 focus:border-neutral-400 dark:focus:border-neutral-500 cursor-pointer transition-colors"
-            >
-              {CEFR_PRESETS.map((preset) => (
-                <option key={preset.level} value={preset.level} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
-                  {preset.level} – {preset.label} (Score: {preset.score.toFixed(1)})
-                </option>
-              ))}
-            </select>
+              className="w-full accent-neutral-900 dark:accent-neutral-100 cursor-pointer"
+            />
+            <div className="flex justify-between text-[10px] text-neutral-400 dark:text-neutral-500 font-mono mt-1">
+              <span>0% (100% Écoute)</span>
+              <span>50% / 50%</span>
+              <span>100% (100% Traduction)</span>
+            </div>
           </div>
-
-          <button
-            onClick={() => onResetScore(1.20, currentMode)}
-            className="w-full py-2 px-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors flex items-center justify-center gap-1.5 mt-2"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Reset {modeLabel} to Beginner (A1 · 1.20)</span>
-          </button>
         </div>
+
+        {/* Setting 2: Skill Level & Score Preset (Only shown for non-mixed modes) */}
+        {currentMode !== 'mixed' && (
+          <div className="space-y-2 pt-2 border-t border-neutral-100 dark:border-neutral-800">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                Starting Level
+              </label>
+              <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
+                {modeLabel}
+              </span>
+            </div>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              Current proficiency: <span className="font-mono font-medium text-neutral-800 dark:text-neutral-200">{currentScore.toFixed(2)}</span> ({currentLevel})
+            </p>
+
+            <div className="pt-1">
+              <select
+                value={CEFR_PRESETS.some(p => p.level === currentLevel) ? currentLevel : 'A1'}
+                onChange={(e) => {
+                  const preset = CEFR_PRESETS.find(p => p.level === e.target.value);
+                  if (preset) {
+                    onResetScore(preset.score, currentMode);
+                  }
+                }}
+                className="w-full py-2 px-3 bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900/10 dark:focus:ring-neutral-100/10 focus:border-neutral-400 dark:focus:border-neutral-500 cursor-pointer transition-colors"
+              >
+                {CEFR_PRESETS.map((preset) => (
+                  <option key={preset.level} value={preset.level} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
+                    {preset.level} – {preset.label} (Score: {preset.score.toFixed(1)})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={() => onResetScore(1.20, currentMode)}
+              className="w-full py-2 px-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors flex items-center justify-center gap-1.5 mt-2"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-neutral-400" />
+              <span>Reset {modeLabel} to Beginner (A1 · 1.20)</span>
+            </button>
+          </div>
+        )}
 
         {/* Setting 3: Transcription Retry Toggle */}
         <div className="space-y-2 pt-2 border-t border-neutral-100 dark:border-neutral-800">

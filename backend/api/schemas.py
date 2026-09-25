@@ -26,6 +26,7 @@ class UpdateUserSettingsRequest(BaseModel):
     transcription_retry: Optional[bool] = None
     blind_retry: Optional[bool] = None
     active_mode: Optional[str] = None
+    mixed_translation_ratio: Optional[int] = None
 
 class ProfileResetRequest(BaseModel):
     start_score: float = STARTING_SCORE

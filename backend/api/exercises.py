@@ -8,6 +8,7 @@ from backend.api import deps
 from backend.config import (
     DEFAULT_CARDS_PER_EXERCISE,
     MAX_UNKNOWN_WORDS,
+    DEFAULT_MIXED_TRANSLATION_RATIO,
 )
 from backend.nlp.text_utils import autocorrect_text, get_aligned_targets
 from backend.scoring.cefr import score_to_level
@@ -64,27 +65,100 @@ def get_exercises_batch(
         except Exception as exc:
             logger.debug("Failed to parse exclude param '%s': %s", exclude, exc)
 
-    # For transcription exercises, only include familiar words (no new words)
-    effective_max_unknown = 0 if mode == "transcription" else max_unknown
+    if mode == "mixed":
+        # Fetch ratio from user settings
+        mixed_ratio = DEFAULT_MIXED_TRANSLATION_RATIO
+        try:
+            settings = deps.data_manager.get_user_settings(user_id=user_id)
+            mixed_ratio = settings.get("mixed_translation_ratio", DEFAULT_MIXED_TRANSLATION_RATIO)
+        except Exception as exc:
+            logger.warning("Failed fetching mixed_translation_ratio for '%s': %s", user_id, exc)
 
-    batch = deps.scoring_engine.get_batch_sentences(
-        all_sentences=None,
-        target_score=target_score,
-        count=effective_count,
-        exclude_ids=exclude_ids,
-        data_manager=deps.data_manager,
-        user_id=user_id,
-        max_unknown=effective_max_unknown,
-        mode=mode,
-    )
+        # Number of translation cards vs transcription cards
+        num_trans = int(round(effective_count * (mixed_ratio / 100.0)))
+        num_trans = max(0, min(effective_count, num_trans))
+        num_audio = effective_count - num_trans
+
+        # If ratio yields 0 trans but ratio > 0 and count >= 2, guarantee at least 1 if possible
+        if num_trans == 0 and mixed_ratio > 0 and effective_count >= 2:
+            num_trans = 1
+            num_audio = effective_count - 1
+        elif num_audio == 0 and mixed_ratio < 100 and effective_count >= 2:
+            num_audio = 1
+            num_trans = effective_count - 1
+
+        trans_batch = []
+        if num_trans > 0:
+            trans_batch = deps.scoring_engine.get_batch_sentences(
+                all_sentences=None,
+                target_score=target_score,
+                count=num_trans,
+                exclude_ids=exclude_ids,
+                data_manager=deps.data_manager,
+                user_id=user_id,
+                max_unknown=max_unknown,
+                mode="translation",
+            )
+            for item in trans_batch:
+                item["card_type"] = "translation"
+
+        audio_exclude = list(exclude_ids) + [s["id"] for s in trans_batch if "id" in s]
+        audio_batch = []
+        if num_audio > 0:
+            audio_batch = deps.scoring_engine.get_batch_sentences(
+                all_sentences=None,
+                target_score=target_score,
+                count=num_audio,
+                exclude_ids=audio_exclude,
+                data_manager=deps.data_manager,
+                user_id=user_id,
+                max_unknown=0,  # Transcription: user knows all lemmas
+                mode="transcription",
+            )
+            for item in audio_batch:
+                item["card_type"] = "transcription"
+
+        # Interleave cards uniformly in the order they appear
+        batch = []
+        t_idx = 0
+        a_idx = 0
+        total_items = len(trans_batch) + len(audio_batch)
+        for i in range(total_items):
+            # Decide next card based on target ratio progression
+            target_trans_so_far = int(round((i + 1) * (len(trans_batch) / max(1, total_items))))
+            if t_idx < len(trans_batch) and (t_idx < target_trans_so_far or a_idx >= len(audio_batch)):
+                batch.append(trans_batch[t_idx])
+                t_idx += 1
+            elif a_idx < len(audio_batch):
+                batch.append(audio_batch[a_idx])
+                a_idx += 1
+            elif t_idx < len(trans_batch):
+                batch.append(trans_batch[t_idx])
+                t_idx += 1
+    else:
+        # Standard single-mode batch
+        effective_max_unknown = 0 if mode == "transcription" else max_unknown
+        batch = deps.scoring_engine.get_batch_sentences(
+            all_sentences=None,
+            target_score=target_score,
+            count=effective_count,
+            exclude_ids=exclude_ids,
+            data_manager=deps.data_manager,
+            user_id=user_id,
+            max_unknown=effective_max_unknown,
+            mode=mode,
+        )
+        for item in batch:
+            item["card_type"] = mode
 
     # Prewarm audio synthesis in background for smooth instant playback
     if batch and deps.tts_engine is not None:
         deps.tts_engine.prewarm_batch(batch)
 
-    # If translation mode, eagerly prewarm reference passes in background (Thread 1)
-    if mode == "translation" and batch and deps.eager_processor is not None:
-        deps.eager_processor.enqueue_batch(batch)
+    # Prewarm reference passes in background for translation cards
+    translation_cards = [s for s in batch if s.get("card_type") == "translation"]
+    if translation_cards and deps.eager_processor is not None:
+        deps.eager_processor.enqueue_batch(translation_cards)
 
     return {
         "target_score": target_score,

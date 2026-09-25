@@ -253,6 +253,55 @@ class TestSettingsEndpoints:
         batch_data = batch_res.json()
         assert len(batch_data["items"]) == 2
 
+    def test_mixed_mode_settings_and_batch(self, test_client):
+        # 1. Update mixed_translation_ratio and active_mode to mixed
+        put_res = test_client.put("/api/user/settings?user_id=default_user", json={
+            "mixed_translation_ratio": 60,
+            "active_mode": "mixed"
+        })
+        assert put_res.status_code == 200
+        data = put_res.json()
+        assert data["mixed_translation_ratio"] == 60
+        assert data["active_mode"] == "mixed"
+
+        # 2. Request mixed batch
+        res = test_client.get("/api/exercises/batch?mode=mixed&count=4&user_id=default_user")
+        assert res.status_code == 200
+        batch = res.json()
+        assert "items" in batch
+        assert len(batch["items"]) == 4
+
+        # Verify card_type tags
+        card_types = [item.get("card_type") for item in batch["items"]]
+        assert "translation" in card_types
+        assert "transcription" in card_types
+
+        # Verify transcription cards have unknown_count == 0 (no new lemmas)
+        for item in batch["items"]:
+            if item.get("card_type") == "transcription":
+                assert item.get("unknown_count", 0) == 0
+
+        # 3. Complete batch in mixed mode: score must not change (delta == 0.0)
+        profile_before = test_client.get("/api/user/profile?mode=mixed&user_id=default_user").json()
+        score_before = profile_before["score"]
+
+        complete_res = test_client.post("/api/exercises/complete-batch", json={
+            "current_score": score_before,
+            "mode": "mixed",
+            "user_id": "default_user",
+            "evaluated_items": [
+                {"sentence_id": batch["items"][0]["id"], "sentence_score": 1.0, "quality": 1.0, "is_correct": True, "is_skipped": False},
+                {"sentence_id": batch["items"][1]["id"], "sentence_score": 1.0, "quality": 1.0, "is_correct": True, "is_skipped": False},
+            ]
+        })
+        assert complete_res.status_code == 200
+        summary = complete_res.json()
+        assert summary["delta"] == 0.0
+        assert summary["new_score"] == score_before
+
+        profile_after = test_client.get("/api/user/profile?mode=mixed&user_id=default_user").json()
+        assert profile_after["score"] == score_before
+
 
 @pytest.mark.ml
 class TestMLEndpoints:

@@ -82,11 +82,13 @@ export default function ExerciseSession({
     hasCompletedBatchRef.current = false;
     initialScoreRef.current = currentScore;
 
-    // Sequentially prefetch NMT hint mappings in translation mode only
+    // Sequentially prefetch NMT hint mappings for translation cards only
     let isCancelled = false;
     async function preloadHintsSequentially() {
       for (const sentence of batch) {
         if (isCancelled) break;
+        const cardType = sentence.card_type || (mode === 'transcription' ? 'transcription' : 'translation');
+        if (cardType === 'transcription') continue;
         const sourceText = sentence.es || sentence.en || '';
         if (!sourceText || !sentence.fr) continue;
         try {
@@ -115,7 +117,7 @@ export default function ExerciseSession({
       }
     }
 
-    if (mode === 'translation' && batch && batch.length > 0) {
+    if (mode !== 'transcription' && batch && batch.length > 0) {
       preloadHintsSequentially();
     }
 
@@ -198,9 +200,11 @@ export default function ExerciseSession({
     const isSentenceRetry = attemptedSentenceIdsRef.current.has(sentenceId);
     attemptedSentenceIdsRef.current.add(sentenceId);
 
+    const cardType = sentence.card_type || (mode === 'transcription' ? 'transcription' : 'translation');
+
     try {
       let result;
-      if (mode === 'transcription') {
+      if (cardType === 'transcription') {
         const payload = {
           sentence_id: sentenceId,
           student_text: studentText || '',
@@ -464,51 +468,55 @@ export default function ExerciseSession({
     <div className="space-y-6">
       {/* Sentence Cards List */}
       <div className="space-y-4">
-        {batch.map((sentence, index) => (
-          <div
-            key={sentence.id}
-            ref={(el) => registerCard(index, el)}
-            className="w-full"
-          >
-            {mode === 'transcription' ? (
-              <TranscriptionCard
-                sentence={sentence}
-                index={index}
-                total={totalCount}
-                evalResult={evaluations[sentence.id]}
-                isEvaluating={evaluatingIds.has(sentence.id)}
-                retryEnabled={transcriptionRetry}
-                onValidateAttempt={handleValidateTranscriptionAttempt}
-                onSubmit={handleSentenceSubmit}
-                onSkip={handleSentenceSkip}
-                onRetry={handleSentenceRetry}
-                registerInput={registerInput}
-              />
-            ) : (
-              <SentenceCard
-                sentence={sentence}
-                index={index}
-                total={totalCount}
-                evalResult={evaluations[sentence.id]}
-                isEvaluating={evaluatingIds.has(sentence.id)}
-                preloadedHint={preloadedHints[sentence.id]}
-                threshold={translationThreshold}
-                blindRetryEnabled={blindRetryEnabled}
-                autoPlayAudio={autoPlayAudio}
-                onAudioPlay={handleAudioPlay}
-                onSubmit={handleSentenceSubmit}
-                onSkip={handleSentenceSkip}
-                onRetry={handleSentenceRetry}
-                registerInput={registerInput}
-              />
-            )}
-          </div>
-        ))}
+        {batch.map((sentence, index) => {
+          const cardType = sentence.card_type || (mode === 'transcription' ? 'transcription' : 'translation');
+          return (
+            <div
+              key={sentence.id}
+              ref={(el) => registerCard(index, el)}
+              className="w-full"
+            >
+              {cardType === 'transcription' ? (
+                <TranscriptionCard
+                  sentence={sentence}
+                  index={index}
+                  total={totalCount}
+                  evalResult={evaluations[sentence.id]}
+                  isEvaluating={evaluatingIds.has(sentence.id)}
+                  retryEnabled={transcriptionRetry}
+                  onValidateAttempt={handleValidateTranscriptionAttempt}
+                  onSubmit={handleSentenceSubmit}
+                  onSkip={handleSentenceSkip}
+                  onRetry={handleSentenceRetry}
+                  registerInput={registerInput}
+                />
+              ) : (
+                <SentenceCard
+                  sentence={sentence}
+                  index={index}
+                  total={totalCount}
+                  evalResult={evaluations[sentence.id]}
+                  isEvaluating={evaluatingIds.has(sentence.id)}
+                  preloadedHint={preloadedHints[sentence.id]}
+                  threshold={translationThreshold}
+                  blindRetryEnabled={blindRetryEnabled}
+                  autoPlayAudio={autoPlayAudio}
+                  onAudioPlay={handleAudioPlay}
+                  onSubmit={handleSentenceSubmit}
+                  onSkip={handleSentenceSkip}
+                  onRetry={handleSentenceRetry}
+                  registerInput={registerInput}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Score Delta Banner (Revealed when all sentences are done and evaluated) */}
       <ScoreDeltaBanner
         batchSummary={batchSummary}
+        mode={mode}
         onNextBatch={onNextBatch}
         isLoadingNext={isLoadingNext}
       />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, Settings, Languages, Headphones, Sun, Moon, Monitor } from 'lucide-react';
+import { Flame, Settings, Languages, Headphones, Shuffle, Sun, Moon, Monitor } from 'lucide-react';
 import UserMenu from './UserMenu';
 
 const LEVEL_NAMES = {
@@ -23,7 +23,7 @@ export default function Header({
   onLogout,
   onUserUpdated,
 }) {
-  const modeData = profile?.modes?.[currentMode] || profile;
+  const modeData = profile?.modes?.[currentMode] || profile?.modes?.translation || profile;
   const score = modeData?.score ?? 1.20;
   const level = modeData?.level ?? 'A1';
   const streak = modeData?.streak ?? 0;
@@ -40,6 +40,12 @@ export default function Header({
     dark: 'Thème : Sombre · Cliquer pour Passer au Système',
   };
 
+  const getModeLabel = () => {
+    if (currentMode === 'transcription') return 'Écoute';
+    if (currentMode === 'mixed') return 'Mixte';
+    return 'Traduction';
+  };
+
   return (
     <header className="w-full bg-[#fafafa]/90 dark:bg-neutral-900/90 py-3.5 border-b border-neutral-200/60 dark:border-neutral-800/80 sticky top-0 z-30 backdrop-blur-md transition-colors duration-200">
       <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
@@ -53,7 +59,7 @@ export default function Header({
               {score.toFixed(2)}
             </span>
             <span className="text-xs text-neutral-400 dark:text-neutral-500 hidden md:inline">
-              · {currentMode === 'transcription' ? 'Écoute' : 'Traduction'} ({LEVEL_NAMES[level] || 'Level'})
+              · {getModeLabel()} ({LEVEL_NAMES[level] || 'Level'})
             </span>
           </div>
 
@@ -78,6 +84,18 @@ export default function Header({
           >
             <Languages className="w-3.5 h-3.5" />
             <span>Traduction</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onSwitchMode && onSwitchMode('mixed')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+              currentMode === 'mixed'
+                ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 shadow-xs font-semibold'
+                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+            }`}
+          >
+            <Shuffle className="w-3.5 h-3.5" />
+            <span>Mixte</span>
           </button>
           <button
             type="button"
