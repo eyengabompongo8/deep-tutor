@@ -116,6 +116,8 @@ class TestTranscriptionEndpoints:
         data_eval = res_eval.json()
         assert data_eval["sentence_id"] == 42
         assert data_eval["is_exact"] is True
+        assert data_eval["is_correct"] is True
+        assert data_eval["quality"] == 1.0
         assert data_eval["composite_score"] == 100.0
         assert "diff" in data_eval
         assert data_eval["corrected_text"] == "Bonjour tout le monde"
@@ -136,6 +138,8 @@ class TestTranscriptionEndpoints:
         assert data_eval["corrected_text"] == "Comment vas-tu ?"
         assert "added '?'" in data_eval["autocorrect_msgs"]
         assert data_eval["is_exact"] is True
+        assert data_eval["is_correct"] is True
+        assert data_eval["quality"] == 1.0
 
     def test_transcription_batch(self, test_client):
         res_batch = test_client.get("/api/exercises/batch?mode=transcription&count=2")

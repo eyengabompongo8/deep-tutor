@@ -158,6 +158,7 @@ class EvaluateTranscriptionResponse(BaseModel):
     quality: float = 0.0
     composite_score: float = 0.0
     is_exact: bool = False
+    is_correct: bool = False
     status_message: str = ""
     diff: List[TranscriptionDiffItem] = []
     notes: List[str] = []

@@ -312,20 +312,22 @@ export default function ExerciseSession({
       const result = await res.json();
 
       // Record first try evaluation strictly for final score calculation
-      let firstScore = result.composite_score;
+      let firstCorrect = result.is_correct ?? result.is_exact;
       setFirstTryEvaluations(prev => {
         if (!prev[sentenceId]) {
           return { ...prev, [sentenceId]: result };
         }
-        firstScore = prev[sentenceId].composite_score;
+        const first = prev[sentenceId];
+        firstCorrect = first.is_correct ?? first.is_exact;
         return prev;
       });
 
-      // If exact or if retry is toggled off, complete sentence immediately
-      if (result.is_exact || !transcriptionRetry) {
+      // If correct or if retry is toggled off, complete sentence immediately
+      const isSuccess = Boolean(result.is_correct ?? result.is_exact);
+      if (isSuccess || !transcriptionRetry) {
         const completedResult = {
           ...result,
-          first_try_score: firstScore,
+          first_try_correct: firstCorrect,
           attempts_taken: attemptIndex,
         };
         setEvaluations(prev => ({
@@ -402,6 +404,7 @@ export default function ExerciseSession({
           sentence_id: s.id,
           sentence_score: s.score_lexical ?? s.score ?? 1.0,
           quality: ev.quality || 0.0,
+          is_correct: ev.is_correct ?? (ev.is_exact ?? (ev.quality >= 0.70)),
           is_skipped: ev.is_skipped ?? false,
         };
       });

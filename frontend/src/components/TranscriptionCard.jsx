@@ -119,7 +119,7 @@ export default function TranscriptionCard({
     setIsSubmittingAttempt(true);
     try {
       const result = await onValidateAttempt(sentence.id, inputText.trim(), sentence, attemptCount);
-      if (result.is_exact) {
+      if (result.is_correct || result.is_exact) {
         setAttemptFeedback(null);
       } else {
         const errorItems = (result.diff || []).filter(d => d.type !== 'exact');
@@ -432,65 +432,60 @@ export default function TranscriptionCard({
         /* Evaluation Results View */
         <div className="space-y-6 pt-2">
           {/* Status Banner */}
-          <div className={`p-5 rounded-2xl border ${
-            evalResult.is_exact
-              ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-200'
-              : evalResult.quality >= 0.75
-                ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-950 dark:text-amber-200'
-                : 'bg-rose-50/70 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-950 dark:text-rose-200'
-          }`}>
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                {evalResult.is_exact ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                ) : evalResult.quality >= 0.75 ? (
-                  <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-                )}
-                <div>
-                  <h4 className="font-semibold text-sm">
-                    {evalResult.is_exact 
-                      ? (evalResult.attempts_taken > 1 ? `Parfait ! Réussi au ${evalResult.attempts_taken}e essai` : 'Parfait ! Transcription exacte')
-                      : evalResult.quality >= 0.75 
-                        ? 'Très bien ! Quelques détails à ajuster' 
-                        : 'À retravailler'}
-                  </h4>
-                  {evalResult.first_try_score !== undefined && evalResult.first_try_score !== evalResult.composite_score && (
-                    <p className="text-[11px] font-medium opacity-85 mt-0.5">
-                      Score CEFR calculé sur le 1er essai : {evalResult.first_try_score}%
-                    </p>
-                  )}
-                  {evalResult.notes?.length > 0 && (
-                    <p className="text-xs opacity-80 mt-0.5">
-                      {evalResult.notes.slice(0, 2).join(' · ')}
-                    </p>
-                  )}
-                </div>
-              </div>
+          {(() => {
+            const isCorrect = Boolean(evalResult.is_correct ?? evalResult.is_exact);
+            return (
+              <div className={`p-5 rounded-2xl border ${
+                isCorrect
+                  ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-200'
+                  : 'bg-rose-50/70 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-950 dark:text-rose-200'
+              }`}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    {isCorrect ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                    )}
+                    <div>
+                      <h4 className="font-semibold text-sm">
+                        {isCorrect
+                          ? (evalResult.attempts_taken > 1 ? `Transcription réussie au ${evalResult.attempts_taken}e essai` : 'Transcription correcte')
+                          : 'Transcription à corriger'}
+                      </h4>
+                      {evalResult.notes?.length > 0 && (
+                        <p className="text-xs opacity-80 mt-0.5">
+                          {evalResult.notes.slice(0, 2).join(' · ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
 
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="text-right font-mono">
-                  <span className="text-lg font-bold">
-                    {evalResult.composite_score ?? 0}%
-                  </span>
-                  <span className="text-[10px] block opacity-70">Précision</span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className={`flex items-center text-xs font-medium px-3 py-1 rounded-full ${
+                      isCorrect
+                        ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                        : 'bg-rose-100 dark:bg-rose-900/60 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+                    }`}>
+                      <span>{isCorrect ? 'Correct' : 'Incorrect'}</span>
+                    </div>
+                    {retryEnabled && (
+                      <button
+                        type="button"
+                        onClick={handleRetry}
+                        disabled={isEvaluating}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/90 dark:bg-neutral-800 hover:bg-white dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700 shadow-2xs transition-all hover:shadow-xs hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                        title="Réessayer cette phrase"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Réessayer</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-                {retryEnabled && (
-                  <button
-                    type="button"
-                    onClick={handleRetry}
-                    disabled={isEvaluating}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/90 dark:bg-neutral-800 hover:bg-white dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700 shadow-2xs transition-all hover:shadow-xs hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                    title="Réessayer cette phrase"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Réessayer</span>
-                  </button>
-                )}
               </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Autocorrect Feedback Banner */}
           {evalResult.autocorrect_msgs?.length > 0 && (

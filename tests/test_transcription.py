@@ -10,7 +10,8 @@ class TestTranscriptionEvaluation:
         stu = "Bonjour tout le monde, comment allez-vous ?"
         res = engine.evaluate_transcription(stu, ref)
         assert res["is_exact"] is True
-        assert res["quality"] >= 0.98
+        assert res["is_correct"] is True
+        assert res["quality"] == 1.0
         assert res["composite_score"] == 100.0
         assert all(d["type"] == "exact" for d in res["diff"])
 
@@ -20,7 +21,9 @@ class TestTranscriptionEvaluation:
         ref = "Il fait très beau aujourd'hui !"
         stu = "il fait très beau aujourd'hui"
         res = engine.evaluate_transcription(stu, ref)
-        assert res["quality"] >= 0.95
+        assert res["is_exact"] is True
+        assert res["is_correct"] is True
+        assert res["quality"] == 1.0
         assert all(d["type"] == "exact" for d in res["diff"])
 
     def test_accent_detection(self, temp_db_path):
@@ -31,8 +34,8 @@ class TestTranscriptionEvaluation:
         res = engine.evaluate_transcription(stu, ref)
         accent_diffs = [d for d in res["diff"] if d["type"] == "accent"]
         assert len(accent_diffs) >= 1
-        assert res["quality"] > 0.70
-        assert res["quality"] < 1.00
+        assert res["is_correct"] is False
+        assert res["quality"] == 0.0
 
     def test_typo_detection(self, temp_db_path):
         dm = DataManager(db_path=temp_db_path)
@@ -42,7 +45,8 @@ class TestTranscriptionEvaluation:
         res = engine.evaluate_transcription(stu, ref)
         typos = [d for d in res["diff"] if d["type"] == "typo"]
         assert len(typos) >= 1
-        assert res["quality"] > 0.60
+        assert res["is_correct"] is False
+        assert res["quality"] == 0.0
 
     def test_missing_and_extra_words(self, temp_db_path):
         dm = DataManager(db_path=temp_db_path)
@@ -52,7 +56,8 @@ class TestTranscriptionEvaluation:
         res = engine.evaluate_transcription(stu, ref)
         missings = [d for d in res["diff"] if d["type"] == "missing"]
         assert len(missings) >= 1
-        assert res["quality"] < 0.70
+        assert res["is_correct"] is False
+        assert res["quality"] == 0.0
 
     def test_skipped_transcription(self, temp_db_path):
         dm = DataManager(db_path=temp_db_path)
@@ -62,6 +67,7 @@ class TestTranscriptionEvaluation:
         assert res["quality"] == 0.0
         assert res["composite_score"] == 0.0
         assert res["is_exact"] is False
+        assert res["is_correct"] is False
 
     def test_multimode_scoring_isolation(self, temp_db_path):
         dm = DataManager(db_path=temp_db_path)

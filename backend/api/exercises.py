@@ -285,7 +285,7 @@ def evaluate_transcription_sentence(req: EvaluateTranscriptionRequest):
     # Record lexema appearances for familiar words practiced in transcription
     vocab_progress = []
     try:
-        is_success = (not req.is_skipped) and (result.get("quality", 0.0) >= 0.60)
+        is_success = (not req.is_skipped) and bool(result.get("is_correct", False))
         vocab_progress = deps.data_manager.record_lexema_appearances(
             user_id=req.user_id or "default_user",
             sentence_id=req.sentence_id,
