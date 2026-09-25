@@ -145,4 +145,4 @@ def run_mine_lingua(
 
 
 if __name__ == "__main__":
-    run_mine_lingua(limit=2)
+    run_mine_lingua()
