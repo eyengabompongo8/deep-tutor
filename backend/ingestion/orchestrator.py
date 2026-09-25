@@ -98,7 +98,6 @@ def main():
         print("="*50)
         tatoeba_candidates = run_mine_tatoeba(
             mode=args.tatoeba_mode,
-            max_per_level=1200,
             limit=args.tatoeba_limit
         )
         mined_candidates.extend(tatoeba_candidates)

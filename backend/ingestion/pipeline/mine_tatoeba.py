@@ -74,7 +74,6 @@ def get_sentence_count(text: str, nlp=None) -> int:
 
 
 def mine_tatoeba_parallel(
-    max_per_level: int = 1200,
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
@@ -196,7 +195,6 @@ def mine_tatoeba_parallel(
 
 
 def mine_tatoeba_monolingual(
-    max_per_level: int = 1200,
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
@@ -259,7 +257,6 @@ def mine_tatoeba_monolingual(
 
 def run_mine_tatoeba(
     mode: str = "both",
-    max_per_level: int = 1200,
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
@@ -277,7 +274,7 @@ def run_mine_tatoeba(
 
     results = []
     if mode in ("parallel", "both"):
-        par_results = mine_tatoeba_parallel(max_per_level=max_per_level, limit=limit)
+        par_results = mine_tatoeba_parallel(limit=limit)
         results.extend(par_results)
 
     if mode in ("monolingual", "both"):
