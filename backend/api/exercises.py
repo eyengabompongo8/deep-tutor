@@ -117,6 +117,7 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
                 user_id=req.user_id or "default_user",
                 sentence_id=req.sentence_id,
                 is_success=False,
+                is_retry=req.is_retry,
             )
         except Exception as exc:
             logger.warning("Failed recording skipped lexema appearance: %s", exc)
@@ -170,6 +171,7 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
                 user_id=req.user_id or "default_user",
                 sentence_id=req.sentence_id,
                 is_success=is_success,
+                is_retry=req.is_retry,
             )
         except Exception as exc:
             logger.warning("Failed recording lexema appearances: %s", exc)
@@ -290,6 +292,7 @@ def evaluate_transcription_sentence(req: EvaluateTranscriptionRequest):
             user_id=req.user_id or "default_user",
             sentence_id=req.sentence_id,
             is_success=is_success,
+            is_retry=req.is_retry,
         )
     except Exception as exc:
         logger.warning("Failed recording transcription lexema appearances: %s", exc)

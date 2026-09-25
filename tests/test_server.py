@@ -67,6 +67,24 @@ class TestExerciseEndpoints:
         assert item["appearance_count"] == 1
         assert "is_known" in item
 
+        # Retry evaluation of same card
+        retry_payload = {
+            "sentence_id": 1,
+            "source_text": "Hola mundo",
+            "student_text": "",
+            "reference_text": "Bonjour le monde",
+            "sentence_score": 1.0,
+            "is_skipped": True,
+            "user_id": "default_user",
+            "is_retry": True
+        }
+        res_retry = test_client.post("/api/exercises/evaluate-single", json=retry_payload)
+        assert res_retry.status_code == 200
+        data_retry = res_retry.json()
+        assert len(data_retry["vocabulary_progress"]) == 1
+        retry_item = data_retry["vocabulary_progress"][0]
+        assert retry_item["appearance_count"] == 1  # Unchanged!
+
     def test_complete_batch(self, test_client):
         payload = {
             "current_score": 1.20,

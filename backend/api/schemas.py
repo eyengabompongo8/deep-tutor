@@ -51,6 +51,7 @@ class EvaluateSingleRequest(BaseModel):
     is_skipped: bool = False
     threshold: float = DEFAULT_CORRECTION_THRESHOLD
     user_id: Optional[str] = "default_user"
+    is_retry: bool = False
 
 class EvaluateTranscriptionRequest(BaseModel):
     sentence_id: int
@@ -59,6 +60,7 @@ class EvaluateTranscriptionRequest(BaseModel):
     sentence_score: float = 1.0
     is_skipped: bool = False
     user_id: Optional[str] = "default_user"
+    is_retry: bool = False
 
 class BatchItemEvaluation(BaseModel):
     sentence_id: int

@@ -25,6 +25,7 @@ export default function ExerciseSession({
   const [isFinishingBatch, setIsFinishingBatch] = useState(false);
   const [preloadedHints, setPreloadedHints] = useState({});
 
+  const attemptedSentenceIdsRef = useRef(new Set());
   const hasCompletedBatchRef = useRef(false);
   const initialScoreRef = useRef(currentScore);
 
@@ -194,6 +195,9 @@ export default function ExerciseSession({
   const evaluateSentence = async (sentenceId, studentText, sentence, isSkipped = false) => {
     setEvaluatingIds(prev => new Set(prev).add(sentenceId));
 
+    const isSentenceRetry = attemptedSentenceIdsRef.current.has(sentenceId);
+    attemptedSentenceIdsRef.current.add(sentenceId);
+
     try {
       let result;
       if (mode === 'transcription') {
@@ -204,6 +208,7 @@ export default function ExerciseSession({
           sentence_score: sentence.score_lexical ?? sentence.score ?? 1.0,
           is_skipped: isSkipped,
           user_id: userId || 'default_user',
+          is_retry: isSentenceRetry,
         };
 
         const res = await fetch('/api/exercises/evaluate-transcription', {
@@ -227,6 +232,7 @@ export default function ExerciseSession({
           is_skipped: isSkipped,
           threshold: translationThreshold,
           user_id: userId || 'default_user',
+          is_retry: isSentenceRetry,
         };
 
         const res = await fetch('/api/exercises/evaluate-single', {
@@ -289,6 +295,9 @@ export default function ExerciseSession({
   // Validates a transcription attempt when retry is enabled
   const handleValidateTranscriptionAttempt = async (sentenceId, studentText, sentence, attemptIndex = 1) => {
     setEvaluatingIds(prev => new Set(prev).add(sentenceId));
+    const isSentenceRetry = attemptIndex > 1 || attemptedSentenceIdsRef.current.has(sentenceId);
+    attemptedSentenceIdsRef.current.add(sentenceId);
+
     try {
       const payload = {
         sentence_id: sentenceId,
@@ -297,6 +306,7 @@ export default function ExerciseSession({
         sentence_score: sentence.score_lexical ?? sentence.score ?? 1.0,
         is_skipped: false,
         user_id: userId || 'default_user',
+        is_retry: isSentenceRetry,
       };
 
       const res = await fetch('/api/exercises/evaluate-transcription', {

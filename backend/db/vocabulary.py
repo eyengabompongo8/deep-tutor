@@ -156,10 +156,12 @@ class VocabularyMixin:
         user_id: str,
         sentence_id: int,
         is_success: bool = True,
-        unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD
+        unlock_threshold: int = VOCABULARY_UNLOCK_THRESHOLD,
+        is_retry: bool = False
     ) -> List[Dict[str, Any]]:
         """
         Increments the appearance count and success count for every word root in the given sentence.
+        If is_retry is True, skips incrementing counts and returns current counts/progress.
         Returns the updated list of lexemas with their new counts and derived is_known.
         """
         self.get_or_create_user(user_id)
@@ -172,15 +174,16 @@ class VocabularyMixin:
             if not lexema_ids:
                 return []
 
-            success_inc = 1 if is_success else 0
-            for lid in lexema_ids:
-                conn.execute("""
-                    INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count)
-                    SELECT ?, ?, level, 1, ? FROM lexemas WHERE id = ?
-                    ON CONFLICT(user_id, lexema_id) DO UPDATE SET
-                        appearance_count = user_lexema_counts.appearance_count + 1,
-                        success_count = user_lexema_counts.success_count + ?;
-                """, (user_id, lid, success_inc, lid, success_inc))
+            if not is_retry:
+                success_inc = 1 if is_success else 0
+                for lid in lexema_ids:
+                    conn.execute("""
+                        INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count)
+                        SELECT ?, ?, level, 1, ? FROM lexemas WHERE id = ?
+                        ON CONFLICT(user_id, lexema_id) DO UPDATE SET
+                            appearance_count = user_lexema_counts.appearance_count + 1,
+                            success_count = user_lexema_counts.success_count + ?;
+                    """, (user_id, lid, success_inc, lid, success_inc))
 
             # Determine prior levels for active user level
             u_mode = conn.execute("SELECT level FROM user_modes WHERE user_id = ? AND mode = 'translation';", (user_id,)).fetchone()

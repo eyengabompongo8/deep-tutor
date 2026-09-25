@@ -78,6 +78,43 @@ class TestProgressiveVocabulary:
         known_ids_after = self.dm.get_user_known_lexema_ids("test_user")
         assert self.l3 in known_ids_after
 
+    def test_retry_lexema_appearances_consolidation(self):
+        # First attempt: failure
+        self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=False, is_retry=False)
+        with self.dm._get_connection() as conn:
+            row = conn.execute(
+                "SELECT appearance_count, success_count FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                (self.l3,)
+            ).fetchone()
+            assert row is not None
+            assert row["appearance_count"] == 1
+            assert row["success_count"] == 0
+
+        # Retry attempt on same card: success, is_retry=True
+        progress = self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True, is_retry=True)
+        assert len(progress) > 0
+        with self.dm._get_connection() as conn:
+            row = conn.execute(
+                "SELECT appearance_count, success_count FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                (self.l3,)
+            ).fetchone()
+            assert row is not None
+            # Metrics remain consolidated to first try!
+            assert row["appearance_count"] == 1
+            assert row["success_count"] == 0
+
+        # Different session / subsequent encounter: is_retry=False, success=True
+        self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True, is_retry=False)
+        with self.dm._get_connection() as conn:
+            row = conn.execute(
+                "SELECT appearance_count, success_count FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                (self.l3,)
+            ).fetchone()
+            assert row is not None
+            # New appearance counted
+            assert row["appearance_count"] == 2
+            assert row["success_count"] == 1
+
     def test_vocabulary_stats(self):
         self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True)
         stats = self.dm.get_user_vocabulary_stats("test_user")
