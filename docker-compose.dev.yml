@@ -52,7 +52,7 @@ services:
     image: node:20-alpine
     working_dir: /app/frontend
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-5173}:5173"
     volumes:
       # Mount the frontend code
       - ./frontend:/app/frontend
