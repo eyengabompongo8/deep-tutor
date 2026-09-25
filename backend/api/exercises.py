@@ -254,13 +254,33 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
 
 @router.post("/api/exercises/evaluate-transcription", response_model=EvaluateTranscriptionResponse)
 def evaluate_transcription_sentence(req: EvaluateTranscriptionRequest):
+    corrected_student_text = req.student_text
+    autocorrect_msgs = []
+    if not req.is_skipped and req.student_text:
+        engine = deps.eager_processor.get_engine() if deps.eager_processor is not None else None
+        if engine is None:
+            try:
+                from backend.server import get_ml_engine
+                engine = get_ml_engine()
+            except Exception:
+                engine = None
+        lt = getattr(engine, "lang_tool", None)
+        corrected_student_text, autocorrect_msgs = autocorrect_text(
+            req.student_text,
+            req.reference_text,
+            lang_tool=lt,
+        )
+
     result = deps.scoring_engine.evaluate_transcription(
-        student_text=req.student_text,
+        student_text=corrected_student_text,
         reference_text=req.reference_text,
         is_skipped=req.is_skipped,
     )
     result["sentence_id"] = req.sentence_id
     result["is_skipped"] = req.is_skipped
+    result["student_text"] = req.student_text
+    result["corrected_text"] = corrected_student_text
+    result["autocorrect_msgs"] = autocorrect_msgs
 
     # Record lexema appearances for familiar words practiced in transcription
     vocab_progress = []

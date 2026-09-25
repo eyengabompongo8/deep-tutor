@@ -118,6 +118,24 @@ class TestTranscriptionEndpoints:
         assert data_eval["is_exact"] is True
         assert data_eval["composite_score"] == 100.0
         assert "diff" in data_eval
+        assert data_eval["corrected_text"] == "Bonjour tout le monde"
+        assert data_eval["autocorrect_msgs"] == []
+
+    def test_evaluate_transcription_autocorrects_punctuation(self, test_client):
+        eval_payload = {
+            "sentence_id": 43,
+            "student_text": "Comment vas-tu",
+            "reference_text": "Comment vas-tu ?",
+            "sentence_score": 1.0,
+            "is_skipped": False
+        }
+        res_eval = test_client.post("/api/exercises/evaluate-transcription", json=eval_payload)
+        assert res_eval.status_code == 200
+        data_eval = res_eval.json()
+        assert data_eval["student_text"] == "Comment vas-tu"
+        assert data_eval["corrected_text"] == "Comment vas-tu ?"
+        assert "added '?'" in data_eval["autocorrect_msgs"]
+        assert data_eval["is_exact"] is True
 
     def test_transcription_batch(self, test_client):
         res_batch = test_client.get("/api/exercises/batch?mode=transcription&count=2")

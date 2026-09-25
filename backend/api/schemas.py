@@ -163,6 +163,8 @@ class EvaluateTranscriptionResponse(BaseModel):
     notes: List[str] = []
     reference_text: str = ""
     student_text: str = ""
+    corrected_text: str = ""
+    autocorrect_msgs: List[str] = []
     vocabulary_progress: List[VocabProgressItem] = []
 
 class CompleteBatchResponse(BaseModel):

@@ -492,6 +492,16 @@ export default function TranscriptionCard({
             </div>
           </div>
 
+          {/* Autocorrect Feedback Banner */}
+          {evalResult.autocorrect_msgs?.length > 0 && (
+            <div className="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-900/50 text-xs text-amber-900 dark:text-amber-200 flex items-center gap-2">
+              <span className="font-semibold shrink-0">💡 Autocorrect :</span>
+              <span className="font-mono text-neutral-800 dark:text-neutral-200">
+                {evalResult.autocorrect_msgs.join(', ')}
+              </span>
+            </div>
+          )}
+
           {/* Interactive Word Diff View */}
           {evalResult.diff && evalResult.diff.length > 0 && (
             <div className="space-y-2">
