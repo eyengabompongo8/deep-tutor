@@ -9,7 +9,6 @@ class TestDataManager:
             es="Hola mundo",
             fr="Bonjour le monde",
             level="A1",
-            score_lexical=1.5,
             score_ml=88.5,
             source="custom"
         )
@@ -17,10 +16,9 @@ class TestDataManager:
         assert res["es"] == "Hola mundo"
         assert res["fr"] == "Bonjour le monde"
         assert res["level"] == "A1"
-        assert res["score_lexical"] == 1.5
-        # Check backward compatibility alias
-        assert res["score"] == 1.5
         assert res["score_ml"] == 88.5
+        # Check backward compatibility alias
+        assert res["score"] == 88.5
 
     def test_dynamic_language_columns(self, temp_db_path):
         dm = DataManager(db_path=temp_db_path)
@@ -29,7 +27,7 @@ class TestDataManager:
             es="Buenos días",
             fr="Bonjour",
             level="A1",
-            score_lexical=1.0,
+            score_ml=1.0,
             en="Good morning"
         )
         assert res["en"] == "Good morning"
@@ -47,10 +45,10 @@ class TestDataManager:
     def test_bulk_insert_and_distribution(self, temp_db_path):
         dm = DataManager(db_path=temp_db_path)
         items = [
-            {"fr": "Un", "es": "Uno", "level": "A1", "score_lexical": 1.0},
-            {"fr": "Deux", "es": "Dos", "level": "A1", "score_lexical": 1.2},
-            {"fr": "Trois", "es": "Tres", "level": "A2", "score_lexical": 2.1},
-            {"fr": "Quatre", "es": "Cuatro", "level": "B1", "score_lexical": 3.4},
+            {"fr": "Un", "es": "Uno", "level": "A1", "score_ml": 1.0},
+            {"fr": "Deux", "es": "Dos", "level": "A1", "score_ml": 1.2},
+            {"fr": "Trois", "es": "Tres", "level": "A2", "score_ml": 2.1},
+            {"fr": "Quatre", "es": "Cuatro", "level": "B1", "score_ml": 3.4},
         ]
         inserted = dm.bulk_insert_sentences(items, clear_existing=True)
         assert inserted == 4
@@ -73,14 +71,13 @@ class TestDataManager:
         item_id = item["id"]
 
         # Update
-        success = dm.update_sentence(item_id, fr="Le chat noir", level="A2", score_lexical=2.2, score_ml=95.0)
+        success = dm.update_sentence(item_id, fr="Le chat noir", level="A2", score_ml=95.0)
         assert success is True
 
         updated = dm.get_sentence_by_id(item_id)
         assert updated["fr"] == "Le chat noir"
         assert updated["level"] == "A2"
-        assert updated["score_lexical"] == 2.2
-        assert updated["score"] == 2.2
+        assert updated["score"] == 95.0
         assert updated["score_ml"] == 95.0
 
         # Delete

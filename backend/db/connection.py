@@ -16,7 +16,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 DB_PATH = os.environ.get("FRENCHTUTOR_DB_PATH") or os.path.join(ROOT_DIR, 'data', 'app.db')
 
 SYSTEM_COLUMNS = {
-    'id', 'level', 'score_lexical', 'score_ml', 'source',
+    'id', 'level', 'score_ml', 'source',
     'metadata'
 }
 
@@ -99,14 +99,12 @@ class DBConnection:
                 fr TEXT NOT NULL,
                 es TEXT NOT NULL,
                 level TEXT NOT NULL DEFAULT 'A1' COLLATE NOCASE,
-                score_lexical REAL NOT NULL DEFAULT 1.0,
                 score_ml REAL DEFAULT NULL,
                 source TEXT NOT NULL DEFAULT 'custom',
                 metadata TEXT DEFAULT '{}'
             );
         """)
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_level ON sentences(level COLLATE NOCASE);")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_score_lexical ON sentences(score_lexical);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_score_ml ON sentences(score_ml);")
 
         # Users table
@@ -352,13 +350,13 @@ class DBConnection:
 
     def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:
         d = dict(row)
-        lex_score = d.get('score_lexical')
-        if lex_score is None:
-            lex_score = d.get('score', 1.0)
-        try:
-            score_float = float(lex_score)
-        except (ValueError, TypeError):
+        score_ml = d.get('score_ml')
+        if score_ml is not None:
+            try:
+                score_float = float(score_ml)
+            except (ValueError, TypeError):
+                score_float = 1.0
+        else:
             score_float = 1.0
         d['score'] = score_float
-        d['score_lexical'] = score_float
         return d

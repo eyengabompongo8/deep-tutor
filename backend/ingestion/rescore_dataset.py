@@ -10,7 +10,7 @@ from backend.db.connection import ROOT_DIR
 JSON_BACKUP_PATH = os.path.join(ROOT_DIR, 'data', 'sentences.json')
 
 
-def rescore_dataset(db_path=DB_PATH, json_backup=True, use_ml=True):
+def rescore_dataset(db_path=DB_PATH, json_backup=True):
     dm = DataManager(db_path=db_path)
     sentences = dm.get_all_sentences()
 
@@ -29,53 +29,29 @@ def rescore_dataset(db_path=DB_PATH, json_backup=True, use_ml=True):
     new_levels = Counter()
     updates = []
 
-    if use_ml:
-        print("Computing CEFR predictions using ML model (batch inference)...")
-        fr_texts = [s.get('fr', '') for s in sentences]
-        ml_results = engine.score_sentences_ml_batch(fr_texts, batch_size=64)
+    print("Computing CEFR predictions using ML model (batch inference)...")
+    fr_texts = [s.get('fr', '') for s in sentences]
+    ml_results = engine.score_sentences_ml_batch(fr_texts, batch_size=64)
 
-        for item, ml_res in tqdm(zip(sentences, ml_results), total=len(sentences), desc="Processing scored sentences"):
-            fr_text = item.get('fr', '')
-            old_level = item.get('level')
-            new_lvl = ml_res["level"]
-            score_ml = float(ml_res["score"])
-            _, lex_score, _ = engine.score_sentence(fr_text)
+    for item, ml_res in tqdm(zip(sentences, ml_results), total=len(sentences), desc="Processing scored sentences"):
+        old_level = item.get('level')
+        new_lvl = ml_res["level"]
+        score_ml = float(ml_res["score"])
 
-            if new_lvl != old_level:
-                changed_count += 1
+        if new_lvl != old_level:
+            changed_count += 1
 
-            item['level'] = new_lvl
-            item['score_lexical'] = float(lex_score)
-            item['score_ml'] = score_ml
-            item['score'] = score_ml
-            new_levels[new_lvl] += 1
-            updates.append((new_lvl, float(lex_score), score_ml, item['id']))
+        item['level'] = new_lvl
+        item['score_ml'] = score_ml
+        item['score'] = score_ml
+        new_levels[new_lvl] += 1
+        updates.append((new_lvl, score_ml, item['id']))
 
-        with dm._get_connection() as conn:
-            conn.executemany(
-                "UPDATE sentences SET level = ?, score_lexical = ?, score_ml = ? WHERE id = ?;",
-                updates
-            )
-    else:
-        for item in tqdm(sentences, desc="Rescoring sentences lexically"):
-            fr_text = item.get('fr', '')
-            old_level = item.get('level')
-            new_lvl, new_score, _ = engine.score_sentence(fr_text)
-
-            if new_lvl != old_level:
-                changed_count += 1
-
-            item['level'] = new_lvl
-            item['score_lexical'] = float(new_score)
-            item['score'] = float(new_score)
-            new_levels[new_lvl] += 1
-            updates.append((new_lvl, float(new_score), item['id']))
-
-        with dm._get_connection() as conn:
-            conn.executemany(
-                "UPDATE sentences SET level = ?, score_lexical = ? WHERE id = ?;",
-                updates
-            )
+    with dm._get_connection() as conn:
+        conn.executemany(
+            "UPDATE sentences SET level = ?, score_ml = ? WHERE id = ?;",
+            updates
+        )
 
     if json_backup:
         try:

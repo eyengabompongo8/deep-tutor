@@ -34,7 +34,7 @@ class TestCEFRClassifierUnit:
         assert "A1" in res[0]["probabilities"]
         assert res[0]["probabilities"]["A1"] > 0.90
 
-    def test_vocab_engine_ml_and_hybrid_scoring_mocked(self, mocker):
+    def test_vocab_engine_ml_scoring_mocked(self, mocker):
         engine = VocabEngine()
         mocker.patch.object(
             engine,
@@ -42,11 +42,11 @@ class TestCEFRClassifierUnit:
             return_value=("B1", 3.25, {"A1": 0.05, "A2": 0.15, "B1": 0.70, "B2": 0.08, "C1": 0.01, "C2": 0.01})
         )
 
-        ml_lvl, ml_sc, lex_sc, breakdown = engine.score_sentence_hybrid("Bienvenue dans notre maison.")
+        ml_lvl, ml_sc, probs = engine.score_sentence_ml("Bienvenue dans notre maison.")
         assert ml_lvl == "B1"
         assert ml_sc == 3.25
-        assert isinstance(lex_sc, float)
-        assert isinstance(breakdown, list)
+        assert isinstance(probs, dict)
+        assert probs["B1"] == 0.70
 
 
 @pytest.mark.ml

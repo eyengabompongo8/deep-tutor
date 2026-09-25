@@ -150,18 +150,6 @@ class VocabEngine:
             all_results.extend(results)
         return all_results
 
-    def score_sentence_hybrid(self, fr_text: str) -> Tuple[str, float, float, List[Dict[str, Any]]]:
-        """
-        Computes both lexical and ML scores for a sentence.
-        Returns:
-            assigned_level (str): ML predicted CEFR level
-            score_ml (float): ML expectation score
-            score_lexical (float): Maximum lexical word score
-            word_breakdown (list[dict]): Per-word lexical diagnostics
-        """
-        lex_lvl, lex_score, breakdown = self.score_sentence(fr_text)
-        ml_lvl, ml_score, _ = self.score_sentence_ml(fr_text)
-        return ml_lvl, ml_score, float(lex_score), breakdown
 
     @staticmethod
     def map_pos_to_cgram(pos: Optional[str]) -> List[str]:

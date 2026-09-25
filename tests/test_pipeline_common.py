@@ -92,7 +92,6 @@ def test_process_and_score_sentences(mock_translate_batch):
     mock_engine.score_sentences_ml_batch.return_value = [
         {"level": "A1", "score": 1.15}
     ]
-    mock_engine.score_sentence.return_value = ("A1", 0.95, {})
 
     records = process_and_score_sentences(
         ["Bonjour le monde."],
@@ -107,7 +106,6 @@ def test_process_and_score_sentences(mock_translate_batch):
     assert rec["es"] == "Hola mundo."
     assert rec["level"] == "A1"
     assert rec["score"] == 1.15
-    assert rec["score_lexical"] == 0.95
     assert rec["score_ml"] == 1.15
     assert rec["source"] == "test_source"
     assert rec["metadata"] == {"file": "test.pdf"}
@@ -148,10 +146,6 @@ def test_preprocess_and_score_candidates_selective_translation(mock_translate_ba
     mock_engine.score_sentences_ml_batch.return_value = [
         {"level": "A1", "score": 1.1},
         {"level": "A2", "score": 2.2},
-    ]
-    mock_engine.score_sentence.side_effect = [
-        ("A1", 1.0, {}),
-        ("A2", 2.0, {}),
     ]
 
     candidates = [

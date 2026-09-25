@@ -10,10 +10,10 @@ os.environ.setdefault("FRENCHTUTOR_DB_PATH", _SESSION_TEMP_DB.name)
 
 # Canonical seed sentences used across tests
 SEED_SENTENCES = [
-    {"es": "Hola mundo", "fr": "Bonjour le monde", "level": "A1", "score_lexical": 1.0, "score_ml": 85.0},
-    {"es": "El gato duerme", "fr": "Le chat dort", "level": "A1", "score_lexical": 1.2, "score_ml": 88.0},
-    {"es": "Tengo que irme", "fr": "Je dois partir", "level": "A2", "score_lexical": 2.2, "score_ml": 90.0},
-    {"es": "El restaurante está abierto", "fr": "Le restaurant est ouvert", "level": "B1", "score_lexical": 3.2, "score_ml": 92.0},
+    {"es": "Hola mundo", "fr": "Bonjour le monde", "level": "A1", "score_ml": 85.0},
+    {"es": "El gato duerme", "fr": "Le chat dort", "level": "A1", "score_ml": 88.0},
+    {"es": "Tengo que irme", "fr": "Je dois partir", "level": "A2", "score_ml": 90.0},
+    {"es": "El restaurante está abierto", "fr": "Le restaurant est ouvert", "level": "B1", "score_ml": 92.0},
 ]
 
 

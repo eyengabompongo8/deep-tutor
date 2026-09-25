@@ -270,8 +270,7 @@ def process_and_score_sentences(
     Processes a list of unique French sentences:
     1. Scores them with the CEFR ML classifier.
     2. Translates them to Spanish.
-    3. Scores them with the lexical engine for progressive vocabulary.
-    4. Packages them into standard database ingestion records.
+    3. Packages them into standard database ingestion records.
     """
     if not sentences:
         return []
@@ -290,15 +289,11 @@ def process_and_score_sentences(
         lvl = ml_res["level"]
         score_ml = float(ml_res["score"])
 
-        # Lexical score for progressive vocabulary
-        _, lex_sc, _ = engine.score_sentence(fr)
-
         records.append({
             "fr": fr,
             "es": es,
             "level": lvl,
             "score": score_ml,
-            "score_lexical": float(lex_sc),
             "score_ml": score_ml,
             "source": source_name,
             "metadata": metadata
@@ -315,9 +310,8 @@ def preprocess_and_score_candidates(
     """
     Processes candidate records [{'fr': ..., 'es': Optional[str], 'source': ..., 'metadata': ...}]:
     1. Scores all French sentences with the CEFR ML classifier in batch.
-    2. Computes lexical scores for progressive vocabulary.
-    3. Selectively translates *only* candidates lacking an 'es' translation pair using MarianMT.
-    4. Packages the results into final ingestion-ready records.
+    2. Selectively translates *only* candidates lacking an 'es' translation pair using MarianMT.
+    3. Packages the results into final ingestion-ready records.
     """
     if not candidates:
         return []
@@ -358,15 +352,11 @@ def preprocess_and_score_candidates(
         lvl = ml_res["level"]
         score_ml = float(ml_res["score"])
 
-        # Lexical score for progressive vocabulary
-        _, lex_sc, _ = engine.score_sentence(fr)
-
         records.append({
             "fr": fr,
             "es": es,
             "level": lvl,
             "score": score_ml,
-            "score_lexical": float(lex_sc),
             "score_ml": score_ml,
             "source": c.get("source", "unknown"),
             "metadata": c.get("metadata", {})

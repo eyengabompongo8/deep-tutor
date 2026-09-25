@@ -22,8 +22,8 @@ class TestIngestionLexemaFilter:
         engine = VocabEngine()
         
         candidates = [
-            {"fr": "Bonjour le monde.", "es": "Hola mundo.", "level": "A1", "score_lexical": 1.0, "score_ml": 1.0},
-            {"fr": "Le chat dort.", "es": "El gato duerme.", "level": "A1", "score_lexical": 1.0, "score_ml": 1.0},
+            {"fr": "Bonjour le monde.", "es": "Hola mundo.", "level": "A1", "score_ml": 1.0},
+            {"fr": "Le chat dort.", "es": "El gato duerme.", "level": "A1", "score_ml": 1.0},
         ]
         
         accepted, skipped = engine.filter_sentences_with_complete_lexemas(candidates, dm, show_progress=False)
@@ -53,7 +53,6 @@ class TestIngestionLexemaFilter:
                 "fr": "Le chat dort.",
                 "es": "El gato duerme.",
                 "level": "A1",
-                "score_lexical": 1.0,
                 "score_ml": 1.0,
                 "source": "unit_test"
             }
@@ -92,11 +91,11 @@ class TestIngestionLexemaFilter:
 
         candidates = [
             # Valid: 100% words present
-            {"fr": "Le chat dort.", "es": "El gato duerme.", "level": "A1", "score_lexical": 1.0},
+            {"fr": "Le chat dort.", "es": "El gato duerme.", "level": "A1", "score_ml": 1.0},
             # Invalid: 'inconnu' / 'glubx' missing
-            {"fr": "Le chat glubx dort.", "es": "El gato raro duerme.", "level": "A1", "score_lexical": 1.0},
+            {"fr": "Le chat glubx dort.", "es": "El gato raro duerme.", "level": "A1", "score_ml": 1.0},
             # Invalid: 'arbre' missing
-            {"fr": "Le chat est sur un arbre.", "es": "El gato está en un árbol.", "level": "A1", "score_lexical": 1.0},
+            {"fr": "Le chat est sur un arbre.", "es": "El gato está en un árbol.", "level": "A1", "score_ml": 1.0},
         ]
 
         accepted, skipped = engine.filter_sentences_with_complete_lexemas(candidates, dm, show_progress=False)
@@ -124,7 +123,7 @@ class TestIngestionLexemaFilter:
         ])
 
         # "J'aime l'arbre." -> j' (je), aime (aimer), l' (le), arbre (arbre)
-        sentence = {"fr": "J'aime l'arbre.", "es": "Me gusta el árbol.", "level": "A1", "score_lexical": 1.0}
+        sentence = {"fr": "J'aime l'arbre.", "es": "Me gusta el árbol.", "level": "A1", "score_ml": 1.0}
         accepted, skipped = engine.filter_sentences_with_complete_lexemas([sentence], dm, show_progress=False)
         assert len(accepted) == 1
         assert skipped == 0
@@ -149,7 +148,7 @@ class TestIngestionLexemaFilter:
             {"lemma": "merci", "pos": "NOUN", "level": "A1", "is_base": 1},
         ])
 
-        sentence = {"fr": "« Oui, merci ! » 42...", "es": "¡Sí, gracias! 42...", "level": "A1", "score_lexical": 1.0}
+        sentence = {"fr": "« Oui, merci ! » 42...", "es": "¡Sí, gracias! 42...", "level": "A1", "score_ml": 1.0}
         accepted, skipped = engine.filter_sentences_with_complete_lexemas([sentence], dm, show_progress=False)
         assert len(accepted) == 1
         assert skipped == 0
@@ -160,7 +159,7 @@ class TestIngestionLexemaFilter:
         dm.bulk_upsert_lexemas([
             {"lemma": "bonjour", "pos": "INTJ", "level": "A1", "is_base": 1}
         ])
-        run_ingest_and_link([{"fr": "Bonjour !", "es": "¡Hola!", "level": "A1", "score_lexical": 1.0}], db_path=db_path)
+        run_ingest_and_link([{"fr": "Bonjour !", "es": "¡Hola!", "level": "A1", "score_ml": 1.0}], db_path=db_path)
         assert len(dm.get_all_sentences()) == 1
         
         run_clear_db(db_path=db_path)
@@ -206,10 +205,10 @@ class TestIngestionLexemaFilter:
         ])
 
         candidates = [
-            {"fr": "Le chat dort.", "es": "El gato duerme.", "level": "A1", "score_lexical": 1.0},
-            {"fr": "Le chien dort.", "es": "El perro duerme.", "level": "A1", "score_lexical": 1.0},
-            {"fr": "Le crocodile dort.", "es": "El cocodrilo duerme.", "level": "A1", "score_lexical": 1.0},
-            {"fr": "Le chat et le chien dorment.", "es": "El gato y el perro duermen.", "level": "A1", "score_lexical": 1.0}, # 'et' missing
+            {"fr": "Le chat dort.", "es": "El gato duerme.", "level": "A1", "score_ml": 1.0},
+            {"fr": "Le chien dort.", "es": "El perro duerme.", "level": "A1", "score_ml": 1.0},
+            {"fr": "Le crocodile dort.", "es": "El cocodrilo duerme.", "level": "A1", "score_ml": 1.0},
+            {"fr": "Le chat et le chien dorment.", "es": "El gato y el perro duermen.", "level": "A1", "score_ml": 1.0}, # 'et' missing
         ]
 
         # Use batch_size=2 to test boundary conditions
@@ -229,10 +228,10 @@ class TestIngestionLexemaFilter:
 
         candidates = [
             # Common everyday French sentences
-            {"fr": "Je mange une pomme.", "es": "Como una manzana.", "level": "A1", "score_lexical": 1.0},
-            {"fr": "Je voudrais un café s'il vous plaît.", "es": "Quisiera un café por favor.", "level": "A1", "score_lexical": 1.0},
+            {"fr": "Je mange une pomme.", "es": "Como una manzana.", "level": "A1", "score_ml": 1.0},
+            {"fr": "Je voudrais un café s'il vous plaît.", "es": "Quisiera un café por favor.", "level": "A1", "score_ml": 1.0},
             # Sentence with invented / non-existent French words
-            {"fr": "Le blubzorp florpait tranquillement.", "es": "El alien caminaba tranquilamente.", "level": "A1", "score_lexical": 1.0},
+            {"fr": "Le blubzorp florpait tranquillement.", "es": "El alien caminaba tranquilamente.", "level": "A1", "score_ml": 1.0},
         ]
 
         success = run_ingest_and_link(candidates, db_path=db_path)
