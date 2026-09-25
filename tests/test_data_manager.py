@@ -95,29 +95,28 @@ class TestDataManager:
         assert 'modes' in p
         assert 'translation' in p['modes']
         assert 'transcription' in p['modes']
-        assert p['modes']['transcription']['score'] == 1.20
+        assert p['modes']['transcription']['level'] == 'A1'
 
         # Update transcription mode independently
-        dm.update_user_mode('test_user', 'transcription', score=2.50, level='A2', streak=3)
+        dm.update_user_mode('test_user', 'transcription', level='A2', streak=3)
         trans_p = dm.get_user_mode('test_user', 'transcription')
-        assert trans_p['score'] == 2.50
         assert trans_p['level'] == 'A2'
         assert trans_p['streak'] == 3
 
         # Ensure translation mode remained unchanged
         trad_p = dm.get_user_mode('test_user', 'translation')
-        assert trad_p['score'] == 1.20
+        assert trad_p['level'] == 'A1'
 
         # History recording
-        dm.record_exercise_history('test_user', 'transcription', quality=0.88, score_before=2.0, score_after=2.5, delta=0.5, is_skipped=False)
+        dm.record_exercise_history('test_user', 'transcription', quality=0.88, is_skipped=False)
         hist = dm.get_exercise_history('test_user', 'transcription', limit=5)
         assert len(hist) == 1
-        assert hist[0]['delta'] == 0.5
+        assert hist[0]['quality'] == 0.88
 
         # Reset mode
-        dm.reset_user_mode('test_user', 'transcription', start_score=1.50)
+        dm.reset_user_mode('test_user', 'transcription', level='B1')
         reset_p = dm.get_user_mode('test_user', 'transcription')
-        assert reset_p['score'] == 1.50
+        assert reset_p['level'] == 'B1'
         assert reset_p['streak'] == 0
 
     def test_audio_cache(self, temp_db_path):

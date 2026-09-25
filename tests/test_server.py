@@ -6,8 +6,9 @@ class TestProfileEndpoints:
         res = test_client.get("/api/user/profile")
         assert res.status_code == 200
         data = res.json()
-        assert "score" in data
         assert "level" in data
+        assert "streak" in data
+        assert "modes" in data
 
     def test_get_profile_with_mode(self, test_client):
         res = test_client.get("/api/user/profile?mode=transcription")
@@ -20,7 +21,7 @@ class TestProfileEndpoints:
 
 class TestExerciseEndpoints:
     def test_get_batch(self, test_client):
-        res = test_client.get("/api/exercises/batch?score=1.5&count=3")
+        res = test_client.get("/api/exercises/batch?level=A1&count=3")
         assert res.status_code == 200
         data = res.json()
         assert data["count"] == 3
@@ -92,7 +93,7 @@ class TestExerciseEndpoints:
 
     def test_complete_batch(self, test_client):
         payload = {
-            "current_score": 1.20,
+            "level": "A1",
             "evaluated_items": [
                 {"sentence_id": 1, "sentence_score": 1.0, "quality": 0.90, "is_skipped": False},
                 {"sentence_id": 2, "sentence_score": 1.0, "quality": 0.85, "is_skipped": False},
@@ -101,9 +102,11 @@ class TestExerciseEndpoints:
         res = test_client.post("/api/exercises/complete-batch", json=payload)
         assert res.status_code == 200
         data = res.json()
-        assert "new_score" in data
-        assert "delta" in data
-        assert data["delta"] > 0
+        assert "level" in data
+        assert "streak" in data
+        assert "accuracy_rate" in data
+        assert data["streak"] == 1
+        assert data["correct_count"] == 2
 
     def test_stats(self, test_client):
         res = test_client.get("/api/stats")
@@ -312,12 +315,12 @@ class TestSettingsEndpoints:
             if item.get("card_type") == "transcription":
                 assert item.get("unknown_count", 0) == 0
 
-        # 3. Complete batch in mixed mode: score must not change (delta == 0.0)
+        # 3. Complete batch in mixed mode
         profile_before = test_client.get("/api/user/profile?mode=mixed&user_id=default_user").json()
-        score_before = profile_before["score"]
+        level_before = profile_before["level"]
 
         complete_res = test_client.post("/api/exercises/complete-batch", json={
-            "current_score": score_before,
+            "level": level_before,
             "mode": "mixed",
             "user_id": "default_user",
             "evaluated_items": [
@@ -327,11 +330,11 @@ class TestSettingsEndpoints:
         })
         assert complete_res.status_code == 200
         summary = complete_res.json()
-        assert summary["delta"] == 0.0
-        assert summary["new_score"] == score_before
+        assert summary["mode"] == "mixed"
+        assert summary["level"] == level_before
 
         profile_after = test_client.get("/api/user/profile?mode=mixed&user_id=default_user").json()
-        assert profile_after["score"] == score_before
+        assert profile_after["level"] == level_before
 
 
 @pytest.mark.ml

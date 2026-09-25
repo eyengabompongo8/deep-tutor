@@ -5,7 +5,6 @@ import ScoreDeltaBanner from './ScoreDeltaBanner';
 
 export default function ExerciseSession({
   batch = [],
-  currentScore,
   mode = 'translation',
   userId,
   transcriptionRetry = true,
@@ -27,7 +26,6 @@ export default function ExerciseSession({
 
   const attemptedSentenceIdsRef = useRef(new Set());
   const hasCompletedBatchRef = useRef(false);
-  const initialScoreRef = useRef(currentScore);
 
   // Store refs to sentence inputs and card containers for smooth animated navigation
   const inputRefs = useRef({});
@@ -80,7 +78,6 @@ export default function ExerciseSession({
       scrollAnimRef.current = null;
     }
     hasCompletedBatchRef.current = false;
-    initialScoreRef.current = currentScore;
 
     // Sequentially prefetch NMT hint mappings for translation cards only
     let isCancelled = false;
@@ -427,7 +424,6 @@ export default function ExerciseSession({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          current_score: initialScoreRef.current ?? currentScore,
           mode: mode,
           user_id: userId || 'default_user',
           evaluated_items: evaluatedItems,

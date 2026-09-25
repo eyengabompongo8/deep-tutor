@@ -118,7 +118,7 @@ class TestLemmaWordArchitecture:
         s1 = dm.add_sentence(fr="Je suis un ami.", es="Soy un amigo.", level="A1", score=1.1)
         dm.link_sentence_lemmas(s1["id"], [l1, l2])
 
-        candidates = dm.get_progressive_sentences(user_id="bob", target_score=1.1, count=1, max_unknown=2)
+        candidates = dm.get_progressive_sentences(user_id="bob", target_level="A1", count=1, max_unknown=2)
         assert len(candidates) >= 1
         cand = candidates[0]
         assert cand["id"] == s1["id"]

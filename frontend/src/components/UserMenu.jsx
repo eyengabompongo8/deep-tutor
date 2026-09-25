@@ -30,8 +30,7 @@ export default function UserMenu({
   const menuRef = useRef(null);
 
   const modeData = profile?.modes?.[currentMode] || profile;
-  const score = modeData?.score ?? 1.20;
-  const level = modeData?.level ?? 'A1';
+  const level = modeData?.level ?? profile?.level ?? 'A1';
   const streak = modeData?.streak ?? 0;
   const completed = modeData?.total_completed ?? 0;
   const userName = profile?.name || 'Default User';
@@ -127,7 +126,7 @@ export default function UserMenu({
                 <UserCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" title="Profil sélectionné" />
               </div>
               <div className="text-xs text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
-                Niveau {level} · {score.toFixed(2)}
+                Niveau {level}
               </div>
             </div>
           </div>

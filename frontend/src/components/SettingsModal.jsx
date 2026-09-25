@@ -2,11 +2,11 @@ import React from 'react';
 import { X, Sliders, RotateCcw, Moon, Sun, Monitor } from 'lucide-react';
 
 const CEFR_PRESETS = [
-  { level: 'A1', score: 1.20, label: 'Beginner' },
-  { level: 'A2', score: 2.20, label: 'Elementary' },
-  { level: 'B1', score: 3.20, label: 'Intermediate' },
-  { level: 'B2', score: 4.20, label: 'Upper Intermediate' },
-  { level: 'C1', score: 5.20, label: 'Advanced' },
+  { level: 'A1', label: 'Beginner' },
+  { level: 'A2', label: 'Elementary' },
+  { level: 'B1', label: 'Intermediate' },
+  { level: 'B2', label: 'Upper Intermediate' },
+  { level: 'C1', label: 'Advanced' },
 ];
 
 export default function SettingsModal({
@@ -16,7 +16,7 @@ export default function SettingsModal({
   onChangeBatchSize,
   profile,
   currentMode = 'translation',
-  onResetScore,
+  onSetLevel,
   transcriptionRetry = true,
   onToggleTranscriptionRetry,
   translationThreshold = 75,
@@ -35,8 +35,7 @@ export default function SettingsModal({
   if (!isOpen) return null;
 
   const modeData = profile?.modes?.[currentMode] || profile?.modes?.translation || profile;
-  const currentScore = modeData?.score ?? 1.20;
-  const currentLevel = modeData?.level ?? 'A1';
+  const currentLevel = modeData?.level ?? profile?.level ?? 'A1';
   const modeLabel = currentMode === 'transcription' ? 'Transcription' : (currentMode === 'mixed' ? 'Mixte' : 'Translation');
 
   return (
@@ -174,46 +173,45 @@ export default function SettingsModal({
           </div>
         </div>
 
-        {/* Setting 2: Skill Level & Score Preset (Only shown for non-mixed modes) */}
+        {/* Setting 2: Skill Level & CEFR Level (Only shown for non-mixed modes) */}
         {currentMode !== 'mixed' && (
           <div className="space-y-2 pt-2 border-t border-neutral-100 dark:border-neutral-800">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                Starting Level
+                Niveau CECRL
               </label>
               <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
                 {modeLabel}
               </span>
             </div>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Current proficiency: <span className="font-mono font-medium text-neutral-800 dark:text-neutral-200">{currentScore.toFixed(2)}</span> ({currentLevel})
+              Niveau actuel : <span className="font-mono font-medium text-neutral-800 dark:text-neutral-200">{currentLevel}</span>
             </p>
 
             <div className="pt-1">
               <select
                 value={CEFR_PRESETS.some(p => p.level === currentLevel) ? currentLevel : 'A1'}
                 onChange={(e) => {
-                  const preset = CEFR_PRESETS.find(p => p.level === e.target.value);
-                  if (preset) {
-                    onResetScore(preset.score, currentMode);
+                  if (onSetLevel) {
+                    onSetLevel(e.target.value, currentMode);
                   }
                 }}
                 className="w-full py-2 px-3 bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900/10 dark:focus:ring-neutral-100/10 focus:border-neutral-400 dark:focus:border-neutral-500 cursor-pointer transition-colors"
               >
                 {CEFR_PRESETS.map((preset) => (
                   <option key={preset.level} value={preset.level} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
-                    {preset.level} – {preset.label} (Score: {preset.score.toFixed(1)})
+                    {preset.level} – {preset.label}
                   </option>
                 ))}
               </select>
             </div>
 
             <button
-              onClick={() => onResetScore(1.20, currentMode)}
+              onClick={() => onSetLevel && onSetLevel('A1', currentMode)}
               className="w-full py-2 px-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors flex items-center justify-center gap-1.5 mt-2"
             >
               <RotateCcw className="w-3.5 h-3.5 text-neutral-400" />
-              <span>Reset {modeLabel} to Beginner (A1 · 1.20)</span>
+              <span>Réinitialiser {modeLabel} au Débutant (A1)</span>
             </button>
           </div>
         )}

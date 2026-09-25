@@ -77,4 +77,4 @@ def get_user_vocabulary(user_id: str = "default_user"):
 
 @router.post("/api/user/reset")
 def reset_user_profile(req: ProfileResetRequest):
-    return deps.scoring_engine.reset_profile(start_score=req.start_score, mode=req.mode, user_id=req.user_id)
+    return deps.scoring_engine.reset_profile(level=req.level, mode=req.mode, user_id=req.user_id)

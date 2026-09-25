@@ -42,6 +42,7 @@ def _safe_float(val, default=0.0):
 @router.get("/api/exercises/batch", response_model=ExerciseBatchResponse)
 def get_exercises_batch(
     mode: str = "translation",
+    level: Optional[str] = None,
     score: Optional[float] = None,
     count: Optional[int] = Query(default=None, ge=1, le=10),
     exclude: Optional[str] = None,
@@ -57,7 +58,7 @@ def get_exercises_batch(
             logger.warning("Failed to fetch user settings for '%s', using default: %s", user_id, exc)
             effective_count = DEFAULT_CARDS_PER_EXERCISE
     mode_prof = deps.scoring_engine.get_profile(user_id=user_id, mode=mode)
-    target_score = score if score is not None else mode_prof["score"]
+    target_level = level or (score_to_level(score) if score is not None else mode_prof.get("level", "A1"))
     exclude_ids = []
     if exclude:
         try:
@@ -91,7 +92,7 @@ def get_exercises_batch(
         if num_trans > 0:
             trans_batch = deps.scoring_engine.get_batch_sentences(
                 all_sentences=None,
-                target_score=target_score,
+                target_level=target_level,
                 count=num_trans,
                 exclude_ids=exclude_ids,
                 data_manager=deps.data_manager,
@@ -107,7 +108,7 @@ def get_exercises_batch(
         if num_audio > 0:
             audio_batch = deps.scoring_engine.get_batch_sentences(
                 all_sentences=None,
-                target_score=target_score,
+                target_level=target_level,
                 count=num_audio,
                 exclude_ids=audio_exclude,
                 data_manager=deps.data_manager,
@@ -140,7 +141,7 @@ def get_exercises_batch(
         effective_max_unknown = 0 if mode == "transcription" else max_unknown
         batch = deps.scoring_engine.get_batch_sentences(
             all_sentences=None,
-            target_score=target_score,
+            target_level=target_level,
             count=effective_count,
             exclude_ids=exclude_ids,
             data_manager=deps.data_manager,
@@ -161,8 +162,7 @@ def get_exercises_batch(
         deps.eager_processor.enqueue_batch(translation_cards)
 
     return {
-        "target_score": target_score,
-        "target_level": score_to_level(target_score),
+        "target_level": target_level,
         "mode": mode,
         "count": len(batch),
         "items": batch,
@@ -377,11 +377,8 @@ def evaluate_transcription_sentence(req: EvaluateTranscriptionRequest):
 
 @router.post("/api/exercises/complete-batch", response_model=CompleteBatchResponse)
 def complete_batch(req: CompleteBatchRequest):
-    mode_prof = deps.scoring_engine.get_profile(user_id=req.user_id, mode=req.mode)
-    curr_score = req.current_score if req.current_score is not None else mode_prof["score"]
     items = [it.model_dump() for it in req.evaluated_items]
     res = deps.scoring_engine.calculate_score_adjustment(
-        current_score=curr_score,
         evaluated_items=items,
         mode=req.mode,
         user_id=req.user_id,

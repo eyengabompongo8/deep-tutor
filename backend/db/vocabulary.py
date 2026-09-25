@@ -5,7 +5,6 @@ from typing import List, Dict, Any, Optional, Set
 from backend.config import (
     VOCABULARY_UNLOCK_THRESHOLD,
     DEFAULT_CEFR_LEVEL,
-    STARTING_SCORE,
     DEFAULT_CARDS_PER_EXERCISE,
     MAX_UNKNOWN_WORDS,
 )
@@ -272,13 +271,13 @@ class VocabularyMixin:
 
             if not is_retry:
                 success_inc = 1 if is_success else 0
-                for lid in lexema_ids:
+                for lid in lemma_ids:
                     conn.execute("""
-                        INSERT INTO user_lexema_counts (user_id, lexema_id, level, appearance_count, success_count)
-                        SELECT ?, ?, level, 1, ? FROM lexemas WHERE id = ?
-                        ON CONFLICT(user_id, lexema_id) DO UPDATE SET
-                            appearance_count = user_lexema_counts.appearance_count + 1,
-                            success_count = user_lexema_counts.success_count + ?;
+                        INSERT INTO user_lemmas (user_id, lemma_id, level, appearance_count, success_count)
+                        SELECT ?, ?, level, 1, ? FROM lemmas WHERE id = ?
+                        ON CONFLICT(user_id, lemma_id) DO UPDATE SET
+                            appearance_count = user_lemmas.appearance_count + 1,
+                            success_count = user_lemmas.success_count + ?;
                     """, (user_id, lid, success_inc, lid, success_inc))
 
             for wid in word_ids:
@@ -433,7 +432,7 @@ class VocabularyMixin:
     def get_progressive_sentences(
         self,
         user_id: str = 'default_user',
-        target_score: float = STARTING_SCORE,
+        target_level: str = DEFAULT_CEFR_LEVEL,
         count: int = DEFAULT_CARDS_PER_EXERCISE,
         max_unknown: int = 2,
         exclude_ids: Optional[List[int]] = None,
@@ -444,12 +443,11 @@ class VocabularyMixin:
         Maintains an in-memory buffer to pop sentences quickly for subsequent exercises without redundant SQL queries.
         """
         import random
-        from backend.scoring.cefr import score_to_level
 
         if mode == 'transcription':
             max_unknown = 0
 
-        target_level = score_to_level(target_score)
+        target_level = str(target_level).upper().strip() if target_level else DEFAULT_CEFR_LEVEL
         exclude_set = set(exclude_ids or [])
         buffer_key = f"{user_id}_{target_level}_{mode}"
 

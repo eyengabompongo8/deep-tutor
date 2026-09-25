@@ -2,7 +2,6 @@ import json
 from typing import List, Dict, Any, Optional
 from backend.config import (
     DEFAULT_CEFR_LEVEL,
-    STARTING_SCORE,
     DEFAULT_CORRECTION_THRESHOLD,
     DEFAULT_CARDS_PER_EXERCISE,
     DEFAULT_MIXED_TRANSLATION_RATIO,
@@ -33,8 +32,8 @@ class UsersMixin:
         with self._get_connection() as conn:
             cursor = conn.execute("""
                 SELECT u.id, u.name,
-                       um_trans.score AS trans_score, um_trans.level AS trans_level, um_trans.streak AS trans_streak, um_trans.total_completed AS trans_completed, um_trans.total_skipped AS trans_skipped,
-                       um_audio.score AS audio_score, um_audio.level AS audio_level, um_audio.streak AS audio_streak, um_audio.total_completed AS audio_completed, um_audio.total_skipped AS audio_skipped
+                       um_trans.level AS trans_level, um_trans.streak AS trans_streak, um_trans.total_completed AS trans_completed, um_trans.total_skipped AS trans_skipped,
+                       um_audio.level AS audio_level, um_audio.streak AS audio_streak, um_audio.total_completed AS audio_completed, um_audio.total_skipped AS audio_skipped
                  FROM users u
                  LEFT JOIN user_modes um_trans ON u.id = um_trans.user_id AND um_trans.mode = 'translation'
                  LEFT JOIN user_modes um_audio ON u.id = um_audio.user_id AND um_audio.mode = 'transcription'
@@ -46,21 +45,18 @@ class UsersMixin:
                 users.append({
                     "id": d["id"],
                     "name": d["name"],
-                    "score": d["trans_score"] if d["trans_score"] is not None else STARTING_SCORE,
                     "level": d["trans_level"] or DEFAULT_CEFR_LEVEL,
                     "streak": d["trans_streak"] or 0,
                     "total_completed": d["trans_completed"] or 0,
                     "total_skipped": d["trans_skipped"] or 0,
                     "modes": {
                         "translation": {
-                            "score": d["trans_score"] if d["trans_score"] is not None else STARTING_SCORE,
                             "level": d["trans_level"] or DEFAULT_CEFR_LEVEL,
                             "streak": d["trans_streak"] or 0,
                             "total_completed": d["trans_completed"] or 0,
                             "total_skipped": d["trans_skipped"] or 0,
                         },
                         "transcription": {
-                            "score": d["audio_score"] if d["audio_score"] is not None else STARTING_SCORE,
                             "level": d["audio_level"] or DEFAULT_CEFR_LEVEL,
                             "streak": d["audio_streak"] or 0,
                             "total_completed": d["audio_completed"] or 0,
@@ -89,13 +85,13 @@ class UsersMixin:
             """, (user_id, clean_name))
             
             conn.execute("""
-                INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES (?, 'translation', ?, ?, 0, 0, 0);
-            """, (user_id, STARTING_SCORE, DEFAULT_CEFR_LEVEL))
+                INSERT OR IGNORE INTO user_modes (user_id, mode, level, streak, total_completed, total_skipped)
+                VALUES (?, 'translation', ?, 0, 0, 0);
+            """, (user_id, DEFAULT_CEFR_LEVEL))
             conn.execute("""
-                INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES (?, 'transcription', ?, ?, 0, 0, 0);
-            """, (user_id, STARTING_SCORE, DEFAULT_CEFR_LEVEL))
+                INSERT OR IGNORE INTO user_modes (user_id, mode, level, streak, total_completed, total_skipped)
+                VALUES (?, 'transcription', ?, 0, 0, 0);
+            """, (user_id, DEFAULT_CEFR_LEVEL))
 
         return self.get_user_modes_profile(user_id)
 
@@ -142,10 +138,10 @@ class UsersMixin:
             # Default initialization if mode does not exist yet
             conn.execute(
                 """
-                INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES (?, ?, ?, ?, 0, 0, 0);
+                INSERT OR IGNORE INTO user_modes (user_id, mode, level, streak, total_completed, total_skipped)
+                VALUES (?, ?, ?, 0, 0, 0);
                 """,
-                (user_id, mode, STARTING_SCORE, DEFAULT_CEFR_LEVEL)
+                (user_id, mode, DEFAULT_CEFR_LEVEL)
             )
             cursor = conn.execute(
                 "SELECT * FROM user_modes WHERE user_id = ? AND mode = ?;",
@@ -157,19 +153,15 @@ class UsersMixin:
         self,
         user_id: str = 'default_user',
         mode: str = 'translation',
-        score: Optional[float] = None,
         level: Optional[str] = None,
         streak: Optional[int] = None,
         total_completed: Optional[int] = None,
         total_skipped: Optional[int] = None
     ) -> Dict[str, Any]:
-        """Updates score and stats for a specific mode."""
+        """Updates level and stats for a specific mode."""
         self.get_user_mode(user_id, mode)
         updates = []
         params = []
-        if score is not None:
-            updates.append("score = ?")
-            params.append(float(score))
         if level is not None:
             updates.append("level = ?")
             params.append(level)
@@ -196,24 +188,21 @@ class UsersMixin:
         self,
         user_id: str = 'default_user',
         mode: str = 'translation',
-        start_score: float = STARTING_SCORE,
         level: str = DEFAULT_CEFR_LEVEL
     ) -> Dict[str, Any]:
-        """Resets the score and statistics for a given mode."""
+        """Resets the level and statistics for a given mode."""
         self.get_or_create_user(user_id)
-        start_score = max(1.0, min(6.0, float(start_score)))
         with self._get_connection() as conn:
             conn.execute("""
-                INSERT INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped, updated_at)
-                VALUES (?, ?, ?, ?, 0, 0, 0, CURRENT_TIMESTAMP)
+                INSERT INTO user_modes (user_id, mode, level, streak, total_completed, total_skipped, updated_at)
+                VALUES (?, ?, ?, 0, 0, 0, CURRENT_TIMESTAMP)
                 ON CONFLICT(user_id, mode) DO UPDATE SET
-                    score = excluded.score,
                     level = excluded.level,
                     streak = 0,
                     total_completed = 0,
                     total_skipped = 0,
                     updated_at = CURRENT_TIMESTAMP;
-            """, (user_id, mode, start_score, level))
+            """, (user_id, mode, level))
         return self.get_user_mode(user_id, mode)
 
     def get_user_modes_profile(self, user_id: str = 'default_user') -> Dict[str, Any]:
@@ -224,7 +213,6 @@ class UsersMixin:
         return {
             "user_id": user_id,
             "name": u.get("name", "Default User"),
-            "score": trans_mode.get("score", STARTING_SCORE),
             "level": trans_mode.get("level", DEFAULT_CEFR_LEVEL),
             "streak": trans_mode.get("streak", 0),
             "total_completed": trans_mode.get("total_completed", 0),

@@ -179,7 +179,6 @@ export default function LoginScreen({
               {users.map((u) => {
                 const isLastActive = activeUserId === u.id;
                 const modeData = u?.modes?.translation || u;
-                const score = modeData?.score ?? 1.20;
                 const level = modeData?.level ?? 'A1';
                 const streak = modeData?.streak ?? 0;
                 const completed = modeData?.total_completed ?? 0;
@@ -236,7 +235,7 @@ export default function LoginScreen({
                           {level}
                         </span>
                         <span>·</span>
-                        <span>{score.toFixed(2)} CEFR</span>
+                        <span>{LEVEL_LABELS[level] || level}</span>
                       </div>
                     </div>
 
@@ -293,7 +292,7 @@ export default function LoginScreen({
                   Nouveau profil
                 </span>
                 <p className="text-xs text-neutral-400 mt-1 max-w-[200px]">
-                  Ajouter un nouvel apprenant avec son propre score et historique
+                  Ajouter un nouvel apprenant avec son propre niveau et historique
                 </p>
               </button>
             </div>

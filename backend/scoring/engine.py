@@ -10,7 +10,6 @@ from backend.config import (
     DEFAULT_CORRECTION_THRESHOLD,
     HISTORY_LIMIT,
     MAX_UNKNOWN_WORDS,
-    STARTING_SCORE,
 )
 from backend.nlp.text_utils import levenshtein, remove_accents
 from backend.scoring.cefr import LEVEL_RANGES, score_to_level
@@ -27,7 +26,6 @@ class ScoringEngine:
     def get_default_profile(self) -> Dict[str, Any]:
         return {
             "user_id": "default_user",
-            "score": STARTING_SCORE,
             "level": DEFAULT_CEFR_LEVEL,
             "streak": 0,
             "total_completed": 0,
@@ -35,14 +33,12 @@ class ScoringEngine:
             "current_mode": "translation",
             "modes": {
                 "translation": {
-                    "score": STARTING_SCORE,
                     "level": DEFAULT_CEFR_LEVEL,
                     "streak": 0,
                     "total_completed": 0,
                     "total_skipped": 0
                 },
                 "transcription": {
-                    "score": STARTING_SCORE,
                     "level": DEFAULT_CEFR_LEVEL,
                     "streak": 0,
                     "total_completed": 0,
@@ -60,8 +56,7 @@ class ScoringEngine:
                 # 'mixed' mode shares the translation baseline without modifying it
                 query_mode = "translation" if mode == "mixed" else mode
                 mode_data = modes_prof.get("modes", {}).get(query_mode, {})
-                score = float(mode_data.get("score", STARTING_SCORE))
-                level = mode_data.get("level", score_to_level(score))
+                level = mode_data.get("level", DEFAULT_CEFR_LEVEL)
                 streak = int(mode_data.get("streak", 0))
                 completed = int(mode_data.get("total_completed", 0))
                 skipped = int(mode_data.get("total_skipped", 0))
@@ -70,7 +65,6 @@ class ScoringEngine:
                 res = {
                     "user_id": user_id,
                     "name": modes_prof.get("name", "Default User"),
-                    "score": score,
                     "level": level,
                     "streak": streak,
                     "total_completed": completed,
@@ -90,14 +84,12 @@ class ScoringEngine:
         if "modes" not in self.profile:
             self.profile["modes"] = {
                 "translation": {
-                    "score": self.profile.get("score", STARTING_SCORE),
                     "level": self.profile.get("level", DEFAULT_CEFR_LEVEL),
                     "streak": self.profile.get("streak", 0),
                     "total_completed": self.profile.get("total_completed", 0),
                     "total_skipped": self.profile.get("total_skipped", 0)
                 },
                 "transcription": {
-                    "score": STARTING_SCORE,
                     "level": DEFAULT_CEFR_LEVEL,
                     "streak": 0,
                     "total_completed": 0,
@@ -105,8 +97,7 @@ class ScoringEngine:
                 }
             }
         mode_data = self.profile["modes"].get(mode, self.profile["modes"]["translation"])
-        self.profile["score"] = float(mode_data.get("score", STARTING_SCORE))
-        self.profile["level"] = mode_data.get("level", score_to_level(self.profile["score"]))
+        self.profile["level"] = mode_data.get("level", DEFAULT_CEFR_LEVEL)
         self.profile["streak"] = int(mode_data.get("streak", 0))
         self.profile["total_completed"] = int(mode_data.get("total_completed", 0))
         self.profile["total_skipped"] = int(mode_data.get("total_skipped", 0))
@@ -136,7 +127,6 @@ class ScoringEngine:
                 self.data_manager.update_user_mode(
                     user_id=user_id,
                     mode=current_mode,
-                    score=self.profile.get("score"),
                     level=self.profile.get("level"),
                     streak=self.profile.get("streak"),
                     total_completed=self.profile.get("total_completed"),
@@ -147,16 +137,18 @@ class ScoringEngine:
 
     def reset_profile(
         self,
-        start_score: float = STARTING_SCORE,
+        level: str = DEFAULT_CEFR_LEVEL,
         mode: str = "translation",
-        user_id: str = "default_user"
+        user_id: str = "default_user",
+        **kwargs
     ) -> Dict[str, Any]:
-        start_score = round(max(1.0, min(6.0, float(start_score))), 2)
-        lvl = score_to_level(start_score)
+        if "start_score" in kwargs and not level:
+            level = score_to_level(kwargs["start_score"])
+        lvl = str(level).upper().strip() if level else DEFAULT_CEFR_LEVEL
 
         if self.data_manager is not None:
             try:
-                self.data_manager.reset_user_mode(user_id=user_id, mode=mode, start_score=start_score, level=lvl)
+                self.data_manager.reset_user_mode(user_id=user_id, mode=mode, level=lvl)
                 self.data_manager.unlock_user_vocabulary_for_level(user_id=user_id, target_level=lvl)
                 return self.get_profile(user_id=user_id, mode=mode)
             except Exception as e:
@@ -167,13 +159,11 @@ class ScoringEngine:
             self.get_profile(user_id, mode)
         if mode in self.profile.get("modes", {}):
             self.profile["modes"][mode] = {
-                "score": start_score,
                 "level": lvl,
                 "streak": 0,
                 "total_completed": 0,
                 "total_skipped": 0
             }
-        self.profile["score"] = start_score
         self.profile["level"] = lvl
         self.profile["streak"] = 0
         self.profile["total_completed"] = 0
@@ -185,40 +175,45 @@ class ScoringEngine:
     def get_batch_sentences(
         self,
         all_sentences: Optional[List[Dict[str, Any]]] = None,
-        target_score: Optional[float] = None,
+        target_level: Optional[str] = None,
         count: int = DEFAULT_CARDS_PER_EXERCISE,
         exclude_ids: Optional[List[int]] = None,
         data_manager: Optional[Any] = None,
         user_id: str = "default_user",
         max_unknown: int = MAX_UNKNOWN_WORDS,
-        mode: str = "translation"
+        mode: str = "translation",
+        **kwargs
     ) -> List[Dict[str, Any]]:
         """
         Samples sentences for the user session.
         If data_manager is provided, uses progressive vocabulary selection
         (sentences with known words + controlled new word roots).
         For transcription mode, ensures exercises only include familiar words (0 new words).
-        Otherwise, falls back to distance-based difficulty score matching.
         """
+        if target_level is None and "target_score" in kwargs and kwargs["target_score"] is not None:
+            target_level = score_to_level(kwargs["target_score"])
+
         if mode == "transcription":
             max_unknown = 0
 
         dm = data_manager or self.data_manager
-        if target_score is None:
+        if target_level is None:
             if dm is not None:
                 try:
                     mode_info = dm.get_user_mode(user_id, mode)
-                    target_score = float(mode_info.get("score", STARTING_SCORE))
+                    target_level = mode_info.get("level", DEFAULT_CEFR_LEVEL)
                 except Exception:
-                    target_score = float(self.profile.get("score", STARTING_SCORE))
+                    target_level = self.profile.get("level", DEFAULT_CEFR_LEVEL)
             else:
-                target_score = float(self.profile.get("score", STARTING_SCORE))
+                target_level = self.profile.get("level", DEFAULT_CEFR_LEVEL)
+
+        target_level = str(target_level).upper().strip() if target_level else DEFAULT_CEFR_LEVEL
 
         if dm is not None:
             try:
                 prog_batch = dm.get_progressive_sentences(
                     user_id=user_id,
-                    target_score=target_score,
+                    target_level=target_level,
                     count=count,
                     max_unknown=max_unknown,
                     exclude_ids=exclude_ids,
@@ -255,37 +250,18 @@ class ScoringEngine:
             if familiar_cands:
                 candidates = familiar_cands
 
-        target_int_level = max(1, min(6, round(target_score)))
-
-        # Primary candidates: exact integer score match
-        primary = [s for s in candidates if s.get("score") == target_int_level]
-        # Secondary candidates: +/- 1 score difference
-        secondary = [s for s in candidates if abs(s.get("score", 1) - target_int_level) == 1]
-        # Remaining
-        others = [s for s in candidates if abs(s.get("score", 1) - target_int_level) > 1]
+        # Primary candidates: exact level match
+        primary = [s for s in candidates if s.get("level", "").upper() == target_level]
+        others = [s for s in candidates if s.get("level", "").upper() != target_level]
 
         selected = []
         random.shuffle(primary)
-        random.shuffle(secondary)
         random.shuffle(others)
 
-        # Allocate mostly primary (e.g. 2 of 3) and some secondary
-        num_primary = min(len(primary), max(1, count - 1))
-        selected.extend(primary[:num_primary])
-
-        needed = count - len(selected)
-        if needed > 0 and secondary:
-            num_sec = min(len(secondary), needed)
-            selected.extend(secondary[:num_sec])
-
+        selected.extend(primary[:count])
         needed = count - len(selected)
         if needed > 0 and others:
             selected.extend(others[:needed])
-
-        # If still needed, fill from candidates
-        if len(selected) < count:
-            remaining = [s for s in candidates if s not in selected]
-            selected.extend(remaining[:count - len(selected)])
 
         random.shuffle(selected)
         return selected[:count]
@@ -322,46 +298,22 @@ class ScoringEngine:
 
     def calculate_score_adjustment(
         self,
-        current_score: float,
         evaluated_items: List[Dict[str, Any]],
         mode: str = "translation",
         user_id: str = "default_user",
-        is_retry: bool = False
+        is_retry: bool = False,
+        **kwargs
     ) -> Dict[str, Any]:
         """
-        Calculates new user score based on the batch of evaluated items for the specified mode.
+        Calculates batch summary (accuracy, streak, completion stats) for the specified mode.
         Updates SQLite user_modes & exercise_history if data_manager is available,
         or falls back to local in-memory/JSON profile.
         """
-        if not evaluated_items or mode == "mixed":
-            prof = self.get_profile(user_id=user_id, mode=mode)
-            qualities = [
-                float(it.get("quality", 1.0 if it.get("is_correct") else 0.0))
-                for it in evaluated_items
-            ] if evaluated_items else []
-            avg_q = round(float(sum(qualities) / max(1, len(qualities))), 2) if qualities else 0.0
-            correct_count = sum(1 for it in evaluated_items if it.get("is_correct") or float(it.get("quality", 0.0)) >= 0.70)
-            return {
-                "old_score": current_score,
-                "new_score": current_score,
-                "delta": 0.0,
-                "old_level": score_to_level(current_score),
-                "new_level": score_to_level(current_score),
-                "level_changed": False,
-                "avg_quality": avg_q,
-                "correct_count": correct_count,
-                "total_count": len(evaluated_items),
-                "mode": mode,
-                "profile": prof
-            }
-
-        total_delta = 0.0
         qualities = []
         correct_count = 0
-        total_count = len(evaluated_items)
+        total_count = len(evaluated_items) if evaluated_items else 0
 
-        for item in evaluated_items:
-            # Check correctness: either explicit is_correct boolean or fallback to quality >= 0.70
+        for item in (evaluated_items or []):
             if "is_correct" in item and item["is_correct"] is not None:
                 is_correct = bool(item["is_correct"])
             else:
@@ -374,42 +326,18 @@ class ScoringEngine:
             if is_correct:
                 correct_count += 1
 
-        if total_count > 0:
-            accuracy_rate = correct_count / total_count
-            avg_difficulty = float(sum(it.get("sentence_score", current_score) for it in evaluated_items) / total_count)
-            diff = max(0.0, avg_difficulty - current_score)
-
-            if accuracy_rate == 1.0:
-                # 3/3 correct
-                total_delta = 0.12 + (0.04 * diff)
-            elif accuracy_rate >= 0.66:
-                # 2/3 correct
-                total_delta = 0.04
-            elif accuracy_rate >= 0.33:
-                # 1/3 correct
-                total_delta = -0.04
-            else:
-                # 0/3 correct
-                total_delta = -0.12
-
-        scaled_delta = max(-0.30, min(0.35, total_delta))
-        new_score = round(max(1.00, min(6.00, current_score + scaled_delta)), 2)
-        real_delta = round(new_score - current_score, 2)
-
-        old_level = score_to_level(current_score)
-        new_level = score_to_level(new_score)
-        avg_q = round(float(sum(qualities) / max(1, len(qualities))), 2)
-
-        completed_count = sum(1 for it in evaluated_items if not it.get("is_skipped"))
-        skipped_count = sum(1 for it in evaluated_items if it.get("is_skipped"))
+        accuracy_rate = (correct_count / total_count) if total_count > 0 else 0.0
+        avg_q = round(float(sum(qualities) / max(1, len(qualities))), 2) if qualities else 0.0
+        completed_count = sum(1 for it in (evaluated_items or []) if not it.get("is_skipped"))
+        skipped_count = sum(1 for it in (evaluated_items or []) if it.get("is_skipped"))
 
         # Update SQLite if data_manager present (authoritative)
         if self.data_manager is not None:
             try:
                 prev_mode_data = self.data_manager.get_user_mode(user_id, mode)
+                level = prev_mode_data.get("level", DEFAULT_CEFR_LEVEL)
                 new_streak = int(prev_mode_data.get("streak", 0))
-                if not is_retry:
-                    accuracy_rate = correct_count / max(1, total_count)
+                if not is_retry and total_count > 0 and mode != "mixed":
                     if accuracy_rate >= 0.66:
                         new_streak += 1
                     elif accuracy_rate < 0.33:
@@ -418,87 +346,78 @@ class ScoringEngine:
                 new_completed = int(prev_mode_data.get("total_completed", 0)) + (0 if is_retry else completed_count)
                 new_skipped = int(prev_mode_data.get("total_skipped", 0)) + (0 if is_retry else skipped_count)
 
-                self.data_manager.update_user_mode(
-                    user_id=user_id,
-                    mode=mode,
-                    score=new_score,
-                    level=new_level,
-                    streak=new_streak,
-                    total_completed=new_completed,
-                    total_skipped=new_skipped
-                )
+                if mode != "mixed":
+                    self.data_manager.update_user_mode(
+                        user_id=user_id,
+                        mode=mode,
+                        level=level,
+                        streak=new_streak,
+                        total_completed=new_completed,
+                        total_skipped=new_skipped
+                    )
 
-                if new_level != old_level:
-                    self.data_manager.unlock_user_vocabulary_for_level(user_id=user_id, target_level=new_level)
-
-                if not is_retry:
+                if not is_retry and evaluated_items:
                     for it in evaluated_items:
                         self.data_manager.record_exercise_history(
                             user_id=user_id,
                             mode=mode,
                             sentence_id=it.get("sentence_id"),
                             quality=float(it.get("quality", 0.0)),
-                            score_before=current_score,
-                            score_after=new_score,
-                            delta=real_delta,
                             is_skipped=it.get("is_skipped", False)
                         )
             except Exception as e:
-                logger.warning("Score adjustment SQLite persistence failed: %s", e, exc_info=True)
+                logger.warning("Batch summary SQLite persistence failed: %s", e, exc_info=True)
         else:
-            # Offline / test fallback — update in-memory profile directly
+            # Offline / test fallback
             if "modes" not in self.profile:
                 self.get_profile(user_id, mode)
+            level = self.profile.get("level", DEFAULT_CEFR_LEVEL)
             if mode in self.profile.get("modes", {}):
                 m = self.profile["modes"][mode]
-                m["score"] = new_score
-                m["level"] = new_level
-                if not is_retry:
+                level = m.get("level", DEFAULT_CEFR_LEVEL)
+                if not is_retry and mode != "mixed":
                     m["total_completed"] = m.get("total_completed", 0) + completed_count
                     m["total_skipped"] = m.get("total_skipped", 0) + skipped_count
-                    accuracy_rate = correct_count / max(1, total_count)
-                    if accuracy_rate >= 0.66:
-                        m["streak"] = m.get("streak", 0) + 1
-                    elif accuracy_rate < 0.33:
-                        m["streak"] = 0
+                    if total_count > 0:
+                        if accuracy_rate >= 0.66:
+                            m["streak"] = m.get("streak", 0) + 1
+                        elif accuracy_rate < 0.33:
+                            m["streak"] = 0
 
-            self.profile["score"] = new_score
-            self.profile["level"] = new_level
-            if not is_retry:
+            if not is_retry and mode != "mixed":
                 self.profile["total_completed"] = self.profile.get("total_completed", 0) + completed_count
                 self.profile["total_skipped"] = self.profile.get("total_skipped", 0) + skipped_count
-                accuracy_rate = correct_count / max(1, total_count)
-                if accuracy_rate >= 0.66:
-                    self.profile["streak"] = self.profile.get("streak", 0) + 1
-                elif accuracy_rate < 0.33:
-                    self.profile["streak"] = 0
+                if total_count > 0:
+                    if accuracy_rate >= 0.66:
+                        self.profile["streak"] = self.profile.get("streak", 0) + 1
+                    elif accuracy_rate < 0.33:
+                        self.profile["streak"] = 0
 
             self.profile.setdefault("history", [])
-            self.profile["history"].append({
-                "mode": mode,
-                "old_score": current_score,
-                "new_score": new_score,
-                "delta": real_delta,
-                "avg_quality": avg_q,
-                "batch_size": len(evaluated_items)
-            })
-            if len(self.profile["history"]) > HISTORY_LIMIT:
-                self.profile["history"] = self.profile["history"][-HISTORY_LIMIT:]
+            if not is_retry and evaluated_items:
+                self.profile["history"].append({
+                    "mode": mode,
+                    "avg_quality": avg_q,
+                    "batch_size": len(evaluated_items),
+                    "accuracy_rate": accuracy_rate
+                })
+                if len(self.profile["history"]) > HISTORY_LIMIT:
+                    self.profile["history"] = self.profile["history"][-HISTORY_LIMIT:]
 
             self.save_profile()
 
         full_profile = self.get_profile(user_id=user_id, mode=mode)
+        curr_mode_data = full_profile.get("modes", {}).get(mode, {})
+        current_streak = curr_mode_data.get("streak", full_profile.get("streak", 0))
+        current_level = curr_mode_data.get("level", full_profile.get("level", DEFAULT_CEFR_LEVEL))
 
         return {
-            "old_score": current_score,
-            "new_score": new_score,
-            "delta": real_delta,
-            "old_level": old_level,
-            "new_level": new_level,
-            "level_changed": old_level != new_level,
-            "avg_quality": avg_q,
+            "level": current_level,
+            "streak": current_streak,
+            "accuracy_rate": accuracy_rate,
             "correct_count": correct_count,
             "total_count": total_count,
+            "avg_quality": avg_q,
             "mode": mode,
             "profile": full_profile
         }

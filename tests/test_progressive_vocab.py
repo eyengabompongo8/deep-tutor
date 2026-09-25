@@ -43,7 +43,6 @@ class TestProgressiveVocabulary:
         assert user["id"] == "test_user"
         assert user["name"] == "Test Student"
         profile = self.dm.get_user_modes_profile("test_user")
-        assert profile["score"] == 1.20
         assert profile["level"] == "A1"
 
     def test_base_vocabulary_unlocked_initially(self):
@@ -54,7 +53,7 @@ class TestProgressiveVocabulary:
         assert self.l4 not in known_ids
 
     def test_progressive_sentence_selection(self):
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=1.2, count=3, max_unknown=2)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="A1", count=3, max_unknown=2)
         assert len(batch) > 0
         for s in batch:
             assert "unknown_count" in s
@@ -126,7 +125,7 @@ class TestProgressiveVocabulary:
     def test_scoring_engine_integration(self):
         batch = self.scoring.get_batch_sentences(
             all_sentences=self.dm.get_all_sentences(),
-            target_score=1.2,
+            target_level="A1",
             count=3,
             data_manager=self.dm,
             user_id="test_user",
@@ -140,7 +139,7 @@ class TestProgressiveVocabulary:
     def test_transcription_mode_zero_new_words(self):
         batch = self.dm.get_progressive_sentences(
             user_id="test_user",
-            target_score=1.2,
+            target_level="A1",
             count=1,
             mode="transcription"
         )
@@ -151,7 +150,7 @@ class TestProgressiveVocabulary:
 
         batch_se = self.scoring.get_batch_sentences(
             all_sentences=self.dm.get_all_sentences(),
-            target_score=1.2,
+            target_level="A1",
             count=1,
             data_manager=self.dm,
             user_id="test_user",
@@ -165,7 +164,7 @@ class TestProgressiveVocabulary:
     def test_transcription_mode_never_falls_back_to_new_words(self):
         batch = self.dm.get_progressive_sentences(
             user_id="test_user",
-            target_score=1.2,
+            target_level="A1",
             count=1,
             exclude_ids=[self.s1["id"]],
             mode="transcription"
@@ -180,7 +179,7 @@ class TestProgressiveVocabulary:
         s_aller = self.dm.add_sentence(es="Voy a la playa", fr="Je vais à la plage", level="A1", score=1.2)
         self.dm.link_sentence_lexemas(s_aller["id"], [l_aller])
 
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=1.2, count=5)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="A1", count=5)
         matched_s = next((s for s in batch if s["id"] == s_aller["id"]), None)
         assert matched_s is not None
         assert "first_time_pairs" in matched_s
@@ -189,7 +188,7 @@ class TestProgressiveVocabulary:
         assert aller_pair["word"] == "vais"
 
     def test_regular_word_derivation_matching(self):
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=1.2, count=5)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="A1", count=5)
         matched_s = next((s for s in batch if s["id"] == self.s2["id"]), None)
         assert matched_s is not None
         assert "first_time_pairs" in matched_s
@@ -202,7 +201,7 @@ class TestProgressiveVocabulary:
         s_obst = self.dm.add_sentence(es="Ella es obstinada", fr="Elle est l'obstinée de la classe", level="B2", score=4.5)
         self.dm.link_sentence_lexemas(s_obst["id"], [l_obstiner])
 
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=4.5, count=5)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="B2", count=5)
         matched_s = next((s for s in batch if s["id"] == s_obst["id"]), None)
         assert matched_s is not None
         assert "first_time_pairs" in matched_s
@@ -215,7 +214,7 @@ class TestProgressiveVocabulary:
         s_refl = self.dm.add_sentence(es="Ella es obstinada", fr="Elle s'obstine toujours", level="B2", score=4.5)
         self.dm.link_sentence_lexemas(s_refl["id"], [l_refl])
 
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=4.5, count=5)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="B2", count=5)
         matched_s = next((s for s in batch if s["id"] == s_refl["id"]), None)
         assert matched_s is not None
         assert "first_time_pairs" in matched_s
@@ -225,7 +224,7 @@ class TestProgressiveVocabulary:
 
     def test_manual_level_lowering_relocks_unpracticed_vocab(self):
         # 1. Reset user to B2 -> unlocks A1, A2, B1 lexemas
-        self.scoring.reset_profile(start_score=4.20, mode="translation", user_id="relock_user")
+        self.scoring.reset_profile(level="B2", mode="translation", user_id="relock_user")
         known_b2 = self.dm.get_user_known_lexema_ids("relock_user")
         assert self.l3 in known_b2
         
@@ -233,7 +232,7 @@ class TestProgressiveVocabulary:
         self.dm.record_lexema_appearances("relock_user", self.s2["id"], is_success=True)
 
         # 3. Lower level manually to A1
-        self.scoring.reset_profile(start_score=1.20, mode="translation", user_id="relock_user")
+        self.scoring.reset_profile(level="A1", mode="translation", user_id="relock_user")
         known_a1 = self.dm.get_user_known_lexema_ids("relock_user")
 
         # Base words are still known

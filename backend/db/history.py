@@ -1,5 +1,5 @@
 from typing import List, Dict, Any, Optional
-from backend.config import HISTORY_LIMIT, STARTING_SCORE
+from backend.config import HISTORY_LIMIT
 
 class HistoryMixin:
     def record_exercise_history(
@@ -8,17 +8,14 @@ class HistoryMixin:
         mode: str = 'translation',
         sentence_id: Optional[int] = None,
         quality: float = 0.0,
-        score_before: float = STARTING_SCORE,
-        score_after: float = STARTING_SCORE,
-        delta: float = 0.0,
         is_skipped: bool = False
     ):
         """Records an evaluation outcome into exercise_history."""
         with self._get_connection() as conn:
             conn.execute("""
-                INSERT INTO exercise_history (user_id, mode, sentence_id, quality, score_before, score_after, delta, is_skipped)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-            """, (user_id, mode, sentence_id, float(quality), float(score_before), float(score_after), float(delta), 1 if is_skipped else 0))
+                INSERT INTO exercise_history (user_id, mode, sentence_id, quality, is_skipped)
+                VALUES (?, ?, ?, ?, ?);
+            """, (user_id, mode, sentence_id, float(quality), 1 if is_skipped else 0))
 
     def get_exercise_history(
         self,

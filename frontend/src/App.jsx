@@ -102,12 +102,13 @@ export default function App() {
   }, [currentMode, activeUserId]);
 
   // Fetch a batch of difficulty-matched sentences
-  const fetchBatch = useCallback(async (targetScore, size = batchSize, excludeIds = recentSentenceIds, mode = currentMode, uid = activeUserId) => {
+  const fetchBatch = useCallback(async (targetLevel, size = batchSize, excludeIds = recentSentenceIds, mode = currentMode, uid = activeUserId) => {
     if (!uid) return;
     try {
       setError(null);
+      const lvl = targetLevel || 'A1';
       const excludeParam = excludeIds.length > 0 ? `&exclude=${excludeIds.join(',')}` : '';
-      const res = await fetch(`/api/exercises/batch?mode=${mode}&score=${targetScore}&count=${size}${excludeParam}&user_id=${encodeURIComponent(uid)}`);
+      const res = await fetch(`/api/exercises/batch?mode=${mode}&level=${encodeURIComponent(lvl)}&count=${size}${excludeParam}&user_id=${encodeURIComponent(uid)}`);
       if (!res.ok) throw new Error('Failed to load exercise batch');
       const data = await res.json();
       setBatch(data.items || []);
@@ -185,9 +186,9 @@ export default function App() {
       const modeToUse = userSettings?.active_mode || currentMode;
       const userProfile = await fetchProfile(modeToUse, activeUserId);
       if (userProfile) {
-        const score = userProfile.score ?? 1.20;
+        const level = userProfile.modes?.[modeToUse]?.level ?? userProfile.level ?? 'A1';
         const effectiveBatchSize = userSettings?.cards_per_exercise ?? batchSize;
-        await fetchBatch(score, effectiveBatchSize, [], modeToUse, activeUserId);
+        await fetchBatch(level, effectiveBatchSize, [], modeToUse, activeUserId);
       }
       setIsLoading(false);
     };
@@ -207,9 +208,9 @@ export default function App() {
       const userSettings = await fetchSettings(userId);
       const modeToUse = userSettings?.active_mode || currentMode;
       const userProfile = await fetchProfile(modeToUse, userId);
-      const score = userProfile?.score ?? 1.20;
+      const level = userProfile?.modes?.[modeToUse]?.level ?? userProfile?.level ?? 'A1';
       const effectiveBatchSize = userSettings?.cards_per_exercise ?? batchSize;
-      await fetchBatch(score, effectiveBatchSize, [], modeToUse, userId);
+      await fetchBatch(level, effectiveBatchSize, [], modeToUse, userId);
     } catch (err) {
       console.error('Failed to initialize selected user:', err);
     } finally {
@@ -263,9 +264,9 @@ export default function App() {
     setIsLoading(true);
     try {
       const userProfile = await fetchProfile(newMode, activeUserId);
-      const score = userProfile?.score ?? 1.20;
+      const level = userProfile?.modes?.[newMode]?.level ?? userProfile?.level ?? 'A1';
       setRecentSentenceIds([]);
-      await fetchBatch(score, batchSize, [], newMode, activeUserId);
+      await fetchBatch(level, batchSize, [], newMode, activeUserId);
     } catch (err) {
       console.error('Failed to switch mode:', err);
     } finally {
@@ -273,24 +274,22 @@ export default function App() {
     }
   };
 
-  // Handler when a batch completes and score is updated
+  // Handler when a batch completes and stats are updated
   const handleBatchCompleted = (summary) => {
     if (summary && summary.profile) {
       setProfile(summary.profile);
-    } else if (summary && summary.new_score) {
+    } else if (summary && summary.level) {
       setProfile(prev => {
         if (!prev) return prev;
         const currentModeData = prev.modes?.[currentMode] || {};
         return {
           ...prev,
-          score: summary.new_score,
-          level: summary.new_level,
+          level: summary.level,
           modes: {
             ...prev.modes,
             [currentMode]: {
               ...currentModeData,
-              score: summary.new_score,
-              level: summary.new_level,
+              level: summary.level,
               total_completed: summary.total_completed ?? (currentModeData.total_completed || 0) + 1,
               streak: summary.streak ?? currentModeData.streak ?? 0,
             }
@@ -300,11 +299,11 @@ export default function App() {
     }
   };
 
-  // Handler to load next batch with the new score
+  // Handler to load next batch with the current level
   const handleNextBatch = async () => {
     setIsLoadingNext(true);
-    const scoreToUse = profile?.modes?.[currentMode]?.score ?? profile?.score ?? 1.20;
-    await fetchBatch(scoreToUse, batchSize, recentSentenceIds, currentMode, activeUserId);
+    const levelToUse = profile?.modes?.[currentMode]?.level ?? profile?.level ?? 'A1';
+    await fetchBatch(levelToUse, batchSize, recentSentenceIds, currentMode, activeUserId);
     setIsLoadingNext(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -313,8 +312,8 @@ export default function App() {
   const handleChangeBatchSize = (newSize) => {
     setBatchSize(newSize);
     localStorage.setItem('frenchtutor_batch_size', String(newSize));
-    const scoreToUse = profile?.modes?.[currentMode]?.score ?? profile?.score ?? 1.20;
-    fetchBatch(scoreToUse, newSize, recentSentenceIds, currentMode, activeUserId);
+    const levelToUse = profile?.modes?.[currentMode]?.level ?? profile?.level ?? 'A1';
+    fetchBatch(levelToUse, newSize, recentSentenceIds, currentMode, activeUserId);
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',
@@ -324,25 +323,25 @@ export default function App() {
     }
   };
 
-  // Reset or adjust user score from settings
-  const handleResetScore = async (newScore = 1.20, modeToReset = currentMode) => {
+  // Set CEFR level from settings
+  const handleSetLevel = async (newLevel = 'A1', modeToSet = currentMode) => {
     try {
       setIsLoading(true);
       const res = await fetch('/api/user/reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          start_score: newScore,
-          mode: modeToReset,
+          level: newLevel,
+          mode: modeToSet,
           user_id: activeUserId || 'default_user'
         })
       });
       const data = await res.json();
       setProfile(data);
       setRecentSentenceIds([]);
-      await fetchBatch(data.score, batchSize, [], modeToReset, activeUserId);
+      await fetchBatch(data.level || newLevel, batchSize, [], modeToSet, activeUserId);
     } catch (err) {
-      console.error('Failed to reset score:', err);
+      console.error('Failed to set level:', err);
     } finally {
       setIsLoading(false);
       setIsSettingsOpen(false);
@@ -457,7 +456,7 @@ export default function App() {
     );
   }
 
-  const activeScore = profile?.modes?.[currentMode]?.score ?? profile?.score ?? 1.20;
+  const activeLevel = profile?.modes?.[currentMode]?.level ?? profile?.level ?? 'A1';
 
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col transition-colors duration-200">
@@ -487,7 +486,7 @@ export default function App() {
             <button
               onClick={() => {
                 setError(null);
-                fetchBatch(activeScore, batchSize, recentSentenceIds, currentMode, activeUserId);
+                fetchBatch(activeLevel, batchSize, recentSentenceIds, currentMode, activeUserId);
               }}
               className="px-3 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-xs font-medium text-red-800 transition-colors"
             >
@@ -507,7 +506,6 @@ export default function App() {
             {/* Active Exercise Session */}
             <ExerciseSession
               batch={batch}
-              currentScore={activeScore}
               mode={currentMode}
               userId={activeUserId}
               transcriptionRetry={transcriptionRetry}
@@ -532,7 +530,7 @@ export default function App() {
         onChangeBatchSize={handleChangeBatchSize}
         profile={profile}
         currentMode={currentMode}
-        onResetScore={handleResetScore}
+        onSetLevel={handleSetLevel}
         transcriptionRetry={transcriptionRetry}
         onToggleTranscriptionRetry={handleToggleTranscriptionRetry}
         translationThreshold={translationThreshold}

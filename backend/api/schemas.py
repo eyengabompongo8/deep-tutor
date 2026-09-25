@@ -2,7 +2,6 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, ConfigDict, model_validator
 from backend.config import (
     DEFAULT_CEFR_LEVEL,
-    STARTING_SCORE,
     DEFAULT_CARDS_PER_EXERCISE,
     DEFAULT_CORRECTION_THRESHOLD,
 )
@@ -29,7 +28,7 @@ class UpdateUserSettingsRequest(BaseModel):
     mixed_translation_ratio: Optional[int] = None
 
 class ProfileResetRequest(BaseModel):
-    start_score: float = STARTING_SCORE
+    level: str = DEFAULT_CEFR_LEVEL
     mode: str = "translation"
     user_id: str = "default_user"
 
@@ -82,7 +81,6 @@ class BatchItemEvaluation(BaseModel):
     is_correct: Optional[bool] = None
 
 class CompleteBatchRequest(BaseModel):
-    current_score: Optional[float] = None
     evaluated_items: List[BatchItemEvaluation]
     mode: str = "translation"
     user_id: str = "default_user"
@@ -136,7 +134,6 @@ class TranscriptionDiffItem(BaseModel):
     type: str
 
 class ExerciseBatchResponse(BaseModel):
-    target_score: float
     target_level: str
     mode: str
     count: int
@@ -190,14 +187,11 @@ class EvaluateTranscriptionResponse(BaseModel):
     vocabulary_progress: List[VocabProgressItem] = []
 
 class CompleteBatchResponse(BaseModel):
-    old_score: float
-    new_score: float
-    delta: float
-    old_level: str
-    new_level: str
-    level_changed: bool
-    avg_quality: float
+    level: str
+    streak: int
+    accuracy_rate: float
     correct_count: Optional[int] = None
     total_count: Optional[int] = None
+    avg_quality: float
     mode: Optional[str] = None
     profile: Dict[str, Any]

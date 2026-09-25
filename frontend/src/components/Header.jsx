@@ -24,12 +24,8 @@ export default function Header({
   onUserUpdated,
 }) {
   const modeData = profile?.modes?.[currentMode] || profile?.modes?.translation || profile;
-  const score = modeData?.score ?? 1.20;
-  const level = modeData?.level ?? 'A1';
+  const level = modeData?.level ?? profile?.level ?? 'A1';
   const streak = modeData?.streak ?? 0;
-
-  const currentLevelInt = Math.floor(score);
-  const progressPercent = Math.min(100, Math.max(0, Math.round((score - currentLevelInt) * 100)));
 
   const sessionCompleted = sessionProgress?.completed ?? 0;
   const sessionTotal = sessionProgress?.total ?? 0;
@@ -49,25 +45,18 @@ export default function Header({
   return (
     <header className="w-full bg-[#fafafa]/90 dark:bg-neutral-900/90 py-3.5 border-b border-neutral-200/60 dark:border-neutral-800/80 sticky top-0 z-30 backdrop-blur-md transition-colors duration-200">
       <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-        {/* Score, Level, & Progress */}
-        <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto justify-between sm:justify-start">
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+        {/* CEFR Level Badge & Mode */}
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-1 rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-bold font-mono shadow-xs">
               {level}
             </span>
-            <span className="text-sm font-mono text-neutral-500 dark:text-neutral-400">
-              {score.toFixed(2)}
+            <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+              {LEVEL_NAMES[level] || level}
             </span>
             <span className="text-xs text-neutral-400 dark:text-neutral-500 hidden md:inline">
-              · {getModeLabel()} ({LEVEL_NAMES[level] || 'Level'})
+              · {getModeLabel()}
             </span>
-          </div>
-
-          <div className="w-20 sm:w-28 bg-neutral-200 dark:bg-neutral-800 rounded-full h-1 overflow-hidden" title={`Niveau ${level} : ${progressPercent}%`}>
-            <div 
-              className="bg-neutral-800 dark:bg-neutral-200 h-full rounded-full transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
-            />
           </div>
         </div>
 

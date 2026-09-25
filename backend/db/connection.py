@@ -7,7 +7,6 @@ from contextlib import contextmanager
 
 from backend.config import (
     DEFAULT_CEFR_LEVEL,
-    STARTING_SCORE,
     DEFAULT_CORRECTION_THRESHOLD,
     DEFAULT_CARDS_PER_EXERCISE,
     DEFAULT_MIXED_TRANSLATION_RATIO,
@@ -217,7 +216,6 @@ class DBConnection:
             CREATE TABLE IF NOT EXISTS user_modes (
                 user_id TEXT NOT NULL,
                 mode TEXT NOT NULL,
-                score REAL NOT NULL DEFAULT {STARTING_SCORE},
                 level TEXT NOT NULL DEFAULT '{DEFAULT_CEFR_LEVEL}',
                 streak INTEGER NOT NULL DEFAULT 0,
                 total_completed INTEGER NOT NULL DEFAULT 0,
@@ -236,9 +234,6 @@ class DBConnection:
                 mode TEXT NOT NULL DEFAULT 'translation',
                 sentence_id INTEGER,
                 quality REAL,
-                score_before REAL,
-                score_after REAL,
-                delta REAL,
                 is_skipped BOOLEAN DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -337,16 +332,16 @@ class DBConnection:
         trans_mode = conn.execute("SELECT mode FROM user_modes WHERE user_id = 'default_user' AND mode = 'translation';").fetchone()
         if not trans_mode:
             conn.execute("""
-                INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES ('default_user', 'translation', ?, ?, 0, 0, 0);
-            """, (STARTING_SCORE, DEFAULT_CEFR_LEVEL))
+                INSERT OR IGNORE INTO user_modes (user_id, mode, level, streak, total_completed, total_skipped)
+                VALUES ('default_user', 'translation', ?, 0, 0, 0);
+            """, (DEFAULT_CEFR_LEVEL,))
 
         audio_mode = conn.execute("SELECT mode FROM user_modes WHERE user_id = 'default_user' AND mode = 'transcription';").fetchone()
         if not audio_mode:
             conn.execute("""
-                INSERT OR IGNORE INTO user_modes (user_id, mode, score, level, streak, total_completed, total_skipped)
-                VALUES ('default_user', 'transcription', ?, ?, 0, 0, 0);
-            """, (STARTING_SCORE, DEFAULT_CEFR_LEVEL))
+                INSERT OR IGNORE INTO user_modes (user_id, mode, level, streak, total_completed, total_skipped)
+                VALUES ('default_user', 'transcription', ?, 0, 0, 0);
+            """, (DEFAULT_CEFR_LEVEL,))
 
         # Seed user_settings for default_user if not exists
         conn.execute("""

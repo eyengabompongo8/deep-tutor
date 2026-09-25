@@ -38,9 +38,9 @@ def test_extract_sentences_from_vekkt_cefr(mock_concatenate, mock_load, mock_vek
 def test_run_mine_vekkt_cefr(mock_extract):
     mock_extract.return_value = ["C'est une phrase très simple."]
 
-    records = run_mine_vekkt_cefr(target_levels=["A1"], limit=5)
+    records = run_mine_vekkt_cefr(limit=5)
 
-    mock_extract.assert_called_once_with(target_levels=["A1"], limit=5)
+    mock_extract.assert_called_once_with(limit=5)
     assert records == [
         {
             "fr": "C'est une phrase très simple.",
@@ -57,5 +57,5 @@ def test_run_mine_vekkt_cefr_empty(mock_extract):
 
     records = run_mine_vekkt_cefr()
 
-    mock_extract.assert_called_once_with(target_levels=None, limit=None)
+    mock_extract.assert_called_once_with(limit=None)
     assert records == []

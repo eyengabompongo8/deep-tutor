@@ -281,7 +281,7 @@ def run_mine_tatoeba(
         remaining_limit = None
         if limit is not None:
             remaining_limit = max(0, limit - len(results)) if mode == "both" else limit
-        mono_results = mine_tatoeba_monolingual(max_per_level=max_per_level, limit=remaining_limit)
+        mono_results = mine_tatoeba_monolingual(limit=remaining_limit)
         results.extend(mono_results)
 
     if limit is not None:
