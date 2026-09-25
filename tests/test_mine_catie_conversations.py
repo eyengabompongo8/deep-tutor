@@ -48,32 +48,16 @@ def test_extract_sentences_from_conversations(mock_load, mock_conversations_data
 
 
 @patch("backend.ingestion.pipeline.mine_catie_conversations.extract_sentences_from_conversations")
-@patch("backend.ingestion.pipeline.mine_catie_conversations.deduplicate_against_db")
-@patch("backend.ingestion.pipeline.mine_catie_conversations.process_and_score_sentences")
-def test_run_mine_catie_conversations(mock_process, mock_dedup, mock_extract):
+def test_run_mine_catie_conversations(mock_extract):
     mock_extract.return_value = ["J'aime beaucoup cette ville."]
-    mock_dedup.return_value = ["J'aime beaucoup cette ville."]
-    mock_process.return_value = [
-        {
-            "fr": "J'aime beaucoup cette ville.",
-            "es": "Me gusta mucho esta ciudad.",
-            "level": "A1",
-            "score": 1.1,
-            "score_lexical": 1.0,
-            "score_ml": 1.1,
-            "source": "hf_catie_conversations",
-            "metadata": {"dataset": "CATIE-AQ/everyday-conversations-llama3.1-2k-in-french"},
-        }
-    ]
 
     records = run_mine_catie_conversations(limit=1)
 
     assert len(records) == 1
-    assert records[0]["fr"] == "J'aime beaucoup cette ville."
-    assert records[0]["source"] == "hf_catie_conversations"
-    mock_dedup.assert_called_once_with(["J'aime beaucoup cette ville."])
-    mock_process.assert_called_once_with(
-        ["J'aime beaucoup cette ville."],
-        source_name="hf_catie_conversations",
-        source_metadata={"dataset": "CATIE-AQ/everyday-conversations-llama3.1-2k-in-french"},
-    )
+    assert records[0] == {
+        "fr": "J'aime beaucoup cette ville.",
+        "es": None,
+        "source": "hf_catie_conversations",
+        "metadata": {"dataset": "CATIE-AQ/everyday-conversations-llama3.1-2k-in-french"},
+    }
+    mock_extract.assert_called_once_with(limit=1)

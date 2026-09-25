@@ -6,14 +6,11 @@ from typing import List, Dict, Any, Optional, Tuple
 from tqdm import tqdm
 
 from backend.db.connection import ROOT_DIR
-from backend.nlp.vocab_engine import VocabEngine
 from backend.ingestion.pipeline.common import (
     get_spacy_nlp,
     format_sentence,
     clean_quotes_and_symbols,
     is_valid_sentence as common_is_valid_sentence,
-    deduplicate_against_db,
-    process_and_score_sentences,
 )
 
 # Backwards compatibility helpers
@@ -84,7 +81,7 @@ def mine_tatoeba_parallel(
     Mines direct French-Spanish sentence pairs.
     If a record contains multiple sentences, or if French and Spanish sentence
     counts differ, it is discarded to prevent alignment errors.
-    Both sentences are scored with the CEFR ML model and lexical scoring.
+    Returns candidate records without ML scoring, lexical scoring, or translation.
     """
     print("\n--- Mining Bilingual Parallel Sentences (Tatoeba fra-spa) ---")
     raw_dir = os.path.join(ROOT_DIR, "data", "raw")
@@ -157,7 +154,7 @@ def mine_tatoeba_parallel(
 
     nlp = get_spacy_nlp()
     print("Filtering and cleaning candidate parallel pairs...")
-    valid_pairs = []
+    candidates = []
     seen_fr = set()
 
     for es_raw, fr_raw in tqdm(pairs, desc="Validating parallel pairs"):
@@ -185,49 +182,17 @@ def mine_tatoeba_parallel(
             continue
         seen_fr.add(fr_lower)
 
-        valid_pairs.append((es_clean, fr_clean))
-        if limit is not None and len(valid_pairs) >= limit:
+        candidates.append({
+            "fr": fr_clean,
+            "es": es_clean,
+            "source": "tatoeba_parallel",
+            "metadata": {}
+        })
+        if limit is not None and len(candidates) >= limit:
             break
 
-    print(f"Found {len(valid_pairs)} valid single-sentence parallel pairs.")
-    if not valid_pairs:
-        return []
-
-    print("Initializing FLELex VocabEngine for scoring...")
-    engine = VocabEngine()
-
-    batch_size = 64
-    all_fr_texts = [p[1] for p in valid_pairs]
-    print(f"Scoring {len(all_fr_texts)} candidate French sentences with CEFR ML Model...")
-    ml_results = engine.score_sentences_ml_batch(all_fr_texts, batch_size=batch_size)
-
-    buckets = {"A1": [], "A2": [], "B1": [], "B2": [], "C1": [], "C2": []}
-    for (es, fr), ml_res in zip(valid_pairs, ml_results):
-        level = ml_res["level"]
-        score_ml = ml_res["score"]
-        _, lex_score, _ = engine.score_sentence(fr)
-
-        if len(buckets[level]) < max_per_level:
-            buckets[level].append({
-                "es": es,
-                "fr": fr,
-                "level": level,
-                "score": float(score_ml),
-                "score_lexical": float(lex_score),
-                "score_ml": float(score_ml),
-                "source": "tatoeba_parallel"
-            })
-
-    total_parallel = sum(len(v) for v in buckets.values())
-    print(f"\nTatoeba parallel sentences harvested ({total_parallel} total):")
-    level_order = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
-    unique_pairs = []
-    for lvl in sorted(buckets.keys(), key=lambda k: level_order.get(k, 0)):
-        print(f"  Level {lvl}: {len(buckets[lvl])}")
-        unique_pairs.extend(buckets[lvl])
-
-    unique_pairs.sort(key=lambda x: (level_order.get(x["level"], 99), len(x["fr"])))
-    return unique_pairs
+    print(f"Found {len(candidates)} valid single-sentence parallel candidates.")
+    return candidates
 
 
 def mine_tatoeba_monolingual(
@@ -236,8 +201,8 @@ def mine_tatoeba_monolingual(
 ) -> List[Dict[str, Any]]:
     """
     Mines French sentences from Tatoeba (overall), splits multi-sentence entries
-    with spaCy so each valid sentence is retained, translates them to Spanish
-    via MarianMT, and scores both CEFR ML and lexical levels.
+    with spaCy so each valid sentence is retained as a candidate record.
+    Returns candidate records without ML scoring, lexical scoring, or translation.
     """
     print("\n--- Mining Monolingual French Sentences (Tatoeba fra) ---")
     tatoeba_dir = os.path.join(ROOT_DIR, "data", "raw", "tatoeba")
@@ -276,7 +241,12 @@ def mine_tatoeba_monolingual(
                 if sent_lower in seen:
                     continue
                 seen.add(sent_lower)
-                candidates.append(clean_sent)
+                candidates.append({
+                    "fr": clean_sent,
+                    "es": None,
+                    "source": "tatoeba_monolingual",
+                    "metadata": {"dataset": "tatoeba_fra"}
+                })
 
                 if limit is not None and len(candidates) >= limit:
                     break
@@ -284,40 +254,7 @@ def mine_tatoeba_monolingual(
                 break
 
     print(f"Extracted {len(candidates)} valid candidate sentences from monolingual Tatoeba.")
-    if not candidates:
-        return []
-
-    print("Deduplicating candidates against database using MinHash LSH...")
-    unique_candidates = deduplicate_against_db(candidates)
-    print(f"After deduplication, {len(unique_candidates)} unique sentences remain.")
-
-    if not unique_candidates:
-        return []
-
-    engine = VocabEngine()
-    records = process_and_score_sentences(
-        unique_candidates,
-        source_name="tatoeba_monolingual",
-        source_metadata={"dataset": "tatoeba_fra"},
-        engine=engine
-    )
-
-    # Filter to max_per_level
-    buckets = {"A1": [], "A2": [], "B1": [], "B2": [], "C1": [], "C2": []}
-    for rec in records:
-        lvl = rec.get("level", "A1")
-        if lvl in buckets and len(buckets[lvl]) < max_per_level:
-            buckets[lvl].append(rec)
-
-    level_order = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
-    balanced_records = []
-    print("\nTatoeba monolingual sentences harvested:")
-    for lvl in sorted(buckets.keys(), key=lambda k: level_order.get(k, 0)):
-        print(f"  Level {lvl}: {len(buckets[lvl])}")
-        balanced_records.extend(buckets[lvl])
-
-    balanced_records.sort(key=lambda x: (level_order.get(x["level"], 99), len(x["fr"])))
-    return balanced_records
+    return candidates
 
 
 def run_mine_tatoeba(
@@ -327,11 +264,12 @@ def run_mine_tatoeba(
 ) -> List[Dict[str, Any]]:
     """
     Main entry point for mining Tatoeba.
+    Returns candidate records in the format:
+    [{"fr": str, "es": Optional[str], "source": str, "metadata": dict}]
     Modes:
       - 'parallel': Mines direct French-Spanish pairs. Discards multi-sentence pairs.
-      - 'monolingual': Mines French overall, splits multi-sentence entries, generates
-                       Spanish translations via MarianMT.
-      - 'both': Mines both and aggregates the result.
+      - 'monolingual': Mines French overall, splits multi-sentence entries.
+      - 'both': Mines both and aggregates candidate records.
     """
     print(f"\n==================================================")
     print(f"Tatoeba Mining Pipeline (Mode: {mode})")
@@ -343,8 +281,14 @@ def run_mine_tatoeba(
         results.extend(par_results)
 
     if mode in ("monolingual", "both"):
-        mono_results = mine_tatoeba_monolingual(max_per_level=max_per_level, limit=limit)
+        remaining_limit = None
+        if limit is not None:
+            remaining_limit = max(0, limit - len(results)) if mode == "both" else limit
+        mono_results = mine_tatoeba_monolingual(max_per_level=max_per_level, limit=remaining_limit)
         results.extend(mono_results)
+
+    if limit is not None:
+        results = results[:limit]
 
     print(f"\nTotal Tatoeba records harvested across selected mode ({mode}): {len(results)}")
     return results

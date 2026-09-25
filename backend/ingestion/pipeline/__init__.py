@@ -14,9 +14,11 @@ from .common import (
     format_sentence,
     is_valid_sentence,
     deduplicate_against_db,
+    deduplicate_candidate_records,
     extract_sentences_from_pdf,
     translate_batch,
     process_and_score_sentences,
+    preprocess_and_score_candidates,
 )
 
 __all__ = [
@@ -35,8 +37,10 @@ __all__ = [
     "format_sentence",
     "is_valid_sentence",
     "deduplicate_against_db",
+    "deduplicate_candidate_records",
     "extract_sentences_from_pdf",
     "translate_batch",
     "process_and_score_sentences",
+    "preprocess_and_score_candidates",
 ]
 

@@ -33,32 +33,27 @@ def test_extract_sentences_from_vekkt_cefr(mock_concatenate, mock_load, mock_vek
 
 
 @patch("backend.ingestion.pipeline.mine_vekkt_cefr.extract_sentences_from_vekkt_cefr")
-@patch("backend.ingestion.pipeline.mine_vekkt_cefr.deduplicate_against_db")
-@patch("backend.ingestion.pipeline.mine_vekkt_cefr.process_and_score_sentences")
-def test_run_mine_vekkt_cefr(mock_process, mock_dedup, mock_extract):
+def test_run_mine_vekkt_cefr(mock_extract):
     mock_extract.return_value = ["C'est une phrase très simple."]
-    mock_dedup.return_value = ["C'est une phrase très simple."]
-    mock_process.return_value = [
+
+    records = run_mine_vekkt_cefr(target_levels=["A1"], limit=5)
+
+    mock_extract.assert_called_once_with(target_levels=["A1"], limit=5)
+    assert records == [
         {
             "fr": "C'est une phrase très simple.",
-            "es": "Es una frase muy simple.",
-            "level": "A1",
-            "score": 1.2,
-            "score_lexical": 1.0,
-            "score_ml": 1.2,
+            "es": None,
             "source": "hf_vekkt_cefr",
             "metadata": {"dataset": "vekkt/french_CEFR"},
         }
     ]
 
-    records = run_mine_vekkt_cefr(target_levels=["A1"])
 
-    assert len(records) == 1
-    assert records[0]["fr"] == "C'est une phrase très simple."
-    assert records[0]["source"] == "hf_vekkt_cefr"
-    mock_dedup.assert_called_once_with(["C'est une phrase très simple."])
-    mock_process.assert_called_once_with(
-        ["C'est une phrase très simple."],
-        source_name="hf_vekkt_cefr",
-        source_metadata={"dataset": "vekkt/french_CEFR"},
-    )
+@patch("backend.ingestion.pipeline.mine_vekkt_cefr.extract_sentences_from_vekkt_cefr")
+def test_run_mine_vekkt_cefr_empty(mock_extract):
+    mock_extract.return_value = []
+
+    records = run_mine_vekkt_cefr()
+
+    mock_extract.assert_called_once_with(target_levels=None, limit=None)
+    assert records == []

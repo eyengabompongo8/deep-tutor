@@ -6,8 +6,6 @@ from tqdm import tqdm
 from backend.ingestion.pipeline.common import (
     format_sentence,
     is_valid_sentence,
-    deduplicate_against_db,
-    process_and_score_sentences,
 )
 
 
@@ -66,34 +64,23 @@ def run_mine_vekkt_cefr(
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
-    Mines sentences from vekkt/french_CEFR:
+    Mines candidate sentences from vekkt/french_CEFR:
     1. Extracts validated sentences matching target CEFR levels.
-    2. Deduplicates against existing database sentences.
-    3. Evaluates CEFR ML levels, lexical scores, and Spanish translations.
+    2. Returns candidate records formatted for the ingestion pipeline.
     """
     print("\n--- Mining HuggingFace Dataset (vekkt/french_CEFR) ---")
     candidates = extract_sentences_from_vekkt_cefr(target_levels=target_levels, limit=limit)
     print(f"Found {len(candidates)} candidate sentences from vekkt/french_CEFR.")
 
-    if not candidates:
-        print("No candidate sentences extracted.")
-        return []
-
-    unique_sentences = deduplicate_against_db(candidates)
-    print(f"After deduplication against database, {len(unique_sentences)} unique sentences remain.")
-
-    if not unique_sentences:
-        print("No new sentences to process.")
-        return []
-
-    records = process_and_score_sentences(
-        unique_sentences,
-        source_name="hf_vekkt_cefr",
-        source_metadata={"dataset": "vekkt/french_CEFR"}
-    )
-
-    print(f"Successfully mined and prepared {len(records)} sentences from vekkt/french_CEFR.")
-    return records
+    return [
+        {
+            "fr": sent,
+            "es": None,
+            "source": "hf_vekkt_cefr",
+            "metadata": {"dataset": "vekkt/french_CEFR"},
+        }
+        for sent in candidates
+    ]
 
 
 if __name__ == "__main__":

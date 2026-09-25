@@ -8,8 +8,6 @@ from tqdm import tqdm
 from backend.db.connection import ROOT_DIR
 from backend.ingestion.pipeline.common import (
     extract_sentences_from_pdf,
-    deduplicate_against_db,
-    process_and_score_sentences,
 )
 
 
@@ -105,11 +103,10 @@ def run_mine_lingua(
     interactive: bool = False
 ) -> List[Dict[str, Any]]:
     """
-    High-level entry point to mine sentences from Lingua.com:
+    High-level entry point to mine candidate sentences from Lingua.com:
     1. Downloads available PDFs (cached in output_dir).
     2. Extracts candidate sentences (stopping at comprehension questions).
-    3. Deduplicates against the existing database.
-    4. Evaluates CEFR ML levels, lexical scores, and Spanish translations.
+    3. Returns candidate records formatted for the ingestion pipeline.
     """
     print("\n--- Mining French Texts from Lingua.com ---")
     downloaded = download_lingua_pdfs(output_dir=output_dir, limit=limit)
@@ -118,30 +115,25 @@ def run_mine_lingua(
         return []
 
     print(f"\nExtracting sentences from {len(downloaded)} PDFs...")
-    all_raw_sentences = []
+    candidate_records: List[Dict[str, Any]] = []
     for item in downloaded:
         sents = extract_sentences_from_pdf(
             item["path"],
             stop_phrase="Questions de compréhension:"
         )
-        all_raw_sentences.extend(sents)
+        for sent in sents:
+            candidate_records.append({
+                "fr": sent,
+                "es": None,
+                "source": "lingua_pdf",
+                "metadata": {
+                    "title": item.get("title", ""),
+                    "level": item.get("level", ""),
+                },
+            })
 
-    print(f"Extracted {len(all_raw_sentences)} total candidate sentences across all PDFs.")
-    unique_sentences = deduplicate_against_db(all_raw_sentences)
-    print(f"After deduplication against database, {len(unique_sentences)} unique sentences remain.")
-
-    if not unique_sentences:
-        print("No new sentences to process.")
-        return []
-
-    records = process_and_score_sentences(
-        unique_sentences,
-        source_name="lingua_pdf",
-        source_metadata={"total_pdfs": len(downloaded)}
-    )
-
-    print(f"\nSuccessfully mined {len(records)} sentences from Lingua.com.")
-    return records
+    print(f"\nSuccessfully extracted {len(candidate_records)} candidate sentences from Lingua.com.")
+    return candidate_records
 
 
 if __name__ == "__main__":

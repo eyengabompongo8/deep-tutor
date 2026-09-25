@@ -8,8 +8,6 @@ from backend.ingestion.pipeline.common import (
     get_spacy_nlp,
     format_sentence,
     is_valid_sentence,
-    deduplicate_against_db,
-    process_and_score_sentences,
 )
 
 
@@ -99,34 +97,24 @@ def run_mine_catie_conversations(
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
-    Mines everyday spoken sentences from CATIE-AQ conversations:
-    1. Unpacks conversational turns and segments them with spaCy.
-    2. Filters out conversational boilerplate and non-metric artifacts.
-    3. Deduplicates against existing database sentences using MinHash LSH.
-    4. Evaluates CEFR ML levels, lexical scores, and Spanish translations.
+    Extracts everyday spoken sentences from CATIE-AQ conversations and returns
+    candidate records without scoring or translation.
     """
     print("\n--- Mining Spoken French (CATIE-AQ Everyday Conversations) ---")
     candidates = extract_sentences_from_conversations(limit=limit)
     print(f"Found {len(candidates)} candidate sentences from everyday conversations.")
 
-    if not candidates:
-        print("No candidate sentences extracted.")
-        return []
+    records = [
+        {
+            "fr": sent,
+            "es": None,
+            "source": "hf_catie_conversations",
+            "metadata": {"dataset": "CATIE-AQ/everyday-conversations-llama3.1-2k-in-french"},
+        }
+        for sent in candidates
+    ]
 
-    unique_sentences = deduplicate_against_db(candidates)
-    print(f"After deduplication against database, {len(unique_sentences)} unique sentences remain.")
-
-    if not unique_sentences:
-        print("No new sentences to process.")
-        return []
-
-    records = process_and_score_sentences(
-        unique_sentences,
-        source_name="hf_catie_conversations",
-        source_metadata={"dataset": "CATIE-AQ/everyday-conversations-llama3.1-2k-in-french"}
-    )
-
-    print(f"Successfully mined and prepared {len(records)} sentences from everyday conversations.")
+    print(f"Successfully extracted {len(records)} candidate records from everyday conversations.")
     return records
 
 

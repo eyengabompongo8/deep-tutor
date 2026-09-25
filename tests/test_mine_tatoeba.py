@@ -29,10 +29,6 @@ def test_format_sentence_with_tatoeba_artifacts():
 
 
 def test_multi_sentence_parallel_discard():
-    mock_engine = MagicMock()
-    mock_engine.score_sentences_ml_batch.return_value = [{"level": "A1", "score": 1.0}]
-    mock_engine.score_sentence.return_value = ("A1", 0.5, {})
-
     # Mock file reading returning a pair with 2 sentences in French vs 1 in Spanish
     mock_pairs = [
         # Multi-sentence French -> should be discarded
@@ -45,9 +41,8 @@ def test_multi_sentence_parallel_discard():
     get_spacy_nlp()
 
     with patch("os.path.exists", return_value=True), \
-         patch("os.makedirs") as mock_makedirs, \
-         patch("backend.ingestion.pipeline.mine_tatoeba.open") as mock_open, \
-         patch("backend.ingestion.pipeline.mine_tatoeba.VocabEngine", return_value=mock_engine):
+         patch("os.makedirs"), \
+         patch("backend.ingestion.pipeline.mine_tatoeba.open") as mock_open:
         
         # Mock file lines
         cm_es = MagicMock()
@@ -64,35 +59,32 @@ def test_multi_sentence_parallel_discard():
         assert records[0]["fr"] == "Bonjour à tous."
         assert records[0]["es"] == "Buenos días a todos."
         assert records[0]["source"] == "tatoeba_parallel"
+        assert records[0]["metadata"] == {}
 
 
-@patch("backend.ingestion.pipeline.mine_tatoeba.process_and_score_sentences")
-@patch("backend.ingestion.pipeline.mine_tatoeba.deduplicate_against_db")
 @patch("backend.ingestion.pipeline.mine_tatoeba._download_file")
 @patch("bz2.open")
 def test_monolingual_multi_sentence_split(
     mock_bz2_open,
     mock_download,
-    mock_dedup,
-    mock_process_and_score
 ):
     # A single record containing two sentences
     file_content = "1\tfra\tBonjour tout le monde. Il fait très beau aujourd'hui.\n"
     mock_bz2_open.return_value.__enter__.return_value = file_content.splitlines(keepends=True)
-    
-    mock_dedup.side_effect = lambda sents: sents
-    mock_process_and_score.return_value = [
-        {"fr": "Bonjour tout le monde.", "es": "Hola a todos.", "level": "A1", "score": 1.0, "score_lexical": 0.5, "score_ml": 1.0, "source": "tatoeba_monolingual"},
-        {"fr": "Il fait très beau aujourd'hui.", "es": "Hace muy buen tiempo hoy.", "level": "A2", "score": 1.5, "score_lexical": 0.8, "score_ml": 1.5, "source": "tatoeba_monolingual"}
-    ]
 
     with patch("os.path.exists", return_value=True):
         records = mine_tatoeba_monolingual(max_per_level=10)
 
     assert len(records) == 2
     assert records[0]["fr"] == "Bonjour tout le monde."
-    assert records[1]["fr"] == "Il fait très beau aujourd'hui."
+    assert records[0]["es"] is None
     assert records[0]["source"] == "tatoeba_monolingual"
+    assert records[0]["metadata"] == {"dataset": "tatoeba_fra"}
+
+    assert records[1]["fr"] == "Il fait très beau aujourd'hui."
+    assert records[1]["es"] is None
+    assert records[1]["source"] == "tatoeba_monolingual"
+    assert records[1]["metadata"] == {"dataset": "tatoeba_fra"}
 
 
 @patch("backend.ingestion.pipeline.mine_tatoeba.mine_tatoeba_parallel")

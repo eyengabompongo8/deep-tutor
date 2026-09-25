@@ -111,3 +111,68 @@ def test_process_and_score_sentences(mock_translate_batch):
     assert rec["score_ml"] == 1.15
     assert rec["source"] == "test_source"
     assert rec["metadata"] == {"file": "test.pdf"}
+
+
+def test_deduplicate_candidate_records():
+    mock_dm = MagicMock()
+    mock_dm.get_all_sentences.return_value = [
+        {"fr": "Je m'appelle Jessica."}
+    ]
+
+    candidates = [
+        {"fr": "Je m'appelle Jessica.", "es": "Me llamo Jessica.", "source": "tatoeba_parallel"},
+        {"fr": "Je suis une fille très gentille.", "es": None, "source": "mono"},
+        # Duplicate with Spanish translation should take priority over the one without
+        {"fr": "Je suis une fille très gentille.", "es": "Soy una chica muy simpática.", "source": "parallel"},
+        {"fr": "Une autre phrase complètement nouvelle.", "es": None, "source": "pdf"},
+    ]
+
+    from backend.ingestion.pipeline.common import deduplicate_candidate_records
+    unique = deduplicate_candidate_records(candidates, data_manager=mock_dm)
+
+    assert len(unique) == 2
+    # Ensure the duplicate that survived is the one with Spanish translation
+    simp = next(r for r in unique if r["fr"] == "Je suis une fille très gentille.")
+    assert simp["es"] == "Soy una chica muy simpática."
+    assert simp["source"] == "parallel"
+
+    autre = next(r for r in unique if r["fr"] == "Une autre phrase complètement nouvelle.")
+    assert autre["es"] is None
+
+
+@patch("backend.ingestion.pipeline.common.translate_batch")
+def test_preprocess_and_score_candidates_selective_translation(mock_translate_batch):
+    mock_translate_batch.return_value = ["Soy una chica muy simpática."]
+
+    mock_engine = MagicMock()
+    mock_engine.score_sentences_ml_batch.return_value = [
+        {"level": "A1", "score": 1.1},
+        {"level": "A2", "score": 2.2},
+    ]
+    mock_engine.score_sentence.side_effect = [
+        ("A1", 1.0, {}),
+        ("A2", 2.0, {}),
+    ]
+
+    candidates = [
+        {"fr": "Bonjour le monde.", "es": "Hola mundo.", "source": "tatoeba_parallel"},
+        {"fr": "Je suis une fille très gentille.", "es": None, "source": "pdf"},
+    ]
+
+    from backend.ingestion.pipeline.common import preprocess_and_score_candidates
+    records = preprocess_and_score_candidates(candidates, engine=mock_engine)
+
+    assert len(records) == 2
+    # First record already had 'es', so translate_batch should not be called with it
+    assert records[0]["fr"] == "Bonjour le monde."
+    assert records[0]["es"] == "Hola mundo."
+    assert records[0]["source"] == "tatoeba_parallel"
+
+    # Second record lacked 'es', so it was translated
+    assert records[1]["fr"] == "Je suis une fille très gentille."
+    assert records[1]["es"] == "Soy una chica muy simpática."
+    assert records[1]["source"] == "pdf"
+
+    # Verify translate_batch was only called with the missing sentence
+    mock_translate_batch.assert_called_once_with(["Je suis une fille très gentille."], batch_size=16)
+
