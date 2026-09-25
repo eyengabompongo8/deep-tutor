@@ -24,6 +24,8 @@ def main():
     parser.add_argument("--clear-db", action="store_true", help="Clear all sentences and lexema links from the database")
     parser.add_argument("--seed-lexemas", action="store_true", help="Seed the lexemas catalog table from flelex_beacco.tsv")
     parser.add_argument("--mine-tatoeba", action="store_true", help="Mine and score sentences from Tatoeba dataset")
+    parser.add_argument("--tatoeba-mode", type=str, choices=["parallel", "monolingual", "both"], default="both", help="Tatoeba mining mode: parallel (fra-spa), monolingual (fra + MarianMT), or both (default: both)")
+    parser.add_argument("--tatoeba-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine/extract from Tatoeba")
     parser.add_argument("--mine-pdf", type=str, metavar="PATH", help="Mine, score, and translate sentences from a monolingual French PDF")
     parser.add_argument("--mine-hf", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
     parser.add_argument("--mine-lingua", action="store_true", help="Download and mine sentences from Lingua.com learner PDFs")
@@ -93,7 +95,11 @@ def main():
         print("\n" + "="*50)
         print("STEP: Mining Tatoeba Sentences")
         print("="*50)
-        tatoeba_sentences = run_mine_tatoeba(max_per_level=1200)
+        tatoeba_sentences = run_mine_tatoeba(
+            mode=args.tatoeba_mode,
+            max_per_level=1200,
+            limit=args.tatoeba_limit
+        )
         mined_sentences.extend(tatoeba_sentences)
 
     # 5. Mine PDF
