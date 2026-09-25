@@ -97,7 +97,6 @@ def main():
         print("="*50)
         tatoeba_sentences = run_mine_tatoeba(
             mode=args.tatoeba_mode,
-            max_per_level=1200,
             limit=args.tatoeba_limit
         )
         mined_sentences.extend(tatoeba_sentences)

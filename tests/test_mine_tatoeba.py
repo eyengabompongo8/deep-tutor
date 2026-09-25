@@ -57,7 +57,7 @@ def test_multi_sentence_parallel_discard():
         
         mock_open.side_effect = [cm_es, cm_fr]
 
-        records = mine_tatoeba_parallel(max_per_level=10)
+        records = mine_tatoeba_parallel()
 
         # Only the clean single sentence should remain
         assert len(records) == 1
@@ -87,7 +87,7 @@ def test_monolingual_multi_sentence_split(
     ]
 
     with patch("os.path.exists", return_value=True):
-        records = mine_tatoeba_monolingual(max_per_level=10)
+        records = mine_tatoeba_monolingual()
 
     assert len(records) == 2
     assert records[0]["fr"] == "Bonjour tout le monde."

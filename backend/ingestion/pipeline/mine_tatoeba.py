@@ -77,7 +77,6 @@ def get_sentence_count(text: str, nlp=None) -> int:
 
 
 def mine_tatoeba_parallel(
-    max_per_level: int = 1200,
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
@@ -207,16 +206,17 @@ def mine_tatoeba_parallel(
         score_ml = ml_res["score"]
         _, lex_score, _ = engine.score_sentence(fr)
 
-        if len(buckets[level]) < max_per_level:
-            buckets[level].append({
-                "es": es,
-                "fr": fr,
-                "level": level,
-                "score": float(score_ml),
-                "score_lexical": float(lex_score),
-                "score_ml": float(score_ml),
-                "source": "tatoeba_parallel"
-            })
+        if level not in buckets:
+            buckets[level] = []
+        buckets[level].append({
+            "es": es,
+            "fr": fr,
+            "level": level,
+            "score": float(score_ml),
+            "score_lexical": float(lex_score),
+            "score_ml": float(score_ml),
+            "source": "tatoeba_parallel"
+        })
 
     total_parallel = sum(len(v) for v in buckets.values())
     print(f"\nTatoeba parallel sentences harvested ({total_parallel} total):")
@@ -231,7 +231,6 @@ def mine_tatoeba_parallel(
 
 
 def mine_tatoeba_monolingual(
-    max_per_level: int = 1200,
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
@@ -302,12 +301,13 @@ def mine_tatoeba_monolingual(
         engine=engine
     )
 
-    # Filter to max_per_level
+    # Group into buckets for reporting
     buckets = {"A1": [], "A2": [], "B1": [], "B2": [], "C1": [], "C2": []}
     for rec in records:
         lvl = rec.get("level", "A1")
-        if lvl in buckets and len(buckets[lvl]) < max_per_level:
-            buckets[lvl].append(rec)
+        if lvl not in buckets:
+            buckets[lvl] = []
+        buckets[lvl].append(rec)
 
     level_order = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
     balanced_records = []
@@ -322,7 +322,6 @@ def mine_tatoeba_monolingual(
 
 def run_mine_tatoeba(
     mode: str = "both",
-    max_per_level: int = 1200,
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
@@ -339,11 +338,11 @@ def run_mine_tatoeba(
 
     results = []
     if mode in ("parallel", "both"):
-        par_results = mine_tatoeba_parallel(max_per_level=max_per_level, limit=limit)
+        par_results = mine_tatoeba_parallel(limit=limit)
         results.extend(par_results)
 
     if mode in ("monolingual", "both"):
-        mono_results = mine_tatoeba_monolingual(max_per_level=max_per_level, limit=limit)
+        mono_results = mine_tatoeba_monolingual(limit=limit)
         results.extend(mono_results)
 
     print(f"\nTotal Tatoeba records harvested across selected mode ({mode}): {len(results)}")
