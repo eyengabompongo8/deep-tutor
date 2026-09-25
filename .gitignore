@@ -45,6 +45,8 @@ data/audio_cache/
 # Large raw datasets and runtime user profile
 data/raw/
 data/user_profile.json
+data/lexique/Lexique4/
+data/lexique/__MACOSX/
 
 # IDE & OS metadata
 .DS_Store

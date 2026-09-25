@@ -104,7 +104,7 @@ def get_sentence_hint(req: HintRequest):
         reference_text=req.reference_text,
         selected_indices=req.selected_indices,
         sentence_id=req.sentence_id,
-        first_time_lemmas=req.first_time_lexemas,
+        first_time_lemmas=req.first_time_lemmas or req.first_time_lexemas,
     )
 
 
@@ -113,13 +113,13 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
     if req.is_skipped or not req.student_text.strip():
         vocab_progress = []
         try:
-            vocab_progress = deps.data_manager.record_lexema_appearances(
+            vocab_progress = deps.data_manager.record_token_appearances(
                 user_id=req.user_id or "default_user",
                 sentence_id=req.sentence_id,
                 is_success=False,
             )
         except Exception as exc:
-            logger.warning("Failed recording skipped lexema appearance: %s", exc)
+            logger.warning("Failed recording skipped token appearance: %s", exc)
 
         return {
             "sentence_id": req.sentence_id,
@@ -162,17 +162,17 @@ def evaluate_single_sentence(req: EvaluateSingleRequest):
         quality = _safe_float(eval_data.get("quality", 0.0), 0.0)
         composite_score = round(quality * 100.0, 1)
 
-        # Record lexema appearances and mastery for progressive vocabulary unlock
+        # Record token appearances and mastery for progressive vocabulary unlock
         vocab_progress = []
         try:
             is_success = is_correct
-            vocab_progress = deps.data_manager.record_lexema_appearances(
+            vocab_progress = deps.data_manager.record_token_appearances(
                 user_id=req.user_id or "default_user",
                 sentence_id=req.sentence_id,
                 is_success=is_success,
             )
         except Exception as exc:
-            logger.warning("Failed recording lexema appearances: %s", exc)
+            logger.warning("Failed recording token appearances: %s", exc)
 
         mapping_data_student = result.get("mapping_data")
         mapping_data_ref = result.get("mapping_data_ref")
@@ -262,17 +262,17 @@ def evaluate_transcription_sentence(req: EvaluateTranscriptionRequest):
     result["sentence_id"] = req.sentence_id
     result["is_skipped"] = req.is_skipped
 
-    # Record lexema appearances for familiar words practiced in transcription
+    # Record token appearances for familiar words practiced in transcription
     vocab_progress = []
     try:
         is_success = (not req.is_skipped) and (result.get("quality", 0.0) >= 0.60)
-        vocab_progress = deps.data_manager.record_lexema_appearances(
+        vocab_progress = deps.data_manager.record_token_appearances(
             user_id=req.user_id or "default_user",
             sentence_id=req.sentence_id,
             is_success=is_success,
         )
     except Exception as exc:
-        logger.warning("Failed recording transcription lexema appearances: %s", exc)
+        logger.warning("Failed recording transcription token appearances: %s", exc)
     result["vocabulary_progress"] = vocab_progress
 
     return result

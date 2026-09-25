@@ -44,7 +44,7 @@ class TestIngestionLexemaFilter:
         lexemas_to_seed = [
             {"lemma": "le", "pos": "DET", "level": "A1", "is_base": 1},
             {"lemma": "chat", "pos": "NOUN", "level": "A1", "is_base": 0},
-            {"lemma": "dormir", "pos": "VERB", "level": "A1", "is_base": 0},
+            {"lemma": "dort", "pos": "ADJ", "level": "A1", "is_base": 0},
         ]
         dm.bulk_upsert_lexemas(lexemas_to_seed)
 
@@ -76,7 +76,7 @@ class TestIngestionLexemaFilter:
         lemmas_linked = {l["lemma"] for l in links}
         assert "le" in lemmas_linked
         assert "chat" in lemmas_linked
-        assert "dormir" in lemmas_linked
+        assert "dort" in lemmas_linked
 
     def test_filter_sentences_with_missing_word_skipped(self, temp_db):
         """Sentences containing even a single word without a DB lexema are completely skipped."""
@@ -87,7 +87,7 @@ class TestIngestionLexemaFilter:
         dm.bulk_upsert_lexemas([
             {"lemma": "le", "pos": "DET", "level": "A1", "is_base": 1},
             {"lemma": "chat", "pos": "NOUN", "level": "A1", "is_base": 0},
-            {"lemma": "dormir", "pos": "VERB", "level": "A1", "is_base": 0},
+            {"lemma": "dort", "pos": "ADJ", "level": "A1", "is_base": 0},
         ])
 
         candidates = [
@@ -171,8 +171,8 @@ class TestIngestionLexemaFilter:
         dm, _ = temp_db
         engine = VocabEngine()
 
-        lemma_pos_to_id = {("maison", "NOUN"): 1, ("grand", "ADJ"): 2, ("la", "DET"): 3, ("être", "AUX"): 4}
-        lemma_fallback_to_id = {"maison": 1, "grand": 2, "la": 3, "être": 4}
+        lemma_pos_to_id = {("maison", "NOUN"): 1, ("grand", "ADJ"): 2, ("le", "DET"): 3, ("être", "AUX"): 4}
+        lemma_fallback_to_id = {"maison": 1, "grand": 2, "le": 3, "être": 4}
 
         # Empty string
         valid, ids = engine.is_sentence_fully_covered("", lemma_pos_to_id, lemma_fallback_to_id)
@@ -202,7 +202,7 @@ class TestIngestionLexemaFilter:
             {"lemma": "le", "pos": "DET", "level": "A1", "is_base": 1},
             {"lemma": "chat", "pos": "NOUN", "level": "A1", "is_base": 0},
             {"lemma": "chien", "pos": "NOUN", "level": "A1", "is_base": 0},
-            {"lemma": "dormir", "pos": "VERB", "level": "A1", "is_base": 0},
+            {"lemma": "dort", "pos": "ADJ", "level": "A1", "is_base": 0},
         ])
 
         candidates = [
@@ -229,7 +229,7 @@ class TestIngestionLexemaFilter:
 
         candidates = [
             # Common everyday French sentences
-            {"fr": "Le soleil brille dans le ciel.", "es": "El sol brilla en el cielo.", "level": "A1", "score_lexical": 1.0},
+            {"fr": "Je mange une pomme.", "es": "Como una manzana.", "level": "A1", "score_lexical": 1.0},
             {"fr": "Je voudrais un café s'il vous plaît.", "es": "Quisiera un café por favor.", "level": "A1", "score_lexical": 1.0},
             # Sentence with invented / non-existent French words
             {"fr": "Le blubzorp florpait tranquillement.", "es": "El alien caminaba tranquilamente.", "level": "A1", "score_lexical": 1.0},
@@ -240,7 +240,23 @@ class TestIngestionLexemaFilter:
 
         stored = dm.get_all_sentences()
         stored_texts = [s["fr"] for s in stored]
-        assert "Le soleil brille dans le ciel." in stored_texts
+        assert "Je mange une pomme." in stored_texts
         assert "Je voudrais un café s'il vous plaît." in stored_texts
         assert "Le blubzorp florpait tranquillement." not in stored_texts
+
+        # Verify lemmas and words junction links
+        sent_pomme = next(s for s in stored if s["fr"] == "Je mange une pomme.")
+        lemma_links = dm.get_sentence_lemmas(sent_pomme["id"])
+        lemmas_found = {l["lemma"] for l in lemma_links}
+        assert "je" in lemmas_found
+        assert "manger" in lemmas_found
+        assert "un" in lemmas_found
+        assert "pomme" in lemmas_found
+
+        word_links = dm.get_sentence_words(sent_pomme["id"])
+        words_found = {w["word"] for w in word_links}
+        assert "je" in words_found
+        assert "mange" in words_found
+        assert "une" in words_found
+        assert "pomme" in words_found
 

@@ -227,3 +227,79 @@ class TestDataManager:
         assert b_settings["transcription_retry"] is True
         assert b_settings["blind_retry"] is False
         assert b_settings["active_mode"] == "translation"
+
+    def test_vocabulary_lemmas_and_words(self, temp_db_path):
+        dm = DataManager(db_path=temp_db_path)
+
+        # 1. Upsert lemmas
+        l1 = dm.upsert_lemma(lemma="manger", pos="VERB", level="A1", is_base=True)
+        l2 = dm.upsert_lemma(lemma="pomme", pos="NOUN", level="A1", is_base=False)
+        assert l1 > 0
+        assert l2 > 0
+
+        # Bulk upsert lemmas
+        bulk_res = dm.bulk_upsert_lemmas([
+            {"lemma": "rouge", "pos": "ADJ", "level": "A1", "is_base": False},
+            {"lemma": "manger", "pos": "VERB", "level": "A1", "is_base": True},
+        ])
+        assert ("rouge", "ADJ") in bulk_res
+        l3 = bulk_res[("rouge", "ADJ")]
+
+        # Test lemmas dict cache
+        lemmas_dict = dm.get_lemmas_dict()
+        assert l1 in lemmas_dict
+        assert lemmas_dict[l1]["lemma"] == "manger"
+        assert lemmas_dict[l1]["pos"] == "VERB"
+        assert lemmas_dict[l1]["is_base"] is True
+
+        # 2. Upsert words
+        w1 = dm.upsert_word(word="mange", lemma_id=l1, pos="VERB")
+        w2 = dm.upsert_word(word="pommes", lemma_id=l2, pos="NOUN")
+        assert w1 > 0
+        assert w2 > 0
+
+        # Bulk upsert words
+        w_bulk = dm.bulk_upsert_words([
+            {"word": "rouges", "lemma_id": l3, "pos": "ADJ"}
+        ])
+        assert ("rouges", l3, "ADJ") in w_bulk
+        w3 = w_bulk[("rouges", l3, "ADJ")]
+
+        # 3. Add sentence and link lemmas & words
+        sent = dm.add_sentence(fr="Je mange des pommes rouges", es="Como manzanas rojas", level="A1")
+        sent_id = sent["id"]
+
+        dm.link_sentence_lemmas(sent_id, [l1, l2, l3])
+        dm.link_sentence_words(sent_id, [w1, w2, w3])
+
+        # Test sentence retrieval
+        sent_lemmas = dm.get_sentence_lemmas(sent_id)
+        assert len(sent_lemmas) == 3
+        sent_lemma_names = {r["lemma"] for r in sent_lemmas}
+        assert sent_lemma_names == {"manger", "pomme", "rouge"}
+
+        sent_words = dm.get_sentence_words(sent_id)
+        assert len(sent_words) == 3
+        sent_word_names = {r["word"] for r in sent_words}
+        assert sent_word_names == {"mange", "pommes", "rouges"}
+
+        # 4. Record token appearances
+        progress = dm.record_token_appearances(user_id="default_user", sentence_id=sent_id, is_success=True)
+        assert len(progress) == 3
+
+        # Check user_lemmas and user_words
+        with dm._get_connection() as conn:
+            ul_rows = conn.execute("SELECT lemma_id, appearance_count, success_count FROM user_lemmas WHERE user_id = 'default_user';").fetchall()
+            assert len(ul_rows) == 3
+            assert all(r["appearance_count"] == 1 and r["success_count"] == 1 for r in ul_rows)
+
+            uw_rows = conn.execute("SELECT word_id, appearance_count, success_count FROM user_words WHERE user_id = 'default_user';").fetchall()
+            assert len(uw_rows) == 3
+            assert all(r["appearance_count"] == 1 and r["success_count"] == 1 for r in uw_rows)
+
+        # 5. Known lemmas
+        known_ids = dm.get_user_known_lemma_ids(user_id="default_user", target_level="A1")
+        assert l1 in known_ids
+        assert l2 in known_ids
+        assert l3 in known_ids
+

@@ -23,37 +23,40 @@ SYSTEM_COLUMNS = {
 class DBConnection:
     def __init__(self, db_path: Optional[str] = None):
         self.db_path = db_path or DB_PATH
-        self._lexemas_cache: Optional[Dict[int, Dict[str, Any]]] = None
-        self._lexemas_cache_lock = threading.Lock()
+        self._lemmas_cache: Optional[Dict[int, Dict[str, Any]]] = None
+        self._lemmas_cache_lock = threading.Lock()
         os.makedirs(os.path.dirname(os.path.abspath(self.db_path)), exist_ok=True)
         self._init_db()
+
+    @property
+    def _lexemas_cache(self) -> Optional[Dict[int, Dict[str, Any]]]:
+        return self._lemmas_cache
+
+    @_lexemas_cache.setter
+    def _lexemas_cache(self, value: Optional[Dict[int, Dict[str, Any]]]):
+        self._lemmas_cache = value
+
+    @property
+    def _lexemas_cache_lock(self) -> threading.Lock:
+        return self._lemmas_cache_lock
 
     @contextmanager
     def _get_connection(self):
         conn = None
         try:
-            conn = sqlite3.connect(self.db_path, timeout=15.0)
+            try:
+                conn = sqlite3.connect(self.db_path, timeout=15.0)
+            except sqlite3.OperationalError as e:
+                if os.path.exists(self.db_path):
+                    uri_path = f"file:{os.path.abspath(self.db_path)}?immutable=1"
+                    conn = sqlite3.connect(uri_path, uri=True, timeout=15.0)
+                else:
+                    raise e
             conn.row_factory = sqlite3.Row
             conn.execute("PRAGMA busy_timeout = 10000;")
             conn.execute("PRAGMA foreign_keys = ON;")
             yield conn
             conn.commit()
-        except sqlite3.OperationalError as e:
-            if conn:
-                try:
-                    conn.rollback()
-                    conn.close()
-                except Exception:
-                    pass
-                conn = None
-            if os.path.exists(self.db_path):
-                uri_path = f"file:{os.path.abspath(self.db_path)}?immutable=1"
-                conn = sqlite3.connect(uri_path, uri=True, timeout=15.0)
-                conn.row_factory = sqlite3.Row
-                yield conn
-                conn.close()
-                return
-            raise e
         except Exception:
             if conn:
                 try:
@@ -95,14 +98,14 @@ class DBConnection:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 fr TEXT NOT NULL,
                 es TEXT NOT NULL,
-                level TEXT NOT NULL DEFAULT 'A1',
+                level TEXT NOT NULL DEFAULT 'A1' COLLATE NOCASE,
                 score_lexical REAL NOT NULL DEFAULT 1.0,
                 score_ml REAL DEFAULT NULL,
                 source TEXT NOT NULL DEFAULT 'custom',
                 metadata TEXT DEFAULT '{}'
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_level ON sentences(level);")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_level ON sentences(level COLLATE NOCASE);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_score_lexical ON sentences(score_lexical);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_score_ml ON sentences(score_ml);")
 
@@ -114,12 +117,12 @@ class DBConnection:
             );
         """)
 
-        # Lexemas table (canonical French word roots)
+        # Lemmas table (canonical French word roots)
         conn.execute("""
-            CREATE TABLE IF NOT EXISTS lexemas (
+            CREATE TABLE IF NOT EXISTS lemmas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 lemma TEXT NOT NULL,
-                pos TEXT DEFAULT NULL,
+                pos TEXT NOT NULL,
                 level TEXT NOT NULL DEFAULT 'A1',
                 frequency REAL DEFAULT 0.0,
                 is_base BOOLEAN NOT NULL DEFAULT 0,
@@ -128,35 +131,84 @@ class DBConnection:
                 UNIQUE(lemma, pos)
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_lexemas_lemma ON lexemas(lemma);")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_lexemas_level ON lexemas(level);")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_lexemas_is_base ON lexemas(is_base);")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_pos ON lemmas(pos);")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_level ON lemmas(level);")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_is_base ON lemmas(is_base);")
 
-        # Sentence-Lexemas junction table
+        # Words table (inflected surface forms linked to lemmas)
         conn.execute("""
-            CREATE TABLE IF NOT EXISTS sentence_lexemas (
-                sentence_id INTEGER NOT NULL,
-                lexema_id INTEGER NOT NULL,
-                PRIMARY KEY (sentence_id, lexema_id),
-                FOREIGN KEY (sentence_id) REFERENCES sentences(id) ON DELETE CASCADE,
-                FOREIGN KEY (lexema_id) REFERENCES lexemas(id) ON DELETE CASCADE
+            CREATE TABLE IF NOT EXISTS words (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                word TEXT NOT NULL,
+                lemma_id INTEGER NOT NULL,
+                pos TEXT NOT NULL,
+                frequency REAL DEFAULT 0.0,
+                metadata TEXT DEFAULT '{}',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (lemma_id) REFERENCES lemmas(id) ON DELETE CASCADE,
+                UNIQUE(word, lemma_id, pos)
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentence_lexemas_sentence ON sentence_lexemas(sentence_id);")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentence_lexemas_lexema ON sentence_lexemas(lexema_id);")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_words_pos ON words(pos);")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_words_lemma_id ON words(lemma_id);")
 
-        # User lexema tracking & appearance counts
+        # Sentence-Lemmas junction table
         conn.execute("""
-            CREATE TABLE IF NOT EXISTS user_lexema_counts (
+            CREATE TABLE IF NOT EXISTS sentence_lemmas (
+                sentence_id INTEGER NOT NULL,
+                lemma_id INTEGER NOT NULL,
+                PRIMARY KEY (sentence_id, lemma_id),
+                FOREIGN KEY (sentence_id) REFERENCES sentences(id) ON DELETE CASCADE,
+                FOREIGN KEY (lemma_id) REFERENCES lemmas(id) ON DELETE CASCADE
+            );
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentence_lemmas_lemma ON sentence_lemmas(lemma_id);")
+
+        # Sentence-Words junction table
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS sentence_words (
+                sentence_id INTEGER NOT NULL,
+                word_id INTEGER NOT NULL,
+                PRIMARY KEY (sentence_id, word_id),
+                FOREIGN KEY (sentence_id) REFERENCES sentences(id) ON DELETE CASCADE,
+                FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE
+            );
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentence_words_word ON sentence_words(word_id);")
+
+        # User lemma tracking & appearance counts
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_lemmas (
                 user_id TEXT NOT NULL,
-                lexema_id INTEGER NOT NULL,
+                lemma_id INTEGER NOT NULL,
                 level TEXT DEFAULT 'A1',
                 appearance_count INTEGER NOT NULL DEFAULT 0,
                 success_count INTEGER NOT NULL DEFAULT 0,
-                PRIMARY KEY (user_id, lexema_id),
+                PRIMARY KEY (user_id, lemma_id),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY (lexema_id) REFERENCES lexemas(id) ON DELETE CASCADE
+                FOREIGN KEY (lemma_id) REFERENCES lemmas(id) ON DELETE CASCADE
             );
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_user_lemmas_user_success ON user_lemmas(user_id, success_count, lemma_id);")
+
+        # User word tracking & appearance counts
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_words (
+                user_id TEXT NOT NULL,
+                word_id INTEGER NOT NULL,
+                appearance_count INTEGER NOT NULL DEFAULT 0,
+                success_count INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (user_id, word_id),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE
+            );
+        """)
+
+        # Compatibility view for user_lexema_counts
+        conn.execute("""
+            CREATE VIEW IF NOT EXISTS user_lexema_counts AS
+            SELECT user_id, lemma_id AS lexema_id, level, appearance_count, success_count
+            FROM user_lemmas;
         """)
 
         # User modes table for separate exercise mode tracking
@@ -174,7 +226,6 @@ class DBConnection:
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_user_modes_user ON user_modes(user_id);")
 
         # Exercise history table for tracking progress and batches
         conn.execute("""
@@ -229,7 +280,31 @@ class DBConnection:
         """)
 
     def _run_migrations(self, conn: sqlite3.Connection):
-        pass
+        try:
+            # 1. Drop redundant indexes if they exist
+            redundant_indexes = [
+                "idx_sentence_lemmas_sentence",
+                "idx_sentence_words_sentence",
+                "idx_user_lemmas_user",
+                "idx_user_words_user",
+                "idx_user_modes_user",
+                "idx_lemmas_lemma",
+                "idx_words_word",
+            ]
+            for idx_name in redundant_indexes:
+                conn.execute(f"DROP INDEX IF EXISTS {idx_name};")
+
+            # 2. Recreate sentences(level) index with COLLATE NOCASE
+            conn.execute("DROP INDEX IF EXISTS idx_sentences_level;")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_level ON sentences(level COLLATE NOCASE);")
+
+            # 3. Create composite covering index for user_lemmas CTE lookup
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_user_lemmas_user_success
+                ON user_lemmas(user_id, success_count, lemma_id);
+            """)
+        except Exception:
+            pass
 
         # Dynamic migration check for user_settings columns
         try:

@@ -11,9 +11,6 @@ from typing import List, Dict, Any, Optional, Set, Tuple
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
-FLELEX_PATH = os.path.join(DATA_DIR, 'flelex_beacco.tsv')
-LEXIQUE_DIR = os.path.join(DATA_DIR, 'lexique')
-LEXIQUE_FILE = os.path.join(LEXIQUE_DIR, 'Lexique383.tsv')
 
 # CEFR level mappings
 LEVELS_VAL = {'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6}
@@ -21,33 +18,25 @@ VAL_TO_LEVEL = {1: 'A1', 2: 'A2', 3: 'B1', 4: 'B2', 5: 'C1', 6: 'C2'}
 
 from backend.config import DEFAULT_UNLOCKED_WORDS as A1_WORDS
 
-# POS Tag mapping from spaCy POS to Lexique383 cgram
-SPACY_TO_LEXIQUE_POS = {
+SPACY_TO_LEXIQUE_CGRAM: Dict[str, List[str]] = {
+    'NOUN': ['NOM'],
+    'PROPN': ['NOM'],
     'VERB': ['VER', 'AUX'],
     'AUX': ['AUX', 'VER'],
-    'NOUN': ['NOM'],
-    'ADJ': ['ADJ', 'ADJ:num', 'ADJ:pos', 'ADJ:dem', 'ADJ:ind'],
+    'ADJ': ['ADJ', 'ADJ:dem', 'ADJ:ind', 'ADJ:int', 'ADJ:num', 'ADJ:pos'],
     'ADV': ['ADV'],
-    'PRON': ['PRO:per', 'PRO:pos', 'PRO:dem', 'PRO:ind', 'PRO:rel', 'PRO'],
-    'DET': ['ART:def', 'ART:ind', 'ART', 'ADJ:pos', 'ADJ:dem'],
     'ADP': ['PRE'],
     'CCONJ': ['CON'],
     'SCONJ': ['CON'],
-    'NUM': ['ADJ:num', 'NOM']
+    'PRON': ['PRO:per', 'PRO:dem', 'PRO:ind', 'PRO:pos', 'PRO:rel', 'PRO:int', 'PRO'],
+    'DET': ['ART:def', 'ART:ind', 'ADJ:pos', 'ADJ:dem', 'ADJ:ind', 'ART'],
+    'INTJ': ['ONO', 'ADV', 'NOM'],
+    'NUM': ['ADJ:num', 'NOM'],
 }
-
 
 
 class VocabEngine:
     def __init__(self):
-        self.flelex_data = {}        # lemma -> {'level': str, 'score': int, 'freq': float}
-        self.lexique_pos_lemma = {}  # (ortho, cgram) -> (lemme, freq)
-        self.lexique_best_lemma = {} # ortho -> (lemme, freq)
-
-        self._ensure_resources()
-        self._load_lexique()
-        self._load_flelex()
-
         try:
             self.nlp = spacy.load('fr_core_news_sm')
         except OSError:
@@ -55,95 +44,10 @@ class VocabEngine:
             os.system(f'{sys.executable} -m spacy download fr_core_news_sm')
             self.nlp = spacy.load('fr_core_news_sm')
 
-    def _ensure_resources(self):
-        os.makedirs(DATA_DIR, exist_ok=True)
-        os.makedirs(LEXIQUE_DIR, exist_ok=True)
-
-        if not os.path.exists(FLELEX_PATH):
-            print("Downloading FLELex / CEFRLex (Beacco)...")
-            url = 'https://cental.uclouvain.be/cefrlex/static/resources/fr/FleLex_TT_Beacco.tsv'
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req) as resp, open(FLELEX_PATH, 'wb') as f:
-                f.write(resp.read())
-            print("FLELex dataset downloaded.")
-
-        if not os.path.exists(LEXIQUE_FILE):
-            print("Downloading Lexique383 dataset...")
-            url = 'http://www.lexique.org/databases/Lexique383/Lexique383.zip'
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req) as resp:
-                with zipfile.ZipFile(io.BytesIO(resp.read())) as z:
-                    z.extractall(LEXIQUE_DIR)
-            print("Lexique383 dataset downloaded and extracted.")
-
-    def _load_lexique(self):
-        if not os.path.exists(LEXIQUE_FILE):
-            return
-
-        with open(LEXIQUE_FILE, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f, delimiter='\t')
-            for row in reader:
-                ortho = row['ortho'].lower()
-                lemme = row['lemme'].lower()
-                cgram = row['cgram']
-                try:
-                    freq = float(row.get('freqlemlivres', 0) or 0)
-                except (ValueError, TypeError):
-                    freq = 0.0
-
-                key = (ortho, cgram)
-                if key not in self.lexique_pos_lemma or freq > self.lexique_pos_lemma[key][1]:
-                    self.lexique_pos_lemma[key] = (lemme, freq)
-
-                if ortho not in self.lexique_best_lemma or freq > self.lexique_best_lemma[ortho][1]:
-                    self.lexique_best_lemma[ortho] = (lemme, freq)
-
-    def _load_flelex(self):
-        if not os.path.exists(FLELEX_PATH):
-            return
-
-        with open(FLELEX_PATH, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f, delimiter='\t')
-            for row in reader:
-                word = row['word'].lower()
-                try:
-                    freq = float(row.get('freq_total', 0) or 0)
-                except (ValueError, TypeError):
-                    freq = 0.0
-
-                cefr_levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-                level_freqs = {}
-                total_cefr_freq = 0.0
-                for lvl in cefr_levels:
-                    try:
-                        lvl_freq = float(row.get(f'freq_{lvl}', 0) or 0)
-                    except (ValueError, TypeError):
-                        lvl_freq = 0.0
-                    level_freqs[lvl] = lvl_freq
-                    total_cefr_freq += lvl_freq
-                
-                assigned_lvl = 'C2'
-                if total_cefr_freq > 0:
-                    cum = 0.0
-                    for lvl in cefr_levels:
-                        cum += (level_freqs[lvl] / total_cefr_freq)
-                        if cum >= 0.20:
-                            assigned_lvl = lvl
-                            break
-                else:
-                    assigned_lvl = row.get('level', 'C2').upper()
-                    if assigned_lvl not in LEVELS_VAL:
-                        assigned_lvl = 'C2'
-
-                self.flelex_data[word] = {
-                    'level': assigned_lvl,
-                    'score': LEVELS_VAL[assigned_lvl],
-                    'freq': freq
-                }
-
     def get_word_level(self, tok):
         """
         Computes the CEFR level for an individual spaCy token.
+        Since we no longer cache levels in memory, this just determines the lemma.
         Returns: (cefr_level: str, score_val: int, lemma: str)
         """
         if tok.is_punct or tok.is_space or tok.is_digit:
@@ -153,41 +57,14 @@ class VocabEngine:
         if text_lower in A1_WORDS or tok.pos_ == 'PROPN':
             return 'A1', 1, text_lower
 
-        # Find lemma using POS matching
-        target_cgrams = SPACY_TO_LEXIQUE_POS.get(tok.pos_, [])
-        lemma = None
-        for cg in target_cgrams:
-            if (text_lower, cg) in self.lexique_pos_lemma:
-                lemma = self.lexique_pos_lemma[(text_lower, cg)][0]
-                break
-
-        if not lemma:
-            if text_lower in self.lexique_best_lemma:
-                lemma = self.lexique_best_lemma[text_lower][0]
-            else:
-                lemma = tok.lemma_.lower()
+        lemma = tok.lemma_.lower()
 
         if lemma in A1_WORDS:
             return 'A1', 1, lemma
 
-        # Check FLELex by lemma
-        if lemma in self.flelex_data:
-            info = self.flelex_data[lemma]
-            return info['level'], info['score'], lemma
-
-        # Check FLELex by surface text
-        if text_lower in self.flelex_data:
-            info = self.flelex_data[text_lower]
-            return info['level'], info['score'], text_lower
-
-        # Check spaCy's native lemma
-        spacy_lemma = tok.lemma_.lower()
-        if spacy_lemma in self.flelex_data:
-            info = self.flelex_data[spacy_lemma]
-            return info['level'], info['score'], spacy_lemma
-
-        # Word not found in FLELex dictionary or A1 list: ignore the word
-        return None, None, None
+        # By default we don't have level in memory anymore
+        # The sentence scorer might need a level, so we default to A1 as requested
+        return 'A1', 1, lemma
 
     def score_sentence(self, fr_text):
         """
@@ -286,10 +163,24 @@ class VocabEngine:
         ml_lvl, ml_score, _ = self.score_sentence_ml(fr_text)
         return ml_lvl, ml_score, float(lex_score), breakdown
 
-    def extract_sentence_lexemas(self, fr_text: str) -> List[Dict[str, Any]]:
+    @staticmethod
+    def map_pos_to_cgram(pos: Optional[str]) -> List[str]:
         """
-        Extracts canonical word roots (lexemas) from a French sentence text.
-        Returns a list of unique lexema dicts:
+        Maps a spaCy universal POS tag to Lexique 4 Cgram abbreviations.
+        Returns a list of candidate Cgram strings, plus the original pos as fallback.
+        """
+        if not pos:
+            return []
+        pos_upper = pos.upper().strip()
+        cgrams = list(SPACY_TO_LEXIQUE_CGRAM.get(pos_upper, []))
+        if pos_upper not in cgrams:
+            cgrams.append(pos_upper)
+        return cgrams
+
+    def extract_sentence_lemmas(self, fr_text: str) -> List[Dict[str, Any]]:
+        """
+        Extracts canonical word roots (lemmas) from a French sentence text.
+        Returns a list of unique lemma dicts:
         [{'lemma': str, 'pos': str, 'level': str, 'freq': float, 'is_base': bool}]
         """
         if not fr_text or not fr_text.strip():
@@ -297,7 +188,7 @@ class VocabEngine:
 
         doc = self.nlp(fr_text.strip())
         seen = set()
-        lexemas = []
+        lemmas = []
 
         for tok in doc:
             if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
@@ -320,16 +211,16 @@ class VocabEngine:
 
             # Determine level
             if not lvl or lvl not in LEVELS_VAL:
-                if lemma in self.flelex_data:
+                if hasattr(self, 'flelex_data') and lemma in self.flelex_data:
                     lvl = self.flelex_data[lemma]['level']
                 else:
                     lvl = 'A1' if lemma in A1_WORDS else 'A2'
 
             # Determine frequency from Lexique / FLELex
             freq = 0.0
-            if lemma in self.lexique_best_lemma:
+            if hasattr(self, 'lexique_best_lemma') and lemma in self.lexique_best_lemma:
                 freq = self.lexique_best_lemma[lemma][1]
-            elif lemma in self.flelex_data:
+            elif hasattr(self, 'flelex_data') and lemma in self.flelex_data:
                 freq = self.flelex_data[lemma]['freq']
 
             # Determine if foundational base word (unlocked by default)
@@ -339,7 +230,7 @@ class VocabEngine:
                 (lvl == 'A1' and lemma in ('être', 'avoir', 'aller', 'faire', 'dire', 'pouvoir', 'vouloir', 'voir', 'savoir'))
             )
 
-            lexemas.append({
+            lemmas.append({
                 'lemma': lemma,
                 'pos': pos,
                 'level': lvl,
@@ -347,7 +238,10 @@ class VocabEngine:
                 'is_base': bool(is_base)
             })
 
-        return lexemas
+        return lemmas
+
+    # Alias for backward compatibility
+    extract_sentence_lexemas = extract_sentence_lemmas
 
     def get_token_lemmas(self, fr_text: str) -> List[Tuple[str, str, str, str]]:
         """
@@ -452,17 +346,17 @@ class VocabEngine:
         return pairs
 
 
-    def resolve_token_lexema_id(
+    def resolve_token_lemma_id(
         self,
         tok,
         lemma_pos_to_id: Dict[Tuple[str, Optional[str]], int],
         lemma_fallback_to_id: Dict[str, int]
     ) -> Optional[int]:
         """
-        Resolves a spaCy token to its corresponding database lexema ID.
+        Resolves a spaCy token to its corresponding database lemma ID.
         Uses spaCy's native French lemmatizer (which handles elisions/contractions such as j', l', d', qu'),
-        Lexique383 POS-based mapping, and surface derivations.
-        Returns the integer lexema ID, or None if no matching lexema exists in the database.
+        Lexique 4 Cgram POS-based mapping, and surface derivations.
+        Returns the integer lemma ID, or None if no matching lemma exists in the database.
         """
         if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
             return None
@@ -474,43 +368,93 @@ class VocabEngine:
         text_lower = text_raw.lower()
         clean_text = text_lower.rstrip("'’")
         pos = tok.pos_
+        candidate_cgrams = self.map_pos_to_cgram(pos)
 
         # 1. spaCy native French lemma (handles elisions and contractions like j' -> je, l' -> le, d' -> de, qu' -> que, etc.)
         spacy_lem = tok.lemma_.lower().strip().rstrip("'’")
         if spacy_lem:
-            lid = lemma_pos_to_id.get((spacy_lem, pos)) or lemma_fallback_to_id.get(spacy_lem)
-            if lid:
+            for cgram in candidate_cgrams:
+                lid = lemma_pos_to_id.get((spacy_lem, cgram))
+                if lid is not None:
+                    return lid
+            lid = lemma_fallback_to_id.get(spacy_lem)
+            if lid is not None:
                 return lid
 
         # 2. Candidate lemma from get_word_level (checks Lexique POS, A1 words, FLELex)
         _, _, lvl_lemma = self.get_word_level(tok)
         if lvl_lemma:
             lvl_clean = lvl_lemma.lower().strip().rstrip("'’")
-            lid = lemma_pos_to_id.get((lvl_clean, pos)) or lemma_fallback_to_id.get(lvl_clean)
-            if lid:
-                return lid
-
-        # 3. Lexique POS-specific lookup
-        target_cgrams = SPACY_TO_LEXIQUE_POS.get(pos, [])
-        for cg in target_cgrams:
-            if (clean_text, cg) in self.lexique_pos_lemma:
-                lx_lem = self.lexique_pos_lemma[(clean_text, cg)][0].lower().strip().rstrip("'’")
-                lid = lemma_pos_to_id.get((lx_lem, pos)) or lemma_fallback_to_id.get(lx_lem)
-                if lid:
+            for cgram in candidate_cgrams:
+                lid = lemma_pos_to_id.get((lvl_clean, cgram))
+                if lid is not None:
                     return lid
-
-        # 4. Lexique best lemma lookup
-        if clean_text in self.lexique_best_lemma:
-            lx_lem = self.lexique_best_lemma[clean_text][0].lower().strip().rstrip("'’")
-            lid = lemma_pos_to_id.get((lx_lem, pos)) or lemma_fallback_to_id.get(lx_lem)
-            if lid:
+            lid = lemma_fallback_to_id.get(lvl_clean)
+            if lid is not None:
                 return lid
 
-        # 5. Surface text fallback
-        if clean_text:
-            lid = lemma_pos_to_id.get((clean_text, pos)) or lemma_fallback_to_id.get(clean_text)
-            if lid:
+        # 3. Surface text fallback
+        candidates = [clean_text]
+        if text_lower != clean_text:
+            candidates.append(text_lower)
+
+        for cand in candidates:
+            if not cand:
+                continue
+            for cgram in candidate_cgrams:
+                lid = lemma_pos_to_id.get((cand, cgram))
+                if lid is not None:
+                    return lid
+            lid = lemma_fallback_to_id.get(cand)
+            if lid is not None:
                 return lid
+
+        return None
+
+    # Alias for backward compatibility
+    resolve_token_lexema_id = resolve_token_lemma_id
+
+    def resolve_token_word_id(
+        self,
+        tok,
+        word_pos_to_id: Dict[Tuple[str, Optional[str]], int],
+        word_fallback_to_id: Dict[str, int]
+    ) -> Optional[int]:
+        """
+        Resolves a spaCy token to its corresponding database word ID using surface token text
+        and POS mapped to Lexique 4 Cgram.
+        """
+        if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
+            return None
+
+        text_raw = tok.text.strip()
+        if not text_raw:
+            return None
+
+        text_lower = text_raw.lower()
+        clean_text = text_lower.rstrip("'’")
+        pos = tok.pos_
+        candidate_cgrams = self.map_pos_to_cgram(pos)
+
+        candidates = [text_lower]
+        if clean_text != text_lower:
+            candidates.append(clean_text)
+
+        # De-elision candidate if token starts with elision prefix (e.g. l'arbre -> arbre)
+        de_elision = re.sub(r"^(qu['’]|jusqu['’]|lorsqu['’]|puisqu['’]|[ldjcmnstLDJCMNST]['’])", "", text_lower).strip().rstrip("'’")
+        if de_elision and de_elision not in candidates:
+            candidates.append(de_elision)
+
+        for cand in candidates:
+            if not cand:
+                continue
+            for cgram in candidate_cgrams:
+                wid = word_pos_to_id.get((cand, cgram))
+                if wid is not None:
+                    return wid
+            wid = word_fallback_to_id.get(cand)
+            if wid is not None:
+                return wid
 
         return None
 
@@ -521,10 +465,10 @@ class VocabEngine:
         lemma_fallback_to_id: Dict[str, int]
     ) -> Tuple[bool, List[int]]:
         """
-        Checks whether ALL words in a sentence have a corresponding lexema in the database.
+        Checks whether ALL words in a sentence have a corresponding lemma in the database.
         Returns:
-            is_valid (bool): True if every word has a lexema, False if any word is missing a lexema or sentence has no words.
-            lexema_ids (list[int]): Unique list of lexema IDs for the sentence words.
+            is_valid (bool): True if every word has a lemma, False if any word is missing a lemma or sentence has no words.
+            lemma_ids (list[int]): Unique list of lemma IDs for the sentence words.
         """
         if isinstance(doc_or_text, str):
             if not doc_or_text.strip():
@@ -539,7 +483,7 @@ class VocabEngine:
             if tok.is_punct or tok.is_space or tok.is_digit or tok.pos_ in ('PUNCT', 'SYM', 'SPACE', 'NUM', 'X'):
                 continue
             has_words = True
-            lid = self.resolve_token_lexema_id(tok, lemma_pos_to_id, lemma_fallback_to_id)
+            lid = self.resolve_token_lemma_id(tok, lemma_pos_to_id, lemma_fallback_to_id)
             if lid is None:
                 return False, []
             if lid not in seen_lids:
@@ -547,7 +491,7 @@ class VocabEngine:
 
         return has_words, seen_lids
 
-    def filter_sentences_with_complete_lexemas(
+    def filter_sentences_with_complete_lemmas(
         self,
         sentences: List[Dict[str, Any]],
         data_manager: Any,
@@ -555,18 +499,23 @@ class VocabEngine:
         show_progress: bool = True
     ) -> Tuple[List[Dict[str, Any]], int]:
         """
-        Filters a list of sentences to only include those where EVERY word has a lexema in the database.
-        Sentences with any missing lexema are skipped.
+        Filters a list of sentences to only include those where EVERY word has a lemma in the database.
+        Sentences with any missing lemma are skipped.
         Returns:
-            accepted_sentences (list[dict]): Sentences where all words have DB lexemas.
+            accepted_sentences (list[dict]): Sentences where all words have DB lemmas.
             skipped_count (int): Count of skipped sentences.
         """
         if not sentences:
             return [], 0
 
-        # Load DB lexemas map
+        # Load DB lemmas map (prefer lemmas table, fallback to legacy lexemas if present)
         with data_manager._get_connection() as conn:
-            cursor = conn.execute("SELECT id, lemma, pos FROM lexemas;")
+            has_lemmas = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type IN ('table', 'view') AND name='lemmas';"
+            ).fetchone()
+            table_name = "lemmas" if has_lemmas else "lexemas"
+
+            cursor = conn.execute(f"SELECT id, lemma, pos FROM {table_name};")
             rows = cursor.fetchall()
             lemma_pos_to_id = {}
             lemma_fallback_to_id = {}
@@ -580,7 +529,7 @@ class VocabEngine:
                     lemma_fallback_to_id[lem] = lid
 
         if not lemma_pos_to_id and not lemma_fallback_to_id:
-            # If lexemas table is empty, all sentences are skipped
+            # If lemmas table is empty, all sentences are skipped
             return [], len(sentences)
 
         accepted_sentences = []
@@ -590,7 +539,7 @@ class VocabEngine:
             from tqdm import tqdm
             iterator = range(0, len(sentences), batch_size)
             if show_progress:
-                iterator = tqdm(iterator, desc="Filtering lexema coverage", total=(len(sentences) + batch_size - 1) // batch_size)
+                iterator = tqdm(iterator, desc="Filtering lemma coverage", total=(len(sentences) + batch_size - 1) // batch_size)
         except ImportError:
             iterator = range(0, len(sentences), batch_size)
 
@@ -608,19 +557,26 @@ class VocabEngine:
 
         return accepted_sentences, skipped_count
 
-    def link_sentence_lexemas_to_database(self, data_manager, batch_size: int = 500, verbose: bool = True):
+    # Alias for backward compatibility
+    filter_sentences_with_complete_lexemas = filter_sentences_with_complete_lemmas
+
+    def link_sentence_tokens_to_database(self, data_manager, batch_size: int = 500, verbose: bool = True):
         """
-        Links all sentences in the database to the pre-seeded lexemas table:
-        - Uses pre-seeded lexemas from FLELex (does not insert any new lexemas)
-        - Links sentences to matching lexemas in 'sentence_lexemas'
+        Links all sentences in the database to lemmas and words tables:
+        - Resolves lemma ID and word ID for each sentence token
+        - Bulk links sentence_lemmas and sentence_words
         """
-        # 1. Fetch pre-seeded lexemas lookup map from DB
+        # 1. Fetch lemmas and words lookup maps from DB
         with data_manager._get_connection() as conn:
-            cursor = conn.execute("SELECT id, lemma, pos FROM lexemas;")
-            rows = cursor.fetchall()
+            has_lemmas = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type IN ('table', 'view') AND name='lemmas';"
+            ).fetchone()
+            lemma_tbl = "lemmas" if has_lemmas else "lexemas"
+
+            cursor = conn.execute(f"SELECT id, lemma, pos FROM {lemma_tbl};")
             lemma_pos_to_id = {}
             lemma_fallback_to_id = {}
-            for r in rows:
+            for r in cursor.fetchall():
                 lem = r['lemma']
                 pos = r['pos']
                 lid = r['id']
@@ -629,10 +585,39 @@ class VocabEngine:
                 if lem not in lemma_fallback_to_id:
                     lemma_fallback_to_id[lem] = lid
 
+            has_words = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type IN ('table', 'view') AND name='words';"
+            ).fetchone()
+            word_pos_to_id = {}
+            word_fallback_to_id = {}
+            if has_words:
+                cursor = conn.execute("SELECT id, word, pos, lemma_id FROM words;")
+                for r in cursor.fetchall():
+                    w = r['word']
+                    pos = r['pos']
+                    wid = r['id']
+                    if pos:
+                        word_pos_to_id[(w, pos)] = wid
+                    if w not in word_fallback_to_id:
+                        word_fallback_to_id[w] = wid
+
         # 2. Find sentences that need linking
         with data_manager._get_connection() as conn:
-            cursor = conn.execute("SELECT DISTINCT sentence_id FROM sentence_lexemas;")
-            indexed_sentence_ids = {r[0] for r in cursor.fetchall()}
+            has_sl = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type IN ('table', 'view') AND name='sentence_lemmas';"
+            ).fetchone()
+            if has_sl:
+                cursor = conn.execute("SELECT DISTINCT sentence_id FROM sentence_lemmas;")
+                indexed_sentence_ids = {r[0] for r in cursor.fetchall()}
+            else:
+                has_slex = conn.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type IN ('table', 'view') AND name='sentence_lexemas';"
+                ).fetchone()
+                if has_slex:
+                    cursor = conn.execute("SELECT DISTINCT sentence_id FROM sentence_lexemas;")
+                    indexed_sentence_ids = {r[0] for r in cursor.fetchall()}
+                else:
+                    indexed_sentence_ids = set()
 
         all_sentences = data_manager.get_all_sentences()
         unindexed = [s for s in all_sentences if s['id'] not in indexed_sentence_ids]
@@ -649,22 +634,34 @@ class VocabEngine:
             texts = [s['fr'] for s in chunk]
             docs = list(self.nlp.pipe(texts, batch_size=batch_size))
 
-            chunk_links = []
+            chunk_lemma_links = []
+            chunk_word_links = []
 
             for s_dict, doc in zip(chunk, docs):
                 s_id = s_dict['id']
                 seen_lids = set()
+                seen_wids = set()
                 for tok in doc:
-                    lid = self.resolve_token_lexema_id(tok, lemma_pos_to_id, lemma_fallback_to_id)
+                    lid = self.resolve_token_lemma_id(tok, lemma_pos_to_id, lemma_fallback_to_id)
                     if lid and lid not in seen_lids:
                         seen_lids.add(lid)
-                        chunk_links.append((s_id, lid))
+                        chunk_lemma_links.append((s_id, lid))
 
-            if chunk_links:
-                data_manager.bulk_link_sentence_lexemas(chunk_links)
+                    if word_pos_to_id or word_fallback_to_id:
+                        wid = self.resolve_token_word_id(tok, word_pos_to_id, word_fallback_to_id)
+                        if wid and wid not in seen_wids:
+                            seen_wids.add(wid)
+                            chunk_word_links.append((s_id, wid))
 
-    # Alias for backward compatibility
-    index_database_lexemas = link_sentence_lexemas_to_database
+            if chunk_lemma_links:
+                data_manager.bulk_link_sentence_lemmas(chunk_lemma_links)
+            if chunk_word_links:
+                data_manager.bulk_link_sentence_words(chunk_word_links)
+
+    # Aliases for backward compatibility
+    link_sentence_lexemas_to_database = link_sentence_tokens_to_database
+    index_database_lemmas = link_sentence_tokens_to_database
+    index_database_lexemas = link_sentence_tokens_to_database
 
 _vocab_engine_instance = None
 _vocab_engine_lock = threading.Lock()

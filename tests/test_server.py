@@ -64,8 +64,13 @@ class TestExerciseEndpoints:
         assert len(data["vocabulary_progress"]) == 1
         item = data["vocabulary_progress"][0]
         assert item["lemma"] == "bonjour"
+        assert item["lexema"] == "bonjour"
+        assert item["id"] == lid
+        assert item["lemma_id"] == lid
         assert item["appearance_count"] == 1
+        assert item["appearances"] == 1
         assert "is_known" in item
+        assert "mastered" in item
 
     def test_complete_batch(self, test_client):
         payload = {
@@ -118,6 +123,32 @@ class TestTranscriptionEndpoints:
         assert data_eval["is_exact"] is True
         assert data_eval["composite_score"] == 100.0
         assert "diff" in data_eval
+
+    def test_evaluate_transcription_with_vocab(self, test_client, isolated_data_manager):
+        lid = isolated_data_manager.upsert_lexema(lemma="bonjour", pos="INT", level="A1")
+        isolated_data_manager.link_sentence_lexemas(1, [lid])
+
+        eval_payload = {
+            "sentence_id": 1,
+            "student_text": "Bonjour le monde",
+            "reference_text": "Bonjour le monde",
+            "sentence_score": 1.0,
+            "is_skipped": False,
+            "user_id": "default_user",
+        }
+        res_eval = test_client.post("/api/exercises/evaluate-transcription", json=eval_payload)
+        assert res_eval.status_code == 200
+        data_eval = res_eval.json()
+        assert len(data_eval["vocabulary_progress"]) == 1
+        item = data_eval["vocabulary_progress"][0]
+        assert item["lemma"] == "bonjour"
+        assert item["lexema"] == "bonjour"
+        assert item["id"] == lid
+        assert item["lemma_id"] == lid
+        assert item["appearance_count"] == 1
+        assert item["success_count"] == 1
+        assert "is_known" in item
+        assert "mastered" in item
 
     def test_transcription_batch(self, test_client):
         res_batch = test_client.get("/api/exercises/batch?mode=transcription&count=2")
@@ -252,3 +283,40 @@ class TestMLEndpoints:
         assert "s_fluency" in data
         assert "vocabulary_progress" in data
         assert len(data.get("syntactical_errors", [])) == 0
+
+
+class TestVocabProgressSchema:
+    def test_schema_compat_modern(self):
+        from backend.api.schemas import VocabProgressItem
+        item = VocabProgressItem.model_validate({
+            "lemma_id": 1,
+            "lemma": "parler",
+            "appearance_count": 2,
+            "success_count": 2,
+            "is_known": 1,
+        })
+        assert item.id == 1
+        assert item.lemma_id == 1
+        assert item.lemma == "parler"
+        assert item.lexema == "parler"
+        assert item.appearance_count == 2
+        assert item.appearances == 2
+        assert item.is_known == 1
+        assert item.mastered is True
+
+    def test_schema_compat_legacy(self):
+        from backend.api.schemas import VocabProgressItem
+        item = VocabProgressItem.model_validate({
+            "id": 2,
+            "lexema": "écouter",
+            "appearances": 3,
+            "mastered": False,
+        })
+        assert item.id == 2
+        assert item.lemma_id == 2
+        assert item.lemma == "écouter"
+        assert item.lexema == "écouter"
+        assert item.appearance_count == 3
+        assert item.appearances == 3
+        assert item.is_known == 0
+        assert item.mastered is False
