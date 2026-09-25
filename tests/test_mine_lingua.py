@@ -93,38 +93,42 @@ def test_download_lingua_pdfs_caching(mock_urlopen, tmp_path):
 
 @patch("backend.ingestion.pipeline.mine_lingua.download_lingua_pdfs")
 @patch("backend.ingestion.pipeline.mine_lingua.extract_sentences_from_pdf")
-@patch("backend.ingestion.pipeline.mine_lingua.deduplicate_against_db")
-@patch("backend.ingestion.pipeline.mine_lingua.process_and_score_sentences")
 def test_run_mine_lingua(
-    mock_process,
-    mock_dedup,
     mock_extract,
     mock_download
 ):
     mock_download.return_value = [
-        {"path": "/tmp/test1.pdf", "level": "A1", "filename": "test1.pdf"},
-        {"path": "/tmp/test2.pdf", "level": "A2", "filename": "test2.pdf"}
+        {"path": "/tmp/test1.pdf", "level": "A1", "title": "Ma journée", "filename": "test1.pdf"},
+        {"path": "/tmp/test2.pdf", "level": "A2", "title": "Mon voyage", "filename": "test2.pdf"}
     ]
     mock_extract.side_effect = [
         ["Bonjour le monde.", "Je m'appelle Pierre."],
         ["C'est une belle journée."]
-    ]
-    mock_dedup.return_value = [
-        "Bonjour le monde.",
-        "Je m'appelle Pierre.",
-        "C'est une belle journée."
-    ]
-    mock_process.return_value = [
-        {"fr": "Bonjour le monde.", "level": "A1"},
-        {"fr": "Je m'appelle Pierre.", "level": "A1"},
-        {"fr": "C'est une belle journée.", "level": "A2"}
     ]
 
     results = run_mine_lingua(limit=2)
 
     assert mock_download.called
     assert mock_extract.call_count == 2
-    assert mock_dedup.called
-    assert mock_process.called
+    mock_extract.assert_any_call("/tmp/test1.pdf", stop_phrase="Questions de compréhension:")
+    mock_extract.assert_any_call("/tmp/test2.pdf", stop_phrase="Questions de compréhension:")
+
     assert len(results) == 3
-    assert results[0]["fr"] == "Bonjour le monde."
+    assert results[0] == {
+        "fr": "Bonjour le monde.",
+        "es": None,
+        "source": "lingua_pdf",
+        "metadata": {"title": "Ma journée", "level": "A1"},
+    }
+    assert results[1] == {
+        "fr": "Je m'appelle Pierre.",
+        "es": None,
+        "source": "lingua_pdf",
+        "metadata": {"title": "Ma journée", "level": "A1"},
+    }
+    assert results[2] == {
+        "fr": "C'est une belle journée.",
+        "es": None,
+        "source": "lingua_pdf",
+        "metadata": {"title": "Mon voyage", "level": "A2"},
+    }

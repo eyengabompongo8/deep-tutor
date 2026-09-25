@@ -114,7 +114,7 @@ FrenchTutor/
 │   │   └── transcription.py        # Phonetic, typo, & word diff transcription scoring
 │   ├── ingestion/                  # Data mining and dataset ingestion pipeline
 │   │   ├── pipeline/               # Mining modules (HuggingFace, Tatoeba, PDF, lexemes)
-│   │   │   ├── mine_hf_dataset.py  # UniversalCEFR HuggingFace mining module
+│   │   │   ├── mine_universal_cefr.py # UniversalCEFR HuggingFace mining module
 │   │   │   ├── mine_tatoeba.py     # Tatoeba corpus sentence miner
 │   │   │   ├── mine_pdf.py         # Monolingual PDF extractor and translator
 │   │   │   ├── seed_lexemas.py     # Lexemes catalog seeder
@@ -155,7 +155,7 @@ FrenchTutor/
 │   ├── test_server.py              # FastAPI endpoint integration tests
 │   ├── test_scoring.py             # Scoring & evaluation logic tests
 │   ├── test_data_manager.py        # Database operations unit tests
-│   ├── test_mine_hf_dataset.py     # UniversalCEFR HuggingFace mining tests
+│   ├── test_mine_universal_cefr.py # UniversalCEFR HuggingFace mining tests
 │   ├── test_ingestion_lexema_filter.py # Sentence lexeme validation & filter tests
 │   ├── test_ml_models.py           # Neural ML model inference tests
 │   ├── test_progressive_vocab.py   # Vocabulary progression unit tests
@@ -339,7 +339,7 @@ uv run python -m backend.ingestion.orchestrator --help
 uv run python -m backend.ingestion.orchestrator --all
 
 # 2. Mine sentences from HuggingFace UniversalCEFR dataset (UniversalCEFR/readme_fr)
-uv run python -m backend.ingestion.orchestrator --mine-hf
+uv run python -m backend.ingestion.orchestrator --mine-universal-cefr
 
 # 3. Reset and initialize fresh database schema
 uv run python -m backend.ingestion.orchestrator --reset-db

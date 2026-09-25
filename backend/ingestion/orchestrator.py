@@ -10,10 +10,10 @@ from backend.ingestion.pipeline import (
     run_mine_lingua,
     run_mine_vekkt_cefr,
     run_mine_catie_conversations,
+    run_mine_universal_cefr,
     run_ingest_and_link,
     run_clear_db
 )
-from backend.ingestion.pipeline.mine_hf_dataset import run_mine_hf_dataset
 
 
 def main():
@@ -27,7 +27,8 @@ def main():
     parser.add_argument("--tatoeba-mode", type=str, choices=["parallel", "monolingual", "both"], default="both", help="Tatoeba mining mode: parallel (fra-spa), monolingual (fra + MarianMT), or both (default: both)")
     parser.add_argument("--tatoeba-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine/extract from Tatoeba")
     parser.add_argument("--mine-pdf", type=str, metavar="PATH", help="Mine, score, and translate sentences from a monolingual French PDF")
-    parser.add_argument("--mine-hf", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
+    parser.add_argument("--mine-universal-cefr", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
+    parser.add_argument("--universal-cefr-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine from UniversalCEFR")
     parser.add_argument("--mine-lingua", action="store_true", help="Download and mine sentences from Lingua.com learner PDFs")
     parser.add_argument("--lingua-limit", type=int, default=None, metavar="N", help="Limit number of Lingua PDFs to download/mine")
     parser.add_argument("--mine-vekkt", action="store_true", help="Mine sentences from vekkt/french_CEFR HuggingFace dataset")
@@ -46,7 +47,7 @@ def main():
         args.seed_lexemas,
         args.mine_tatoeba,
         args.mine_pdf,
-        args.mine_hf,
+        args.mine_universal_cefr,
         args.mine_lingua,
         args.mine_vekkt,
         args.mine_conversations,
@@ -87,73 +88,88 @@ def main():
             print("Failed to seed lexemas. Aborting.")
             sys.exit(1)
             
-    # Sentence pool for ingestion
-    mined_sentences = []
+    # Candidate pool for ingestion: List of {"fr": ..., "es": Optional[str], "source": ..., "metadata": ...}
+    mined_candidates = []
 
     # 4. Mine Tatoeba
     if args.all or args.mine_tatoeba:
         print("\n" + "="*50)
         print("STEP: Mining Tatoeba Sentences")
         print("="*50)
-        tatoeba_sentences = run_mine_tatoeba(
+        tatoeba_candidates = run_mine_tatoeba(
             mode=args.tatoeba_mode,
-            max_per_level=1200,
             limit=args.tatoeba_limit
         )
-        mined_sentences.extend(tatoeba_sentences)
+        mined_candidates.extend(tatoeba_candidates)
 
     # 5. Mine PDF
     if args.mine_pdf:
         print("\n" + "="*50)
         print(f"STEP: Mining PDF ({args.mine_pdf})")
         print("="*50)
-        pdf_sentences = run_mine_pdf(args.mine_pdf)
-        mined_sentences.extend(pdf_sentences)
+        pdf_candidates = run_mine_pdf(args.mine_pdf, interactive=False)
+        mined_candidates.extend(pdf_candidates)
 
-    # 5b. Mine HuggingFace
-    if args.all or args.mine_hf:
+    # 5b. Mine UniversalCEFR
+    if args.all or args.mine_universal_cefr:
         print("\n" + "="*50)
-        print("STEP: Mining HuggingFace Dataset (UniversalCEFR)")
+        print("STEP: Mining UniversalCEFR Dataset (HuggingFace)")
         print("="*50)
-        hf_sentences = run_mine_hf_dataset()
-        mined_sentences.extend(hf_sentences)
+        cefr_candidates = run_mine_universal_cefr(limit=args.universal_cefr_limit)
+        mined_candidates.extend(cefr_candidates)
 
     # 5c. Mine Lingua.com Learner PDFs
     if args.mine_lingua:
         print("\n" + "="*50)
         print("STEP: Mining Lingua.com Learner PDFs")
         print("="*50)
-        lingua_sentences = run_mine_lingua(limit=args.lingua_limit, interactive=False)
-        mined_sentences.extend(lingua_sentences)
+        lingua_candidates = run_mine_lingua(limit=args.lingua_limit, interactive=False)
+        mined_candidates.extend(lingua_candidates)
 
     # 5d. Mine vekkt/french_CEFR
     if args.mine_vekkt:
         print("\n" + "="*50)
         print("STEP: Mining vekkt/french_CEFR Dataset")
         print("="*50)
-        vekkt_sentences = run_mine_vekkt_cefr(limit=args.vekkt_limit)
-        mined_sentences.extend(vekkt_sentences)
+        vekkt_candidates = run_mine_vekkt_cefr(limit=args.vekkt_limit)
+        mined_candidates.extend(vekkt_candidates)
 
     # 5e. Mine CATIE-AQ Everyday Conversations
     if args.mine_conversations:
         print("\n" + "="*50)
         print("STEP: Mining Spoken French (CATIE-AQ Conversations)")
         print("="*50)
-        catie_sentences = run_mine_catie_conversations(limit=args.conversations_limit)
-        mined_sentences.extend(catie_sentences)
+        catie_candidates = run_mine_catie_conversations(limit=args.conversations_limit)
+        mined_candidates.extend(catie_candidates)
 
-    # 6. Ingest & Link
+    print(f"\nTotal raw candidate sentences collected across all sources: {len(mined_candidates)}")
+
+    # 6. Post-Mining Processing & Ingestion
     if args.all or args.ingest:
         print("\n" + "="*50)
-        print("STEP: Ingesting Sentences and Relational Linking")
+        print("STEP: Post-Mining Deduplication, Scoring, Translation & Ingestion")
         print("="*50)
         
-        if not mined_sentences:
-            print("Error: No sentences were mined to ingest.")
+        if not mined_candidates:
+            print("Error: No candidate sentences were mined to ingest.")
             print("Please specify a mining source (e.g. --mine-tatoeba or --mine-pdf <path>) along with --ingest.")
             sys.exit(1)
-            
-        success = run_ingest_and_link(mined_sentences)
+
+        print("\n--- 1. Deduplicating All Candidates (MinHash LSH vs DB & Intra-Batch) ---")
+        from backend.ingestion.pipeline import deduplicate_candidate_records, preprocess_and_score_candidates
+        unique_candidates = deduplicate_candidate_records(mined_candidates)
+        print(f"Candidates before deduplication: {len(mined_candidates)} | Unique remaining: {len(unique_candidates)}")
+
+        if not unique_candidates:
+            print("No new unique candidate sentences to process.")
+            sys.exit(0)
+
+        print("\n--- 2. Batch Scoring & Selective Translation ---")
+        scored_records = preprocess_and_score_candidates(unique_candidates)
+        print(f"Successfully preprocessed {len(scored_records)} records.")
+
+        print("\n--- 3. Ingestion & Relational Linking ---")
+        success = run_ingest_and_link(scored_records)
         if not success:
             print("Failed to ingest and link sentences.")
             sys.exit(1)
