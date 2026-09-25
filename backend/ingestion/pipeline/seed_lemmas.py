@@ -57,7 +57,6 @@ def run_seed_lemmas(db_path: Optional[str] = None) -> bool:
                 UNIQUE(lemma, pos)
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_lemma ON lemmas(lemma);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_pos ON lemmas(pos);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_level ON lemmas(level);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_is_base ON lemmas(is_base);")
@@ -75,7 +74,6 @@ def run_seed_lemmas(db_path: Optional[str] = None) -> bool:
                 UNIQUE(word, lemma_id, pos)
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_words_word ON words(word);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_words_pos ON words(pos);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_words_lemma_id ON words(lemma_id);")
 

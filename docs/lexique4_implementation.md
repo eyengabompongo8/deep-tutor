@@ -132,7 +132,6 @@ CREATE TABLE IF NOT EXISTS lemmas (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(lemma, pos)
 );
-CREATE INDEX IF NOT EXISTS idx_lemmas_lemma ON lemmas(lemma);
 CREATE INDEX IF NOT EXISTS idx_lemmas_pos ON lemmas(pos);
 CREATE INDEX IF NOT EXISTS idx_lemmas_level ON lemmas(level);
 CREATE INDEX IF NOT EXISTS idx_lemmas_is_base ON lemmas(is_base);
@@ -152,7 +151,6 @@ CREATE TABLE IF NOT EXISTS words (
     FOREIGN KEY (lemma_id) REFERENCES lemmas(id) ON DELETE CASCADE,
     UNIQUE(word, lemma_id, pos)
 );
-CREATE INDEX IF NOT EXISTS idx_words_word ON words(word);
 CREATE INDEX IF NOT EXISTS idx_words_pos ON words(pos);
 CREATE INDEX IF NOT EXISTS idx_words_lemma_id ON words(lemma_id);
 ```
@@ -167,6 +165,7 @@ CREATE TABLE IF NOT EXISTS sentence_lemmas (
     FOREIGN KEY (sentence_id) REFERENCES sentences(id) ON DELETE CASCADE,
     FOREIGN KEY (lemma_id) REFERENCES lemmas(id) ON DELETE CASCADE
 );
+CREATE INDEX IF NOT EXISTS idx_sentence_lemmas_lemma ON sentence_lemmas(lemma_id);
 
 CREATE TABLE IF NOT EXISTS sentence_words (
     sentence_id INTEGER NOT NULL,
@@ -175,6 +174,7 @@ CREATE TABLE IF NOT EXISTS sentence_words (
     FOREIGN KEY (sentence_id) REFERENCES sentences(id) ON DELETE CASCADE,
     FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE
 );
+CREATE INDEX IF NOT EXISTS idx_sentence_words_word ON sentence_words(word_id);
 ```
 
 #### `user_lemmas` & `user_words`
@@ -190,6 +190,7 @@ CREATE TABLE IF NOT EXISTS user_lemmas (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (lemma_id) REFERENCES lemmas(id) ON DELETE CASCADE
 );
+CREATE INDEX IF NOT EXISTS idx_user_lemmas_user_success ON user_lemmas(user_id, success_count, lemma_id);
 
 CREATE TABLE IF NOT EXISTS user_words (
     user_id TEXT NOT NULL,

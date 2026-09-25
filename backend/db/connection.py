@@ -98,14 +98,14 @@ class DBConnection:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 fr TEXT NOT NULL,
                 es TEXT NOT NULL,
-                level TEXT NOT NULL DEFAULT 'A1',
+                level TEXT NOT NULL DEFAULT 'A1' COLLATE NOCASE,
                 score_lexical REAL NOT NULL DEFAULT 1.0,
                 score_ml REAL DEFAULT NULL,
                 source TEXT NOT NULL DEFAULT 'custom',
                 metadata TEXT DEFAULT '{}'
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_level ON sentences(level);")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_level ON sentences(level COLLATE NOCASE);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_score_lexical ON sentences(score_lexical);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_score_ml ON sentences(score_ml);")
 
@@ -131,7 +131,6 @@ class DBConnection:
                 UNIQUE(lemma, pos)
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_lemma ON lemmas(lemma);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_pos ON lemmas(pos);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_level ON lemmas(level);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_lemmas_is_base ON lemmas(is_base);")
@@ -150,7 +149,6 @@ class DBConnection:
                 UNIQUE(word, lemma_id, pos)
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_words_word ON words(word);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_words_pos ON words(pos);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_words_lemma_id ON words(lemma_id);")
 
@@ -164,7 +162,6 @@ class DBConnection:
                 FOREIGN KEY (lemma_id) REFERENCES lemmas(id) ON DELETE CASCADE
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentence_lemmas_sentence ON sentence_lemmas(sentence_id);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentence_lemmas_lemma ON sentence_lemmas(lemma_id);")
 
         # Sentence-Words junction table
@@ -177,7 +174,6 @@ class DBConnection:
                 FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_sentence_words_sentence ON sentence_words(sentence_id);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sentence_words_word ON sentence_words(word_id);")
 
         # User lemma tracking & appearance counts
@@ -193,7 +189,7 @@ class DBConnection:
                 FOREIGN KEY (lemma_id) REFERENCES lemmas(id) ON DELETE CASCADE
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_user_lemmas_user ON user_lemmas(user_id);")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_user_lemmas_user_success ON user_lemmas(user_id, success_count, lemma_id);")
 
         # User word tracking & appearance counts
         conn.execute("""
@@ -207,7 +203,6 @@ class DBConnection:
                 FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_user_words_user ON user_words(user_id);")
 
         # Compatibility view for user_lexema_counts
         conn.execute("""
@@ -231,7 +226,6 @@ class DBConnection:
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
         """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_user_modes_user ON user_modes(user_id);")
 
         # Exercise history table for tracking progress and batches
         conn.execute("""
@@ -286,7 +280,31 @@ class DBConnection:
         """)
 
     def _run_migrations(self, conn: sqlite3.Connection):
-        pass
+        try:
+            # 1. Drop redundant indexes if they exist
+            redundant_indexes = [
+                "idx_sentence_lemmas_sentence",
+                "idx_sentence_words_sentence",
+                "idx_user_lemmas_user",
+                "idx_user_words_user",
+                "idx_user_modes_user",
+                "idx_lemmas_lemma",
+                "idx_words_word",
+            ]
+            for idx_name in redundant_indexes:
+                conn.execute(f"DROP INDEX IF EXISTS {idx_name};")
+
+            # 2. Recreate sentences(level) index with COLLATE NOCASE
+            conn.execute("DROP INDEX IF EXISTS idx_sentences_level;")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_sentences_level ON sentences(level COLLATE NOCASE);")
+
+            # 3. Create composite covering index for user_lemmas CTE lookup
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_user_lemmas_user_success
+                ON user_lemmas(user_id, success_count, lemma_id);
+            """)
+        except Exception:
+            pass
 
         # Dynamic migration check for user_settings columns
         try:

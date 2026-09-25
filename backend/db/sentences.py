@@ -56,8 +56,8 @@ class SentencesMixin:
         with self._get_connection() as conn:
             if level and level.upper() != 'ALL':
                 cursor = conn.execute(
-                    "SELECT * FROM sentences WHERE UPPER(level) = ? ORDER BY id ASC;",
-                    (level.upper().strip(),)
+                    "SELECT * FROM sentences WHERE level = ? COLLATE NOCASE ORDER BY id ASC;",
+                    (level.strip(),)
                 )
             else:
                 cursor = conn.execute("SELECT * FROM sentences ORDER BY id ASC;")
