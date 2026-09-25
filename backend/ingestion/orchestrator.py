@@ -10,10 +10,10 @@ from backend.ingestion.pipeline import (
     run_mine_lingua,
     run_mine_vekkt_cefr,
     run_mine_catie_conversations,
+    run_mine_universal_cefr,
     run_ingest_and_link,
     run_clear_db
 )
-from backend.ingestion.pipeline.mine_hf_dataset import run_mine_hf_dataset
 
 
 def main():
@@ -27,7 +27,8 @@ def main():
     parser.add_argument("--tatoeba-mode", type=str, choices=["parallel", "monolingual", "both"], default="both", help="Tatoeba mining mode: parallel (fra-spa), monolingual (fra + MarianMT), or both (default: both)")
     parser.add_argument("--tatoeba-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine/extract from Tatoeba")
     parser.add_argument("--mine-pdf", type=str, metavar="PATH", help="Mine, score, and translate sentences from a monolingual French PDF")
-    parser.add_argument("--mine-hf", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
+    parser.add_argument("--mine-universal-cefr", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
+    parser.add_argument("--universal-cefr-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine from UniversalCEFR")
     parser.add_argument("--mine-lingua", action="store_true", help="Download and mine sentences from Lingua.com learner PDFs")
     parser.add_argument("--lingua-limit", type=int, default=None, metavar="N", help="Limit number of Lingua PDFs to download/mine")
     parser.add_argument("--mine-vekkt", action="store_true", help="Mine sentences from vekkt/french_CEFR HuggingFace dataset")
@@ -46,7 +47,7 @@ def main():
         args.seed_lexemas,
         args.mine_tatoeba,
         args.mine_pdf,
-        args.mine_hf,
+        args.mine_universal_cefr,
         args.mine_lingua,
         args.mine_vekkt,
         args.mine_conversations,
@@ -110,13 +111,13 @@ def main():
         pdf_sentences = run_mine_pdf(args.mine_pdf)
         mined_sentences.extend(pdf_sentences)
 
-    # 5b. Mine HuggingFace
-    if args.all or args.mine_hf:
+    # 5b. Mine UniversalCEFR
+    if args.all or args.mine_universal_cefr:
         print("\n" + "="*50)
-        print("STEP: Mining HuggingFace Dataset (UniversalCEFR)")
+        print("STEP: Mining UniversalCEFR Dataset (HuggingFace)")
         print("="*50)
-        hf_sentences = run_mine_hf_dataset()
-        mined_sentences.extend(hf_sentences)
+        cefr_sentences = run_mine_universal_cefr(limit=args.universal_cefr_limit)
+        mined_sentences.extend(cefr_sentences)
 
     # 5c. Mine Lingua.com Learner PDFs
     if args.mine_lingua:

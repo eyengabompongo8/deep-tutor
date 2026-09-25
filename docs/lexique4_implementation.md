@@ -265,7 +265,7 @@ To mine sentences and generate relational links into `sentence_lemmas` and `sent
 uv run python -m backend.ingestion.orchestrator --mine-tatoeba --ingest
 
 # Ingest HuggingFace UniversalCEFR dataset:
-uv run python -m backend.ingestion.orchestrator --mine-hf --ingest
+uv run python -m backend.ingestion.orchestrator --mine-universal-cefr --ingest
 
 # Or run full pipeline in one step:
 uv run python -m backend.ingestion.orchestrator --reset-db --seed-lexemas --mine-tatoeba --ingest

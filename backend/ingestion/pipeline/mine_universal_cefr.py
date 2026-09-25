@@ -1,5 +1,5 @@
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datasets import load_dataset, concatenate_datasets
 from tqdm import tqdm
 
@@ -8,8 +8,9 @@ from backend.nlp.vocab_engine import VocabEngine
 from backend.ingestion.pipeline.mine_tatoeba import is_valid_sentence, clean_sentence
 from backend.ingestion.pipeline.common import translate_batch
 
-def run_mine_hf_dataset() -> List[Dict[str, Any]]:
-    print("\n--- Mining HuggingFace Dataset (UniversalCEFR/readme_fr) ---")
+
+def run_mine_universal_cefr(limit: Optional[int] = None) -> List[Dict[str, Any]]:
+    print("\n--- Mining UniversalCEFR Dataset (UniversalCEFR/readme_fr) ---")
     
     print("Loading dataset from HuggingFace...")
     dataset_dict = load_dataset("UniversalCEFR/readme_fr")
@@ -45,6 +46,8 @@ def run_mine_hf_dataset() -> List[Dict[str, Any]]:
             
         seen_in_batch.add(fr_lower)
         valid_new_sentences.append(fr)
+        if limit is not None and len(valid_new_sentences) >= limit:
+            break
         
     print(f"Found {len(valid_new_sentences)} new valid sentences after deduplication.")
     
@@ -73,11 +76,12 @@ def run_mine_hf_dataset() -> List[Dict[str, Any]]:
             "score": score_ml,
             "score_lexical": float(lex_sc),
             "score_ml": score_ml,
-            "source": "hf_readme_fr"
+            "source": "hf_universal_cefr"
         })
         
-    print(f"Successfully mined and prepared {len(records)} sentences from HuggingFace.")
+    print(f"Successfully mined and prepared {len(records)} sentences from UniversalCEFR.")
     return records
 
+
 if __name__ == "__main__":
-    run_mine_hf_dataset()
+    run_mine_universal_cefr()
