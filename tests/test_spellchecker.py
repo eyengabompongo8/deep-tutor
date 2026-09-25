@@ -84,3 +84,37 @@ class TestSpellcheckerAndAccents:
         corrected, msgs = autocorrect_text(student, ref)
         assert corrected == student
         assert msgs == []
+
+    def test_autocorrect_with_mock_languagetool_capitalization(self):
+        class MockMatch:
+            def __init__(self, offset, error_length, replacements, category, rule_issue_type, rule_id):
+                self.offset = offset
+                self.error_length = error_length
+                self.replacements = replacements
+                self.category = category
+                self.rule_issue_type = rule_issue_type
+                self.rule_id = rule_id
+
+        class MockLanguageTool:
+            def check(self, text):
+                matches = []
+                if text.startswith("bonjour"):
+                    matches.append(MockMatch(0, 7, ["Bonjour"], "CASING", "typographical", "UPPERCASE_SENTENCE_START"))
+                if "j'" in text:
+                    idx = text.find("j'")
+                    matches.append(MockMatch(idx, 2, ["J'"], "CASING", "typographical", "UPPERCASE_SENTENCE_START"))
+                if "paris" in text:
+                    idx = text.find("paris")
+                    matches.append(MockMatch(idx, 5, ["Paris"], "CASING", "typographical", "PROPER_NOUN_CASING"))
+                return matches
+
+        tool = MockLanguageTool()
+        student = "bonjour le monde. j'habite à paris"
+        ref = "Bonjour le monde. J'habite à Paris."
+        corrected, msgs = autocorrect_text(student, ref, lang_tool=tool)
+        assert corrected == "Bonjour le monde. J'habite à Paris."
+        assert "bonjour -> Bonjour" in msgs
+        assert "j' -> J'" in msgs
+        assert "paris -> Paris" in msgs
+        assert "added '.'" in msgs
+

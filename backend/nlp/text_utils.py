@@ -89,29 +89,45 @@ def autocorrect_text(student_text: str, reference_text: str, lang_tool=None):
             # Sort matches in reverse order so character offsets remain valid during replacements
             matches = sorted(matches, key=lambda m: m.offset, reverse=True)
             for m in matches:
-                # Strictly allow only spelling typos; never solve grammar, confused words, or syntax
+                # Allow spelling typos and casing/capitalization fixes; never solve grammar, confused words, or syntax
                 is_spelling_issue = (
                     getattr(m, "category", "") == "TYPOS"
                     or getattr(m, "rule_issue_type", "") == "misspelling"
                     or "SPELL" in getattr(m, "rule_id", "")
                     or "MORFOLOGIK" in getattr(m, "rule_id", "")
                 )
+                is_casing_issue = (
+                    getattr(m, "category", "") == "CASING"
+                    or "UPPERCASE" in getattr(m, "rule_id", "")
+                    or "CASING" in getattr(m, "rule_id", "")
+                )
                 is_grammar_or_confusion = (
                     getattr(m, "category", "") in {"GRAMMAR", "CONFUSED_WORDS"}
                     or getattr(m, "rule_issue_type", "") in {"grammar", "style", "register"}
                 )
-                if not is_spelling_issue or is_grammar_or_confusion:
+                if (not is_spelling_issue and not is_casing_issue) or is_grammar_or_confusion:
                     continue
 
                 if not m.replacements:
                     continue
 
                 original_word = text[m.offset:m.offset + m.error_length]
+                candidate = m.replacements[0]
+                if not candidate:
+                    continue
+
+                # Handle casing/capitalization corrections specifically
+                if is_casing_issue:
+                    if candidate.lower() == original_word.lower() and candidate != original_word:
+                        text = text[:m.offset] + candidate + text[m.offset + m.error_length:]
+                        corrections_made.append(f"{original_word} -> {candidate}")
+                    continue
+
+                # Handle spelling typos
                 if original_word.lower() in ignored_words:
                     continue
 
-                candidate = m.replacements[0]
-                if candidate and candidate.lower() != original_word.lower():
+                if candidate.lower() != original_word.lower():
                     if levenshtein(original_word.lower(), candidate.lower()) <= 2:
                         if original_word.istitle():
                             candidate = candidate.capitalize()
