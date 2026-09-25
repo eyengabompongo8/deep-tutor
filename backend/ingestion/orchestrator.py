@@ -8,6 +8,7 @@ from backend.ingestion.pipeline import (
     run_mine_tatoeba,
     run_mine_pdf,
     run_mine_lingua,
+    run_mine_vekkt_cefr,
     run_ingest_and_link,
     run_clear_db
 )
@@ -26,6 +27,8 @@ def main():
     parser.add_argument("--mine-hf", action="store_true", help="Mine, score, and translate sentences from UniversalCEFR HuggingFace dataset")
     parser.add_argument("--mine-lingua", action="store_true", help="Download and mine sentences from Lingua.com learner PDFs")
     parser.add_argument("--lingua-limit", type=int, default=None, metavar="N", help="Limit number of Lingua PDFs to download/mine")
+    parser.add_argument("--mine-vekkt", action="store_true", help="Mine sentences from vekkt/french_CEFR HuggingFace dataset")
+    parser.add_argument("--vekkt-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine from vekkt/french_CEFR")
     parser.add_argument("--ingest", action="store_true", help="Ingest mined sentences into the database and build relational lexema links")
     
     args = parser.parse_args()
@@ -40,6 +43,7 @@ def main():
         args.mine_pdf,
         args.mine_hf,
         args.mine_lingua,
+        args.mine_vekkt,
         args.ingest
     ]
     if not any(actions):
@@ -111,6 +115,14 @@ def main():
         print("="*50)
         lingua_sentences = run_mine_lingua(limit=args.lingua_limit, interactive=False)
         mined_sentences.extend(lingua_sentences)
+
+    # 5d. Mine vekkt/french_CEFR
+    if args.mine_vekkt:
+        print("\n" + "="*50)
+        print("STEP: Mining vekkt/french_CEFR Dataset")
+        print("="*50)
+        vekkt_sentences = run_mine_vekkt_cefr(limit=args.vekkt_limit)
+        mined_sentences.extend(vekkt_sentences)
 
     # 6. Ingest & Link
     if args.all or args.ingest:
