@@ -38,9 +38,9 @@ COPY pyproject.toml uv.lock ./
 # This step is cached by Docker unless pyproject.toml or uv.lock change!
 RUN uv sync --extra ${UV_EXTRA} --no-dev --frozen
 
-# Copy the backend code, data, and environment template
+# Copy the backend code, data directory placeholder, and environment template
 COPY backend/ ./backend/
-COPY data/ ./data/
+RUN mkdir -p /app/data
 COPY .env.example .env
 
 # Copy the frontend built assets from Stage 1
