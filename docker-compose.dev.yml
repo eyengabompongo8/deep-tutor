@@ -18,6 +18,10 @@ services:
     environment:
       - PORT=8000
       - HOST=0.0.0.0
+    networks:
+      default:
+        aliases:
+          - backend
     # Override the default command to use FastAPI's --reload flag
     command: >
       bash -c "uv sync --extra cpu && uv run --no-sync python -m backend.server --host 0.0.0.0 --port 8000 --reload --reload-dir backend"
@@ -38,6 +42,10 @@ services:
     environment:
       - PORT=8000
       - HOST=0.0.0.0
+    networks:
+      default:
+        aliases:
+          - backend
     deploy:
       resources:
         reservations:
@@ -59,8 +67,8 @@ services:
       # Use an anonymous volume for node_modules to avoid cross-platform issues
       - /app/frontend/node_modules
     environment:
-      # Point the frontend proxy to the backend container (defaults to backend-dev:8000, set to http://backend-dev-gpu:8000 if using GPU)
-      - BACKEND_URL=${BACKEND_URL:-http://backend-dev:8000}
+      # Point the frontend proxy to the backend container (backend alias resolves to whichever backend is running)
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8000}
       - FRONTEND_PORT=5173
     # Install dependencies and start Vite with live reload
     command: >
