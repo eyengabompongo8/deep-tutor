@@ -8,13 +8,16 @@ def run_init_db(reset=False, db_path=None):
     if db_path is None:
         db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
     
-    if reset and os.path.exists(db_path):
-        print(f"Resetting database at {db_path} (deleting existing file)...")
-        try:
-            os.remove(db_path)
-        except Exception as e:
-            print(f"Error removing existing database: {e}")
-            return False
+    if reset:
+        for suffix in ("", "-wal", "-shm"):
+            path = db_path + suffix
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                    print(f"Resetting database: removed {path}")
+                except Exception as e:
+                    print(f"Error removing {path}: {e}")
+                    return False
             
     print(f"Initializing database schema at {db_path}...")
     
