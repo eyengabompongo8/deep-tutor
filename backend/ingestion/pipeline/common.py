@@ -232,10 +232,10 @@ def translate_batch(sentences: List[str], batch_size: int = 16) -> List[str]:
 
     if torch.cuda.is_available():
         major, minor = torch.cuda.get_device_capability()
-        if major >= 7:
+        if major >= 6:
             device = "cuda"
         else:
-            print(f"Warning: GPU compute capability {major}.{minor} is too old. Falling back to CPU.")
+            print(f"Warning: GPU compute capability {major}.{minor} is below 6.0. Falling back to CPU.")
             device = "cpu"
     else:
         device = "cpu"
