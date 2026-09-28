@@ -76,18 +76,6 @@ export default function Header({
           </button>
           <button
             type="button"
-            onClick={() => onSwitchMode && onSwitchMode('mixed')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
-              currentMode === 'mixed'
-                ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 shadow-xs font-semibold'
-                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
-            }`}
-          >
-            <Shuffle className="w-3.5 h-3.5" />
-            <span>Mixte</span>
-          </button>
-          <button
-            type="button"
             onClick={() => onSwitchMode && onSwitchMode('transcription')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
               currentMode === 'transcription'
@@ -97,6 +85,18 @@ export default function Header({
           >
             <Headphones className="w-3.5 h-3.5" />
             <span>Transcription</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onSwitchMode && onSwitchMode('mixed')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+currentMode === 'mixed'
+? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 shadow-xs font-semibold'
+: 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+}`}
+          >
+            <Shuffle className="w-3.5 h-3.5" />
+            <span>Mixte</span>
           </button>
         </div>
 

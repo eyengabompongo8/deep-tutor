@@ -206,10 +206,11 @@ class UsersMixin:
         return self.get_user_mode(user_id, mode)
 
     def get_user_modes_profile(self, user_id: str = 'default_user') -> Dict[str, Any]:
-        """Returns the full multi-mode profile dictionary containing both translation and transcription stats."""
+        """Returns the full multi-mode profile dictionary containing translation, transcription, and mixed stats."""
         u = self.get_or_create_user(user_id)
         trans_mode = self.get_user_mode(user_id, 'translation')
         audio_mode = self.get_user_mode(user_id, 'transcription')
+        mixed_mode = self.get_user_mode(user_id, 'mixed')
         return {
             "user_id": user_id,
             "name": u.get("name", "Default User"),
@@ -219,7 +220,8 @@ class UsersMixin:
             "total_skipped": trans_mode.get("total_skipped", 0),
             "modes": {
                 "translation": trans_mode,
-                "transcription": audio_mode
+                "transcription": audio_mode,
+                "mixed": mixed_mode
             }
         }
 

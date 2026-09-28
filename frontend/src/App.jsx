@@ -339,7 +339,10 @@ export default function App() {
       const data = await res.json();
       setProfile(data);
       setRecentSentenceIds([]);
-      await fetchBatch(data.level || newLevel, batchSize, [], modeToSet, activeUserId);
+      const levelToFetch = currentMode === 'mixed'
+        ? undefined
+        : (data.modes?.[currentMode]?.level ?? data.level ?? 'A1');
+      await fetchBatch(levelToFetch, batchSize, [], currentMode, activeUserId);
     } catch (err) {
       console.error('Failed to set level:', err);
     } finally {

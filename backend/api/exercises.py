@@ -88,11 +88,16 @@ def get_exercises_batch(
             num_audio = 1
             num_trans = effective_count - 1
 
+        trans_prof = deps.scoring_engine.get_profile(user_id=user_id, mode="translation")
+        trans_target_level = level or trans_prof.get("level", "A1")
+        audio_prof = deps.scoring_engine.get_profile(user_id=user_id, mode="transcription")
+        audio_target_level = level or audio_prof.get("level", "A1")
+
         trans_batch = []
         if num_trans > 0:
             trans_batch = deps.scoring_engine.get_batch_sentences(
                 all_sentences=None,
-                target_level=target_level,
+                target_level=trans_target_level,
                 count=num_trans,
                 exclude_ids=exclude_ids,
                 data_manager=deps.data_manager,
@@ -108,7 +113,7 @@ def get_exercises_batch(
         if num_audio > 0:
             audio_batch = deps.scoring_engine.get_batch_sentences(
                 all_sentences=None,
-                target_level=target_level,
+                target_level=audio_target_level,
                 count=num_audio,
                 exclude_ids=audio_exclude,
                 data_manager=deps.data_manager,
