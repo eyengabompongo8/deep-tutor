@@ -1,5 +1,15 @@
 # Lexique 4 Implementation & Lexical Architecture Documentation
 
+> [!NOTE]
+> **Documentation Modernization & Integration Notice**:
+> The contents of this document have been consolidated and expanded across the main documentation suite:
+> - **Schema & DDL**: [`docs/02_database_and_models.md`](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/02_database_and_models.md)
+> - **Zipf Math, CEFR Thresholds & POS Mapping**: [`docs/04_vocabulary_and_progression.md`](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/04_vocabulary_and_progression.md)
+> - **Parsing Rules & Seeding Workflows**: [`docs/05_ingestion_and_mining.md`](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/05_ingestion_and_mining.md)
+> - **Master Documentation Hub**: [`docs/README.md`](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/README.md)
+>
+> This file is retained as a standalone historical reference for the initial Lexique 4 integration milestone.
+
 ## 1. Overview & Purpose
 
 This document details the design, mathematical modeling, and database architecture for the integration of the **Lexique 4** dataset (`data/lexique/Lexique4/Lexique4.tsv`) into FrenchTutor.
