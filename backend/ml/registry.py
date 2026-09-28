@@ -231,7 +231,7 @@ class UniversalCEFRModel(CEFRClassifierModelWrapper):
             self.model_name,
             torch_dtype=self.dtype
         ).to(self.device)
-        self.weights = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], device=self.device)
+        self.weights = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], device=self.device, dtype=self.dtype)
 
     def predict(self, texts: List[str]) -> List[Dict[str, Any]]:
         if not texts:
