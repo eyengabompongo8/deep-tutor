@@ -117,11 +117,11 @@ FrenchTutor/
 │   │   │   ├── mine_universal_cefr.py # UniversalCEFR HuggingFace mining module
 │   │   │   ├── mine_tatoeba.py     # Tatoeba corpus sentence miner
 │   │   │   ├── mine_pdf.py         # Monolingual PDF extractor and translator
-│   │   │   ├── seed_lexemas.py     # Lexemes catalog seeder
+│   │   │   ├── seed_lemmas.py      # Lexique 4 lemmas & words catalog seeder
+│   │   │   ├── seed_lexemas.py     # Backward-compatible wrapper
 │   │   │   └── ingest_and_link.py  # Sentence linker with strict lexeme validation
 │   │   ├── orchestrator.py         # Ingestion CLI entry point
-│   │   ├── rescore_dataset.py      # Batch rescoring of sentence corpus
-│   │   └── translate_sentences.py  # Automated sentence pair translation
+│   │   └── rescore_dataset.py      # Batch rescoring of sentence corpus
 │   ├── config.py                   # Centralized application configuration & defaults
 │   └── server.py                   # FastAPI application initialization & static mount
 ├── frontend/                       # Modern React Single Page Application (SPA)
@@ -142,14 +142,12 @@ FrenchTutor/
 │   ├── package.json                # Frontend npm dependencies & scripts
 │   ├── vite.config.js              # Vite bundler configuration & backend proxy
 │   └── tailwind.config.js          # Tailwind CSS design system rules
-├── data/                           # Application datasets & persistent stores
-│   ├── app.db                      # Primary SQLite database
-│   ├── audio_cache/                # Cached synthetic MP3 audio files
-│   ├── books/                      # Source educational PDFs for sentence mining
-│   ├── flelex_beacco.tsv           # FLELex / Beacco CEFR vocabulary catalog
-│   └── user_profile.json           # User progress state & study preferences
+├── data/                           # Application datasets & persistent stores (runtime/ignored)
+│   ├── .gitkeep                    # Directory anchor
+│   ├── app.db                      # Primary SQLite database (generated)
+│   ├── audio_cache/                # Cached synthetic MP3 audio files (generated)
+│   └── books/                      # Source educational PDFs for sentence mining (user provided)
 ├── docs/                           # Architectural and design documentation
-├── scripts/                        # Utility & maintenance scripts
 ├── tests/                          # Pytest automated test suite
 │   ├── conftest.py                 # Shared fixtures & test database isolation
 │   ├── test_server.py              # FastAPI endpoint integration tests
@@ -166,8 +164,7 @@ FrenchTutor/
 │   └── test_lifecycle_cleanup.py   # Server process lifecycle and cleanup tests
 ├── .env.example                    # Environment variable template
 ├── Makefile                        # Central developer automation tasks
-├── pyproject.toml                  # Python package configuration (uv managed)
-├── run_tests.py                    # Fast test runner script with categories
+└── pyproject.toml                  # Python package configuration (uv managed)
 └── uv.lock                         # Deterministic package dependency pins
 ```
 
@@ -344,8 +341,8 @@ uv run python -m backend.ingestion.orchestrator --mine-universal-cefr
 # 3. Reset and initialize fresh database schema
 uv run python -m backend.ingestion.orchestrator --reset-db
 
-# 4. Seed lexemes catalog from data/flelex_beacco.tsv
-uv run python -m backend.ingestion.orchestrator --seed-lexemas
+# 4. Seed lemmas & words catalog from Lexique 4
+uv run python -m backend.ingestion.orchestrator --seed-lemmas
 
 # 5. Mine and score sentences from Tatoeba dataset
 uv run python -m backend.ingestion.orchestrator --mine-tatoeba
@@ -397,8 +394,6 @@ uv run pytest
 
 # 2. Run all tests including heavy ML models
 uv run pytest -m ""
-# or using the custom runner:
-uv run python run_tests.py --all
 
 # 3. Run only ML model inference tests
 uv run pytest -m ml

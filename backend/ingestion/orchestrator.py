@@ -22,7 +22,7 @@ def main():
     parser.add_argument("--init-db", action="store_true", help="Initialize database schema")
     parser.add_argument("--reset-db", action="store_true", help="Delete existing database file before initializing schema")
     parser.add_argument("--clear-db", action="store_true", help="Clear all sentences and lexema links from the database")
-    parser.add_argument("--seed-lexemas", action="store_true", help="Seed the lexemas catalog table from flelex_beacco.tsv")
+    parser.add_argument("--seed-lexemas", "--seed-lemmas", dest="seed_lexemas", action="store_true", help="Seed the lemmas and words catalog tables from Lexique 4")
     parser.add_argument("--mine-tatoeba", action="store_true", help="Mine and score sentences from Tatoeba dataset")
     parser.add_argument("--tatoeba-mode", type=str, choices=["parallel", "monolingual", "both"], default="both", help="Tatoeba mining mode: parallel (fra-spa), monolingual (fra + MarianMT), or both (default: both)")
     parser.add_argument("--tatoeba-limit", type=int, default=None, metavar="N", help="Limit number of sentences to mine/extract from Tatoeba")

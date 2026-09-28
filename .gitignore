@@ -30,23 +30,12 @@ frontend/dist/
 .env.local
 *.env
 
-# Database files
-data/app.db
-data/sentences.db
-data/books/
+# Runtime data, databases & media caches
+data/
 *.db
 *.db-wal
 *.db-shm
-
-# Generated media / caches / backups
-data/audio_cache/
 *.bak
-
-# Large raw datasets and runtime user profile
-data/raw/
-data/user_profile.json
-data/lexique/Lexique4/
-data/lexique/__MACOSX/
 
 # IDE & OS metadata
 .DS_Store

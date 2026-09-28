@@ -5,3 +5,4 @@ __pycache__
 frontend/dist
 frontend/node_modules
 tests
+data/
