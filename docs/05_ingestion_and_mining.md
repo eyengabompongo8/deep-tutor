@@ -1,5 +1,5 @@
 <!-- Navigation Header -->
-[← 04 Vocabulary Modeling & Progression](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/04_vocabulary_and_progression.md) | [Documentation Index](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/README.md) | [06 Deployment & Operations →](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/06_deployment_and_operations.md)
+[← 04 Vocabulary Modeling & Progression](file:///home/eyenga/Projects/FrenchTutor/docs/04_vocabulary_and_progression.md) | [Documentation Index](file:///home/eyenga/Projects/FrenchTutor/docs/README.md) | [06 Deployment & Operations →](file:///home/eyenga/Projects/FrenchTutor/docs/06_deployment_and_operations.md)
 
 ---
 
@@ -13,7 +13,7 @@ The ingestion system transforms raw, heterogenous text collections—spanning bi
 
 ## 1. High-Level Ingestion Pipeline Architecture
 
-The ingestion pipeline is driven by a unified Command-Line Interface (CLI) implemented in [`backend/ingestion/orchestrator.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/orchestrator.py). The architecture follows a strict staged pipeline design:
+The ingestion pipeline is driven by a unified Command-Line Interface (CLI) implemented in [`backend/ingestion/orchestrator.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/orchestrator.py). The architecture follows a strict staged pipeline design:
 
 ```mermaid
 flowchart TD
@@ -83,7 +83,7 @@ flowchart TD
 
 ## 2. Lexique 4 Parsing & Database Seeding
 
-The FrenchTutor pedagogical architecture requires a complete catalog of base lemmas and inflected surface words. Parsing and classification logic resides in [`backend/ingestion/pipeline/lexique_classifier.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/lexique_classifier.py) and is executed by [`backend/ingestion/pipeline/seed_lemmas.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/seed_lemmas.py).
+The FrenchTutor pedagogical architecture requires a complete catalog of base lemmas and inflected surface words. Parsing and classification logic resides in [`backend/ingestion/pipeline/lexique_classifier.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/lexique_classifier.py) and is executed by [`backend/ingestion/pipeline/seed_lemmas.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/seed_lemmas.py).
 
 ### 2.1 Extraction Rules in `lexique_classifier.py`
 The source file `data/lexique/Lexique4/Lexique4.tsv` contains 189,863 rows representing inflected word occurrences in French cinema and television subtitles (a 316-million-word corpus).
@@ -166,7 +166,7 @@ The mining layer extracts natural, colloquial, and pedagogical sentences from di
 }
 ```
 
-### 3.1 Tatoeba Corpus Mining ([`mine_tatoeba.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/mine_tatoeba.py))
+### 3.1 Tatoeba Corpus Mining ([`mine_tatoeba.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/mine_tatoeba.py))
 The Tatoeba dataset provides crowdsourced, community-reviewed sentences. The module supports three operational modes:
 
 ```bash
@@ -202,30 +202,30 @@ flowchart TD
 - **Monolingual Mode**: Streams `fra_sentences.tsv.bz2`, segments multi-sentence entries using spaCy (`doc.sents`), cleans each sentence, and marks `es = None`.
 - **Automatic Ingestion Download**: Automatically downloads compressed exports from `downloads.tatoeba.org` if local files are absent.
 
-### 3.2 HuggingFace UniversalCEFR Mining ([`mine_universal_cefr.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/mine_universal_cefr.py))
+### 3.2 HuggingFace UniversalCEFR Mining ([`mine_universal_cefr.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/mine_universal_cefr.py))
 UniversalCEFR (`UniversalCEFR/readme_fr`) provides sentences labeled with CEFR readability metadata.
 - **Extraction**: Streams and concatenates all splits (`train`, `validation`, `test`).
 - **Processing**: Cleans quotes and dialogue artifacts using `format_sentence` and validates sentence boundaries.
 - **Output**: Yields candidate records tagged with `source = 'hf_universal_cefr'`.
 
-### 3.3 Lingua.com Pedagogical PDF Mining ([`mine_lingua.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/mine_lingua.py))
+### 3.3 Lingua.com Pedagogical PDF Mining ([`mine_lingua.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/mine_lingua.py))
 Mines graded reading comprehension texts from Lingua.com.
 - **Catalog Web Scraping**: Fetches `https://lingua.com/french/reading/`, parsing HTML headings for level markers (`Level A1`, `Level A2`, `Level B1`, `Level B2`) and direct `.pdf` download links.
 - **PDF Extraction**: Downloads and caches PDFs in `data/books/lingua/`. Extracts text via PyMuPDF (`pymupdf`), truncating the extraction when reaching the comprehension questions section (`stop_phrase="Questions de compréhension:"`).
 - **Hyphen Repair**: Fixes end-of-line hyphenation splits (`re.sub(r'-\n\s*', '', full_text)`).
 
-### 3.4 CATIE-AQ Everyday Conversations ([`mine_catie_conversations.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/mine_catie_conversations.py))
+### 3.4 CATIE-AQ Everyday Conversations ([`mine_catie_conversations.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/mine_catie_conversations.py))
 Captures modern conversational spoken French from `CATIE-AQ/everyday-conversations-llama3.1-2k-in-french`.
 - **Dialogue Unpacking**: Iterates through multi-turn conversational message threads.
 - **Boilerplate & Greeting Filtering**: Discards generic automated greetings (*"Bonjour !", "Comment puis-je vous aider aujourd'hui ?"*) and Imperial measurement units (*onces, miles, gallons*).
 - **Segmentation**: Splits conversational turns into discrete sentences using spaCy sentence segmentation, yielding natural conversational French candidates (`source = 'hf_catie_conversations'`).
 
-### 3.5 Vekkt CEFR Dataset Mining ([`mine_vekkt_cefr.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/mine_vekkt_cefr.py))
+### 3.5 Vekkt CEFR Dataset Mining ([`mine_vekkt_cefr.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/mine_vekkt_cefr.py))
 Extracts sentences from `vekkt/french_CEFR` across levels A1 through C2.
 - **Split Selection**: Restricts extraction to `train` and `validation` splits (omitting unlabelled test data).
 - **Deduplication**: Validates string cleanliness and enforces batch uniqueness (`source = 'hf_vekkt_cefr'`).
 
-### 3.6 Monolingual PDF Extraction ([`mine_pdf.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/mine_pdf.py))
+### 3.6 Monolingual PDF Extraction ([`mine_pdf.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/mine_pdf.py))
 A general-purpose miner for arbitrary French books, literature, or articles supplied as PDF files.
 - Uses `pymupdf` to stream text page-by-page.
 - Rejoins broken word wraps across page breaks.
@@ -235,7 +235,7 @@ A general-purpose miner for arbitrary French books, literature, or articles supp
 
 ## 4. Ingestion & Relational Linking Engine
 
-The core ingestion engine in [`backend/ingestion/pipeline/ingest_and_link.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/ingest_and_link.py) and [`backend/ingestion/pipeline/common.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/pipeline/common.py) ensures that no ill-formed, duplicate, or un-parsable sentences enter the database.
+The core ingestion engine in [`backend/ingestion/pipeline/ingest_and_link.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/ingest_and_link.py) and [`backend/ingestion/pipeline/common.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/common.py) ensures that no ill-formed, duplicate, or un-parsable sentences enter the database.
 
 ### 4.1 Sentence Normalization & Quality Heuristics (`is_valid_sentence`)
 Every sentence passes through strict regular expression and structural heuristics before processing:
@@ -283,42 +283,6 @@ if missing_fr:
 
 Ingestion enforces a **zero-unknown-lemma invariant**: every accepted sentence must be 100% resolvable against the `lemmas` table.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Ingest as ingest_and_link.py
-    participant Vocab as VocabEngine
-    participant DM as DataManager
-    participant DB as SQLite Database
-
-    Ingest->>DM: Fetch all known lemmas into memory
-    DM-->>Ingest: lemma_pos_to_id, lemma_fallback_to_id
-    Ingest->>Vocab: filter_sentences_with_complete_lemmas(candidates)
-    
-    loop For each candidate sentence
-        Vocab->>Vocab: Tokenize via nlp.pipe(batch)
-        Vocab->>Vocab: Resolve each token to lemma_id
-        alt Every token resolves to a lemma_id
-            Vocab-->>Ingest: Sentence Accepted
-        else Any token fails to resolve
-            Vocab-->>Ingest: Sentence Rejected (skipped_count + 1)
-        end
-    end
-
-    Ingest->>DM: bulk_insert_sentences(accepted_sentences)
-    DM->>DB: INSERT INTO sentences (...)
-    
-    Ingest->>Vocab: link_sentence_tokens_to_database(dm)
-    Vocab->>DB: Query unlinked sentence IDs
-    loop Batch linking (nlp.pipe)
-        Vocab->>Vocab: resolve_token_lemma_id(tok)
-        Vocab->>Vocab: resolve_token_word_id(tok)
-    end
-    Vocab->>DM: bulk_link_sentence_lemmas(chunk_lemma_links)
-    DM->>DB: INSERT OR IGNORE INTO sentence_lemmas (sentence_id, lemma_id)
-    Vocab->>DM: bulk_link_sentence_words(chunk_word_links)
-    DM->>DB: INSERT OR IGNORE INTO sentence_words (sentence_id, word_id)
-```
 
 #### Token Resolution Rules:
 1. **Elision & Contraction Stripping**: French contractions (*l', d', j', qu', s', jusqu', lorsqu'*) are decoupled. spaCy's native lemmatizer resolves *j'* to *je*, *l'* to *le*, and *d'* to *de*.
@@ -337,7 +301,7 @@ sequenceDiagram
 
 ## 5. Offline Dataset Rescoring
 
-As sequence classification models and CEFR definitions improve, the existing database can be rescored without altering sentence IDs, relational links, or user progress. Rescoring is handled by [`backend/ingestion/rescore_dataset.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ingestion/rescore_dataset.py).
+As sequence classification models and CEFR definitions improve, the existing database can be rescored without altering sentence IDs, relational links, or user progress. Rescoring is handled by [`backend/ingestion/rescore_dataset.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/rescore_dataset.py).
 
 ### Rescoring Procedure
 1. Retrieves all sentences from SQLite: `dm.get_all_sentences()`.
@@ -438,4 +402,4 @@ uv run python -m backend.ingestion.rescore_dataset
 ---
 
 <!-- Navigation Footer -->
-[← 04 Vocabulary Modeling & Progression](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/04_vocabulary_and_progression.md) | [Documentation Index](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/README.md) | [06 Deployment & Operations →](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/06_deployment_and_operations.md)
+[← 04 Vocabulary Modeling & Progression](file:///home/eyenga/Projects/FrenchTutor/docs/04_vocabulary_and_progression.md) | [Documentation Index](file:///home/eyenga/Projects/FrenchTutor/docs/README.md) | [06 Deployment & Operations →](file:///home/eyenga/Projects/FrenchTutor/docs/06_deployment_and_operations.md)

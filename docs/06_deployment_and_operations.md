@@ -1,6 +1,6 @@
 # 06. Deployment, Infrastructure & Operations
 
-[← Previous: 05 Ingestion & Mining](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/05_ingestion_and_mining.md) | [Documentation Index](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/README.md)
+[← Previous: 05 Ingestion & Mining](file:///home/eyenga/Projects/FrenchTutor/docs/05_ingestion_and_mining.md) | [Documentation Index](file:///home/eyenga/Projects/FrenchTutor/docs/README.md)
 
 ---
 
@@ -13,46 +13,6 @@ To reconcile the demands of developer agility, cross-platform portability, deter
 2. **Multi-Stage & Dual-Target Docker Architecture**: A production build packaging both the Node.js/Vite frontend bundle and the Python backend into a single lean container, mirrored by a development setup offering live hot-reloading (Vite HMR + Uvicorn reload) and optional NVIDIA GPU passthrough.
 3. **Layered Automated Testing Strategy with `pytest`**: Decoupled test suites where sub-second unit, database, and API tests execute in isolated environments with mocked neural models, while dedicated `@pytest.mark.ml` suites validate end-to-end tensor inference and lexical token alignment.
 
-```mermaid
-flowchart TD
-    subgraph HostEnvironment ["Host Machine & CI/CD Pipeline"]
-        UV["uv Package Manager<br/>(uv.lock, pyproject.toml)"]
-        Make["Makefile Interface<br/>(make dev, make test, make build)"]
-        Pytest["pytest Test Runner<br/>(Unit tests vs @pytest.mark.ml)"]
-    end
-
-    subgraph Containerization ["Docker Runtime Topologies"]
-        direction TB
-        subgraph ProdSetup ["Production: docker-compose.yml"]
-            ProdImg["Unified Multi-Stage Image<br/>(python:3.11-slim + Node.js 20 build)"]
-            BackendCPU["backend-cpu:8000<br/>PyTorch CPU Extra"]
-            BackendGPU["backend-gpu:8001<br/>PyTorch CUDA 12.4 Extra"]
-            ProdImg --> BackendCPU
-            ProdImg --> BackendGPU
-        end
-
-        subgraph DevSetup ["Development: docker-compose.dev.yml"]
-            DevHostMount["Bind Mounts: ./:/app"]
-            DevBackend["backend-dev:8000<br/>(FastAPI --reload)"]
-            DevFrontend["frontend-dev:5173<br/>(Vite HMR)"]
-            DevGPUBackend["backend-dev-gpu:8000<br/>(NVIDIA Driver Passthrough)"]
-            DevHostMount --> DevBackend
-            DevHostMount --> DevGPUBackend
-        end
-    end
-
-    subgraph HardwareTargets ["Hardware Acceleration Targets"]
-        CPUTarget["CPU Inference<br/>(download.pytorch.org/whl/cpu)"]
-        GPUTarget["GPU Inference (CUDA 12.4)<br/>(download.pytorch.org/whl/cu124)"]
-    end
-
-    UV -->|sync --extra cpu| CPUTarget
-    UV -->|sync --extra cu124| GPUTarget
-    BackendCPU --> CPUTarget
-    BackendGPU --> GPUTarget
-    DevBackend --> CPUTarget
-    DevGPUBackend --> GPUTarget
-```
 
 ---
 
@@ -62,7 +22,7 @@ The project standardizes entirely on [`uv`](https://github.com/astral-sh/uv), an
 
 ### 2.1 Configuration File Structure (`pyproject.toml`)
 
-FrenchTutor defines its workspace configuration in [`pyproject.toml`](file:///home/eyenga/Disk2/Projects/FrenchTutor/pyproject.toml):
+FrenchTutor defines its workspace configuration in [`pyproject.toml`](file:///home/eyenga/Projects/FrenchTutor/pyproject.toml):
 
 ```toml
 [project]
@@ -129,7 +89,7 @@ PyTorch distributes different binary wheels depending on the underlying CUDA com
 To prevent bloated CI images and ensure smooth development on non-GPU laptops while simultaneously supporting full GPU acceleration on workstations and servers:
 - **Mutually Exclusive Extras**: Under `[tool.uv]`, `conflicts` ensures that `cpu`, `cu118`, and `cu124` cannot be installed into the same environment simultaneously.
 - **Explicit Wheel Indices**: Under `[tool.uv.sources]`, the `torch` dependency routes to `pytorch-cpu` or `pytorch-cu124` based on the active extra.
-- **Deterministic Lockfile**: [`uv.lock`](file:///home/eyenga/Disk2/Projects/FrenchTutor/uv.lock) locks all variants deterministically across platforms.
+- **Deterministic Lockfile**: [`uv.lock`](file:///home/eyenga/Projects/FrenchTutor/uv.lock) locks all variants deterministically across platforms.
 
 #### Synchronization Commands
 
@@ -171,66 +131,15 @@ export UV_NO_SYNC=1
 ## 3. Docker Containerization Architecture
 
 FrenchTutor provides two distinct container deployment strategies:
-1. **Unified Production Deployment** ([`docker-compose.yml`](file:///home/eyenga/Disk2/Projects/FrenchTutor/docker-compose.yml), [`Dockerfile`](file:///home/eyenga/Disk2/Projects/FrenchTutor/Dockerfile)): Compact, multi-stage production images with bundled frontend assets.
-2. **Hot-Reload Development Cluster** ([`docker-compose.dev.yml`](file:///home/eyenga/Disk2/Projects/FrenchTutor/docker-compose.dev.yml)): Separate backend and frontend development containers with live source code mounts, Vite Hot Module Replacement (HMR), and host Hugging Face cache persistence.
+1. **Unified Production Deployment** ([`docker-compose.yml`](file:///home/eyenga/Projects/FrenchTutor/docker-compose.yml), [`Dockerfile`](file:///home/eyenga/Projects/FrenchTutor/Dockerfile)): Compact, multi-stage production images with bundled frontend assets.
+2. **Hot-Reload Development Cluster** ([`docker-compose.dev.yml`](file:///home/eyenga/Projects/FrenchTutor/docker-compose.dev.yml)): Separate backend and frontend development containers with live source code mounts, Vite Hot Module Replacement (HMR), and host Hugging Face cache persistence.
 
 ### 3.1 Multi-Stage Unified Production Dockerfile
 
-The production container uses a two-stage build to isolate the Node.js build tools from the final Python runtime:
-
-```dockerfile
-# syntax=docker/dockerfile:1
-
-# Stage 1: Build the frontend (Vite)
-FROM node:20-alpine AS frontend-builder
-WORKDIR /app/frontend
-COPY frontend/package.json frontend/package-lock.json* ./
-RUN npm install
-COPY frontend/ ./
-RUN npm run build
-
-# Stage 2: Build the backend and runtime environment
-FROM python:3.11-slim
-WORKDIR /app
-
-# Install minimal system dependencies (including headless Java for LanguageTool)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    default-jre-headless \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install uv from official distroless binary image
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
-# Configure uv and Hugging Face cache behavior
-ENV UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy \
-    HF_HOME=/root/.cache/huggingface
-
-# Define hardware target build argument (cpu, cu118, cu124)
-ARG UV_EXTRA=cpu
-ENV UV_EXTRA=${UV_EXTRA}
-
-COPY pyproject.toml uv.lock ./
-
-# Install dependencies deterministically via uv sync
-RUN uv sync --extra ${UV_EXTRA} --no-dev --frozen
-
-# Copy backend application and create data mount placeholder
-COPY backend/ ./backend/
-RUN mkdir -p /app/data
-COPY .env.example .env
-
-# Copy pre-compiled Vite distribution from Stage 1
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-
-EXPOSE 8000
-
-CMD ["uv", "run", "--no-sync", "python", "-m", "backend.server", "--host", "0.0.0.0", "--port", "8000"]
-```
+The production container defined in [`Dockerfile`](file:///home/eyenga/Projects/FrenchTutor/Dockerfile) uses a two-stage build to isolate the Node.js build tools from the final Python runtime (Node 20 Alpine frontend compilation followed by a lean `python:3.11-slim` runtime with `uv`).
 
 > [!NOTE]
-> `default-jre-headless` is strictly required in the runtime image. The project's grammar checking engine ([`backend/scoring/spellchecker.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/scoring/spellchecker.py)) utilizes `language-tool-python`, which orchestrates a local headless Java LanguageTool server.
+> `default-jre-headless` is strictly required in the runtime image. The project's grammar checking engine ([`backend/scoring/spellchecker.py`](file:///home/eyenga/Projects/FrenchTutor/backend/scoring/spellchecker.py)) utilizes `language-tool-python`, which orchestrates a local headless Java LanguageTool server.
 
 ### 3.2 Production Compose Topology (`docker-compose.yml`)
 
@@ -238,46 +147,6 @@ The production configuration defines two services sharing the same image build r
 - `backend-cpu`: Standard CPU-bound container exposed on port 8000.
 - `backend-gpu`: Activated via the Docker Compose `--profile gpu` flag, allocating NVIDIA device reservations for CUDA compute.
 
-```yaml
-services:
-  # CPU-only deployment
-  backend-cpu:
-    build:
-      context: .
-      args:
-        UV_EXTRA: cpu
-    ports:
-      - "${PORT:-8000}:8000"
-    volumes:
-      - ${DATA_DIR:-./data}:/app/data
-      - ${HF_CACHE_DIR:-~/.cache/huggingface}:/root/.cache/huggingface
-    environment:
-      - PORT=8000
-      - HOST=0.0.0.0
-
-  # GPU-accelerated deployment (Requires NVIDIA Container Toolkit on host)
-  backend-gpu:
-    profiles: ["gpu"]
-    build:
-      context: .
-      args:
-        UV_EXTRA: cu124
-    ports:
-      - "${PORT:-8001}:8000"
-    volumes:
-      - ${DATA_DIR:-./data}:/app/data
-      - ${HF_CACHE_DIR:-~/.cache/huggingface}:/root/.cache/huggingface
-    environment:
-      - PORT=8000
-      - HOST=0.0.0.0
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-```
 
 #### Production Operations Quickstart
 
@@ -294,7 +163,7 @@ docker compose logs -f backend-cpu
 
 ### 3.3 Development Compose Topology (`docker-compose.dev.yml`)
 
-For local containerized development, [`docker-compose.dev.yml`](file:///home/eyenga/Disk2/Projects/FrenchTutor/docker-compose.dev.yml) separates the backend and frontend into independent hot-reloading containers:
+For local containerized development, [`docker-compose.dev.yml`](file:///home/eyenga/Projects/FrenchTutor/docker-compose.dev.yml) separates the backend and frontend into independent hot-reloading containers:
 
 1. **Volume Isolation (`/app/.venv` & `/app/frontend/node_modules`)**: Anonymous volumes prevent the host container filesystem from clobbering the Linux-compiled binaries in `.venv` and `node_modules`.
 2. **FastAPI Live Reload**: Mounts `./backend` and passes `--reload --reload-dir backend` to uvicorn via `backend.server`.
@@ -338,13 +207,13 @@ addopts = "-v -m 'not ml' --tb=short"
 | Test Suite | Filter Flag | Description | Execution Time | Typical Use Case |
 | :--- | :--- | :--- | :--- | :--- |
 | **Fast Unit / Integration** | `pytest` or `pytest -m "not ml"` | Database schema, repository layer, Lexique 4 classification, token parsing, API endpoints, mock TTS. | ~1–2 seconds | Pre-commit hooks, CI pull-request validation, local development. |
-| **Neural Inference Suite** | `pytest -m ml` | Evaluates [`MLEngine`](file:///home/eyenga/Disk2/Projects/FrenchTutor/backend/ml/engine.py), GlotLID language identification, NLLB cross-attention matrix extraction, and GPT-2 fluency scores. | ~20–60 seconds | Nightly builds, GPU server validation, release candidate staging. |
+| **Neural Inference Suite** | `pytest -m ml` | Evaluates [`MLEngine`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/engine.py), GlotLID language identification, NLLB cross-attention matrix extraction, and GPT-2 fluency scores. | ~20–60 seconds | Nightly builds, GPU server validation, release candidate staging. |
 | **Comprehensive Suite** | `pytest -m ""` | Runs all available tests without filtering. | ~30–75 seconds | Full regression auditing before major releases. |
 | **Coverage Analysis** | `pytest --cov=backend` | Calculates line coverage across the backend codebase (omitting heavy preloaded neural engines as defined in `pyproject.toml`). | ~3 seconds | Code quality auditing. |
 
 ### 4.3 Mocking Strategies for ML & External Services in CI/CD
 
-To keep fast test suites deterministic and hermetic, [`tests/conftest.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/tests/conftest.py) provides session-scoped and function-scoped test fixtures that mock external dependencies:
+To keep fast test suites deterministic and hermetic, [`tests/conftest.py`](file:///home/eyenga/Projects/FrenchTutor/tests/conftest.py) provides session-scoped and function-scoped test fixtures that mock external dependencies:
 
 ```python
 # Excerpt from tests/conftest.py
@@ -392,27 +261,11 @@ Through these fixtures:
 - **ML Engine Deferral**: The `ScoringEngine` runs its grammar, orthographic, and dictionary components directly, while heavy transformer inference in `MLEngine` is either mocked or exercised in dedicated `test_ml_models.py` runs.
 - **Database Isolation**: Every test receives an independent SQLite database via `temp_db_path`, guaranteeing zero cross-test interference.
 
-### 4.4 Lexique 4 Architecture & Classifier Test Verification
-
-The Lexique 4 two-tier lexical architecture and frequency classification pipeline are verified by specialized test modules:
-
-1. **[`tests/test_lexique_classifier.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/tests/test_lexique_classifier.py)**:
-   - **Mathematical Validation (`test_compute_zipf`)**: Confirms Zipf calculations ($\text{Zipf} = \log_{10}(\text{FreqLemme}) + 3.0$) and edge-case zero/negative handling.
-   - **Rank to CEFR Mapping (`test_rank_to_cefr`)**: Validates exact rank threshold boundaries:
-     $$\text{A1: } [1, 800], \quad \text{A2: } [801, 1800], \quad \text{B1: } [1801, 3500], \quad \text{B2: } [3501, 6500], \quad \text{C1: } [6501, 12000], \quad \text{C2: } >12000$$
-   - **Synthetic Lexique Parsing (`test_parse_and_classify_synthetic`)**: Verifies deduplication, canonical (`14_IsLem == '1'`) vs non-canonical lemma extraction, and POS mapping.
-   - **Referential Integrity Audit (`test_real_lexique_integrity`)**: Executes an offline audit against `data/lexique/Lexique4/Lexique4.tsv`, validating that 100% of the 189,863 surface words reference valid existing lemmas.
-
-2. **[`tests/test_lemma_word_architecture.py`](file:///home/eyenga/Disk2/Projects/FrenchTutor/tests/test_lemma_word_architecture.py)**:
-   - **Cascade Integrity (`test_database_integrity_and_cascade`)**: Validates foreign key cascades when a lemma is deleted.
-   - **Dual User Tracking (`test_sentence_junctions_and_token_appearances`)**: Tests simultaneous updates to `user_lemmas` (canonical root progress) and `user_words` (inflected surface form exposures).
-   - **Token Disambiguation (`test_vocab_engine_token_resolution`)**: Tests POS-aware spaCy token matching against database lemma and word tables with heuristic fallbacks.
-
 ---
 
 ## 5. Operational Tooling & Makefile Reference
 
-The root [`Makefile`](file:///home/eyenga/Disk2/Projects/FrenchTutor/Makefile) serves as the primary developer workflow interface. It abstracts `uv run`, port assignments, parallel worktree support, and multi-process lifecycle management.
+The root [`Makefile`](file:///home/eyenga/Projects/FrenchTutor/Makefile) serves as the primary developer workflow interface. It abstracts `uv run`, port assignments, parallel worktree support, and multi-process lifecycle management.
 
 ```mermaid
 flowchart LR
@@ -500,4 +353,4 @@ In production deployments, the following host volumes must be persisted:
 
 ---
 
-[← Previous: 05 Ingestion & Mining](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/05_ingestion_and_mining.md) | [Documentation Index](file:///home/eyenga/Disk2/Projects/FrenchTutor/docs/README.md)
+[← Previous: 05 Ingestion & Mining](file:///home/eyenga/Projects/FrenchTutor/docs/05_ingestion_and_mining.md) | [Documentation Index](file:///home/eyenga/Projects/FrenchTutor/docs/README.md)
