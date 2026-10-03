@@ -41,14 +41,3 @@ FUNCTION_WORDS = {
     "ce", "cet", "cette", "ces", "c'", "est", "sont", "a", "ont",
     "que", "qui", "qu'", "ne", "pas", "n'", "se", "s'", "en", "y"
 }
-
-# Common short French words for language identification gatekeeper
-COMMON_FRENCH_WORDS = {
-    'le', 'la', 'les', 'un', 'une', 'des', 'du', 'au', 'aux',
-    'ce', 'cet', 'cette', 'ces', 'je', 'tu', 'il', 'elle', 'on',
-    'nous', 'vous', 'ils', 'elles', 'j', 't', 's', 'l', 'd', 'c', 'm', 'n', 'qu',
-    'me', 'te', 'se', 'lui', 'leur', 'y', 'en', 'moi', 'toi',
-    'est', 'ai', 'suis', 'es', 'sommes', 'êtes', 'sont', 'a', 'ont', 'va', 'vais', 'vas', 'vont',
-    'bonjour', 'merci', 'oui', 'non', 'salut', 'revoir', 'bien', 'sûr', 'faim', 'soif', 'peur',
-    'très', 'plus', 'pas', 'ne', 'où', 'que', 'qui', 'quoi', 'comment', 'pourquoi', 'avec', 'sans', 'dans', 'pour', 'sur'
-}

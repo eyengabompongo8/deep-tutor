@@ -91,4 +91,32 @@ class TestMLEngine:
 
         assert found_velos, "'vélos' not found in nmt_word_breakdown"
 
+    def test_check_language_validation_and_rejection(self, ml_engine):
+        # Empty or whitespace
+        is_fr, prob = ml_engine.check_language("")
+        assert not is_fr
+        assert prob == 0.0
+
+        is_fr, prob = ml_engine.check_language("   \n  ")
+        assert not is_fr
+        assert prob == 0.0
+
+        # Valid French short sentences
+        for sentence in ["Merci", "C'est bon", "Bonjour", "Je suis ici", "un deux trois"]:
+            is_fr, prob = ml_engine.check_language(sentence)
+            assert is_fr, f"Expected '{sentence}' to be recognized as French, got {is_fr} (prob={prob})"
+            assert prob >= 0.40
+
+        # Non-French sentences that previously bypassed LID because of overlapping words
+        # (e.g. English 'on', Spanish 'en' / 'la' / 'a')
+        non_french_samples = [
+            "He is on the bus.",
+            "El libro está en la mesa.",
+            "The dog is brown.",
+            "Hola que tal amigo.",
+        ]
+        for sentence in non_french_samples:
+            is_fr, prob = ml_engine.check_language(sentence)
+            assert not is_fr, f"Expected non-French '{sentence}' to be rejected, but got is_fr={is_fr} (prob={prob})"
+
 

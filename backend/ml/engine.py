@@ -22,7 +22,7 @@ import numpy as np
 import language_tool_python
 
 from backend.ml.registry import registry, NMTRawOutput, FluencyRawOutput
-from backend.config import NMT_DELTA_L_THRESHOLD, FUNCTION_WORDS, COMMON_FRENCH_WORDS
+from backend.config import NMT_DELTA_L_THRESHOLD, FUNCTION_WORDS
 from backend.ml.token_utils import (
     _build_nmt_breakdowns,
     _build_fluency_breakdowns,
@@ -84,14 +84,6 @@ class MLEngine:
         text_clean = text.strip().replace("\n", " ")
         if not text_clean:
             return False, 0.0
-
-        words = re.findall(r"\b[^\W\d_]+\b", text_clean.lower(), re.UNICODE)
-        if not words:
-            return False, 0.0
-
-        # Short French sentences (< 6 words) frequently trigger false negatives in fasttext
-        if len(words) <= 5 and any(w in COMMON_FRENCH_WORDS for w in words):
-            return True, 1.0
 
         try:
             predictions, probabilities = self.lid_model.predict(text_clean)
