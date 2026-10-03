@@ -202,13 +202,6 @@ class DBConnection:
             );
         """)
 
-        # Compatibility view for user_lexema_counts
-        conn.execute("""
-            CREATE VIEW IF NOT EXISTS user_lexema_counts AS
-            SELECT user_id, lemma_id AS lexema_id, level, appearance_count, success_count
-            FROM user_lemmas;
-        """)
-
         # User modes table for separate exercise mode tracking
         conn.execute(f"""
             CREATE TABLE IF NOT EXISTS user_modes (

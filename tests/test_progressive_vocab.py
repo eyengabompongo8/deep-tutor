@@ -67,7 +67,7 @@ class TestProgressiveVocabulary:
 
         with self.dm._get_connection() as conn:
             row = conn.execute(
-                "SELECT appearance_count, success_count FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                "SELECT appearance_count, success_count FROM user_lemmas WHERE user_id = 'test_user' AND lemma_id = ?;",
                 (self.l3,)
             ).fetchone()
             assert row is not None
@@ -82,7 +82,7 @@ class TestProgressiveVocabulary:
         self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=False, is_retry=False)
         with self.dm._get_connection() as conn:
             row = conn.execute(
-                "SELECT appearance_count, success_count FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                "SELECT appearance_count, success_count FROM user_lemmas WHERE user_id = 'test_user' AND lemma_id = ?;",
                 (self.l3,)
             ).fetchone()
             assert row is not None
@@ -94,7 +94,7 @@ class TestProgressiveVocabulary:
         assert len(progress) > 0
         with self.dm._get_connection() as conn:
             row = conn.execute(
-                "SELECT appearance_count, success_count FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                "SELECT appearance_count, success_count FROM user_lemmas WHERE user_id = 'test_user' AND lemma_id = ?;",
                 (self.l3,)
             ).fetchone()
             assert row is not None
@@ -106,7 +106,7 @@ class TestProgressiveVocabulary:
         self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True, is_retry=False)
         with self.dm._get_connection() as conn:
             row = conn.execute(
-                "SELECT appearance_count, success_count FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                "SELECT appearance_count, success_count FROM user_lemmas WHERE user_id = 'test_user' AND lemma_id = ?;",
                 (self.l3,)
             ).fetchone()
             assert row is not None
