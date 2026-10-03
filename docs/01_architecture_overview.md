@@ -50,8 +50,8 @@ sequenceDiagram
    - **Monolingual Fluency ($S_{\text{fluency}}$)**: Evaluates natural French construction using a causal GPT-2 language model:
      $$S_{\text{fluency}} = \max\left(0, \min\left(100, \frac{\text{PPL}_{\text{ref}}^{\text{LM}}}{\max(\text{PPL}_{\text{student}}^{\text{LM}}, 10^{-5})} \times 100\right)\right)$$
 
-5. **Token Alignment & Unexpected Word Filtration**:
-   Using the cross-attention matrix extracted from NMT inference, [`align_and_filter_unexpected_words(...)`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/engine.py#L179-L260) maps each student word through the Spanish source word back to the expected French reference token. Sound substitutions (identical words, matching functional tokens) are accepted, while genuine vocabulary mistakes are flagged with the expected target word.
+5. **Token Alignment & Surprise Breakdowns**:
+   Using the cross-attention matrix extracted from NMT inference, whole-word alignment is pooled across Spanish source words and French target words to support interactive UI hover highlighting and hints. Token-level surprise ($\Delta L_i > 8.0$) flags high-surprise tokens directly based on conditional NMT probabilities.
 
 6. **Composite Correctness Decision**:
    [`ScoringEngine.compute_sentence_quality(...)`](file:///home/eyenga/Projects/FrenchTutor/backend/scoring/engine.py#L269-L297) compares all three metrics against the user's configured threshold ($\tau$, default 75.0):

@@ -27,7 +27,7 @@ docs/
 | :--- | :--- | :--- |
 | **[01. Architecture Overview](file:///home/eyenga/Projects/FrenchTutor/docs/01_architecture_overview.md)** | System Design & Topology | React SPA + FastAPI topology, multi-model asynchronous ML pipeline, end-to-end request sequence diagrams, concurrency locks, eager precomputation workers, and directory structure. |
 | **[02. Database & Data Models](file:///home/eyenga/Projects/FrenchTutor/docs/02_database_and_models.md)** | Data Layer & Storage | Two-tier lexical architecture (`lemmas` vs `words`), dual user tracking (`user_lemmas` vs `user_words`), complete 10-table Mermaid ER diagram, SQL DDL specifications, SQLite WAL mode, and repository mixins (`DataManager`). |
-| **[03. NLP & Scoring Pipeline](file:///home/eyenga/Projects/FrenchTutor/docs/03_nlp_and_scoring_pipeline.md)** | Evaluation & Scoring | 5-stage submission evaluation: FastText LID gatekeeper (`glotlid`), SentenceTransformers semantic similarity ($S_{\text{sem}}$), NLLB-200 NMT cross-attention token alignment ($S_{\text{NMT}}$), French GPT-2 fluency ($S_{\text{fluency}}$), LanguageTool rule engine, phonetic sound matching, and audio grading. |
+| **[03. NLP & Scoring Pipeline](file:///home/eyenga/Projects/FrenchTutor/docs/03_nlp_and_scoring_pipeline.md)** | Evaluation & Scoring | 5-stage submission evaluation: FastText LID gatekeeper (`glotlid`), SentenceTransformers semantic similarity ($S_{\text{sem}}$), NLLB-200 NMT cross-attention token alignment ($S_{\text{NMT}}$), French GPT-2 fluency ($S_{\text{fluency}}$), LanguageTool rule engine, and audio grading. |
 | **[04. Vocabulary & Progression](file:///home/eyenga/Projects/FrenchTutor/docs/04_vocabulary_and_progression.md)** | Pedagogical Engine | Rank-based CEFR assignment ($1 \le R \le 800$ to $R > 12{,}000$), Zipf score formula $\text{Zipf} = \log_{10}(\text{FreqLemme}) + 3$, spaCy POS to Lexique 4 `Cgram` mapping, $i+1$ comprehensible input constraints, candidate buffering queues, and dual appearance counters. |
 | **[05. Ingestion & Mining Pipeline](file:///home/eyenga/Projects/FrenchTutor/docs/05_ingestion_and_mining.md)** | Data Ingestion & Seeding | CLI orchestrator (`orchestrator.py`), Lexique 4 parsing (canonical vs referenced lemmas; 69,728 lemmas, 189,863 words), corpus miners (Tatoeba, UniversalCEFR, Lingua, Catie, Vekkt, PDF), LSH deduplication, strict relational linking (`sentence_lemmas`, `sentence_words`), and offline rescoring. |
 | **[06. Deployment & Operations](file:///home/eyenga/Projects/FrenchTutor/docs/06_deployment_and_operations.md)** | Infrastructure & Tooling | Fast dependency management with `uv`, CPU vs CUDA 12.4 GPU PyTorch variants (`UV_NO_SYNC=1`), multi-stage Docker builds, development hot-reloading with GPU passthrough, pytest markers (`@pytest.mark.ml`), mocking patterns, and Makefile command index. |
@@ -92,7 +92,7 @@ graph TB
         MiniLM["SentenceTransformers (Semantic Adequacy)"]
         NLLB["NLLB-200 (Perplexity & Cross-Attention)"]
         GPT2["French GPT-2 (Fluency Scoring)"]
-        LT["LanguageTool & Phonetics (Grammar & Spelling)"]
+        LT["LanguageTool (Grammar & Syntax Rules)"]
     end
 
     subgraph DataTier ["Data & Persistence Layer (SQLite WAL)"]

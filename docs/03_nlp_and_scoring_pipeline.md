@@ -13,7 +13,7 @@ Rather than relying on brittle string matching or opaque, non-deterministic comm
 2. **Semantic Adequacy ($S_{\text{sem}}$)**: Dense multilingual bi-encoder embeddings ([`dangvantuan/sentence-camembert-base`](https://huggingface.co/dangvantuan/sentence-camembert-base) or [`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2)) measuring semantic cosine similarity against reference translations.
 3. **NMT Perplexity ($S_{\text{NMT}}$) & Cross-Attention Alignment**: Sequence-to-sequence translation models ([`Helsinki-NLP/opus-mt-es-fr`](https://huggingface.co/Helsinki-NLP/opus-mt-es-fr) and [`facebook/nllb-200-distilled-600M`](https://huggingface.co/facebook/nllb-200-distilled-600M)) providing conditional cross-entropy loss, token surprise ($\Delta L$), and cross-attention matrix extraction for token-level Spanish-to-French word alignment.
 4. **Monolingual Fluency ($S_{\text{fluency}}$)**: Causal autoregressive French language modeling ([`asi/gpt-fr-cased-small`](https://huggingface.co/asi/gpt-fr-cased-small) / [`asi/gpt-fr-cased-base`](https://huggingface.co/asi/gpt-fr-cased-base)) calculating shifted token-level negative log-likelihood and relative perplexity.
-5. **Orthography, Grammar & Phonetic Evaluation**: Two-tier LanguageTool rule matching, typographical normalization, Levenshtein distance, and phonetic sound matching.
+5. **Orthography & Grammar Evaluation**: Two-tier LanguageTool rule matching, typographical normalization, and grammatical error classification.
 6. **Audio Transcription & Pronunciation Scoring**: Word-level diff sequence matching, accent error classification, and acoustic transcription feedback.
 
 ```mermaid
@@ -28,7 +28,7 @@ flowchart TD
         S_sem["Semantic Adequacy (S_sem)"]
         S_nmt["NMT Perplexity & Alignment (S_nmt)"]
         S_fl["Monolingual Fluency (S_fluency)"]
-        S_rules["LanguageTool Rules & Phonetics"]
+        S_rules["LanguageTool Rules & Grammar"]
     end
 
     Eval --> Agg["ScoringEngine.compute_sentence_quality(...)"]
@@ -202,7 +202,7 @@ If the student uses unnatural word orders or ungrammatical collocations, causal 
 
 ---
 
-## 7. Stage 5: Orthography, Grammar & Phonetic Sound Matching
+## 7. Stage 5: Orthography & Grammar Checking (LanguageTool)
 
 ### 7.1 LanguageTool Rule-Based Engine
 Neural language models can overlook subtle agreement rules (e.g., feminine past participle agreement: *"Elle est parti"* vs. *"Elle est partie"*). Stage 5 integrates a local rule-based engine:
@@ -211,23 +211,6 @@ Neural language models can overlook subtle agreement rules (e.g., feminine past 
   - **Ignored Categories**: `STYLE`, `TYPOGRAPHY`, `PUNCTUATION`, `COLLOQUIALISMS`, `REDUNDANCY`.
   - **Ignored Issue Types**: `style`, `register`, `typographical`, `whitespace`, `locale-violation`.
 - **Targeted Rules**: Retains genuine syntax errors, verb conjugations, gender/number disagreements, and confused homophones (e.g., *a/à*, *ou/où*, *son/sont*, *ce/se*).
-
-### 7.2 Soundness & Phonetic Matching Heuristics
-When a student word triggers a high surprise score ($\Delta L > 8.0$), the system verifies whether the substitution is linguistically acceptable before marking it as an error:
-
-Implemented in [`align_and_filter_unexpected_words`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/engine.py#L179-L264):
-1. **Triangular Alignment Lookup**:
-   Using the student alignment matrix $\mathbf{M}_{\text{stu}}$ and reference alignment matrix $\mathbf{M}_{\text{ref}}$, the system resolves which source word $s$ the student word $w_{\text{stu}}$ was intended to translate, and which reference word $w_{\text{ref}}$ was expected:
-   $$s^* = \arg\max_s \mathbf{M}_{\text{stu}}[w_{\text{stu}}, s], \quad w_{\text{ref}}^* = \arg\max_r \mathbf{M}_{\text{ref}}[r, s^*]$$
-
-2. **Soundness Verification**:
-   The word is marked as valid (`is_error = False`) if any of these conditions hold:
-   - **Exact Normalized Match**: `clean(w_stu) == clean(w_ref*)`.
-   - **Functional Word Equivalence**: Both words belong to [`FUNCTION_WORDS`](file:///home/eyenga/Projects/FrenchTutor/backend/config.py#L39-L43) (e.g., valid alternations like *"un"* vs. *"le"*, *"ce"* vs. *"cet"*).
-   - **Semantic Near-Synonym**: Embedding cosine similarity between isolated words $\ge 0.70$.
-   - **Phonetic Equivalence & Typo Proximity**: Edit distance $\le 2$ or identical phonetic representations without accents (`remove_accents`).
-
-If the word fails all soundness checks, it is flagged as an error, with the expected reference token presented to the user.
 
 ---
 

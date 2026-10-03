@@ -49,48 +49,6 @@ class TestMLEngine:
             if item["word"] == "rêveur":
                 assert not item["is_error"], "Reference word 'rêveur' must not be flagged as error"
 
-    def test_unsound_word_expected_suggestion(self, ml_engine):
-        src = "Tengo un bolígrafo."
-        ref = "J'ai un stylo."
-        student = "un style est ce que j'ai."
-
-        res = ml_engine.compute_final_score(src, student, ref)
-        nmt_word_bd = res.get("nmt_word_breakdown", [])
-
-        # The unsound word 'style' (typed instead of 'stylo' for 'bolígrafo')
-        # should have expected reference suggestion 'stylo', never 'bul'
-        found_style = False
-        for item in nmt_word_bd:
-            if item["word"].lower() == "style":
-                found_style = True
-                assert item["top_prediction"] == "stylo", f"Expected suggestion 'stylo' but got '{item['top_prediction']}'"
-                assert item["is_error"], "Unsound word 'style' should be flagged as error"
-            elif item["word"].lower() in {"un", "est", "ce", "que", "j'", "ai"}:
-                # Functional or reference words must not be flagged as unexpected words
-                assert not item["is_error"], f"Grammar/function word '{item['word']}' should not be flagged as error"
-
-        assert found_style, "'style' not found in nmt_word_breakdown"
-
-    def test_unsound_word_velos_for_voitures(self, ml_engine):
-        src = "Tengo dos automóviles."
-        ref = "J'ai deux voitures."
-        student = "J'ai deux vélos."
-
-        res = ml_engine.compute_final_score(src, student, ref)
-        nmt_word_bd = res.get("nmt_word_breakdown", [])
-
-        found_velos = False
-        for item in nmt_word_bd:
-            clean_w = item["word"].lower().strip(".,!?:;'\"-")
-            if clean_w == "vélos":
-                found_velos = True
-                assert item["is_error"], "Unsound word 'vélos' should be flagged as error"
-                assert "voitures" in item["top_prediction"].lower(), f"Expected 'voitures', got '{item['top_prediction']}'"
-            elif clean_w in {"j'", "ai", "deux"}:
-                assert not item["is_error"], f"Correct word '{item['word']}' should not be flagged"
-
-        assert found_velos, "'vélos' not found in nmt_word_breakdown"
-
     def test_check_language_validation_and_rejection(self, ml_engine):
         # Empty or whitespace
         is_fr, prob = ml_engine.check_language("")

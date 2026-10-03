@@ -31,7 +31,7 @@ The platform combines a modular **FastAPI** backend organized into clean subpack
 - **Modular Micro-Architecture**: Decoupled backend architecture split into cohesive submodules: `backend.api`, `backend.db`, `backend.ml`, `backend.nlp`, `backend.scoring`, and `backend.ingestion`.
 - **Dynamic Cross-Attention Word Alignment**: Visual mapping showing how Spanish source tokens correspond to French target tokens.
 - **Multifaceted Linguistic Scoring**: Deconstructs user translations by semantic adequacy, NMT perplexity, fluency, and grammatical accuracy.
-- **Rule-Based Spellchecking & Sound Matching**: Intelligent detection of phonetic confusions, accents, and typos (via LanguageTool + phonetic heuristics).
+- **Rule-Based Spellchecking & Grammar Engine**: Intelligent detection of grammatical errors, verb conjugations, and agreement mistakes (via LanguageTool).
 - **CEFR Adaptive Progression & Vocabulary Engine**: Tracks learned, mastered, and newly introduced lexemes according to CEFR standards (A1 to C2) based on FLELex / CEFRLex.
 - **Balanced Candidate Sentence Buffer**: Smart sampling pipeline balancing progression cards (new vocabulary) and reinforcement cards (known vocabulary) for translations and transcription exercises.
 - **High-Quality Neural TTS**: Automatic audio synthesis and playback caching using Edge-TTS with native French neural voices.
@@ -55,7 +55,7 @@ flowchart TD
         S_sem["2. Semantic Adequacy (S_sem)\nSentenceTransformers (paraphrase-multilingual-MiniLM-L12-v2)\nCosine similarity with reference"]
         S_nmt["3. NMT Perplexity & Word Mapping (S_nmt)\nNLLB-200 (facebook/nllb-200-distilled-600M)\nCross-entropy loss + Cross-attention matrix"]
         S_fl["4. Monolingual Fluency (S_fluency)\nFrench GPT-2 (asi/gpt-fr-cased-base)\nCausal LM loss strictly on French syntax"]
-        S_spell["5. Spell & Grammar Checks\nLanguageTool + Phonetic Sound Matching"]
+        S_spell["5. Spell & Grammar Checks\nLanguageTool (Grammar & Syntax Rules)"]
     end
 
     EvalParallel --> Aggregator["Scoring Engine & Diff Analysis\nWeighted composite score & CEFR progression"]

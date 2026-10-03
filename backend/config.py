@@ -39,9 +39,3 @@ DEFAULT_UNLOCKED_WORDS = {
     "m'", "t'", "s'", "c'", "j'", "l'", "d'", "n'", "qu'", "aujourd'hui", "hier", "demain"
 }
 
-# Common functional words used for grammatical sound matching
-FUNCTION_WORDS = {
-    "le", "la", "les", "l'", "un", "une", "des", "du", "de", "d'",
-    "ce", "cet", "cette", "ces", "c'", "est", "sont", "a", "ont",
-    "que", "qui", "qu'", "ne", "pas", "n'", "se", "s'", "en", "y"
-}

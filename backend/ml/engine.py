@@ -22,7 +22,7 @@ import numpy as np
 import language_tool_python
 
 from backend.ml.registry import registry, NMTRawOutput, FluencyRawOutput
-from backend.config import NMT_DELTA_L_THRESHOLD, FUNCTION_WORDS
+from backend.config import NMT_DELTA_L_THRESHOLD
 from backend.ml.token_utils import (
     _build_nmt_breakdowns,
     _build_fluency_breakdowns,
@@ -167,85 +167,6 @@ class MLEngine:
                             
         return errors
 
-    def align_and_filter_unexpected_words(
-        self,
-        nmt_word_breakdown: List[Dict[str, Any]],
-        mapping_data_student: Tuple[List[str], List[str], np.ndarray],
-        mapping_data_ref: Tuple[List[str], List[str], np.ndarray]
-    ) -> List[Dict[str, Any]]:
-        """
-        Soundness & vocabulary verification using student-to-source-to-reference alignment.
-        Instead of arbitrary greedy NMT sub-tokens, finds which source word the student word
-        aligned with, and looks up the intended reference word.
-        If the student word is unsound for that concept and has elevated surprise, flags it
-        and provides the actual reference word as top_prediction.
-        """
-        if not nmt_word_breakdown:
-            return nmt_word_breakdown
-
-        ref_words = mapping_data_ref[1] if mapping_data_ref is not None else []
-        ref_matrix = mapping_data_ref[2] if mapping_data_ref is not None else None
-        src_words_ref = mapping_data_ref[0] if mapping_data_ref is not None else []
-
-        src_words_stu = mapping_data_student[0] if mapping_data_student is not None else []
-        stu_words = mapping_data_student[1] if mapping_data_student is not None else []
-        stu_matrix = mapping_data_student[2] if mapping_data_student is not None else None
-
-        def _clean_word(w: str) -> str:
-            if not w:
-                return ""
-            w = re.sub(r"[’‘`´′]", "'", w)
-            w = re.sub(r"[‑–—−]", "-", w)
-            return w.lower().strip(".,!?:;\"«»()[]{}").strip()
-
-        ref_words_clean = [_clean_word(w) for w in ref_words]
-        ref_words_set = set(ref_words_clean)
-
-        for item in nmt_word_breakdown:
-            w_idx = item.get("index", 0)
-            raw_w = item.get("word", "")
-            clean_w = _clean_word(raw_w)
-
-            if clean_w in ref_words_set:
-                item["is_error"] = False
-                item["top_prediction"] = ""
-                continue
-
-            expected_ref_word = ""
-            matched_src_word = ""
-
-            if stu_matrix is not None and w_idx < stu_matrix.shape[0]:
-                best_s_idx = int(np.argmax(stu_matrix[w_idx, :]))
-                if best_s_idx < len(src_words_stu):
-                    matched_src_word = src_words_stu[best_s_idx]
-
-                if ref_matrix is not None and best_s_idx < ref_matrix.shape[1]:
-                    best_ref_idx = int(np.argmax(ref_matrix[:, best_s_idx]))
-                    if best_ref_idx < len(ref_words):
-                        expected_ref_word = ref_words[best_ref_idx]
-
-            if not expected_ref_word and ref_words:
-                expected_ref_word = ref_words[-1]
-
-            clean_expected = _clean_word(expected_ref_word)
-
-            is_sound = False
-            if clean_expected and clean_w:
-                if clean_w == clean_expected:
-                    is_sound = True
-                elif clean_w in FUNCTION_WORDS and clean_expected in FUNCTION_WORDS:
-                    is_sound = True
-
-            if is_sound:
-                item["is_error"] = False
-                item["top_prediction"] = ""
-            else:
-                item["is_error"] = bool(clean_expected != "" and clean_w != "")
-                item["top_prediction"] = expected_ref_word
-                item["source_word"] = matched_src_word
-
-        return nmt_word_breakdown
-
     def evaluate_student_against_bundle(self, source_text: str, student_text: str, reference_bundle: Any) -> Dict[str, Any]:
         """
         Evaluates the student text against a precomputed ReferenceBundle.
@@ -282,11 +203,6 @@ class MLEngine:
             reference_bundle.src_words,
             reference_bundle.ref_words,
             reference_bundle.attn_matrix_ref
-        )
-
-        # Soundness and expected-word refinement using reference alignment
-        nmt_word_breakdown = self.align_and_filter_unexpected_words(
-            nmt_word_breakdown, mapping_data_student, mapping_data_ref
         )
 
         return {
@@ -328,10 +244,6 @@ class MLEngine:
         s_fluency = max(0.0, min(100.0, (fluency_ppl_ref / max(fluency_ppl_student, 1e-5)) * 100.0))
 
         syntactical_errors = self.evaluate_syntax(student_text)
-
-        nmt_word_breakdown = self.align_and_filter_unexpected_words(
-            nmt_word_breakdown, mapping_data_student, mapping_data_ref
-        )
 
         return {
             "is_french": is_french,
