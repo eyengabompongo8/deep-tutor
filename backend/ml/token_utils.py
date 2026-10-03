@@ -1,7 +1,6 @@
 import re
 from typing import Dict, Any, Tuple, List, Optional
 import numpy as np
-from sentence_transformers import util
 
 from backend.ml.registry import NMTRawOutput, FluencyRawOutput
 from backend.config import NMT_DELTA_L_THRESHOLD
@@ -219,25 +218,25 @@ def _build_fluency_breakdowns(raw: FluencyRawOutput, text: str) -> Tuple[List[Di
     return fluency_token_breakdown, fluency_word_breakdown
 
 
-def _compute_hybrid_alignment_matrix(
+def _compute_attention_alignment_matrix(
     subtoken_attn: np.ndarray,
     src_words: List[str],
     tgt_words: List[str],
     src_sub_groups: List[List[int]],
     tgt_sub_groups: List[List[int]],
-    sem_model: Any
 ) -> np.ndarray:
     """
-    Constructs a high-precision hybrid word alignment matrix by combining:
-    1. Row-softmax normalized NMT cross-attention weights pooled to word boundaries.
-    2. Contextual multilingual embedding cosine similarity (SimAlign) from the semantic model.
+    Constructs a word alignment matrix purely from NMT cross-attention weights.
+    Aggregates row-softmax normalized subtoken attention over whole-word boundaries:
+      M(t, s) = sum_{i in sub(t)} sum_{j in sub(s)} A_{i, j}
+    Normalized such that max(M) == 1.0 (or 0 if all zeros) for downstream thresholding.
     """
     row_sums = subtoken_attn.sum(axis=1, keepdims=True) + 1e-8
     norm_subtoken_attn = subtoken_attn / row_sums
 
     num_tgt_words = max(1, len(tgt_words))
     num_src_words = max(1, len(src_words))
-    word_attn_matrix = np.zeros((num_tgt_words, num_src_words))
+    word_attn_matrix = np.zeros((num_tgt_words, num_src_words), dtype=np.float32)
 
     for tgt_w_idx, tgt_subs in enumerate(tgt_sub_groups):
         for src_w_idx, src_subs in enumerate(src_sub_groups):
@@ -245,17 +244,11 @@ def _compute_hybrid_alignment_matrix(
             for t_sub in tgt_subs:
                 for s_sub in src_subs:
                     if t_sub < norm_subtoken_attn.shape[0] and s_sub < norm_subtoken_attn.shape[1]:
-                        attn_sum += norm_subtoken_attn[t_sub, s_sub]
+                        attn_sum += float(norm_subtoken_attn[t_sub, s_sub])
             word_attn_matrix[tgt_w_idx, src_w_idx] = attn_sum
 
-    if src_words and tgt_words:
-        src_embs = sem_model.encode(src_words)
-        tgt_embs = sem_model.encode(tgt_words)
-        sim_matrix = util.cos_sim(tgt_embs, src_embs).cpu().float().numpy()
-        sim_matrix = np.maximum(0.0, sim_matrix)
-    else:
-        sim_matrix = np.zeros((num_tgt_words, num_src_words))
+    max_attn = float(np.max(word_attn_matrix))
+    if max_attn > 1e-8:
+        word_attn_matrix = word_attn_matrix / max_attn
 
-    max_attn = np.max(word_attn_matrix) + 1e-8
-    hybrid_matrix = 0.5 * (word_attn_matrix / max_attn) + 0.5 * sim_matrix
-    return hybrid_matrix
+    return word_attn_matrix

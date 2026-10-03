@@ -26,7 +26,7 @@ from backend.config import NMT_DELTA_L_THRESHOLD, FUNCTION_WORDS
 from backend.ml.token_utils import (
     _build_nmt_breakdowns,
     _build_fluency_breakdowns,
-    _compute_hybrid_alignment_matrix,
+    _compute_attention_alignment_matrix,
 )
 from backend.nlp.text_utils import normalize_french_typography
 
@@ -119,22 +119,21 @@ class MLEngine:
     def evaluate_nmt_and_map(self, source_text: str, target_text: str) -> Tuple[float, Tuple[List[str], List[str], np.ndarray], List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
         Runs NMT inference via the registered NMT wrapper, then computes token/word breakdowns
-        and constructs the hybrid cross-attention + SimAlign word alignment matrix.
+        and constructs the pure NMT cross-attention word alignment matrix.
         """
         raw_output = self.nmt_model.infer(source_text, target_text)
 
         src_words, tgt_words, src_subs, tgt_subs, nmt_token_breakdown, nmt_word_breakdown = _build_nmt_breakdowns(raw_output)
 
-        hybrid_matrix = _compute_hybrid_alignment_matrix(
+        attn_matrix = _compute_attention_alignment_matrix(
             raw_output.cross_attentions,
             src_words,
             tgt_words,
             src_subs,
             tgt_subs,
-            self.sem_model
         )
 
-        return raw_output.perplexity, (src_words, tgt_words, hybrid_matrix), nmt_token_breakdown, nmt_word_breakdown
+        return raw_output.perplexity, (src_words, tgt_words, attn_matrix), nmt_token_breakdown, nmt_word_breakdown
 
     def evaluate_fluency(self, text: str) -> Tuple[float, List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
@@ -236,14 +235,6 @@ class MLEngine:
                     is_sound = True
                 elif clean_w in FUNCTION_WORDS and clean_expected in FUNCTION_WORDS:
                     is_sound = True
-                else:
-                    try:
-                        embs = self.sem_model.encode([clean_w, clean_expected])
-                        sim = float(util.cos_sim(embs[0], embs[1]).item())
-                        if sim >= 0.70:
-                            is_sound = True
-                    except Exception:
-                        pass
 
             if is_sound:
                 item["is_error"] = False

@@ -160,21 +160,18 @@ $$\mathbf{A}_{\text{subtokens}} = \frac{1}{4 H} \sum_{l=L-3}^L \sum_{h=1}^H \mat
 
 Because Marian and NLLB tokenizers use SentencePiece BPE sub-tokens (prefixed with `\u2581`), sub-tokens are mapped back to whole words via [`aggregate_sentencepiece_tokens_to_words`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/token_utils.py#L34-L77), which handles French contraction splitting (e.g., *"d'un"* $\to$ `["d'", "un"]`, *"c'est"* $\to$ `["c'", "est"]`).
 
-### 5.5 Hybrid Word Alignment: Cross-Attention + SimAlign
-Raw cross-attention matrices can be noisy for function words and prepositions. FrenchTutor uses a **hybrid alignment algorithm** combining attention pooling with contextual multilingual cosine similarity ([`_compute_hybrid_alignment_matrix`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/token_utils.py#L222-L262)):
+### 5.5 Pure NMT Cross-Attention Word Alignment
+FrenchTutor uses pure cross-attention pooling directly extracted from the NMT model ([`_compute_attention_alignment_matrix`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/token_utils.py)):
 
 1. **Row Normalization**:
    $$\tilde{\mathbf{A}}_{t, s} = \frac{\mathbf{A}_{t, s}}{\sum_{s'} \mathbf{A}_{t, s'} + 10^{-8}}$$
 2. **Word-Level Attention Pooling**:
    For target word $W_t^{\text{tgt}}$ consisting of sub-tokens $\mathcal{T}_t$ and source word $W_s^{\text{src}}$ consisting of sub-tokens $\mathcal{S}_s$:
    $$\mathbf{M}_{\text{attn}}(t, s) = \sum_{i \in \mathcal{T}_t} \sum_{j \in \mathcal{S}_s} \tilde{\mathbf{A}}_{i, j}$$
-3. **SimAlign Semantic Similarity**:
-   Embeddings for source and target words are computed using the semantic model:
-   $$\mathbf{M}_{\text{sim}}(t, s) = \max\left(0, \cos\left(f(W_t^{\text{tgt}}), f(W_s^{\text{src}})\right)\right)$$
-4. **Hybrid Combination**:
-   $$\mathbf{M}_{\text{hybrid}} = 0.5 \times \left(\frac{\mathbf{M}_{\text{attn}}}{\max(\mathbf{M}_{\text{attn}}) + 10^{-8}}\right) + 0.5 \times \mathbf{M}_{\text{sim}}$$
+3. **Scaling**:
+   $$\mathbf{M} = \frac{\mathbf{M}_{\text{attn}}}{\max(\mathbf{M}_{\text{attn}}) + 10^{-8}}$$
 
-This produces a continuous alignment matrix $\mathbf{M}_{\text{hybrid}} \in [0.0, 1.0]^{|W^{\text{tgt}}| \times |W^{\text{src}}|}$. 
+This produces a continuous alignment matrix $\mathbf{M} \in [0.0, 1.0]^{|W^{\text{tgt}}| \times |W^{\text{src}}|}$ purely from sequence-to-sequence attention dynamics without requiring external word-level semantic embeddings or forward passes.
 
 When the user hovers over a Spanish source word $s$ in the UI, [`get_aligned_targets`](file:///home/eyenga/Projects/FrenchTutor/backend/nlp/text_utils.py#L151-L171) resolves the corresponding French targets:
 $$\hat{t} = \arg\max_t \mathbf{M}_{t, s}$$
