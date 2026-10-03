@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 from backend.db import DataManager
 from backend.nlp.vocab_engine import VocabEngine
+from backend.config import INGESTION_MIN_WORDS, INGESTION_MAX_WORDS
 
 _nlp = None
 
@@ -47,7 +48,7 @@ def format_sentence(text: str) -> str:
     return text.strip()
 
 
-def is_valid_sentence(text: str, min_words: int = 3, max_words: int = 40) -> bool:
+def is_valid_sentence(text: str, min_words: int = INGESTION_MIN_WORDS, max_words: int = INGESTION_MAX_WORDS) -> bool:
     """Heuristics to drop noisy, incomplete, or ill-formed sentences."""
     if not text:
         return False

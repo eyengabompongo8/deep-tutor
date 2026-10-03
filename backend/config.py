@@ -23,6 +23,10 @@ VOCABULARY_UNLOCK_THRESHOLD = 1
 # Database & history limits
 HISTORY_LIMIT = 50
 
+# Ingestion sentence limits
+INGESTION_MIN_WORDS = 3
+INGESTION_MAX_WORDS = 40
+
 # Default unlocked foundational vocabulary (mots débloqués par défaut)
 DEFAULT_UNLOCKED_WORDS = {
     'le', 'la', 'les', 'un', 'une', 'des', 'du', 'au', 'aux', 'ce', 'cet', 'cette', 'ces',
