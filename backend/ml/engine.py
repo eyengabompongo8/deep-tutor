@@ -167,6 +167,114 @@ class MLEngine:
                             
         return errors
 
+    def classify_word_errors(
+        self,
+        nmt_word_breakdown: List[Dict[str, Any]],
+        mapping_data_student: Optional[Tuple[List[str], List[str], np.ndarray]],
+        mapping_data_ref: Optional[Tuple[List[str], List[str], np.ndarray]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Classifies words in the student submission into two error categories using the pure NMT
+        cross-attention transition matrix:
+            T = M_stu @ M_ref.T  in  R^(|W_stu| x |W_ref|)
+        where each cell (i, j) represents the dot product of student word i and reference word j's
+        attention distributions over the shared source sentence:
+            T(i, j) = sum_s M_stu(i, s) * M_ref(j, s)
+
+        A student word i is classified as a Mapped Error (Type A) to reference word j iff:
+        1. i and j mutually maximize attention overlap: j = argmax_k T(i, k) and i = argmax_m T(m, j).
+        2. Words do not match (clean(w_i) != clean(w_j)).
+        3. The attention dot product T(i, j) exceeds a minimal noise floor (> 0.05).
+
+        Otherwise, if the word does not match the reference and has no mutual match in T,
+        it is classified as an Unmapped Error (Type B) with empty top_prediction.
+        """
+        if not nmt_word_breakdown:
+            return nmt_word_breakdown
+
+        ref_words = mapping_data_ref[1] if mapping_data_ref is not None else []
+        ref_matrix = mapping_data_ref[2] if mapping_data_ref is not None else None
+        src_words_ref = mapping_data_ref[0] if mapping_data_ref is not None else []
+
+        src_words_stu = mapping_data_student[0] if mapping_data_student is not None else []
+        stu_words = mapping_data_student[1] if mapping_data_student is not None else []
+        stu_matrix = mapping_data_student[2] if mapping_data_student is not None else None
+
+        def _clean_word(w: str) -> str:
+            if not w:
+                return ""
+            w = re.sub(r"[’‘`´′]", "'", w)
+            w = re.sub(r"[‑–—−]", "-", w)
+            return w.lower().strip(".,!?:;\"«»()[]{}").strip()
+
+        ref_words_clean = [_clean_word(w) for w in ref_words]
+        ref_words_set = set(ref_words_clean)
+
+        # Compute direct Student-to-Reference Attention Transition Matrix: T = M_stu @ M_ref.T
+        # Shape: (|W_stu|, |W_ref|)
+        T = None
+        if (
+            stu_matrix is not None
+            and ref_matrix is not None
+            and stu_matrix.ndim == 2
+            and ref_matrix.ndim == 2
+            and stu_matrix.shape[1] == ref_matrix.shape[1]
+            and stu_matrix.shape[0] > 0
+            and ref_matrix.shape[0] > 0
+        ):
+            T = np.matmul(stu_matrix, ref_matrix.T)  # (|W_stu|, |W_ref|)
+
+        # Find mutual argmax pairings: (i, j) where j = argmax_k T(i, k) AND i = argmax_m T(m, j)
+        mutual_stu_to_ref: Dict[int, int] = {}
+        if T is not None:
+            num_stu, num_ref = T.shape
+            stu_best_ref = np.argmax(T, axis=1)  # For each student word, best reference word
+            ref_best_stu = np.argmax(T, axis=0)  # For each reference word, best student word
+
+            for s_idx in range(num_stu):
+                r_idx = int(stu_best_ref[s_idx])
+                if int(ref_best_stu[r_idx]) == s_idx and float(T[s_idx, r_idx]) > 0.05:
+                    mutual_stu_to_ref[s_idx] = r_idx
+
+        for item in nmt_word_breakdown:
+            w_idx = item.get("index", 0)
+            raw_w = item.get("word", "")
+            clean_w = _clean_word(raw_w)
+
+            # If word exactly matches any word in the reference sentence, it is not an error
+            if clean_w in ref_words_set:
+                item["is_error"] = False
+                item["error_type"] = None
+                item["top_prediction"] = ""
+                item["source_word"] = ""
+                continue
+
+            # Check if this student word mutually aligns to an expected reference word via T
+            matched_ref_idx = mutual_stu_to_ref.get(w_idx)
+            if matched_ref_idx is not None and matched_ref_idx < len(ref_words):
+                expected_ref_word = ref_words[matched_ref_idx]
+                clean_expected = _clean_word(expected_ref_word)
+
+                if clean_expected and clean_w and clean_expected != clean_w:
+                    # Find corresponding source word for context
+                    best_s_idx = int(np.argmax(stu_matrix[w_idx, :])) if stu_matrix is not None else 0
+                    src_word = src_words_stu[best_s_idx] if best_s_idx < len(src_words_stu) else ""
+
+                    # Type A: Mapped Error
+                    item["is_error"] = True
+                    item["error_type"] = "mapped"
+                    item["top_prediction"] = expected_ref_word
+                    item["source_word"] = src_word
+                    continue
+
+            # Type B: Unmapped Error (No mutual alignment in T)
+            item["is_error"] = True
+            item["error_type"] = "unmapped"
+            item["top_prediction"] = ""
+            item["source_word"] = ""
+
+        return nmt_word_breakdown
+
     def evaluate_student_against_bundle(self, source_text: str, student_text: str, reference_bundle: Any) -> Dict[str, Any]:
         """
         Evaluates the student text against a precomputed ReferenceBundle.
@@ -203,6 +311,11 @@ class MLEngine:
             reference_bundle.src_words,
             reference_bundle.ref_words,
             reference_bundle.attn_matrix_ref
+        )
+
+        # Classify unexpected words into mapped vs unmapped errors via cross-attention
+        nmt_word_breakdown = self.classify_word_errors(
+            nmt_word_breakdown, mapping_data_student, mapping_data_ref
         )
 
         return {
@@ -244,6 +357,11 @@ class MLEngine:
         s_fluency = max(0.0, min(100.0, (fluency_ppl_ref / max(fluency_ppl_student, 1e-5)) * 100.0))
 
         syntactical_errors = self.evaluate_syntax(student_text)
+
+        # Classify unexpected words into mapped vs unmapped errors via cross-attention
+        nmt_word_breakdown = self.classify_word_errors(
+            nmt_word_breakdown, mapping_data_student, mapping_data_ref
+        )
 
         return {
             "is_french": is_french,

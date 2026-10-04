@@ -212,6 +212,25 @@ Neural language models can overlook subtle agreement rules (e.g., feminine past 
   - **Ignored Issue Types**: `style`, `register`, `typographical`, `whitespace`, `locale-violation`.
 - **Targeted Rules**: Retains genuine syntax errors, verb conjugations, gender/number disagreements, and confused homophones (e.g., *a/à*, *ou/où*, *son/sont*, *ce/se*).
 
+### 7.2 Cross-Attention Error Classification: Mapped vs. Unmapped Errors
+When student words do not match the expected reference tokens, [`MLEngine.classify_word_errors`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/engine.py) classifies them into two categories purely using the linear algebra of NMT cross-attention without relying on word-level embeddings, phonetic heuristics, or ad-hoc thresholds.
+
+The engine constructs the direct **Student-to-Reference Attention Transition Matrix**:
+$$\mathbf{T} = \mathbf{M}_{\text{stu}} \mathbf{M}_{\text{ref}}^T \quad \in \mathbb{R}^{|W_{\text{stu}}| \times |W_{\text{ref}}|}$$
+where each element $\mathbf{T}_{i, j} = \sum_{s} \mathbf{M}_{\text{stu}}(i, s) \cdot \mathbf{M}_{\text{ref}}(j, s)$ computes the inner product overlap between student word $i$ and reference word $j$ across the source sentence.
+
+1. **Type A (Mapped Error)**:
+   - Student word $i$ and reference word $j$ mutually maximize cross-attention overlap:
+     $$j = \arg\max_k \mathbf{T}_{i, k} \quad \text{and} \quad i = \arg\max_m \mathbf{T}_{m, j}$$
+   - The words differ ($\text{clean}(w_i) \neq \text{clean}(w_j)$) and $\mathbf{T}_{i, j} > 0.05$.
+   - The system flags the error with the replacement target:
+     $$\text{error\_type} = \text{"mapped"}, \quad \text{top\_prediction} = w_{\text{ref}}^* \quad (\text{e.g., } \text{"lui"} \to \mathbf{toi})$$
+
+2. **Type B (Unmapped Error)**:
+   - The student word $w_i$ does not match any word in $W_{\text{ref}}$ and has no mutual maximum in $\mathbf{T}$ (for example, adding extraneous words like *"demain"* or *"hier"* where the reference tokens mutually bind to their actual translations).
+   - The system flags it as an unexpected token without suggesting an erroneous replacement:
+     $$\text{error\_type} = \text{"unmapped"}, \quad \text{top\_prediction} = \text{""} \quad (\text{e.g., } \text{"demain"} \text{ [inattendu]})$$
+
 ---
 
 ## 8. Audio Transcription & Pronunciation Scoring

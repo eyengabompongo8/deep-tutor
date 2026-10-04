@@ -247,7 +247,7 @@ For active development using Docker, a separate compose file is provided. This m
 docker compose -f docker-compose.dev.yml up backend-dev frontend-dev --build
 
 # Option B: GPU development (Frontend + Backend GPU with CUDA acceleration)
-BACKEND_URL=http://backend-dev-gpu:8000 docker compose -f docker-compose.dev.yml up backend-dev-gpu frontend-dev --build
+docker compose -f docker-compose.dev.yml up backend-dev-gpu frontend-dev --build
 ```
 
 ### Accessing the Application

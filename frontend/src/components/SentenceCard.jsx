@@ -386,9 +386,8 @@ export default function SentenceCard({
     label: isCorrect ? 'Traduction correcte' : 'À corriger',
     icon: isCorrect ? CheckCircle2 : AlertCircle,
   } : null;
-  const BadgeIcon = scoreBadge?.icon;
   const errorWords = (evalResult?.nmt_word_breakdown || []).filter(
-    w => w.is_error && w.top_prediction && w.top_prediction !== "—" && w.top_prediction.toLowerCase() !== w.word.toLowerCase()
+    w => w.is_error
   );
 
   return (
@@ -577,8 +576,44 @@ export default function SentenceCard({
               <div className="space-y-2">
                 <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200/40 dark:border-neutral-800 min-h-[86px] flex flex-col justify-center">
                   <div className="text-xs text-neutral-400 dark:text-neutral-500 font-medium mb-1">Your French Translation:</div>
-                  <div className="text-base text-neutral-900 dark:text-neutral-100 font-medium">
-                    {evalResult.corrected_text || inputText || <span className="text-neutral-400 italic font-normal">—</span>}
+                  <div className="text-base text-neutral-900 dark:text-neutral-100 font-medium leading-relaxed">
+                    {(() => {
+                      const displayedText = evalResult.corrected_text || inputText;
+                      if (!displayedText) return <span className="text-neutral-400 italic font-normal">—</span>;
+
+                      // Map clean word to error item for quick lookup
+                      const errorMap = new Map();
+                      (evalResult.nmt_word_breakdown || []).forEach(item => {
+                        if (item.is_error) {
+                          const clean = (item.word || '').toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '');
+                          if (clean) errorMap.set(clean, item);
+                        }
+                      });
+
+                      if (errorMap.size === 0) return displayedText;
+
+                      return displayedText.split(/(\s+)/).map((part, pIdx) => {
+                        const cleanPart = part.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '');
+                        const errorItem = errorMap.get(cleanPart);
+                        if (errorItem) {
+                          const isMapped = errorItem.error_type === "mapped" || (errorItem.top_prediction && errorItem.top_prediction !== "—" && errorItem.top_prediction.toLowerCase() !== errorItem.word.toLowerCase());
+                          return (
+                            <span
+                              key={pIdx}
+                              className={`px-1 py-0.5 rounded font-medium ${
+                                isMapped
+                                  ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border-b-2 border-amber-500 dark:border-amber-400'
+                                  : 'bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border-b-2 border-rose-500 dark:border-rose-400'
+                              }`}
+                              title={isMapped ? `Error: expected "${errorItem.top_prediction}"` : 'Incorrect / unnecessary word'}
+                            >
+                              {part}
+                            </span>
+                          );
+                        }
+                        return <span key={pIdx}>{part}</span>;
+                      });
+                    })()}
                   </div>
                   {evalResult.autocorrect_msgs?.length > 0 && (
                     <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 flex items-center gap-1">
@@ -711,23 +746,38 @@ export default function SentenceCard({
                     </div>
                   </div>
 
-                  {/* High Surprise Anomaly Flags (Unexpected Words) */}
+                  {/* Errors Breakdown (Mapped & Unmapped) */}
                   {errorWords.length > 0 && (
                     <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/40 dark:border-neutral-800 text-xs space-y-1 text-neutral-800 dark:text-neutral-200">
                       <div className="font-semibold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
                         <AlertCircle className="w-3.5 h-3.5 text-neutral-500" />
-                        <span>Unexpected Words:</span>
+                        <span>Errors:</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5 pt-0.5">
-                        {errorWords.map((item, i) => (
-                          <span
-                            key={i}
-                            className="px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-[11px]"
-                            title={item.source_word ? `Expected "${item.top_prediction}" for "${item.source_word}" (ΔL: ${item.delta_l.toFixed(1)})` : `Expected: "${item.top_prediction}" (ΔL: ${item.delta_l.toFixed(1)})`}
-                          >
-                            "{item.word}" → <strong>{item.top_prediction}</strong>
-                          </span>
-                        ))}
+                        {errorWords.map((item, i) => {
+                          const isMapped = item.error_type === "mapped" || (item.top_prediction && item.top_prediction !== "—" && item.top_prediction.toLowerCase() !== item.word.toLowerCase());
+                          return (
+                            <span
+                              key={i}
+                              className={`px-2 py-0.5 rounded text-[11px] font-medium ${
+                                isMapped
+                                  ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300/70 dark:border-amber-800/70'
+                                  : 'bg-rose-100 dark:bg-rose-950/70 text-rose-900 dark:text-rose-200 border border-rose-200/60 dark:border-rose-900/60'
+                              }`}
+                              title={
+                                isMapped
+                                  ? (item.source_word ? `Expected "${item.top_prediction}" for "${item.source_word}"` : `Expected: "${item.top_prediction}"`)
+                                  : `Incorrect or unneeded word "${item.word}"`
+                              }
+                            >
+                              {isMapped ? (
+                                <>"{item.word}" → <strong>{item.top_prediction}</strong></>
+                              ) : (
+                                <>"{item.word}"</>
+                              )}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

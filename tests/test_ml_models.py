@@ -49,6 +49,48 @@ class TestMLEngine:
             if item["word"] == "rêveur":
                 assert not item["is_error"], "Reference word 'rêveur' must not be flagged as error"
 
+    def test_mapped_cross_attention_error(self, ml_engine):
+        src = "Hablo de ti."
+        ref = "Je parle de toi."
+        student = "Je parle de lui."
+
+        res = ml_engine.compute_final_score(src, student, ref)
+        nmt_word_bd = res.get("nmt_word_breakdown", [])
+
+        found_lui = False
+        for item in nmt_word_bd:
+            clean_w = item["word"].lower().strip(".,!?:;'\"-")
+            if clean_w == "lui":
+                found_lui = True
+                assert item["is_error"], "Student word 'lui' should be flagged as an error"
+                assert item["error_type"] == "mapped", f"Expected error_type 'mapped', got {item.get('error_type')}"
+                assert item["top_prediction"] == "toi", f"Expected replacement 'toi', got '{item.get('top_prediction')}'"
+            elif clean_w in {"je", "parle", "de"}:
+                assert not item["is_error"], f"Correct reference word '{item['word']}' must not be flagged"
+
+        assert found_lui, "'lui' not found in nmt_word_breakdown"
+
+    def test_unmapped_cross_attention_error(self, ml_engine):
+        src = "Tengo un gato."
+        ref = "J'ai un chat."
+        student = "J'ai un chat pomme."
+
+        res = ml_engine.compute_final_score(src, student, ref)
+        nmt_word_bd = res.get("nmt_word_breakdown", [])
+
+        found_pomme = False
+        for item in nmt_word_bd:
+            clean_w = item["word"].lower().strip(".,!?:;'\"-")
+            if clean_w == "pomme":
+                found_pomme = True
+                assert item["is_error"], "Extraneous word 'pomme' should be flagged as an error"
+                assert item["error_type"] == "unmapped", f"Expected error_type 'unmapped', got {item.get('error_type')}"
+                assert item["top_prediction"] == "", f"Expected empty top_prediction, got '{item.get('top_prediction')}'"
+            elif clean_w in {"j'", "ai", "un", "chat"}:
+                assert not item["is_error"], f"Reference word '{item['word']}' must not be flagged"
+
+        assert found_pomme, "'pomme' not found in nmt_word_breakdown"
+
     def test_check_language_validation_and_rejection(self, ml_engine):
         # Empty or whitespace
         is_fr, prob = ml_engine.check_language("")
