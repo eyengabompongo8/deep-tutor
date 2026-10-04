@@ -12,7 +12,8 @@ The documentation is organized into six core architectural chapters covering the
 docs/
 ├── README.md                          # [YOU ARE HERE] Documentation Hub & System Map
 ├── assets/                            # Application media & visual assets
-│   └── demo_frenchtutor.mp4           # Full walkthrough demo video
+│   ├── demo_preview.gif               # Animated walkthrough GIF preview
+│   └── demo_frenchtutor.mp4           # Full walkthrough demo video (with audio)
 ├── 01_architecture_overview.md        # High-Level Architecture, Request Lifecycle & Tech Stack
 ├── 02_database_and_models.md          # SQLite Schema, 2-Tier Lemma/Word Design & Repository Layer
 ├── 03_nlp_and_scoring_pipeline.md     # Multi-Stage NLP Scoring, GlotLID, NLLB Cross-Attention & Fluency

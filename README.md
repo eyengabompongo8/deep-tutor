@@ -23,13 +23,12 @@
 Watch FrenchTutor in action—from real-time Spanish-to-French translation exercises and neural audio playback to pure NMT cross-attention token alignment, in-sentence error classification, and dynamic CEFR progression:
 
 <p align="center">
-  <video src="docs/assets/demo_frenchtutor.mp4" controls="controls" width="100%" style="max-width: 860px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
-    <a href="docs/assets/demo_frenchtutor.mp4">▶️ Watch FrenchTutor Walkthrough Demo (MP4)</a>
-  </video>
+  <a href="docs/assets/demo_frenchtutor.mp4" title="Click to open and watch full HD demo video with audio">
+    <img src="docs/assets/demo_preview.gif" alt="FrenchTutor Walkthrough Demo Preview" width="100%" style="max-width: 860px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);" />
+  </a>
+  <br />
+  <em>Click the preview above or <a href="docs/assets/demo_frenchtutor.mp4">▶️ <strong>click here to watch the full demo video with sound</strong></a>.</em>
 </p>
-
-> [!TIP]
-> If your browser or viewer does not render embedded HTML5 video, you can view or download the recording directly at [`docs/assets/demo_frenchtutor.mp4`](docs/assets/demo_frenchtutor.mp4).
 
 ### What You'll See in the Demo:
 - **Interactive Translation Practice**: Instant evaluation of Spanish-to-French submissions with real-time score feedback.
@@ -258,7 +257,8 @@ FrenchTutor/
 ├── docs/                           # Architectural and design documentation hub
 │   ├── README.md                   # Documentation index & system navigation map
 │   ├── assets/                     # Media and visual assets
-│   │   └── demo_frenchtutor.mp4    # Full walkthrough demonstration video
+│   │   ├── demo_preview.gif        # Animated walkthrough GIF preview
+│   │   └── demo_frenchtutor.mp4    # Full walkthrough demonstration video (with audio)
 │   ├── 01_architecture_overview.md # Chapter 1: System architecture & lifecycle
 │   ├── 02_database_and_models.md   # Chapter 2: Database schema & 2-tier lexical model
 │   ├── 03_nlp_and_scoring_pipeline.md # Chapter 3: Multi-stage scoring & transition matrix
