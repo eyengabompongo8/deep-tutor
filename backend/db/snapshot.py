@@ -124,11 +124,38 @@ def restore_snapshot(
             shutil.copyfileobj(f_in, f_out)
         os.replace(temp_extract, dest_db)
 
-        # Seed defaults for fresh default_user
-        from backend.db.manager import DataManager
-        dm = DataManager(db_path=dest_db)
-        with dm._get_connection() as conn:
-            dm._seed_defaults(conn)
+        # Seed defaults for fresh default_user (using pure standard library SQL)
+        from backend.config import (
+            DEFAULT_CEFR_LEVEL,
+            DEFAULT_CORRECTION_THRESHOLD,
+            DEFAULT_CARDS_PER_EXERCISE,
+            DEFAULT_MIXED_TRANSLATION_RATIO,
+        )
+
+        with sqlite3.connect(dest_db, timeout=15.0) as conn:
+            conn.execute("""
+                INSERT OR IGNORE INTO users (id, name)
+                VALUES ('default_user', 'Default User');
+            """)
+            trans_mode = conn.execute("SELECT mode FROM user_modes WHERE user_id = 'default_user' AND mode = 'translation';").fetchone()
+            if not trans_mode:
+                conn.execute("""
+                    INSERT OR IGNORE INTO user_modes (user_id, mode, level, streak, total_completed, total_skipped)
+                    VALUES ('default_user', 'translation', ?, 0, 0, 0);
+                """, (DEFAULT_CEFR_LEVEL,))
+
+            audio_mode = conn.execute("SELECT mode FROM user_modes WHERE user_id = 'default_user' AND mode = 'transcription';").fetchone()
+            if not audio_mode:
+                conn.execute("""
+                    INSERT OR IGNORE INTO user_modes (user_id, mode, level, streak, total_completed, total_skipped)
+                    VALUES ('default_user', 'transcription', ?, 0, 0, 0);
+                """, (DEFAULT_CEFR_LEVEL,))
+
+            conn.execute("""
+                INSERT OR IGNORE INTO user_settings (user_id, theme, preferred_voice, correction_threshold, cards_per_exercise, auto_jump, auto_play_audio, transcription_retry, blind_retry, active_mode, mixed_translation_ratio)
+                VALUES ('default_user', 'system', 'default', ?, ?, 1, 1, 1, 0, 'translation', ?);
+            """, (DEFAULT_CORRECTION_THRESHOLD, DEFAULT_CARDS_PER_EXERCISE, DEFAULT_MIXED_TRANSLATION_RATIO))
+            conn.commit()
 
         print(f"✅ Database cleanly restored and initialized at {dest_db}!")
         return True
