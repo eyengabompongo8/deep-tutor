@@ -280,14 +280,14 @@ class VocabularyMixin:
                             success_count = user_lemmas.success_count + ?;
                     """, (user_id, lid, success_inc, lid, success_inc))
 
-            for wid in word_ids:
-                conn.execute("""
-                    INSERT INTO user_words (user_id, word_id, appearance_count, success_count)
-                    VALUES (?, ?, 1, ?)
-                    ON CONFLICT(user_id, word_id) DO UPDATE SET
-                        appearance_count = user_words.appearance_count + 1,
-                        success_count = user_words.success_count + ?;
-                """, (user_id, wid, success_inc, success_inc))
+                for wid in word_ids:
+                    conn.execute("""
+                        INSERT INTO user_words (user_id, word_id, appearance_count, success_count)
+                        VALUES (?, ?, 1, ?)
+                        ON CONFLICT(user_id, word_id) DO UPDATE SET
+                            appearance_count = user_words.appearance_count + 1,
+                            success_count = user_words.success_count + ?;
+                    """, (user_id, wid, success_inc, success_inc))
 
             if not lemma_ids:
                 return []
