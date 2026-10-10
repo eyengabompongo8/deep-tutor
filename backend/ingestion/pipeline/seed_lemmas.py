@@ -16,7 +16,7 @@ def run_seed_lemmas(db_path: Optional[str] = None) -> bool:
     and seeds the database tables `lemmas` and `words`.
     """
     if db_path is None:
-        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
+        db_path = os.environ.get("DEEPTUTOR_DB_PATH") or os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
 
     lexique_dir = os.path.join(ROOT_DIR, 'data', 'lexique')
     lexique_file = os.path.join(lexique_dir, 'Lexique4', 'Lexique4.tsv')

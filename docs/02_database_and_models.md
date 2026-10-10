@@ -6,7 +6,7 @@
 
 ## 1. Foundations of the Two-Tier Lexical Architecture
 
-A core design challenge in intelligent language tutoring systems is bridging the gap between dictionary abstractions (lemmas) and actual textual exposure (surface word inflections). In earlier versions of FrenchTutor, word roots were referred to as generic *lexemas*, and all entries were assigned a static default level (`A1`). The lexical subsystem was subsequently re-architected around **Lexique 4** (`data/lexique/Lexique4/Lexique4.tsv`), establishing a **Two-Tier Lexical Architecture**:
+A core design challenge in intelligent language tutoring systems is bridging the gap between dictionary abstractions (lemmas) and actual textual exposure (surface word inflections). In earlier versions of DeepTutor, word roots were referred to as generic *lexemas*, and all entries were assigned a static default level (`A1`). The lexical subsystem was subsequently re-architected around **Lexique 4** (`data/lexique/Lexique4/Lexique4.tsv`), establishing a **Two-Tier Lexical Architecture**:
 
 1. **Tier 1: Canonical Base Lemmas (`lemmas`)**  
    Represents canonical dictionary headwords associated with syntactic categories (e.g., the infinitive verb *manger* with POS `VER`, or the singular masculine noun *chat* with POS `NOM`). Each lemma entry encapsulates corpus-level lexical frequency (`12_FreqLemme`) and a psycholinguistically validated CEFR proficiency level (A1 to C2).
@@ -32,14 +32,14 @@ A core design challenge in intelligent language tutoring systems is bridging the
 
 * **Psycholinguistic Pedagogical Validity**: Language learners acquire grammatical paradigms through base roots while encountering inflected morphology. Assessing learner proficiency strictly on surface forms would fragment mastery metrics (e.g., treating *parle*, *parles*, and *parlons* as three unrelated vocabulary challenges). Conversely, tracking only lemmas obscures morphological stumbling blocks.
 * **Separation of Exercise Generation & Granular Analytics**: Exercise progression relies on lemma-level novelty (e.g., ensuring a candidate sentence introduces at most $i+1$ unknown lemmas). Meanwhile, surface exposure tracking captures whether a student has met specific irregular verb inflections or feminine/plural agreements.
-* **Referential Integrity for Inflected-Only Entries**: In natural language datasets such as Lexique 4, approximately 3,696 `(4_Lemme, 5_Cgram)` pairs appear in surface form without an explicit base-row entry where `14_IsLem == '1'` (for instance, the feminine adjective *applicative* appears, while its canonical masculine form *applicatif* lacked a standalone `IsLem == 1` row in the raw corpus table). By modeling lemmas and words as distinct relational entities, FrenchTutor seeds referenced lemmas with their observed corpus frequency, establishing 100% referential integrity across all 69,728 unique lemmas and 189,863 surface words.
+* **Referential Integrity for Inflected-Only Entries**: In natural language datasets such as Lexique 4, approximately 3,696 `(4_Lemme, 5_Cgram)` pairs appear in surface form without an explicit base-row entry where `14_IsLem == '1'` (for instance, the feminine adjective *applicative* appears, while its canonical masculine form *applicatif* lacked a standalone `IsLem == 1` row in the raw corpus table). By modeling lemmas and words as distinct relational entities, DeepTutor seeds referenced lemmas with their observed corpus frequency, establishing 100% referential integrity across all 69,728 unique lemmas and 189,863 surface words.
 * **Surrogate Keys vs. Natural Uniqueness Constraints**: Integer surrogate keys (`id INTEGER PRIMARY KEY AUTOINCREMENT`) are used across both tables for fast, compact foreign-key joining and B-tree indexing in SQLite. Natural uniqueness constraints (`UNIQUE(lemma, pos)` on `lemmas` and `UNIQUE(word, lemma_id, pos)` on `words`) prevent duplicate entries and enforce unambiguous token resolution.
 
 ---
 
 ## 2. Complete Entity-Relationship (ER) Diagram
 
-The FrenchTutor relational database consists of 10 primary tables and 1 compatibility view, maintaining data across sentences, vocabulary, learner progress, user configurations, and media caches.
+The DeepTutor relational database consists of 10 primary tables and 1 compatibility view, maintaining data across sentences, vocabulary, learner progress, user configurations, and media caches.
 
 ```mermaid
 erDiagram
@@ -215,7 +215,7 @@ sequenceDiagram
 
 ## 4. Indexing Strategies for High-Frequency Lookups & Candidate Sampling
 
-Candidate sentence selection operates under tight interactive latency constraints. To guarantee sub-15ms generation times, FrenchTutor employs a multi-tiered query and caching architecture:
+Candidate sentence selection operates under tight interactive latency constraints. To guarantee sub-15ms generation times, DeepTutor employs a multi-tiered query and caching architecture:
 
 ### 4.1 Composite Covering Index on `user_lemmas`
 The core progression query uses a Common Table Expression (CTE) to compute which lemmas are already known by the learner:
@@ -290,7 +290,7 @@ The static properties of all 69,728 lemmas (`lemma`, `pos`, `level`, `is_base`) 
 
 ## 6. Pre-Ingested Database Snapshots & Fast Onboarding
 
-To enable instant onboarding without executing the multi-hour sentence mining, neural classification, and Lexique 4 seeding pipelines, FrenchTutor includes a pre-packaged database snapshot:
+To enable instant onboarding without executing the multi-hour sentence mining, neural classification, and Lexique 4 seeding pipelines, DeepTutor includes a pre-packaged database snapshot:
 
 * **File Location**: `data/snapshots/default_snapshot.db.gz` (tracked in git, ~21.8 MB compressed).
 * **Included Data**: All 30,855 sentences, 69,728 canonical lemmas, 189,863 surface words, and >600,000 relational links.

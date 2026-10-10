@@ -5,7 +5,7 @@
 
 # Chapter 5: Ingestion Pipeline, Lexique 4 Seeding & Corpus Mining
 
-This chapter provides an exhaustive architectural and practical guide to the data ingestion, lexical seeding, corpus mining, and relational linking subsystems of **FrenchTutor**.
+This chapter provides an exhaustive architectural and practical guide to the data ingestion, lexical seeding, corpus mining, and relational linking subsystems of **DeepTutor**.
 
 The ingestion system transforms raw, heterogenous text collections—spanning bilingual subtitle dumps, HuggingFace CEFR corpora, pedagogical PDFs, and dialogue transcripts—into clean, pedagogically viable sentence pairs. These sentences are rigorously validated, deduplicated, scored via neural classification, and relationally indexed into the two-tier lexical database (`lemmas`, `words`, `sentence_lemmas`, and `sentence_words`).
 
@@ -83,7 +83,7 @@ flowchart TD
 
 ## 2. Lexique 4 Parsing & Database Seeding
 
-The FrenchTutor pedagogical architecture requires a complete catalog of base lemmas and inflected surface words. Parsing and classification logic resides in [`backend/ingestion/pipeline/lexique_classifier.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/lexique_classifier.py) and is executed by [`backend/ingestion/pipeline/seed_lemmas.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/seed_lemmas.py).
+The DeepTutor pedagogical architecture requires a complete catalog of base lemmas and inflected surface words. Parsing and classification logic resides in [`backend/ingestion/pipeline/lexique_classifier.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/lexique_classifier.py) and is executed by [`backend/ingestion/pipeline/seed_lemmas.py`](file:///home/eyenga/Projects/FrenchTutor/backend/ingestion/pipeline/seed_lemmas.py).
 
 ### 2.1 Extraction Rules in `lexique_classifier.py`
 The source file `data/lexique/Lexique4/Lexique4.tsv` contains 189,863 rows representing inflected word occurrences in French cinema and television subtitles (a 316-million-word corpus).
@@ -253,7 +253,7 @@ def is_valid_sentence(text: str, min_words: int = 3, max_words: int = 40) -> boo
 7. **Character Whitelist**: Discards strings containing illegal symbols, non-standard math characters, or foreign alphabets outside French diacritics (`áàâäéèêëíìîïóòôöúùûüçœæ`).
 
 ### 4.2 MinHash LSH Deduplication
-To avoid inserting near-duplicate sentences across overlapping corpora, FrenchTutor employs Locality-Sensitive Hashing (LSH) on MinHash signatures of lemmatized sentences:
+To avoid inserting near-duplicate sentences across overlapping corpora, DeepTutor employs Locality-Sensitive Hashing (LSH) on MinHash signatures of lemmatized sentences:
 
 ```python
 def deduplicate_candidate_records(
@@ -329,7 +329,7 @@ The ingestion orchestrator (`backend/ingestion/orchestrator.py`) provides unifie
 | :--- | :--- | :--- | :--- |
 | `--all` | Flag | `False` | Executes full pipeline: init DB $\to$ seed lexemas $\to$ mine Tatoeba $\to$ ingest & link. |
 | `--init-db` | Flag | `False` | Initializes table schemas if they do not already exist. |
-| `--reset-db` | Flag | `False` | Deletes existing `frenchtutor.db` before initializing schemas. |
+| `--reset-db` | Flag | `False` | Deletes existing database file (`app.db`) before initializing schemas. |
 | `--clear-db` | Flag | `False` | Purges all records from `sentences`, `sentence_lemmas`, and `sentence_words`. |
 | `--seed-lexemas`<br>`--seed-lemmas` | Flag | `False` | Downloads Lexique 4, computes Zipf ranks, and seeds `lemmas` and `words`. |
 | `--mine-tatoeba` | Flag | `False` | Mines candidate sentences from the Tatoeba corpus. |

@@ -62,7 +62,7 @@ async def lifespan(app: FastAPI):
     tts_engine = deps.tts_engine
     eager_processor = deps.eager_processor
 
-    logger.info("FrenchTutor API backend started.")
+    logger.info("DeepTutor API backend started.")
     yield
 
     if deps.eager_processor is not None:
@@ -75,12 +75,12 @@ async def lifespan(app: FastAPI):
             ml_engine.close()
         except Exception:
             pass
-    logger.info("FrenchTutor API backend shutting down.")
+    logger.info("DeepTutor API backend shutting down.")
 
 
 def create_app() -> FastAPI:
     application = FastAPI(
-        title="FrenchTutor API",
+        title="DeepTutor API",
         version="1.0.0",
         lifespan=lifespan,
     )
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     import uvicorn
     import argparse
 
-    parser = argparse.ArgumentParser(description="FrenchTutor API Server")
+    parser = argparse.ArgumentParser(description="DeepTutor API Server")
     parser.add_argument("--port", type=int, default=PORT, help="Port to bind to")
     parser.add_argument("--host", type=str, default=HOST, help="Host interface to bind to")
     parser.add_argument("--reload", action="store_true", default=RELOAD, help="Enable auto-reload")

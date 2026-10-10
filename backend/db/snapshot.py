@@ -27,7 +27,7 @@ def dump_snapshot(
     out_snapshot: Optional[str] = None,
     compress_level: int = 9,
 ) -> bool:
-    src_db = src_db or (os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH)
+    src_db = src_db or (os.environ.get("DEEPTUTOR_DB_PATH") or os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH)
     out_snapshot = out_snapshot or DEFAULT_SNAPSHOT_PATH
 
     if not os.path.exists(src_db):
@@ -89,7 +89,7 @@ def restore_snapshot(
     backup_existing: bool = True,
 ) -> bool:
     snapshot_path = snapshot_path or DEFAULT_SNAPSHOT_PATH
-    dest_db = dest_db or (os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH)
+    dest_db = dest_db or (os.environ.get("DEEPTUTOR_DB_PATH") or os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH)
 
     if not os.path.exists(snapshot_path):
         print(f"Error: Snapshot file does not exist at {snapshot_path}")
@@ -170,7 +170,7 @@ def restore_snapshot(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="FrenchTutor SQLite Snapshot Manager")
+    parser = argparse.ArgumentParser(description="DeepTutor SQLite Snapshot Manager")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Dump command

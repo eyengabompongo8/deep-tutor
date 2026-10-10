@@ -6,7 +6,7 @@ from backend.db.connection import DB_PATH, ROOT_DIR
 
 def run_init_db(reset=False, db_path=None):
     if db_path is None:
-        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
+        db_path = os.environ.get("DEEPTUTOR_DB_PATH") or os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
     
     if reset:
         for suffix in ("", "-wal", "-shm"):
@@ -32,7 +32,7 @@ def run_init_db(reset=False, db_path=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Initialize the FrenchTutor database.")
+    parser = argparse.ArgumentParser(description="Initialize the DeepTutor database.")
     parser.add_argument("--reset", action="store_true", help="Delete the existing database and start fresh.")
     args = parser.parse_args()
     

@@ -1,4 +1,4 @@
-# FrenchTutor Makefile
+# DeepTutor Makefile
 # Standard development targets powered by uv with dynamic port configuration for parallel git worktrees.
 
 BACKEND_PORT  ?= 8000
@@ -10,7 +10,7 @@ HOST          ?= 0.0.0.0
 
 help:
 	@echo "=================================================================="
-	@echo "🇫🇷  FrenchTutor Makefile - Standard Development Targets:"
+	@echo "🇫🇷  DeepTutor Makefile - Standard Development Targets:"
 	@echo "=================================================================="
 	@echo "  make dev          Start full-stack dev servers (Vite HMR + FastAPI reload)"
 	@echo "                    Custom ports example for parallel worktrees:"
@@ -39,7 +39,7 @@ SHELL := /bin/bash
 
 dev:
 	@echo "=================================================================="
-	@echo "🇫🇷  Starting FrenchTutor Full-Stack Development Environment"
+	@echo "🇫🇷  Starting DeepTutor Full-Stack Development Environment"
 	@echo "• Backend API:    http://localhost:$(PORT)"
 	@echo "• API Docs:       http://localhost:$(PORT)/docs"
 	@echo "• Frontend (HMR): http://localhost:$(FRONTEND_PORT)"

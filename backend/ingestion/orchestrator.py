@@ -18,7 +18,7 @@ from backend.db.snapshot import dump_snapshot, restore_snapshot
 
 
 def main():
-    parser = argparse.ArgumentParser(description="FrenchTutor Database Ingestion & Mining Orchestrator")
+    parser = argparse.ArgumentParser(description="DeepTutor Database Ingestion & Mining Orchestrator")
     parser.add_argument("--all", action="store_true", help="Run full pipeline: init DB -> seed lexemas -> mine Tatoeba -> ingest & link")
     parser.add_argument("--init-db", action="store_true", help="Initialize database schema")
     parser.add_argument("--reset-db", action="store_true", help="Delete existing database file before initializing schema")

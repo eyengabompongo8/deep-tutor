@@ -161,7 +161,7 @@ $$\mathbf{A}_{\text{subtokens}} = \frac{1}{4 H} \sum_{l=L-3}^L \sum_{h=1}^H \mat
 Because Marian and NLLB tokenizers use SentencePiece BPE sub-tokens (prefixed with `\u2581`), sub-tokens are mapped back to whole words via [`aggregate_sentencepiece_tokens_to_words`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/token_utils.py#L34-L77), which handles French contraction splitting (e.g., *"d'un"* $\to$ `["d'", "un"]`, *"c'est"* $\to$ `["c'", "est"]`).
 
 ### 5.5 Pure NMT Cross-Attention Word Alignment
-FrenchTutor uses pure cross-attention pooling directly extracted from the NMT model ([`_compute_attention_alignment_matrix`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/token_utils.py)):
+DeepTutor uses pure cross-attention pooling directly extracted from the NMT model ([`_compute_attention_alignment_matrix`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/token_utils.py)):
 
 1. **Row Normalization**:
    $$\tilde{\mathbf{A}}_{t, s} = \frac{\mathbf{A}_{t, s}}{\sum_{s'} \mathbf{A}_{t, s'} + 10^{-8}}$$
@@ -207,7 +207,7 @@ If the student uses unnatural word orders or ungrammatical collocations, causal 
 ### 7.1 LanguageTool Rule-Based Engine
 Neural language models can overlook subtle agreement rules (e.g., feminine past participle agreement: *"Elle est parti"* vs. *"Elle est partie"*). Stage 5 integrates a local rule-based engine:
 - **Engine**: [`language_tool_python.LanguageTool('fr')`](https://pypi.org/project/language-tool-python/).
-- **Filtered Categories**: FrenchTutor filters out non-pedagogical stylistic suggestions in [`MLEngine.evaluate_syntax`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/engine.py#L155-L178):
+- **Filtered Categories**: DeepTutor filters out non-pedagogical stylistic suggestions in [`MLEngine.evaluate_syntax`](file:///home/eyenga/Projects/FrenchTutor/backend/ml/engine.py#L155-L178):
   - **Ignored Categories**: `STYLE`, `TYPOGRAPHY`, `PUNCTUATION`, `COLLOQUIALISMS`, `REDUNDANCY`.
   - **Ignored Issue Types**: `style`, `register`, `typographical`, `whitespace`, `locale-violation`.
 - **Targeted Rules**: Retains genuine syntax errors, verb conjugations, gender/number disagreements, and confused homophones (e.g., *a/à*, *ou/où*, *son/sont*, *ce/se*).
@@ -235,7 +235,7 @@ where each element $\mathbf{T}_{i, j} = \sum_{s} \mathbf{M}_{\text{stu}}(i, s) \
 
 ## 8. Audio Transcription & Pronunciation Scoring
 
-FrenchTutor supports an audio transcription training mode (`mode = "transcription"`), evaluated through [`backend/scoring/transcription.py`](file:///home/eyenga/Projects/FrenchTutor/backend/scoring/transcription.py).
+DeepTutor supports an audio transcription training mode (`mode = "transcription"`), evaluated through [`backend/scoring/transcription.py`](file:///home/eyenga/Projects/FrenchTutor/backend/scoring/transcription.py).
 
 ### 8.1 Evaluation Algorithm
 In transcription mode, the student listens to native audio and transcribes what they heard. The transcription engine evaluates input against the reference text using token-level and character-level alignment:

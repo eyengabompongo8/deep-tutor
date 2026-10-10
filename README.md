@@ -1,4 +1,4 @@
-# 🇫🇷 FrenchTutor
+# 🇫🇷 DeepTutor
 
 <p align="center">
   <strong>Intelligent, Adaptive French Acquisition Platform Powered by Multi-Model Neural NLP, Psycholinguistic Lexical Modeling, and Comprehensible Input Principles.</strong>
@@ -20,11 +20,11 @@
 
 ## 🎬 Application Demo
 
-Watch FrenchTutor in action—from real-time Spanish-to-French translation exercises and neural audio playback to pure NMT cross-attention token alignment, in-sentence error classification, and dynamic CEFR progression:
+Watch DeepTutor in action—from real-time Spanish-to-French translation exercises and neural audio playback to pure NMT cross-attention token alignment, in-sentence error classification, and dynamic CEFR progression:
 
 <p align="center">
   <a href="docs/assets/demo_frenchtutor.mp4" title="Click to open and watch full HD demo video with audio">
-    <img src="docs/assets/demo_preview.gif" alt="FrenchTutor Walkthrough Demo Preview" width="100%" style="max-width: 860px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);" />
+    <img src="docs/assets/demo_preview.gif" alt="DeepTutor Walkthrough Demo Preview" width="100%" style="max-width: 860px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);" />
   </a>
   <br />
   <em>Click the preview above or <a href="docs/assets/demo_frenchtutor.mp4">▶️ <strong>click here to watch the full demo video with sound</strong></a>.</em>
@@ -152,7 +152,7 @@ flowchart TD
 
 ## ⚡ System Architecture & Concurrency
 
-FrenchTutor pairs FastAPI's asynchronous event loop with a multi-threaded ML execution layer to guarantee sub-second user response times:
+DeepTutor pairs FastAPI's asynchronous event loop with a multi-threaded ML execution layer to guarantee sub-second user response times:
 
 ```mermaid
 flowchart TD
@@ -190,7 +190,7 @@ flowchart TD
 ## 📁 Project Directory Structure
 
 ```
-FrenchTutor/
+DeepTutor/
 ├── backend/                        # Modular Python backend application & API
 │   ├── api/                        # FastAPI routers & request/response schemas
 │   │   ├── audio.py                # Audio TTS streaming & generation endpoints
@@ -298,8 +298,8 @@ Ensure the following tools are available on your system:
 ### 1. Clone & Configure Environment
 
 ```bash
-git clone <repo-url> FrenchTutor
-cd FrenchTutor
+git clone <repo-url> DeepTutor
+cd DeepTutor
 
 # Create local environment config
 cp .env.example .env

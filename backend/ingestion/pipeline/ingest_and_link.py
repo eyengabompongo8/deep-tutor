@@ -10,7 +10,7 @@ from backend.db.connection import DB_PATH, ROOT_DIR
 def run_clear_db(db_path: str = None) -> bool:
     """Clears all sentences and sentence vocabulary links from the database."""
     if db_path is None:
-        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
+        db_path = os.environ.get("DEEPTUTOR_DB_PATH") or os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
         
     print(f"\n--- Clearing Sentences and Links from Database ({db_path}) ---")
     dm = DataManager(db_path=db_path)
@@ -40,7 +40,7 @@ def run_ingest_and_link(sentences: List[Dict[str, Any]], db_path: str = None, ba
         return False
         
     if db_path is None:
-        db_path = os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
+        db_path = os.environ.get("DEEPTUTOR_DB_PATH") or os.environ.get("FRENCHTUTOR_DB_PATH") or DB_PATH
         
     print(f"\n--- Filtering and Ingesting {len(sentences)} Candidate Sentences ---")
     start_time = time.time()

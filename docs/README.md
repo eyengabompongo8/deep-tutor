@@ -1,6 +1,6 @@
-# FrenchTutor Technical Documentation Hub
+# DeepTutor Technical Documentation Hub
 
-Welcome to the technical documentation for **FrenchTutor**, an intelligent, adaptive language learning platform designed for French acquisition using multi-model neural natural language processing, psycholinguistic lexical modeling, and comprehensible input principles.
+Welcome to the technical documentation for **DeepTutor**, an intelligent, adaptive language learning platform designed for French acquisition using multi-model neural natural language processing, psycholinguistic lexical modeling, and comprehensible input principles.
 
 ---
 

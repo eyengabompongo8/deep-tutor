@@ -6,6 +6,7 @@ import pytest
 # Set a fallback temporary DB for any top-level module imports before tests run
 _SESSION_TEMP_DB = tempfile.NamedTemporaryFile(suffix='.db', delete=False)
 _SESSION_TEMP_DB.close()
+os.environ.setdefault("DEEPTUTOR_DB_PATH", _SESSION_TEMP_DB.name)
 os.environ.setdefault("FRENCHTUTOR_DB_PATH", _SESSION_TEMP_DB.name)
 
 # Canonical seed sentences used across tests

@@ -7,10 +7,10 @@ import { Loader2, AlertCircle } from 'lucide-react';
 
 export default function App() {
   const [activeUserId, setActiveUserId] = useState(() => {
-    return localStorage.getItem('frenchtutor_user_id') || null;
+    return localStorage.getItem('deeptutor_user_id') || localStorage.getItem('frenchtutor_user_id') || null;
   });
   const [isSelectingUser, setIsSelectingUser] = useState(() => {
-    return !localStorage.getItem('frenchtutor_user_id');
+    return !(localStorage.getItem('deeptutor_user_id') || localStorage.getItem('frenchtutor_user_id'));
   });
   const [initialCreateMode, setInitialCreateMode] = useState(false);
 
@@ -19,40 +19,40 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingNext, setIsLoadingNext] = useState(false);
   const [currentMode, setCurrentMode] = useState(() => {
-    return localStorage.getItem('frenchtutor_mode') || 'translation';
+    return localStorage.getItem('deeptutor_mode') || localStorage.getItem('frenchtutor_mode') || 'translation';
   });
   const [batchSize, setBatchSize] = useState(() => {
-    const saved = localStorage.getItem('frenchtutor_batch_size');
+    const saved = localStorage.getItem('deeptutor_batch_size') || localStorage.getItem('frenchtutor_batch_size');
     return saved ? parseInt(saved, 10) : 3;
   });
   const [mixedTranslationRatio, setMixedTranslationRatio] = useState(() => {
-    const saved = localStorage.getItem('frenchtutor_mixed_translation_ratio');
+    const saved = localStorage.getItem('deeptutor_mixed_translation_ratio') ?? localStorage.getItem('frenchtutor_mixed_translation_ratio');
     return saved !== null ? parseInt(saved, 10) : 50;
   });
   const [transcriptionRetry, setTranscriptionRetry] = useState(() => {
-    const saved = localStorage.getItem('frenchtutor_transcription_retry');
+    const saved = localStorage.getItem('deeptutor_transcription_retry') ?? localStorage.getItem('frenchtutor_transcription_retry');
     return saved !== null ? saved === 'true' : true;
   });
   const [translationThreshold, setTranslationThreshold] = useState(() => {
-    const saved = localStorage.getItem('frenchtutor_translation_threshold');
+    const saved = localStorage.getItem('deeptutor_translation_threshold') ?? localStorage.getItem('frenchtutor_translation_threshold');
     return saved !== null ? parseInt(saved, 10) : 75;
   });
   const [blindRetryEnabled, setBlindRetryEnabled] = useState(() => {
-    const saved = localStorage.getItem('frenchtutor_blind_retry');
+    const saved = localStorage.getItem('deeptutor_blind_retry') ?? localStorage.getItem('frenchtutor_blind_retry');
     return saved !== null ? saved === 'true' : false;
   });
   const [autoJumpEnabled, setAutoJumpEnabled] = useState(() => {
-    const saved = localStorage.getItem('frenchtutor_auto_jump');
+    const saved = localStorage.getItem('deeptutor_auto_jump') ?? localStorage.getItem('frenchtutor_auto_jump');
     if (saved !== null) return saved === 'true';
-    const legacySaved = localStorage.getItem('frenchtutor_jump_animation');
+    const legacySaved = localStorage.getItem('deeptutor_jump_animation') ?? localStorage.getItem('frenchtutor_jump_animation');
     return legacySaved !== null ? legacySaved === 'true' : true;
   });
   const [autoPlayAudio, setAutoPlayAudio] = useState(() => {
-    const saved = localStorage.getItem('frenchtutor_auto_play_audio');
+    const saved = localStorage.getItem('deeptutor_auto_play_audio') ?? localStorage.getItem('frenchtutor_auto_play_audio');
     return saved !== null ? saved === 'true' : true;
   });
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('frenchtutor_theme') || 'system';
+    return localStorage.getItem('deeptutor_theme') || localStorage.getItem('frenchtutor_theme') || 'system';
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [error, setError] = useState(null);
@@ -96,7 +96,7 @@ export default function App() {
       return data;
     } catch (err) {
       console.error(err);
-      setError('Could not connect to the FrenchTutor server. Please ensure server.py is running.');
+      setError('Could not connect to the DeepTutor server. Please ensure server.py is running.');
       return null;
     }
   }, [currentMode, activeUserId]);
@@ -131,39 +131,39 @@ export default function App() {
         const data = await res.json();
         if (data.auto_jump !== undefined && data.auto_jump !== null) {
           setAutoJumpEnabled(Boolean(data.auto_jump));
-          localStorage.setItem('frenchtutor_auto_jump', String(Boolean(data.auto_jump)));
+          localStorage.setItem('deeptutor_auto_jump', String(Boolean(data.auto_jump)));
         }
         if (data.auto_play_audio !== undefined && data.auto_play_audio !== null) {
           setAutoPlayAudio(Boolean(data.auto_play_audio));
-          localStorage.setItem('frenchtutor_auto_play_audio', String(Boolean(data.auto_play_audio)));
+          localStorage.setItem('deeptutor_auto_play_audio', String(Boolean(data.auto_play_audio)));
         }
         if (data.cards_per_exercise != null) {
           setBatchSize(data.cards_per_exercise);
-          localStorage.setItem('frenchtutor_batch_size', String(data.cards_per_exercise));
+          localStorage.setItem('deeptutor_batch_size', String(data.cards_per_exercise));
         }
         if (data.mixed_translation_ratio != null) {
           setMixedTranslationRatio(data.mixed_translation_ratio);
-          localStorage.setItem('frenchtutor_mixed_translation_ratio', String(data.mixed_translation_ratio));
+          localStorage.setItem('deeptutor_mixed_translation_ratio', String(data.mixed_translation_ratio));
         }
         if (data.correction_threshold != null) {
           setTranslationThreshold(data.correction_threshold);
-          localStorage.setItem('frenchtutor_translation_threshold', String(data.correction_threshold));
+          localStorage.setItem('deeptutor_translation_threshold', String(data.correction_threshold));
         }
         if (data.transcription_retry !== undefined && data.transcription_retry !== null) {
           setTranscriptionRetry(Boolean(data.transcription_retry));
-          localStorage.setItem('frenchtutor_transcription_retry', String(Boolean(data.transcription_retry)));
+          localStorage.setItem('deeptutor_transcription_retry', String(Boolean(data.transcription_retry)));
         }
         if (data.blind_retry !== undefined && data.blind_retry !== null) {
           setBlindRetryEnabled(Boolean(data.blind_retry));
-          localStorage.setItem('frenchtutor_blind_retry', String(Boolean(data.blind_retry)));
+          localStorage.setItem('deeptutor_blind_retry', String(Boolean(data.blind_retry)));
         }
         if (data.theme) {
           setTheme(data.theme);
-          localStorage.setItem('frenchtutor_theme', data.theme);
+          localStorage.setItem('deeptutor_theme', data.theme);
         }
         if (data.active_mode) {
           setCurrentMode(data.active_mode);
-          localStorage.setItem('frenchtutor_mode', data.active_mode);
+          localStorage.setItem('deeptutor_mode', data.active_mode);
         }
         return data;
       }
@@ -198,7 +198,7 @@ export default function App() {
   // User Selection Handler from LoginScreen
   const handleSelectUser = async (userId) => {
     setActiveUserId(userId);
-    localStorage.setItem('frenchtutor_user_id', userId);
+    localStorage.setItem('deeptutor_user_id', userId);
     setIsSelectingUser(false);
     setInitialCreateMode(false);
     setRecentSentenceIds([]);
@@ -226,6 +226,7 @@ export default function App() {
 
   // Logout Handler
   const handleLogout = () => {
+    localStorage.removeItem('deeptutor_user_id');
     localStorage.removeItem('frenchtutor_user_id');
     setActiveUserId(null);
     setProfile(null);
@@ -252,7 +253,7 @@ export default function App() {
   const handleSwitchMode = async (newMode) => {
     if (newMode === currentMode) return;
     setCurrentMode(newMode);
-    localStorage.setItem('frenchtutor_mode', newMode);
+    localStorage.setItem('deeptutor_mode', newMode);
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',
@@ -311,7 +312,7 @@ export default function App() {
   // Change batch size from settings
   const handleChangeBatchSize = (newSize) => {
     setBatchSize(newSize);
-    localStorage.setItem('frenchtutor_batch_size', String(newSize));
+    localStorage.setItem('deeptutor_batch_size', String(newSize));
     const levelToUse = profile?.modes?.[currentMode]?.level ?? profile?.level ?? 'A1';
     fetchBatch(levelToUse, newSize, recentSentenceIds, currentMode, activeUserId);
     if (activeUserId) {
@@ -353,7 +354,7 @@ export default function App() {
 
   const handleToggleTranscriptionRetry = (val) => {
     setTranscriptionRetry(val);
-    localStorage.setItem('frenchtutor_transcription_retry', String(val));
+    localStorage.setItem('deeptutor_transcription_retry', String(val));
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',
@@ -365,7 +366,7 @@ export default function App() {
 
   const handleToggleBlindRetry = (val) => {
     setBlindRetryEnabled(val);
-    localStorage.setItem('frenchtutor_blind_retry', String(val));
+    localStorage.setItem('deeptutor_blind_retry', String(val));
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',
@@ -377,7 +378,7 @@ export default function App() {
 
   const handleChangeTranslationThreshold = (val) => {
     setTranslationThreshold(val);
-    localStorage.setItem('frenchtutor_translation_threshold', String(val));
+    localStorage.setItem('deeptutor_translation_threshold', String(val));
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',
@@ -389,7 +390,7 @@ export default function App() {
 
   const handleChangeMixedTranslationRatio = (val) => {
     setMixedTranslationRatio(val);
-    localStorage.setItem('frenchtutor_mixed_translation_ratio', String(val));
+    localStorage.setItem('deeptutor_mixed_translation_ratio', String(val));
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',
@@ -401,7 +402,7 @@ export default function App() {
 
   const handleToggleAutoJump = (val) => {
     setAutoJumpEnabled(val);
-    localStorage.setItem('frenchtutor_auto_jump', String(val));
+    localStorage.setItem('deeptutor_auto_jump', String(val));
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',
@@ -413,7 +414,7 @@ export default function App() {
 
   const handleToggleAutoPlayAudio = (val) => {
     setAutoPlayAudio(val);
-    localStorage.setItem('frenchtutor_auto_play_audio', String(val));
+    localStorage.setItem('deeptutor_auto_play_audio', String(val));
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',
@@ -438,7 +439,7 @@ export default function App() {
       }
     }
     setTheme(nextTheme);
-    localStorage.setItem('frenchtutor_theme', nextTheme);
+    localStorage.setItem('deeptutor_theme', nextTheme);
     if (activeUserId) {
       fetch(`/api/user/settings?user_id=${encodeURIComponent(activeUserId)}`, {
         method: 'PUT',

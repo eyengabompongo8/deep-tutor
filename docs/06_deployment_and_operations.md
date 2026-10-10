@@ -6,7 +6,7 @@
 
 ## 1. Executive Summary & Operational Architecture
 
-FrenchTutor is engineered as a containerized, hybrid neural-linguistic web service. The runtime couples a fast **FastAPI** backend with a high-performance **React / Vite** single-page application (SPA), supported by an embedded **SQLite (WAL mode)** database and multi-gigabyte neural NLP models (GlotLID FastText, NLLB-200 distilled, GPT-2 FR, SentenceTransformers).
+DeepTutor is engineered as a containerized, hybrid neural-linguistic web service. The runtime couples a fast **FastAPI** backend with a high-performance **React / Vite** single-page application (SPA), supported by an embedded **SQLite (WAL mode)** database and multi-gigabyte neural NLP models (GlotLID FastText, NLLB-200 distilled, GPT-2 FR, SentenceTransformers).
 
 To reconcile the demands of developer agility, cross-platform portability, deterministic dependency resolution, and deep-learning acceleration, the operational stack is organized around three pillars:
 1. **Ultra-Fast Dependency Management via `uv`**: Pure deterministic resolution via `uv.lock`, sub-second environment synchronizations, and isolated PyTorch hardware variants (CPU vs CUDA 12.4).
@@ -22,11 +22,11 @@ The project standardizes entirely on [`uv`](https://github.com/astral-sh/uv), an
 
 ### 2.1 Configuration File Structure (`pyproject.toml`)
 
-FrenchTutor defines its workspace configuration in [`pyproject.toml`](file:///home/eyenga/Projects/FrenchTutor/pyproject.toml):
+DeepTutor defines its workspace configuration in [`pyproject.toml`](file:///home/eyenga/Projects/FrenchTutor/pyproject.toml):
 
 ```toml
 [project]
-name = "frenchtutor"
+name = "deeptutor"
 version = "0.1.0"
 requires-python = ">=3.11,<3.14"
 
@@ -130,7 +130,7 @@ export UV_NO_SYNC=1
 
 ## 3. Docker Containerization Architecture
 
-FrenchTutor provides two distinct container deployment strategies:
+DeepTutor provides two distinct container deployment strategies:
 1. **Unified Production Deployment** ([`docker-compose.yml`](file:///home/eyenga/Projects/FrenchTutor/docker-compose.yml), [`Dockerfile`](file:///home/eyenga/Projects/FrenchTutor/Dockerfile)): Compact, multi-stage production images with bundled frontend assets.
 2. **Hot-Reload Development Cluster** ([`docker-compose.dev.yml`](file:///home/eyenga/Projects/FrenchTutor/docker-compose.dev.yml)): Separate backend and frontend development containers with live source code mounts, Vite Hot Module Replacement (HMR), and host Hugging Face cache persistence.
 
@@ -182,7 +182,7 @@ docker compose -f docker-compose.dev.yml --profile gpu up backend-dev-gpu fronte
 
 ## 4. Automated Testing Suite & Strategy
 
-The project employs a tiered testing architecture managed by `pytest`. Because FrenchTutor integrates both deterministic relational data operations and computationally intensive neural transformer models, tests are strictly partitioned using custom pytest markers.
+The project employs a tiered testing architecture managed by `pytest`. Because DeepTutor integrates both deterministic relational data operations and computationally intensive neural transformer models, tests are strictly partitioned using custom pytest markers.
 
 ### 4.1 Pytest Configuration & Test Partitioning
 
@@ -348,7 +348,7 @@ In production deployments, the following host volumes must be persisted:
 
 | Container Path | Host Recommended Path | Purpose | Backup Policy |
 | :--- | :--- | :--- | :--- |
-| `/app/data` | `./data` | Stores SQLite database (`frenchtutor.db`), WAL journal files, and synthesized audio cache (`data/audio_cache/`). | Daily snapshot / WAL checkpoint backup. |
+| `/app/data` | `./data` | Stores SQLite database (`app.db`), WAL journal files, and synthesized audio cache (`data/audio_cache/`). | Daily snapshot / WAL checkpoint backup. |
 | `/root/.cache/huggingface` | `~/.cache/huggingface` | Stores downloaded neural model weights (`nllb-200`, `gpt-fr`, `glotlid`, `MiniLM`). | Ephemeral cache (can be reconstructed via download, but persisting avoids bandwidth delay). |
 
 ---

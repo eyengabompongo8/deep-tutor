@@ -5,9 +5,9 @@
 
 # Chapter 4: Vocabulary Modeling, CEFR Progression & Candidate Buffering
 
-This chapter details the mathematical foundations, linguistic algorithms, and engineering architecture governing vocabulary acquisition, lexical CEFR assignment, and dynamic exercise generation in **FrenchTutor**.
+This chapter details the mathematical foundations, linguistic algorithms, and engineering architecture governing vocabulary acquisition, lexical CEFR assignment, and dynamic exercise generation in **DeepTutor**.
 
-FrenchTutor abandons arbitrary word categorization in favor of an **empirically grounded psycholinguistic model** derived from corpus frequency, paired with Stephen Krashen’s **$i+1$ Comprehensible Input hypothesis** implemented computationally over a two-tier relational lexical graph.
+DeepTutor abandons arbitrary word categorization in favor of an **empirically grounded psycholinguistic model** derived from corpus frequency, paired with Stephen Krashen’s **$i+1$ Comprehensible Input hypothesis** implemented computationally over a two-tier relational lexical graph.
 
 ---
 
@@ -16,9 +16,9 @@ FrenchTutor abandons arbitrary word categorization in favor of an **empirically 
 ### 1.1 Empirical Lexical Profiling vs. Arbitrary CEFR Tags
 The Common European Framework of Reference for Languages (CEFR) standardizes functional and communicative competencies (e.g., "can understand simple everyday phrases"), but **does not publish official vocabulary quotas or standardized wordlists**. 
 
-Educational frameworks that manually assign static CEFR labels to words suffer from subjectivity, inconsistencies, and dialectal bias. To achieve objective, reproducible grading, FrenchTutor adopts empirical applied linguistics benchmarks (Milton & Alexiou 2009, Nation 2001, Laufer 2010), which establish that foreign language proficiency correlates directly with cumulative receptive vocabulary breadth sorted by natural corpus frequency.
+Educational frameworks that manually assign static CEFR labels to words suffer from subjectivity, inconsistencies, and dialectal bias. To achieve objective, reproducible grading, DeepTutor adopts empirical applied linguistics benchmarks (Milton & Alexiou 2009, Nation 2001, Laufer 2010), which establish that foreign language proficiency correlates directly with cumulative receptive vocabulary breadth sorted by natural corpus frequency.
 
-FrenchTutor models lexical difficulty directly from **Lexique 4** (`data/lexique/Lexique4/Lexique4.tsv`), an authoritative French lexical resource spanning a 316-million-word film and television subtitle corpus reflecting modern spoken French.
+DeepTutor models lexical difficulty directly from **Lexique 4** (`data/lexique/Lexique4/Lexique4.tsv`), an authoritative French lexical resource spanning a 316-million-word film and television subtitle corpus reflecting modern spoken French.
 
 ### 1.2 Mathematical Formulation: Frequency Rank and the Zipf Score
 All unique `(lemma, pos)` pairs in Lexique 4 are ordered strictly descending by their corpus lemma frequency (`12_FreqLemme`, occurrences per million words):
@@ -52,7 +52,7 @@ The lexical cutoffs reflect natural vocabulary acquisition plateaus from foundat
 ## 2. Context-Aware POS Mapping & Token Resolution Fallbacks
 
 ### 2.1 Bridging Universal Dependencies and Lexique 4 Grammatical Categories
-Because sentences are tokenized and tagged at runtime using spaCy's `fr_core_news_sm` (conforming to the Universal Dependencies POS standard), but Lexique 4 organizes lexical entries using specialized French grammatical categories (`Cgram`), FrenchTutor defines a deterministic category bridging matrix in [`backend/nlp/vocab_engine.py`](file:///home/eyenga/Projects/FrenchTutor/backend/nlp/vocab_engine.py#L21-L35).
+Because sentences are tokenized and tagged at runtime using spaCy's `fr_core_news_sm` (conforming to the Universal Dependencies POS standard), but Lexique 4 organizes lexical entries using specialized French grammatical categories (`Cgram`), DeepTutor defines a deterministic category bridging matrix in [`backend/nlp/vocab_engine.py`](file:///home/eyenga/Projects/FrenchTutor/backend/nlp/vocab_engine.py#L21-L35).
 
 | spaCy UD POS Tag (`tok.pos_`) | Lexique 4 `Cgram` Candidates | Linguistic Category | Examples |
 | :--- | :--- | :--- | :--- |
@@ -97,7 +97,7 @@ Implemented in [`VocabEngine.resolve_token_word_id(...)`](file:///home/eyenga/Pr
 ### 3.1 The Computational $i+1$ Comprehensible Input Hypothesis
 In Second Language Acquisition (SLA) theory, Stephen Krashen posits that learners acquire language most efficiently when exposed to messages containing structures just beyond their current competence ($i+1$). If an exercise contains too many unknown words ($i+3$, $i+5$), cognitive overload halts acquisition. Conversely, if it contains zero new elements ($i+0$), no vocabulary growth occurs.
 
-FrenchTutor formalizes this computationally:
+DeepTutor formalizes this computationally:
 - **Learner State ($i$)**: The set of lemmas marked as `is_known` for a given user.
 - **Progression Sentences ($i+1$)**: Sentences that contain **exactly 1 unknown lemma** ($\text{unknown\_count} = 1$). All other words in the sentence must belong to the learner's known set.
 - **Reinforcement Sentences ($i+0$)**: Sentences where all lemmas are known ($\text{unknown\_count} = 0$), prioritizing lemmas where the learner has low historical accuracy or needs consolidation.
@@ -139,7 +139,7 @@ When generating an exercise batch via [`DataManager.get_progressive_sentences(..
 
 ## 4. Candidate Sentence Buffering Architecture
 
-Progressive sentence selection requires evaluating set differences across thousands of relational rows in SQLite. To deliver sub-50ms exercise dispatch without database latency, FrenchTutor implements an **in-memory candidate sentence buffering architecture**.
+Progressive sentence selection requires evaluating set differences across thousands of relational rows in SQLite. To deliver sub-50ms exercise dispatch without database latency, DeepTutor implements an **in-memory candidate sentence buffering architecture**.
 
 
 ### 4.1 SQL Pre-aggregation with Common Table Expressions (CTE)

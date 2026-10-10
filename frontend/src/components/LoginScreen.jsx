@@ -53,7 +53,7 @@ export default function LoginScreen({
       setUsers(data || []);
     } catch (err) {
       console.error(err);
-      setError('Impossible de se connecter au serveur FrenchTutor.');
+      setError('Impossible de se connecter au serveur DeepTutor.');
     } finally {
       setIsLoading(false);
     }
@@ -127,11 +127,11 @@ export default function LoginScreen({
       <header className="relative z-10 max-w-5xl w-full mx-auto flex items-center justify-between py-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-white text-neutral-900 flex items-center justify-center shadow-lg font-black text-lg">
-            FT
+            DT
           </div>
           <div>
             <h1 className="text-base font-bold text-white tracking-tight leading-tight">
-              FrenchTutor
+              DeepTutor
             </h1>
             <p className="text-xs text-neutral-400">
               Apprentissage adaptatif du français
@@ -421,7 +421,7 @@ export default function LoginScreen({
       {/* Footer */}
       <footer className="py-6 border-t border-neutral-200/60 text-center text-xs text-neutral-400">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>FrenchTutor · Pratique adaptative du français</span>
+          <span>DeepTutor · Pratique adaptative du français</span>
           <span>CEFR Multimodal Engine</span>
         </div>
       </footer>

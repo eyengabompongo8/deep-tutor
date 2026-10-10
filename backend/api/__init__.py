@@ -1,5 +1,5 @@
 """
-FrenchTutor API routers submodule.
+DeepTutor API routers submodule.
 """
 from backend.api import users, exercises, audio, stats
 

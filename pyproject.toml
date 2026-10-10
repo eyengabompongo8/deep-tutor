@@ -1,7 +1,7 @@
 [project]
-name = "frenchtutor"
+name = "deeptutor"
 version = "0.1.0"
-description = "Interactive Gradio web application for learning French tailored for Spanish speakers"
+description = "Interactive adaptive French language learning platform tailored for Spanish speakers powered by neural NLP"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 

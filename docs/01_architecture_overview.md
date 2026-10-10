@@ -64,7 +64,7 @@ sequenceDiagram
 
 ## 2. Concurrency & Asynchronous Architecture
 
-FrenchTutor employs a hybrid concurrency model combining Python's asynchronous event loop (FastAPI / `asyncio`) for network I/O with multi-threaded thread pools and mutex locks for CPU- and GPU-bound neural inference.
+DeepTutor employs a hybrid concurrency model combining Python's asynchronous event loop (FastAPI / `asyncio`) for network I/O with multi-threaded thread pools and mutex locks for CPU- and GPU-bound neural inference.
 
 ```mermaid
 flowchart TD
@@ -89,7 +89,7 @@ flowchart TD
 
 ### 2.1 Dual-Threaded Pipeline Mechanics
 
-PyTorch and Transformers pipelines cannot safely process concurrent dynamic-length batches across multiple arbitrary OS threads without VRAM fragmentation or lock contention. FrenchTutor organizes ML execution into two coordinated threads:
+PyTorch and Transformers pipelines cannot safely process concurrent dynamic-length batches across multiple arbitrary OS threads without VRAM fragmentation or lock contention. DeepTutor organizes ML execution into two coordinated threads:
 
 - **Thread 1 (Background Precomputation Worker)**:
   - Backed by a single-threaded FIFO pool (`ThreadPoolExecutor(max_workers=1)`).
@@ -105,7 +105,7 @@ PyTorch and Transformers pipelines cannot safely process concurrent dynamic-leng
 
 ## 3. Repository Architecture & Directory Navigation
 
-The FrenchTutor codebase is organized into decoupled modules separating API routing, persistence, neural inference, and frontend presentation:
+The DeepTutor codebase is organized into decoupled modules separating API routing, persistence, neural inference, and frontend presentation:
 
 - **[`backend/api/`](file:///home/eyenga/Projects/FrenchTutor/backend/api/)**: FastAPI routes, dependency injection, and Pydantic schemas.
 - **[`backend/db/`](file:///home/eyenga/Projects/FrenchTutor/backend/db/)**: SQLite connection lifecycle (WAL mode), table migrations, and repository mixins (`DataManager`).

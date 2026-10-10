@@ -31,7 +31,7 @@ def _download_file(url: str, dest_path: str, desc: str):
         return
 
     print(f"Downloading {desc} from {url}...")
-    req = urllib.request.Request(url, headers={"User-Agent": "FrenchTutor-Ingestion/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "DeepTutor-Ingestion/1.0"})
     with urllib.request.urlopen(req) as resp, open(dest_path, "wb") as f_out:
         total_size = int(resp.headers.get("Content-Length", 0))
         block_size = 1024 * 64
