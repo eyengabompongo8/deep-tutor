@@ -399,6 +399,24 @@ Re-score all database sentences following model fine-tuning or rubric adjustment
 uv run python -m backend.ingestion.rescore_dataset
 ```
 
+#### Recipe 7: Fast Onboarding via Database Snapshots (Skip Ingestion)
+To immediately start the system with all 30,000+ pre-mined sentences and Lexique 4 catalogs without running the ingestion pipeline:
+```bash
+# Cleanly restore snapshot in < 1s
+make load-db
+# or via orchestrator
+uv run python -m backend.ingestion.orchestrator --load-snapshot
+```
+
+To update or create a new clean snapshot after mining:
+```bash
+make dump-db
+# or via orchestrator
+uv run python -m backend.ingestion.orchestrator --dump-snapshot
+```
+
+The snapshot excludes all user data (`users`, `user_lemmas`, `user_words`, `user_modes`, `exercise_history`, `audio_cache`, `user_settings`), leaving a clean database ready for user creation.
+
 ---
 
 <!-- Navigation Footer -->

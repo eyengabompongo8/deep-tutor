@@ -6,7 +6,7 @@ PORT          ?= $(BACKEND_PORT)
 FRONTEND_PORT ?= 5173
 HOST          ?= 0.0.0.0
 
-.PHONY: help install install-gpu dev start build test ingest clean
+.PHONY: help install install-gpu dev start build test ingest load-db dump-db clean
 
 help:
 	@echo "=================================================================="
@@ -20,6 +20,8 @@ help:
 	@echo "  make build        Build production frontend bundle into frontend/dist"
 	@echo "  make test         Run fast unit & API tests via uv pytest"
 	@echo "  make ingest       Run database ingestion & mining pipeline (pass ARGS=\"...\")"
+	@echo "  make load-db      Restore database snapshot into data/app.db (skip ingestion)"
+	@echo "  make dump-db      Create clean snapshot from current database into data/snapshots/"
 	@echo "  make install      Install Python dependencies (uv sync CPU) & frontend npm"
 	@echo "  make install-gpu  Install Python dependencies with CUDA 12.4 GPU acceleration"
 	@echo "  make clean        Remove build artifacts, caches, and __pycache__"
@@ -73,6 +75,12 @@ test:
 
 ingest:
 	uv run --no-sync python -m backend.ingestion.orchestrator $(ARGS)
+
+load-db:
+	uv run --no-sync python -m backend.db.snapshot restore $(ARGS)
+
+dump-db:
+	uv run --no-sync python -m backend.db.snapshot dump $(ARGS)
 
 clean:
 	rm -rf frontend/dist .pytest_cache

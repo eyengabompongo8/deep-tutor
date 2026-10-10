@@ -31,7 +31,9 @@ frontend/dist/
 *.env
 
 # Runtime data, databases & media caches
-data/
+data/*
+!data/snapshots/
+!data/snapshots/**
 *.db
 *.db-wal
 *.db-shm

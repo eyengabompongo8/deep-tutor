@@ -14,6 +14,7 @@ from backend.ingestion.pipeline import (
     run_ingest_and_link,
     run_clear_db
 )
+from backend.db.snapshot import dump_snapshot, restore_snapshot
 
 
 def main():
@@ -22,6 +23,8 @@ def main():
     parser.add_argument("--init-db", action="store_true", help="Initialize database schema")
     parser.add_argument("--reset-db", action="store_true", help="Delete existing database file before initializing schema")
     parser.add_argument("--clear-db", action="store_true", help="Clear all sentences and lexema links from the database")
+    parser.add_argument("--dump-snapshot", action="store_true", help="Create a clean database snapshot (excluding user data) into data/snapshots/")
+    parser.add_argument("--load-snapshot", action="store_true", help="Cleanly restore database from data/snapshots/default_snapshot.db.gz")
     parser.add_argument("--seed-lexemas", "--seed-lemmas", dest="seed_lexemas", action="store_true", help="Seed the lemmas and words catalog tables from Lexique 4")
     parser.add_argument("--mine-tatoeba", action="store_true", help="Mine and score sentences from Tatoeba dataset")
     parser.add_argument("--tatoeba-mode", type=str, choices=["parallel", "monolingual", "both"], default="both", help="Tatoeba mining mode: parallel (fra-spa), monolingual (fra + MarianMT), or both (default: both)")
@@ -44,6 +47,8 @@ def main():
         args.init_db,
         args.reset_db,
         args.clear_db,
+        args.dump_snapshot,
+        args.load_snapshot,
         args.seed_lexemas,
         args.mine_tatoeba,
         args.mine_pdf,
@@ -56,6 +61,21 @@ def main():
     if not any(actions):
         parser.print_help()
         sys.exit(0)
+
+    # Snapshot operations
+    if args.load_snapshot:
+        print("\n" + "="*50)
+        print("STEP: Restoring Database Snapshot")
+        print("="*50)
+        success = restore_snapshot()
+        sys.exit(0 if success else 1)
+
+    if args.dump_snapshot:
+        print("\n" + "="*50)
+        print("STEP: Creating Clean Database Snapshot")
+        print("="*50)
+        success = dump_snapshot()
+        sys.exit(0 if success else 1)
 
     # 1. Reset / Init DB
     if args.all or args.init_db or args.reset_db:

@@ -322,6 +322,17 @@ make install-gpu
 
 *(Under the hood, `make install` runs `uv sync --extra cpu` followed by `cd frontend && npm install`)*.
 
+### 3. Load Database Snapshot (Skip Ingestion)
+
+To immediately use the app without mining datasets from scratch (~30,000+ pre-scored sentences and complete Lexique 4 lemmas):
+
+```bash
+# Cleanly initialize the database with pre-mined linguistic data
+make load-db
+```
+
+*(Alternatively, you can run the full ingestion pipeline from scratch using `make ingest ARGS="--all"`)*.
+
 ---
 
 ## 🐳 Docker Deployment
@@ -416,6 +427,8 @@ make start PORT=8080
 | `make start` | `uv run ... python -m backend.server` | Launches production server serving API + static frontend bundle |
 | `make test` | `uv run --no-sync pytest` | Runs fast unit, API, and scoring test suite (`<2s`) |
 | `make ingest` | `uv run ... backend.ingestion.orchestrator` | Runs database ingestion pipeline (pass `ARGS="..."`) |
+| `make load-db` | `uv run ... backend.db.snapshot restore` | Restores default database snapshot into `data/app.db` (skips ingestion) |
+| `make dump-db` | `uv run ... backend.db.snapshot dump` | Creates clean database snapshot (excluding user data) in `data/snapshots/` |
 | `make clean` | `rm -rf frontend/dist .pytest_cache ...` | Cleans build artifacts and Python `__pycache__` directories |
 
 ---

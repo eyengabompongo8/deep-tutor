@@ -288,4 +288,16 @@ The static properties of all 69,728 lemmas (`lemma`, `pos`, `level`, `is_base`) 
 
 ---
 
+## 6. Pre-Ingested Database Snapshots & Fast Onboarding
+
+To enable instant onboarding without executing the multi-hour sentence mining, neural classification, and Lexique 4 seeding pipelines, FrenchTutor includes a pre-packaged database snapshot:
+
+* **File Location**: `data/snapshots/default_snapshot.db.gz` (tracked in git, ~21.8 MB compressed).
+* **Included Data**: All 30,855 sentences, 69,728 canonical lemmas, 189,863 surface words, and >600,000 relational links.
+* **Excluded Data**: All user records and runtime activity (`users`, `user_lemmas`, `user_words`, `user_modes`, `exercise_history`, `audio_cache`, `user_settings`).
+* **Fast Restoration (`make load-db`)**: Unpacks and restarts `data/app.db` in < 1 second, provisions a fresh `default_user`, and clears temporary WAL locks.
+* **Creating Snapshots (`make dump-db`)**: Safely clones the active database, purges user records, runs `VACUUM`, and creates a new compressed snapshot in `data/snapshots/`.
+
+---
+
 [← Previous: 01 Architecture Overview](file:///home/eyenga/Projects/FrenchTutor/docs/01_architecture_overview.md) | [Documentation Hub (README)](file:///home/eyenga/Projects/FrenchTutor/docs/README.md) | [Next: 03 NLP & Scoring Pipeline →](file:///home/eyenga/Projects/FrenchTutor/docs/03_nlp_and_scoring_pipeline.md)
