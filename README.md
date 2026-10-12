@@ -12,7 +12,6 @@
   <img src="https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/PyTorch-2.6%20(CPU%20%2F%20CUDA%2012.4)-EE4C2C?style=flat-square&logo=pytorch&logoColor=white" alt="PyTorch" />
   <img src="https://img.shields.io/badge/SQLite-WAL%20Mode-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite" />
-  <img src="https://img.shields.io/badge/CEFR-A1%20to%20C2-4CAF50?style=flat-square" alt="CEFR A1-C2" />
   <img src="https://img.shields.io/badge/Tests-Pytest%20Passing-brightgreen?style=flat-square&logo=pytest&logoColor=white" alt="Pytest" />
 </p>
 
@@ -30,14 +29,6 @@ Watch DeepTutor in action—from real-time Spanish-to-French translation exercis
   <em>Click the preview above or <a href="docs/assets/demo_frenchtutor.mp4">▶️ <strong>click here to watch the full demo video with sound</strong></a>.</em>
 </p>
 
-### What You'll See in the Demo:
-- **Interactive Translation Practice**: Instant evaluation of Spanish-to-French submissions with real-time score feedback.
-- **Cross-Attention Alignment & Token Hints**: Hover over Spanish words to inspect bilingual alignments derived directly from NLLB-200 encoder-decoder attention.
-- **Transition Matrix Error Classification**: Visual distinction between **Type A (Mapped)** substitutions (orange) and **Type B (Unmapped)** extraneous words (rose) with in-sentence highlights.
-- **Audio Transcription Mode**: Native French speech synthesis powered by Edge-TTS with phonetic diffs and accent-sensitive grading.
-- **Adaptive Level Progression**: Live CEFR score deltas based on Stephen Krashen's $i+1$ comprehensible input constraints.
-- **Seamless Theming**: Full dark and light mode UI designed with Tailwind CSS.
-
 ---
 
 ## 📑 Table of Contents
@@ -46,8 +37,6 @@ Watch DeepTutor in action—from real-time Spanish-to-French translation exercis
 - [Technical Documentation Hub](#-technical-documentation-hub)
 - [Key Features](#-key-features)
 - [NLP Evaluation Architecture](#-nlp-evaluation-architecture)
-- [System Architecture & Concurrency](#-system-architecture--concurrency)
-- [Project Directory Structure](#-project-directory-structure)
 - [Prerequisites](#-prerequisites)
 - [Installation & Setup](#-installation--setup)
 - [Docker Deployment](#-docker-deployment)
@@ -147,138 +136,6 @@ flowchart TD
    $$S_{\text{fluency}} = \max\left(0, \min\left(100, \frac{\text{PPL}_{\text{ref}}^{\text{LM}}}{\max(\text{PPL}_{\text{student}}^{\text{LM}}, 10^{-5})} \times 100\right)\right)$$
 6. **LanguageTool Syntax & Agreement Engine**: Local grammar checking tuned to ignore stylistic trivialities while catching genuine agreement, gender/number, and verb conjugation errors.
 7. **Transition Matrix Error Classification**: Analyzes cross-attention overlap to distinguish misselected words from completely unexpected tokens, driving the inline error highlights and badges in the UI.
-
----
-
-## ⚡ System Architecture & Concurrency
-
-DeepTutor pairs FastAPI's asynchronous event loop with a multi-threaded ML execution layer to guarantee sub-second user response times:
-
-```mermaid
-flowchart TD
-    subgraph AsyncFastAPI ["FastAPI Async Server (Uvicorn)"]
-        ReqBatch["GET /api/exercises/batch"]
-        ReqHint["POST /api/exercises/hint"]
-        ReqEval["POST /api/exercises/evaluate-single"]
-    end
-
-    subgraph MLController ["ML Concurrency Controller (precompute.py)"]
-        T1["Thread 1: Eager Worker<br/>(Background Precomputation)"]
-        T2["Thread 2: Interactive Evaluator<br/>(Request-Time Inference)"]
-        BundleCache[("In-Memory Session Cache<br/>ReferenceBundle LRU")]
-    end
-
-    subgraph DataStore ["Persistence Layer"]
-        DB[(SQLite WAL Mode)]
-        AudioCache[("TTS Audio Cache<br/>data/audio_cache/")]
-    end
-
-    ReqBatch -->|Enqueue next exercise batch| T1
-    T1 -->|Precompute ref tensors, PPL & alignments| BundleCache
-    ReqHint -->|Instant lookup from bundle| BundleCache
-    ReqEval -->|Acquires _eval_lock| T2
-    BundleCache -->|Reuse precomputed tensors| T2
-    T2 --> DB
-    T2 --> AudioCache
-```
-
-- **Thread 1 (Eager Precomputation Worker)**: When a batch of sentences is sampled, Thread 1 precomputes reference embeddings, reference perplexity, and source-to-reference attention in the background. Token hints are served instantly from memory.
-- **Thread 2 (Interactive Student Evaluator)**: Dedicated to evaluating the student submission against the cached `ReferenceBundle`, avoiding redundant forward passes on reference sentences and eliminating lock contention.
-
----
-
-## 📁 Project Directory Structure
-
-```
-DeepTutor/
-├── backend/                        # Modular Python backend application & API
-│   ├── api/                        # FastAPI routers & request/response schemas
-│   │   ├── audio.py                # Audio TTS streaming & generation endpoints
-│   │   ├── deps.py                 # Dependency injection & singleton references
-│   │   ├── exercises.py            # Translation & transcription session endpoints
-│   │   ├── schemas.py              # Pydantic data contract schemas
-│   │   ├── stats.py                # User stats & vocabulary summary endpoints
-│   │   └── users.py                # User profile CRUD & level configuration
-│   ├── db/                         # Modular SQLite database management (WAL mode)
-│   │   ├── connection.py           # SQLite connection pooling & schema initialization
-│   │   ├── manager.py              # Unified DataManager repository aggregator
-│   │   ├── sentences.py            # Sentence querying, filtering & updates
-│   │   ├── users.py                # User profiles, CEFR levels & settings
-│   │   ├── history.py              # User exercise attempts & evaluation history
-│   │   ├── audio.py                # Cached TTS audio file mapping
-│   │   └── vocabulary.py           # User vocabulary state & candidate buffering
-│   ├── ml/                         # Machine learning & neural model inference
-│   │   ├── engine.py               # MLEngine: neural inference execution & transition matrix
-│   │   ├── registry.py             # Singleton model loading & caching registry
-│   │   ├── precompute.py           # Background eager loading & ReferenceBundle cache
-│   │   └── token_utils.py          # Pure NMT cross-attention pooling & token alignment
-│   ├── nlp/                        # Natural language processing & linguistic utilities
-│   │   ├── text_utils.py           # Text normalization, tokenization & diff helpers
-│   │   ├── tts_engine.py           # Edge-TTS neural speech synthesis & cache
-│   │   └── vocab_engine.py         # CEFR vocabulary classifier & lemma extractor
-│   ├── scoring/                    # Linguistic evaluation & scoring engines
-│   │   ├── engine.py               # Composite scoring aggregation & feedback
-│   │   ├── cefr.py                 # Dynamic CEFR level delta computation
-│   │   └── transcription.py        # Phonetic, typo, & word diff transcription scoring
-│   ├── ingestion/                  # Data mining and dataset ingestion pipeline
-│   │   ├── pipeline/               # Mining modules (HuggingFace, Tatoeba, PDF, Lexique 4)
-│   │   │   ├── mine_universal_cefr.py # UniversalCEFR HuggingFace mining module
-│   │   │   ├── mine_tatoeba.py     # Tatoeba corpus sentence miner
-│   │   │   ├── mine_pdf.py         # Monolingual PDF extractor and MarianMT translator
-│   │   │   ├── seed_lemmas.py      # Lexique 4 lemmas & words catalog seeder
-│   │   │   └── ingest_and_link.py  # Sentence linker with strict lexeme validation
-│   │   ├── orchestrator.py         # Ingestion CLI orchestrator entry point
-│   │   └── rescore_dataset.py      # Batch rescoring of sentence corpus
-│   ├── config.py                   # Centralized application configuration & defaults
-│   └── server.py                   # FastAPI application initialization & static mount
-├── frontend/                       # Modern React Single Page Application (SPA)
-│   ├── src/
-│   │   ├── components/             # Reusable UI components with full Dark Mode support
-│   │   │   ├── ExerciseSession.jsx # Translation & transcription exercise container
-│   │   │   ├── SentenceCard.jsx    # Translation card with transition matrix highlights
-│   │   │   ├── TranscriptionCard.jsx # Audio transcription practice card
-│   │   │   ├── WordAlignmentView.jsx # Attention alignment visualization
-│   │   │   ├── ScoreDeltaBanner.jsx# Level progression and delta feedback banner
-│   │   │   ├── Header.jsx          # App navbar, stats, and theme toggler
-│   │   │   ├── UserMenu.jsx        # User selection and CEFR level switcher
-│   │   │   ├── SettingsModal.jsx   # Exercise settings & preferences modal
-│   │   │   └── LoginScreen.jsx     # Profile selection & onboarding screen
-│   │   ├── App.jsx                 # Core application controller & exercise state
-│   │   ├── main.jsx                # React DOM root entry point
-│   │   └── index.css               # Tailwind CSS design system & dark theme tokens
-│   ├── package.json                # Frontend npm dependencies & scripts
-│   ├── vite.config.js              # Vite bundler configuration & backend proxy
-│   └── tailwind.config.js          # Tailwind CSS design system rules
-├── data/                           # Application datasets & persistent stores (runtime/ignored)
-│   ├── app.db                      # Primary SQLite database (generated)
-│   ├── audio_cache/                # Cached synthetic MP3 audio files (generated)
-│   ├── lexique/                    # Source Lexique 4 database TSV
-│   └── books/                      # Source educational PDFs for sentence mining
-├── docs/                           # Architectural and design documentation hub
-│   ├── README.md                   # Documentation index & system navigation map
-│   ├── assets/                     # Media and visual assets
-│   │   ├── demo_preview.gif        # Animated walkthrough GIF preview
-│   │   └── demo_frenchtutor.mp4    # Full walkthrough demonstration video (with audio)
-│   ├── 01_architecture_overview.md # Chapter 1: System architecture & lifecycle
-│   ├── 02_database_and_models.md   # Chapter 2: Database schema & 2-tier lexical model
-│   ├── 03_nlp_and_scoring_pipeline.md # Chapter 3: Multi-stage scoring & transition matrix
-│   ├── 04_vocabulary_and_progression.md # Chapter 4: Zipf math, CEFR rank & candidate buffer
-│   ├── 05_ingestion_and_mining.md  # Chapter 5: Ingestion, miners & relational linking
-│   └── 06_deployment_and_operations.md # Chapter 6: Docker, uv, PyTorch & testing
-├── tests/                          # Pytest automated test suite
-│   ├── conftest.py                 # Shared fixtures & test database isolation
-│   ├── test_server.py              # FastAPI endpoint integration tests
-│   ├── test_scoring.py             # Scoring & evaluation logic tests
-│   ├── test_data_manager.py        # Database operations unit tests
-│   ├── test_ml_models.py           # Neural ML model & transition matrix tests
-│   ├── test_progressive_vocab.py   # Vocabulary progression unit tests
-│   ├── test_transcription.py       # Speech & transcription verification tests
-│   └── ...
-├── .env.example                    # Environment variable template
-├── Makefile                        # Central developer automation tasks
-├── pyproject.toml                  # Python package configuration (uv managed)
-└── uv.lock                         # Deterministic package dependency pins
-```
 
 ---
 
@@ -541,19 +398,6 @@ Configuration variables can be customized in a `.env` file at the root of the re
 
 ## 🔧 Troubleshooting
 
-### Port Already in Use (`8000` or `5173`)
-If a background server process was left running:
-```bash
-# Check process occupying the port
-lsof -i :8000 || ss -tulpn | grep 8000
-
-# Terminate process by PID
-kill -9 <PID>
-
-# Or terminate directly by port
-fuser -k 8000/tcp
-```
-
 ### PyTorch Flavor Desynchronization
 If `uv` inadvertently switches your PyTorch installation between CPU and CUDA:
 1. Verify `UV_NO_SYNC=1` is present in `.env`.
@@ -562,16 +406,4 @@ If `uv` inadvertently switches your PyTorch installation between CPU and CUDA:
    make install       # for CPU
    make install-gpu   # for CUDA 12.4
    ```
-
-### Virtual Environment Reset
-To completely reinstall the virtual environment from scratch:
-```bash
-rm -rf .venv
-uv sync --extra cpu   # or --extra cu124
-```
-
 ---
-
-<p align="center">
-  Built with ❤️ for natural, data-driven French language acquisition.
-</p>
