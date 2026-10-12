@@ -12,6 +12,12 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Build & packaging artifacts
+*.egg-info/
+*.egg
+build/
+*.whl
+
 # Node & Frontend build
 node_modules/
 frontend/node_modules/
@@ -24,20 +30,14 @@ frontend/dist/
 .env.local
 *.env
 
-# Database files
-data/app.db
-data/sentences.db
+# Runtime data, databases & media caches
+data/*
+!data/snapshots/
+!data/snapshots/**
 *.db
 *.db-wal
 *.db-shm
-
-# Generated media / caches / backups
-data/audio_cache/
 *.bak
-
-# Large raw datasets and runtime user profile
-data/raw/
-data/user_profile.json
 
 # IDE & OS metadata
 .DS_Store

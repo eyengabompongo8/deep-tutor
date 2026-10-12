@@ -1,7 +1,7 @@
 [project]
-name = "frenchtutor"
+name = "deeptutor"
 version = "0.1.0"
-description = "Interactive Gradio web application for learning French tailored for Spanish speakers"
+description = "Interactive adaptive French language learning platform tailored for Spanish speakers powered by neural NLP"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 
@@ -11,23 +11,28 @@ dependencies = [
     "sentence-transformers",
     "fasttext",
     "huggingface_hub",
+    "datasets",
+    "pyarrow",
     "numpy<2",
     "sentencepiece",
     "sacremoses",
     "language-tool-python",
+    "pymupdf>=1.23.0",
+    "datasketch>=1.5.0",
     "spacy>=3.8.15",
+    "fr-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.8.0/fr_core_news_sm-3.8.0-py3-none-any.whl",
     "edge-tts>=7.2.8",
 ]
 
 [project.optional-dependencies]
 cpu = [
-    "torch<2.5.0",
+    "torch",
 ]
 cu118 = [
-    "torch<2.5.0",
+    "torch",
 ]
 cu124 = [
-    "torch<2.5.0",
+    "torch",
 ]
 
 [tool.uv]
@@ -66,16 +71,25 @@ explicit = true
 dev = [
     "pytest>=9.1.1",
     "pytest-mock>=3.15.1",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.28.0",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = [".", "backend"]
+pythonpath = ["."]
 markers = [
     "ml: tests requiring Hugging Face / PyTorch ML models",
     "slow: tests that take significant time to run",
 ]
-addopts = "-v -m 'not ml'"
+addopts = "-v -m 'not ml' --tb=short"
+
+[tool.coverage.run]
+source = ["backend"]
+omit = ["backend/ml/engine.py"]
+
+[tool.coverage.report]
+show_missing = true
 
 [tool.setuptools.packages.find]
 include = ["backend*"]

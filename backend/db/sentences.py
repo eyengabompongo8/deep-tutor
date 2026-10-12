@@ -56,8 +56,8 @@ class SentencesMixin:
         with self._get_connection() as conn:
             if level and level.upper() != 'ALL':
                 cursor = conn.execute(
-                    "SELECT * FROM sentences WHERE UPPER(level) = ? ORDER BY id ASC;",
-                    (level.upper().strip(),)
+                    "SELECT * FROM sentences WHERE level = ? COLLATE NOCASE ORDER BY id ASC;",
+                    (level.strip(),)
                 )
             else:
                 cursor = conn.execute("SELECT * FROM sentences ORDER BY id ASC;")
@@ -87,7 +87,6 @@ class SentencesMixin:
         fr: str,
         level: str = 'A1',
         score: Optional[float] = None,
-        score_lexical: Optional[float] = None,
         score_ml: Optional[float] = None,
         source: str = 'custom',
         metadata: Optional[Dict[str, Any]] = None,
@@ -96,7 +95,7 @@ class SentencesMixin:
         """
         Adds a single sentence pair (or multi-language tuple) to the database.
         """
-        lex_score = score_lexical if score_lexical is not None else (score if score is not None else 1.0)
+        ml_score = score_ml if score_ml is not None else score
         meta_str = json.dumps(metadata or {}, ensure_ascii=False)
 
         # Check and ensure extra language columns exist
@@ -104,8 +103,8 @@ class SentencesMixin:
             if val is not None:
                 self.add_language_column(lang)
 
-        cols = ['fr', 'es', 'level', 'score_lexical', 'score_ml', 'source', 'metadata']
-        vals = [fr, es, level, float(lex_score), float(score_ml) if score_ml is not None else None, source, meta_str]
+        cols = ['fr', 'es', 'level', 'score_ml', 'source', 'metadata']
+        vals = [fr, es, level, float(ml_score) if ml_score is not None else None, source, meta_str]
 
         for lang, val in extra_langs.items():
             cols.append(lang.lower())
@@ -138,11 +137,11 @@ class SentencesMixin:
         existing_cols = set(self.get_existing_columns())
         for s in sentences:
             for k in s.keys():
-                if k not in SYSTEM_COLUMNS and k not in existing_cols and k not in ('score',):
+                if k not in SYSTEM_COLUMNS and k not in existing_cols and k not in ('score', 'score_lexical'):
                     self.add_language_column(k)
                     existing_cols.add(k)
 
-        cols_to_insert = ['fr', 'es', 'level', 'score_lexical', 'score_ml', 'source', 'metadata']
+        cols_to_insert = ['fr', 'es', 'level', 'score_ml', 'source', 'metadata']
         extra_lang_cols = [c for c in existing_cols if c not in SYSTEM_COLUMNS and c not in ('fr', 'es')]
         all_cols = cols_to_insert + extra_lang_cols
 
@@ -155,11 +154,10 @@ class SentencesMixin:
 
         rows = []
         for s in sentences:
-            lex_score = s.get('score_lexical')
-            if lex_score is None:
-                lex_score = s.get('score', 1.0)
-
             ml_score = s.get('score_ml')
+            if ml_score is None:
+                ml_score = s.get('score')
+
             meta = s.get('metadata', {})
             meta_str = json.dumps(meta) if isinstance(meta, dict) else str(meta)
 
@@ -170,7 +168,6 @@ class SentencesMixin:
                 s.get('fr', ''),
                 s.get('es', ''),
                 s.get('level', 'A1'),
-                float(lex_score),
                 float(ml_score) if ml_score is not None else None,
                 s.get('source', 'custom'),
                 meta_str
@@ -193,7 +190,6 @@ class SentencesMixin:
         fr: Optional[str] = None,
         level: Optional[str] = None,
         score: Optional[float] = None,
-        score_lexical: Optional[float] = None,
         score_ml: Optional[float] = None,
         source: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
@@ -212,14 +208,10 @@ class SentencesMixin:
             updates.append("level = ?")
             params.append(level)
 
-        lex_score = score_lexical if score_lexical is not None else score
-        if lex_score is not None:
-            updates.append("score_lexical = ?")
-            params.append(float(lex_score))
-
-        if score_ml is not None:
+        ml_score = score_ml if score_ml is not None else score
+        if ml_score is not None:
             updates.append("score_ml = ?")
-            params.append(float(score_ml))
+            params.append(float(ml_score))
 
         if source is not None:
             updates.append("source = ?")
@@ -237,7 +229,6 @@ class SentencesMixin:
         if not updates:
             return False
 
-        updates.append("updated_at = CURRENT_TIMESTAMP")
         set_str = ", ".join(updates)
         params.append(item_id)
 

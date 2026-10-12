@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Link2, Lightbulb, X, Sparkles } from 'lucide-react';
+import { Link2, Lightbulb, X, Sparkles, Volume2, Pause } from 'lucide-react';
 import { isWordMatchingLemma } from './SentenceCard';
 
 export default function WordAlignmentView({
@@ -12,6 +12,10 @@ export default function WordAlignmentView({
   alignedStudentMap = {},
   firstTimeLemmas = [],
   firstTimePairs = [],
+  playingSource = null,
+  onTogglePlay,
+  isCorrect = false,
+  hasUserAudio = false,
 }) {
   const effectiveRefWords = refWords.length > 0 ? refWords : tgtWords;
   const effectiveRefMap = Object.keys(alignedRefMap).length > 0 ? alignedRefMap : alignedTargetsMap;
@@ -51,16 +55,18 @@ export default function WordAlignmentView({
     return rev;
   }, [alignedStudentMap]);
 
+  const ELISION_PREFIX_RE = /^(se\s+|qu['’]|jusqu['’]|lorsqu['’]|puisqu['’]|[ldjcmnstLDJCMNST]['’])/i;
+
   // Set of target reference indices that match first-time roots
   const firstTimeTgtSet = useMemo(() => {
     if (!effectiveRefWords.length || (!firstTimeLemmas.length && !firstTimePairs.length)) return new Set();
     const set = new Set();
     effectiveRefWords.forEach((word, idx) => {
-      const cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F]+|[^\w\u00C0-\u017F]+$/g, '')
-        .replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+      const cleanWord = word.toLowerCase().replace(/^[^\w\u00C0-\u017F'-]+|[^\w\u00C0-\u017F'-]+$/g, '')
+        .replace(ELISION_PREFIX_RE, '');
       const isMatch = isWordMatchingLemma(word, firstTimeLemmas) ||
         firstTimePairs.some(p => {
-          const pWord = (p.word || '').toLowerCase().replace(/^(se\s+|s['’]|l['’]|d['’]|j['’]|c['’]|m['’]|n['’]|t['’])/i, '');
+          const pWord = (p.word || '').toLowerCase().replace(ELISION_PREFIX_RE, '');
           return pWord && pWord === cleanWord;
         });
       if (isMatch) {
@@ -191,13 +197,13 @@ export default function WordAlignmentView({
   const selectedStudentWords = selectedStudentIndices.map(i => studentWords[i]).filter(Boolean).join(' ');
 
   return (
-    <div className="p-3.5 rounded-xl bg-neutral-50 space-y-3">
+    <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/50 dark:border-neutral-700/60 space-y-3">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-700">
-          <Link2 className="w-3.5 h-3.5 text-neutral-500" />
+        <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+          <Link2 className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
           <span>Word Alignment Mapping</span>
         </div>
-        <div className="text-[11px] text-neutral-400 flex items-center gap-1">
+        <div className="text-[11px] text-neutral-400 dark:text-neutral-500 flex items-center gap-1">
           <Lightbulb className="w-3 h-3 text-amber-500" />
           <span>Highlight words in any sentence to inspect alignment</span>
         </div>
@@ -205,10 +211,10 @@ export default function WordAlignmentView({
 
       {/* 1. Spanish Source */}
       <div className="space-y-1">
-        <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider flex items-center justify-between">
+        <div className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider flex items-center justify-between">
           <span>🇪🇸 Spanish</span>
           {selectedSrcIndices.length > 0 && (
-            <span className="text-[10px] text-neutral-500 lowercase">
+            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
               ({activeOrigin === 'src' ? 'selected' : 'aligned'})
             </span>
           )}
@@ -218,28 +224,30 @@ export default function WordAlignmentView({
           onMouseUp={handleSrcSelection}
           onTouchEnd={handleSrcSelection}
           onKeyUp={handleSrcSelection}
-          className="p-2.5 rounded-lg bg-white text-xs leading-relaxed text-neutral-800 select-text selection:bg-amber-200 selection:text-neutral-900 cursor-text"
+          className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-700 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
         >
           {srcWords.map((word, idx) => {
             const isSelected = selectedSrcIndices.includes(idx);
             const isFirstTime = !isSelected && firstTimeSrcSet.has(idx);
             return (
-              <span
-                key={idx}
-                data-src-idx={idx}
-                className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
-                  isSelected
-                    ? activeOrigin === 'src'
-                      ? 'bg-neutral-200 text-neutral-900 font-medium'
-                      : 'bg-amber-100 text-amber-950 font-semibold'
-                    : isFirstTime
-                      ? 'bg-purple-100 text-purple-900 font-semibold border-b-2 border-purple-400'
-                      : ''
-                }`}
-                title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
-              >
-                {word}{idx < srcWords.length - 1 ? ' ' : ''}
-              </span>
+              <React.Fragment key={idx}>
+                <span
+                  data-src-idx={idx}
+                  className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
+                    isSelected
+                      ? activeOrigin === 'src'
+                        ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                        : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
+                      : isFirstTime
+                        ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border-b-2 border-purple-400 dark:border-purple-500'
+                        : ''
+                  }`}
+                  title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
+                >
+                  {word}
+                </span>
+                {idx < srcWords.length - 1 ? ' ' : ''}
+              </React.Fragment>
             );
           })}
         </div>
@@ -248,12 +256,36 @@ export default function WordAlignmentView({
       {/* 2. French Reference (Target) */}
       {effectiveRefWords.length > 0 && (
         <div className="space-y-1">
-          <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider flex items-center justify-between">
-            <span>🇫🇷 Reference (Target)</span>
-            {selectedRefIndices.length > 0 && (
-              <span className="text-[10px] text-neutral-500 lowercase">
-                ({activeOrigin === 'ref' ? 'selected' : 'aligned'})
-              </span>
+          <div className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span>🇫🇷 Reference (Target)</span>
+              {selectedRefIndices.length > 0 && (
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
+                  ({activeOrigin === 'ref' ? 'selected' : 'aligned'})
+                </span>
+              )}
+            </div>
+            {onTogglePlay && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePlay('target');
+                }}
+                className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                  playingSource === 'target'
+                    ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-xs'
+                    : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/60 dark:hover:bg-neutral-800'
+                }`}
+                title="Écouter la prononciation de référence (Ctrl+Espace)"
+              >
+                {playingSource === 'target' ? (
+                  <Pause className="w-2.5 h-2.5 fill-current" />
+                ) : (
+                  <Volume2 className="w-2.5 h-2.5" />
+                )}
+                <span>{playingSource === 'target' ? 'Pause' : 'Écouter'}</span>
+              </button>
             )}
           </div>
           <div
@@ -261,28 +293,30 @@ export default function WordAlignmentView({
             onMouseUp={handleRefSelection}
             onTouchEnd={handleRefSelection}
             onKeyUp={handleRefSelection}
-            className="p-2.5 rounded-lg bg-white text-xs leading-relaxed text-neutral-800 select-text selection:bg-amber-200 selection:text-neutral-900 cursor-text"
+            className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-700 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
           >
             {effectiveRefWords.map((word, idx) => {
               const isSelected = selectedRefIndices.includes(idx);
               const isFirstTime = !isSelected && firstTimeTgtSet.has(idx);
               return (
-                <span
-                  key={idx}
-                  data-ref-idx={idx}
-                  className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
-                    isSelected
-                      ? activeOrigin === 'ref'
-                        ? 'bg-neutral-200 text-neutral-900 font-medium'
-                        : 'bg-amber-100 text-amber-950 font-semibold'
-                      : isFirstTime
-                        ? 'bg-purple-100 text-purple-900 font-semibold border border-purple-300 shadow-sm'
-                        : ''
-                  }`}
-                  title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
-                >
-                  {word}{idx < effectiveRefWords.length - 1 ? ' ' : ''}
-                </span>
+                <React.Fragment key={idx}>
+                  <span
+                    data-ref-idx={idx}
+                    className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
+                      isSelected
+                        ? activeOrigin === 'ref'
+                          ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                          : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
+                        : isFirstTime
+                          ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 font-semibold border border-purple-300 dark:border-purple-800 shadow-xs'
+                          : ''
+                    }`}
+                    title={isFirstTime ? `Nouveau mot (${firstTimeLemmas.join(', ')})` : undefined}
+                  >
+                    {word}
+                  </span>
+                  {idx < effectiveRefWords.length - 1 ? ' ' : ''}
+                </React.Fragment>
               );
             })}
           </div>
@@ -292,12 +326,36 @@ export default function WordAlignmentView({
       {/* 3. Your Translation (Student) */}
       {studentWords.length > 0 && (
         <div className="space-y-1">
-          <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider flex items-center justify-between">
-            <span>✍️ Your Translation</span>
-            {selectedStudentIndices.length > 0 && (
-              <span className="text-[10px] text-neutral-500 lowercase">
-                ({activeOrigin === 'student' ? 'selected' : 'aligned'})
-              </span>
+          <div className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span>✍️ Your Translation</span>
+              {selectedStudentIndices.length > 0 && (
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 lowercase">
+                  ({activeOrigin === 'student' ? 'selected' : 'aligned'})
+                </span>
+              )}
+            </div>
+            {onTogglePlay && isCorrect && hasUserAudio && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePlay('user');
+                }}
+                className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                  playingSource === 'user'
+                    ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-xs'
+                    : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/60 dark:hover:bg-neutral-800'
+                }`}
+                title="Écouter votre traduction"
+              >
+                {playingSource === 'user' ? (
+                  <Pause className="w-2.5 h-2.5 fill-current" />
+                ) : (
+                  <Volume2 className="w-2.5 h-2.5" />
+                )}
+                <span>{playingSource === 'user' ? 'Pause' : 'Écouter'}</span>
+              </button>
             )}
           </div>
           <div
@@ -305,24 +363,26 @@ export default function WordAlignmentView({
             onMouseUp={handleStudentSelection}
             onTouchEnd={handleStudentSelection}
             onKeyUp={handleStudentSelection}
-            className="p-2.5 rounded-lg bg-white text-xs leading-relaxed text-neutral-800 select-text selection:bg-amber-200 selection:text-neutral-900 cursor-text"
+            className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-700 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200 select-text selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 cursor-text"
           >
             {studentWords.map((word, idx) => {
               const isSelected = selectedStudentIndices.includes(idx);
               return (
-                <span
-                  key={idx}
-                  data-student-idx={idx}
-                  className={`inline transition-colors duration-150 rounded px-0.5 ${
-                    isSelected
-                      ? activeOrigin === 'student'
-                        ? 'bg-neutral-200 text-neutral-900 font-medium'
-                        : 'bg-amber-100 text-amber-950 font-semibold'
-                      : ''
-                  }`}
-                >
-                  {word}{idx < studentWords.length - 1 ? ' ' : ''}
-                </span>
+                <React.Fragment key={idx}>
+                  <span
+                    data-student-idx={idx}
+                    className={`inline transition-colors duration-150 rounded px-1 py-0.5 ${
+                      isSelected
+                        ? activeOrigin === 'student'
+                          ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium'
+                          : 'bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 font-semibold'
+                        : ''
+                    }`}
+                  >
+                    {word}
+                  </span>
+                  {idx < studentWords.length - 1 ? ' ' : ''}
+                </React.Fragment>
               );
             })}
           </div>
@@ -331,21 +391,21 @@ export default function WordAlignmentView({
 
       {/* Alignment Mapping Breakdown Banner */}
       {hasSelection && (
-        <div className="p-2.5 rounded-lg bg-amber-50 text-neutral-800 flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150">
+        <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/50 text-neutral-800 dark:text-neutral-200 flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150">
           <div className="flex items-center gap-2">
-            <Link2 className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+            <Link2 className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
             <div className="space-y-0.5">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-neutral-500 text-[11px]">Spanish:</span>
-                <span className="font-semibold text-neutral-900">{selectedSrcWords || '—'}</span>
-                <span className="text-neutral-400">·</span>
-                <span className="text-neutral-500 text-[11px]">Reference:</span>
-                <span className="font-semibold text-neutral-900">{selectedRefWords || '—'}</span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-[11px]">Spanish:</span>
+                <span className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedSrcWords || '—'}</span>
+                <span className="text-neutral-400 dark:text-neutral-600">·</span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-[11px]">Reference:</span>
+                <span className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedRefWords || '—'}</span>
                 {studentWords.length > 0 && (
                   <>
-                    <span className="text-neutral-400">·</span>
-                    <span className="text-neutral-500 text-[11px]">You:</span>
-                    <span className="font-semibold text-neutral-900">{selectedStudentWords || '—'}</span>
+                    <span className="text-neutral-400 dark:text-neutral-600">·</span>
+                    <span className="text-neutral-500 dark:text-neutral-400 text-[11px]">You:</span>
+                    <span className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedStudentWords || '—'}</span>
                   </>
                 )}
               </div>
@@ -354,7 +414,7 @@ export default function WordAlignmentView({
           <button
             type="button"
             onClick={clearSelection}
-            className="p-1 rounded text-neutral-400 hover:text-neutral-700 transition-colors"
+            className="p-1 rounded text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
             title="Clear selection"
           >
             <X className="w-3.5 h-3.5" />

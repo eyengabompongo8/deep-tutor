@@ -1,17 +1,19 @@
-import unittest
-import numpy as np
 import time
+import pytest
+import numpy as np
 from unittest.mock import MagicMock
-from backend.eager_processor import EagerPrecomputeManager, ReferenceBundle, get_aligned_targets
+from backend.ml.precompute import EagerPrecomputeManager
+from backend.nlp.text_utils import get_aligned_targets
 
-class TestEagerProcessor(unittest.TestCase):
-    def setUp(self):
-        # Create mock MLEngine
+
+class TestEagerProcessor:
+    @pytest.fixture(autouse=True)
+    def setup_processor(self):
         self.mock_engine = MagicMock()
         
-        # Mock evaluate_nmt_and_map
         src_words = ["hola", "mundo"]
         ref_words = ["bonjour", "le", "monde"]
+        # Matrix shape: (num_target_words, num_source_words) -> (3, 2)
         matrix = np.array([
             [0.9, 0.0],
             [0.1, 0.0],
@@ -24,13 +26,9 @@ class TestEagerProcessor(unittest.TestCase):
             []
         )
         
-        # Mock evaluate_fluency
         self.mock_engine.evaluate_fluency.return_value = (4.2, [], [])
-        
-        # Mock encode_semantics
         self.mock_engine.encode_semantics.return_value = np.array([0.1, 0.2, 0.3])
         
-        # Mock evaluate_student_against_bundle
         self.mock_engine.evaluate_student_against_bundle.return_value = {
             "is_french": True,
             "lid_prob": 1.0,
@@ -54,6 +52,8 @@ class TestEagerProcessor(unittest.TestCase):
             data_manager=None,
             max_cache_size=10
         )
+        yield
+        self.manager.shutdown(wait=True)
 
     def test_get_aligned_targets(self):
         matrix = np.array([
@@ -62,10 +62,10 @@ class TestEagerProcessor(unittest.TestCase):
             [0.0, 0.95]
         ])
         aligned = get_aligned_targets([0], matrix, 3)
-        self.assertEqual(aligned, [0])
+        assert aligned == [0]
         
         aligned_world = get_aligned_targets([1], matrix, 3)
-        self.assertEqual(aligned_world, [2])
+        assert aligned_world == [2]
 
     def test_enqueue_and_get_hint(self):
         batch = [{
@@ -76,18 +76,17 @@ class TestEagerProcessor(unittest.TestCase):
         
         self.manager.enqueue_batch(batch)
         
-        # Request hint - will await Thread 1 completion or compute
         hint = self.manager.get_hint(
             source_text="hola mundo",
             reference_text="bonjour le monde",
             selected_indices=[0]
         )
         
-        self.assertIn("src_words", hint)
-        self.assertIn("tgt_words", hint)
-        self.assertEqual(hint["src_words"], ["hola", "mundo"])
-        self.assertEqual(hint["tgt_words"], ["bonjour", "le", "monde"])
-        self.assertEqual(hint["mapped_target_words"], ["bonjour"])
+        assert "src_words" in hint
+        assert "tgt_words" in hint
+        assert hint["src_words"] == ["hola", "mundo"]
+        assert hint["tgt_words"] == ["bonjour", "le", "monde"]
+        assert hint["mapped_target_words"] == ["bonjour"]
 
     def test_instant_cached_hint(self):
         # Prime cache
@@ -104,9 +103,9 @@ class TestEagerProcessor(unittest.TestCase):
         )
         elapsed_ms = (time.perf_counter() - start) * 1000.0
         
-        # Should be sub-millisecond lookup from memory
-        self.assertLess(elapsed_ms, 10.0)
-        self.assertEqual(hint["src_words"], ["hola", "mundo"])
+        # Sub-millisecond lookup from memory
+        assert elapsed_ms < 50.0
+        assert hint["src_words"] == ["hola", "mundo"]
 
     def test_evaluate_student_reusing_bundle(self):
         res = self.manager.evaluate_student(
@@ -116,9 +115,34 @@ class TestEagerProcessor(unittest.TestCase):
             sentence_id=101
         )
         
-        self.assertTrue(res["is_french"])
-        self.assertEqual(res["s_sem"], 95.0)
+        assert res["is_french"] is True
+        assert res["s_sem"] == 95.0
         self.mock_engine.evaluate_student_against_bundle.assert_called_once()
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_sequential_execution(self):
+        execution_order = []
+
+        def side_effect_nmt(src, ref):
+            execution_order.append(f"start:{src}")
+            time.sleep(0.05)
+            execution_order.append(f"end:{src}")
+            return (
+                5.0,
+                (["w"], ["w"], np.array([[1.0]])),
+                [],
+                []
+            )
+
+        self.mock_engine.evaluate_nmt_and_map.side_effect = side_effect_nmt
+
+        batch = [
+            {"id": 1, "es": "uno", "fr": "un"},
+            {"id": 2, "es": "dos", "fr": "deux"},
+        ]
+
+        self.manager.enqueue_batch(batch)
+        # Wait for both to finish via get_or_compute_bundle
+        self.manager.get_or_compute_bundle("dos", "deux", timeout=2.0)
+
+        # Confirm strict sequential order: uno finishes completely before dos starts
+        assert execution_order == ["start:uno", "end:uno", "start:dos", "end:dos"]

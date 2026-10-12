@@ -5,10 +5,14 @@ import ScoreDeltaBanner from './ScoreDeltaBanner';
 
 export default function ExerciseSession({
   batch = [],
-  currentScore,
   mode = 'translation',
   userId,
   transcriptionRetry = true,
+  translationThreshold = 75,
+  blindRetryEnabled = false,
+  autoJumpEnabled = true,
+  autoPlayAudio = true,
+  onProgressUpdate,
   onBatchCompleted,
   onNextBatch,
   isLoadingNext,
@@ -20,15 +24,36 @@ export default function ExerciseSession({
   const [isFinishingBatch, setIsFinishingBatch] = useState(false);
   const [preloadedHints, setPreloadedHints] = useState({});
 
+  const attemptedSentenceIdsRef = useRef(new Set());
   const hasCompletedBatchRef = useRef(false);
-  const initialScoreRef = useRef(currentScore);
 
-  // Store refs to sentence inputs for smooth Enter navigation
+  // Store refs to sentence inputs and card containers for smooth animated navigation
   const inputRefs = useRef({});
+  const cardRefs = useRef({});
+  const scrollAnimRef = useRef(null);
+  const currentPlayingAudioRef = useRef(null);
+
+  const handleAudioPlay = (sentenceId, audioElem) => {
+    if (currentPlayingAudioRef.current && currentPlayingAudioRef.current !== audioElem) {
+      try {
+        currentPlayingAudioRef.current.pause();
+        currentPlayingAudioRef.current.currentTime = 0;
+      } catch (err) {
+        console.warn('Error pausing previously playing audio:', err);
+      }
+    }
+    currentPlayingAudioRef.current = audioElem;
+  };
 
   const registerInput = (index, ref) => {
     if (ref) {
       inputRefs.current[index] = ref;
+    }
+  };
+
+  const registerCard = (index, el) => {
+    if (el) {
+      cardRefs.current[index] = el;
     }
   };
 
@@ -40,15 +65,27 @@ export default function ExerciseSession({
     setBatchSummary(null);
     setIsFinishingBatch(false);
     inputRefs.current = {};
-    setPreloadedHints({});
+    cardRefs.current = {};
+    if (currentPlayingAudioRef.current) {
+      try {
+        currentPlayingAudioRef.current.pause();
+        currentPlayingAudioRef.current.currentTime = 0;
+      } catch (e) {}
+      currentPlayingAudioRef.current = null;
+    }
+    if (scrollAnimRef.current) {
+      cancelAnimationFrame(scrollAnimRef.current);
+      scrollAnimRef.current = null;
+    }
     hasCompletedBatchRef.current = false;
-    initialScoreRef.current = currentScore;
 
-    // Sequentially prefetch NMT hint mappings in translation mode only
+    // Sequentially prefetch NMT hint mappings for translation cards only
     let isCancelled = false;
     async function preloadHintsSequentially() {
       for (const sentence of batch) {
         if (isCancelled) break;
+        const cardType = sentence.card_type || (mode === 'transcription' ? 'transcription' : 'translation');
+        if (cardType === 'transcription') continue;
         const sourceText = sentence.es || sentence.en || '';
         if (!sourceText || !sentence.fr) continue;
         try {
@@ -77,7 +114,7 @@ export default function ExerciseSession({
       }
     }
 
-    if (mode === 'translation' && batch && batch.length > 0) {
+    if (mode !== 'transcription' && batch && batch.length > 0) {
       preloadHintsSequentially();
     }
 
@@ -98,34 +135,81 @@ export default function ExerciseSession({
     }
   }, [evaluations, batch, batchSummary, isFinishingBatch]);
 
-  // Focus the next card input
+  // Smoothly animates the jump down from the current card to the following card when auto-jump is enabled
   const focusNextInput = (currentIndex) => {
+    if (!autoJumpEnabled) return;
+
     const nextIdx = currentIndex + 1;
-    if (nextIdx < batch.length && inputRefs.current[nextIdx]) {
-      setTimeout(() => {
-        const nextElem = inputRefs.current[nextIdx];
-        if (nextElem) {
-          nextElem.focus();
-          nextElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 50);
+    if (nextIdx >= batch.length) return;
+
+    if (scrollAnimRef.current) {
+      cancelAnimationFrame(scrollAnimRef.current);
+      scrollAnimRef.current = null;
     }
+
+    setTimeout(() => {
+      const targetCard = cardRefs.current[nextIdx];
+      const nextElem = inputRefs.current[nextIdx];
+
+      if (targetCard) {
+        const rect = targetCard.getBoundingClientRect();
+        const startY = window.pageYOffset || document.documentElement.scrollTop;
+        const targetY = Math.max(0, startY + rect.top - Math.max(20, (window.innerHeight - rect.height) / 2));
+
+        const distance = targetY - startY;
+        const duration = 450;
+        const startTime = performance.now();
+
+        // Focus without instant scroll jumping
+        if (nextElem) {
+          nextElem.focus({ preventScroll: true });
+        }
+
+        const step = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Eased animation (easeInOutCubic)
+          const ease = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+          window.scrollTo(0, startY + distance * ease);
+
+          if (progress < 1) {
+            scrollAnimRef.current = requestAnimationFrame(step);
+          } else {
+            scrollAnimRef.current = null;
+          }
+        };
+
+        scrollAnimRef.current = requestAnimationFrame(step);
+      } else if (nextElem) {
+        nextElem.focus({ preventScroll: true });
+        nextElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 60);
   };
 
   // Dispatches single sentence evaluation asynchronously
   const evaluateSentence = async (sentenceId, studentText, sentence, isSkipped = false) => {
     setEvaluatingIds(prev => new Set(prev).add(sentenceId));
 
+    const isSentenceRetry = attemptedSentenceIdsRef.current.has(sentenceId);
+    attemptedSentenceIdsRef.current.add(sentenceId);
+
+    const cardType = sentence.card_type || (mode === 'transcription' ? 'transcription' : 'translation');
+
     try {
       let result;
-      if (mode === 'transcription') {
+      if (cardType === 'transcription') {
         const payload = {
           sentence_id: sentenceId,
           student_text: studentText || '',
           reference_text: sentence.fr,
-          sentence_score: sentence.score_lexical ?? sentence.score ?? 1.0,
+          sentence_score: sentence.score_ml ?? sentence.score ?? 1.0,
           is_skipped: isSkipped,
           user_id: userId || 'default_user',
+          is_retry: isSentenceRetry,
         };
 
         const res = await fetch('/api/exercises/evaluate-transcription', {
@@ -145,9 +229,11 @@ export default function ExerciseSession({
           source_text: sourceText,
           student_text: studentText || '',
           reference_text: sentence.fr,
-          sentence_score: sentence.score_lexical ?? sentence.score ?? 1.0,
+          sentence_score: sentence.score_ml ?? sentence.score ?? 1.0,
           is_skipped: isSkipped,
+          threshold: translationThreshold,
           user_id: userId || 'default_user',
+          is_retry: isSentenceRetry,
         };
 
         const res = await fetch('/api/exercises/evaluate-single', {
@@ -210,14 +296,18 @@ export default function ExerciseSession({
   // Validates a transcription attempt when retry is enabled
   const handleValidateTranscriptionAttempt = async (sentenceId, studentText, sentence, attemptIndex = 1) => {
     setEvaluatingIds(prev => new Set(prev).add(sentenceId));
+    const isSentenceRetry = attemptIndex > 1 || attemptedSentenceIdsRef.current.has(sentenceId);
+    attemptedSentenceIdsRef.current.add(sentenceId);
+
     try {
       const payload = {
         sentence_id: sentenceId,
         student_text: studentText || '',
         reference_text: sentence.fr,
-        sentence_score: sentence.score_lexical ?? sentence.score ?? 1.0,
+        sentence_score: sentence.score_ml ?? sentence.score ?? 1.0,
         is_skipped: false,
         user_id: userId || 'default_user',
+        is_retry: isSentenceRetry,
       };
 
       const res = await fetch('/api/exercises/evaluate-transcription', {
@@ -233,20 +323,22 @@ export default function ExerciseSession({
       const result = await res.json();
 
       // Record first try evaluation strictly for final score calculation
-      let firstScore = result.composite_score;
+      let firstCorrect = result.is_correct ?? result.is_exact;
       setFirstTryEvaluations(prev => {
         if (!prev[sentenceId]) {
           return { ...prev, [sentenceId]: result };
         }
-        firstScore = prev[sentenceId].composite_score;
+        const first = prev[sentenceId];
+        firstCorrect = first.is_correct ?? first.is_exact;
         return prev;
       });
 
-      // If exact or if retry is toggled off, complete sentence immediately
-      if (result.is_exact || !transcriptionRetry) {
+      // If correct or if retry is toggled off, complete sentence immediately
+      const isSuccess = Boolean(result.is_correct ?? result.is_exact);
+      if (isSuccess || !transcriptionRetry) {
         const completedResult = {
           ...result,
-          first_try_score: firstScore,
+          first_try_correct: firstCorrect,
           attempts_taken: attemptIndex,
         };
         setEvaluations(prev => ({
@@ -321,8 +413,9 @@ export default function ExerciseSession({
         const ev = firstTryEvaluations[s.id] || evaluations[s.id] || {};
         return {
           sentence_id: s.id,
-          sentence_score: s.score_lexical ?? s.score ?? 1.0,
+          sentence_score: s.score_ml ?? s.score ?? 1.0,
           quality: ev.quality || 0.0,
+          is_correct: ev.is_correct ?? (ev.is_exact ?? (ev.quality >= 0.70)),
           is_skipped: ev.is_skipped ?? false,
         };
       });
@@ -331,7 +424,6 @@ export default function ExerciseSession({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          current_score: initialScoreRef.current ?? currentScore,
           mode: mode,
           user_id: userId || 'default_user',
           evaluated_items: evaluatedItems,
@@ -359,61 +451,68 @@ export default function ExerciseSession({
   const completedCount = Object.keys(evaluations).length;
   const totalCount = batch.length;
 
+  useEffect(() => {
+    if (onProgressUpdate) {
+      onProgressUpdate({
+        completed: completedCount,
+        total: totalCount,
+      });
+    }
+  }, [completedCount, totalCount, onProgressUpdate]);
+
   return (
     <div className="space-y-6">
-      {/* Session Progress Bar */}
-      {totalCount > 1 && (
-        <div className="flex items-center justify-between gap-3 pb-1">
-          <div className="text-xs text-neutral-400 font-medium">
-            Progress <span className="text-neutral-700 font-mono font-semibold">{completedCount}</span> of {totalCount}
-          </div>
-          <div className="w-20 sm:w-28 bg-neutral-200 rounded-full h-1 overflow-hidden">
-            <div
-              className="bg-neutral-800 h-full rounded-full transition-all duration-300"
-              style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
-            />
-          </div>
-        </div>
-      )}
-
       {/* Sentence Cards List */}
       <div className="space-y-4">
-        {batch.map((sentence, index) => (
-          mode === 'transcription' ? (
-            <TranscriptionCard
+        {batch.map((sentence, index) => {
+          const cardType = sentence.card_type || (mode === 'transcription' ? 'transcription' : 'translation');
+          return (
+            <div
               key={sentence.id}
-              sentence={sentence}
-              index={index}
-              total={totalCount}
-              evalResult={evaluations[sentence.id]}
-              isEvaluating={evaluatingIds.has(sentence.id)}
-              retryEnabled={transcriptionRetry}
-              onValidateAttempt={handleValidateTranscriptionAttempt}
-              onSubmit={handleSentenceSubmit}
-              onSkip={handleSentenceSkip}
-              onRetry={handleSentenceRetry}
-              registerInput={registerInput}
-            />
-          ) : (
-            <SentenceCard
-              key={sentence.id}
-              sentence={sentence}
-              index={index}
-              total={totalCount}
-              evalResult={evaluations[sentence.id]}
-              isEvaluating={evaluatingIds.has(sentence.id)}
-              preloadedHint={preloadedHints[sentence.id]}
-              onSubmit={handleSentenceSubmit}
-              onSkip={handleSentenceSkip}
-              registerInput={registerInput}
-            />
-          )
-        ))}
+              ref={(el) => registerCard(index, el)}
+              className="w-full"
+            >
+              {cardType === 'transcription' ? (
+                <TranscriptionCard
+                  sentence={sentence}
+                  index={index}
+                  total={totalCount}
+                  evalResult={evaluations[sentence.id]}
+                  isEvaluating={evaluatingIds.has(sentence.id)}
+                  retryEnabled={transcriptionRetry}
+                  onValidateAttempt={handleValidateTranscriptionAttempt}
+                  onSubmit={handleSentenceSubmit}
+                  onSkip={handleSentenceSkip}
+                  onRetry={handleSentenceRetry}
+                  registerInput={registerInput}
+                />
+              ) : (
+                <SentenceCard
+                  sentence={sentence}
+                  index={index}
+                  total={totalCount}
+                  evalResult={evaluations[sentence.id]}
+                  isEvaluating={evaluatingIds.has(sentence.id)}
+                  preloadedHint={preloadedHints[sentence.id]}
+                  threshold={translationThreshold}
+                  blindRetryEnabled={blindRetryEnabled}
+                  autoPlayAudio={autoPlayAudio}
+                  onAudioPlay={handleAudioPlay}
+                  onSubmit={handleSentenceSubmit}
+                  onSkip={handleSentenceSkip}
+                  onRetry={handleSentenceRetry}
+                  registerInput={registerInput}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Score Delta Banner (Revealed when all sentences are done and evaluated) */}
       <ScoreDeltaBanner
         batchSummary={batchSummary}
+        mode={mode}
         onNextBatch={onNextBatch}
         isLoadingNext={isLoadingNext}
       />

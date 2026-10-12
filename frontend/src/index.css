@@ -4,11 +4,11 @@
 
 @layer base {
   body {
-    @apply bg-[#fafafa] text-neutral-900 antialiased selection:bg-amber-200 selection:text-neutral-900;
+    @apply bg-[#fafafa] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 antialiased selection:bg-amber-200 dark:selection:bg-amber-800 selection:text-neutral-900 dark:selection:text-neutral-100 transition-colors duration-200;
   }
 }
 
-/* Minimalist light scrollbar */
+/* Minimalist scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -20,6 +20,12 @@
   background: #d4d4d4;
   border-radius: 3px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #404040;
+}
 ::-webkit-scrollbar-thumb:hover {
   background: #a3a3a3;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #525252;
 }

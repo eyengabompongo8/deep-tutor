@@ -8,6 +8,9 @@ description: >-
 
 This skill guides AI agents on using `uv`—the ultra-fast Python package and project manager—in the `FrenchTutor` project.
 
+> [!IMPORTANT]
+> **Always use `uv run <command>` or `make <target>` to execute Python.** Never call `python` directly, never activate the virtualenv, never export `PATH` or `VIRTUAL_ENV` manually, and never call binaries inside `.venv/bin/` directly. These workarounds cause unexpected behavior and do not reliably work inside the sandbox.
+
 ---
 
 ## 1. Project Context & Configuration
@@ -15,7 +18,7 @@ This skill guides AI agents on using `uv`—the ultra-fast Python package and pr
 * **Project Mode**: Configured as an application (`[tool.uv] package = false` in `pyproject.toml`).
 * **Python Requirement**: `>=3.11` (typically using Python 3.11 or 3.12).
 * **Key Constraints**: `numpy<2` (enforced for compatibility with PyTorch, SentencePiece, FastText).
-* **Virtual Environment**: Located at `.venv/` at the workspace root.
+* **Virtual Environment**: Located at `.venv/` at the workspace root. Do **not** reference it directly.
 * **Lockfile**: `uv.lock` maintains deterministic package pins.
 
 ---
@@ -24,7 +27,7 @@ This skill guides AI agents on using `uv`—the ultra-fast Python package and pr
 
 ### Running Applications & Scripts
 
-Always run Python commands through `uv run` to ensure the isolated virtual environment is used with proper dependencies:
+Always run Python commands through `uv run` or the provided `make` targets:
 
 ```bash
 # Run the FastAPI web server with frontend
@@ -41,6 +44,13 @@ uv run python run_tests.py --all
 
 # Run arbitrary scripts
 uv run python scripts/translate_sentences.py
+```
+
+Alternatively, use `make` targets (defined in the project `Makefile`):
+
+```bash
+make test        # Run fast unit and API tests
+make run         # Start the application
 ```
 
 > [!TIP]
@@ -105,11 +115,6 @@ uv lock --upgrade-package transformers
   uv run python -m spacy download fr_core_news_sm
   ```
 
-### Direct Venv Binary Fallback
-If direct binary execution is needed:
-- Python interpreter: `.venv/bin/python`
-- Executable tools installed in environment: `.venv/bin/<tool_name>` (e.g. `.venv/bin/gradio`)
-
 ---
 
 ## 4. Troubleshooting & Verification
@@ -120,3 +125,6 @@ If direct binary execution is needed:
 | NumPy 2.x ABI conflict | Incompatible newer NumPy installed | Verify `numpy<2` in `pyproject.toml` and run `uv sync` |
 | Lockfile desynchronization | Manual edits to `pyproject.toml` | Run `uv lock` followed by `uv sync` |
 | Corrupt environment | Broken `.venv` state | Recreate: `rm -rf .venv && uv venv && uv sync` |
+
+> [!WARNING]
+> Do not attempt to work around command failures by using full paths like `/home/user/.venv/bin/python` or `/home/user/.cargo/bin/uv`, exporting `VIRTUAL_ENV` or `PATH`, or calling `source .venv/bin/activate`. Always invoke `uv` simply as `uv` (bare command name). These are anti-patterns that bypass `uv`'s dependency management and cause environment pollution. If a `uv run` command requires elevated access or network, use the `run_command` tool and wait for user approval — do not try to circumvent the sandbox.

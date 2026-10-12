@@ -1,16 +1,12 @@
-import os
-import unittest
-import tempfile
-import sqlite3
-from data_manager import DataManager
-from scoring_engine import ScoringEngine
+import pytest
+from backend.db import DataManager
+from backend.scoring.engine import ScoringEngine
 
 
-class TestProgressiveVocabulary(unittest.TestCase):
-    def setUp(self):
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = os.path.join(self.temp_dir.name, "test_app.db")
-        self.dm = DataManager(db_path=self.db_path)
+class TestProgressiveVocabulary:
+    @pytest.fixture(autouse=True)
+    def setup_vocab(self, temp_db_path):
+        self.dm = DataManager(db_path=temp_db_path)
         self.scoring = ScoringEngine(data_manager=self.dm)
 
         # Seed test lexemas
@@ -42,197 +38,209 @@ class TestProgressiveVocabulary(unittest.TestCase):
         self.s5 = self.dm.add_sentence(es="La astrofísica", fr="L'astrophysique", level="C1", score=5.2)
         self.dm.link_sentence_lexemas(self.s5["id"], [self.l6])
 
-    def tearDown(self):
-        self.temp_dir.cleanup()
-
     def test_user_initialization(self):
         user = self.dm.get_or_create_user("test_user", "Test Student")
-        self.assertEqual(user["id"], "test_user")
-        self.assertEqual(user["name"], "Test Student")
-        self.assertEqual(user["score"], 1.20)
-        self.assertEqual(user["level"], "A1")
+        assert user["id"] == "test_user"
+        assert user["name"] == "Test Student"
+        profile = self.dm.get_user_modes_profile("test_user")
+        assert profile["level"] == "A1"
 
     def test_base_vocabulary_unlocked_initially(self):
         known_ids = self.dm.get_user_known_lexema_ids("test_user")
-        self.assertIn(self.l1, known_ids)
-        self.assertIn(self.l2, known_ids)
-        self.assertNotIn(self.l3, known_ids)
-        self.assertNotIn(self.l4, known_ids)
+        assert self.l1 in known_ids
+        assert self.l2 in known_ids
+        assert self.l3 not in known_ids
+        assert self.l4 not in known_ids
 
     def test_progressive_sentence_selection(self):
-        # A beginner with only base words should get sentences with <= 2 unknown words (s1, s2, s3)
-        # s4 has 3 unknown words, s5 has C1 score
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=1.2, count=3, max_unknown=2)
-        batch_ids = [s["id"] for s in batch]
-
-        self.assertTrue(len(batch) > 0)
-        # s1 (0 unknown), s2 (1 unknown), s3 (2 unknown) are the primary candidates
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="A1", count=3, max_unknown=2)
+        assert len(batch) > 0
         for s in batch:
-            self.assertIn("unknown_count", s)
-            self.assertIn("new_lexemas", s)
-            self.assertIn("known_lexemas", s)
-            self.assertLessEqual(s["unknown_count"], 2)
+            assert "unknown_count" in s
+            assert "new_lexemas" in s
+            assert "known_lexemas" in s
+            assert s["unknown_count"] <= 2
 
     def test_appearance_counting_and_unlock(self):
-        # Test appearance increment
         progress1 = self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True)
-        self.assertTrue(any(p["id"] == self.l3 for p in progress1))
+        assert any(p["id"] == self.l3 and p["is_known"] == 1 for p in progress1)
 
-        # Check in user_lexema_counts table
         with self.dm._get_connection() as conn:
             row = conn.execute(
-                "SELECT appearance_count, success_count, is_known FROM user_lexema_counts WHERE user_id = 'test_user' AND lexema_id = ?;",
+                "SELECT appearance_count, success_count FROM user_lemmas WHERE user_id = 'test_user' AND lemma_id = ?;",
                 (self.l3,)
             ).fetchone()
-            self.assertIsNotNone(row)
-            self.assertEqual(row["appearance_count"], 1)
-            self.assertEqual(row["success_count"], 1)
-            self.assertEqual(row["is_known"], 1)  # Unlocked because success >= 1
+            assert row is not None
+            assert row["appearance_count"] == 1
+            assert row["success_count"] == 1
 
-        # Now "chat" (l3) is in known lexemas
         known_ids_after = self.dm.get_user_known_lexema_ids("test_user")
-        self.assertIn(self.l3, known_ids_after)
+        assert self.l3 in known_ids_after
+
+    def test_retry_lexema_appearances_consolidation(self):
+        # First attempt: failure
+        self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=False, is_retry=False)
+        with self.dm._get_connection() as conn:
+            row = conn.execute(
+                "SELECT appearance_count, success_count FROM user_lemmas WHERE user_id = 'test_user' AND lemma_id = ?;",
+                (self.l3,)
+            ).fetchone()
+            assert row is not None
+            assert row["appearance_count"] == 1
+            assert row["success_count"] == 0
+
+        # Retry attempt on same card: success, is_retry=True
+        progress = self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True, is_retry=True)
+        assert len(progress) > 0
+        with self.dm._get_connection() as conn:
+            row = conn.execute(
+                "SELECT appearance_count, success_count FROM user_lemmas WHERE user_id = 'test_user' AND lemma_id = ?;",
+                (self.l3,)
+            ).fetchone()
+            assert row is not None
+            # Metrics remain consolidated to first try!
+            assert row["appearance_count"] == 1
+            assert row["success_count"] == 0
+
+        # Different session / subsequent encounter: is_retry=False, success=True
+        self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True, is_retry=False)
+        with self.dm._get_connection() as conn:
+            row = conn.execute(
+                "SELECT appearance_count, success_count FROM user_lemmas WHERE user_id = 'test_user' AND lemma_id = ?;",
+                (self.l3,)
+            ).fetchone()
+            assert row is not None
+            # New appearance counted
+            assert row["appearance_count"] == 2
+            assert row["success_count"] == 1
 
     def test_vocabulary_stats(self):
         self.dm.record_lexema_appearances(user_id="test_user", sentence_id=self.s2["id"], is_success=True)
         stats = self.dm.get_user_vocabulary_stats("test_user")
-        self.assertIn("total_known", stats)
-        self.assertIn("total_learning", stats)
-        self.assertIn("by_level", stats)
-        self.assertGreaterEqual(stats["total_known"], 3)  # l1, l2, l3
+        assert "total_known" in stats
+        assert "total_learning" in stats
+        assert "by_level" in stats
+        assert stats["total_known"] >= 3
 
     def test_scoring_engine_integration(self):
         batch = self.scoring.get_batch_sentences(
             all_sentences=self.dm.get_all_sentences(),
-            target_score=1.2,
+            target_level="A1",
             count=3,
             data_manager=self.dm,
             user_id="test_user",
             max_unknown=2
         )
-        self.assertEqual(len(batch), 3)
+        assert len(batch) == 3
         for s in batch:
-            self.assertIn("fr", s)
-            self.assertIn("es", s)
+            assert "fr" in s
+            assert "es" in s
 
     def test_transcription_mode_zero_new_words(self):
-        # In transcription mode, sentences must contain ONLY familiar words (0 unknown words)
         batch = self.dm.get_progressive_sentences(
             user_id="test_user",
-            target_score=1.2,
+            target_level="A1",
             count=1,
             mode="transcription"
         )
-        self.assertEqual(len(batch), 1)
-        # s1 only contains base words (l1, l2) which test_user knows initially
-        self.assertEqual(batch[0]["id"], self.s1["id"])
-        self.assertEqual(batch[0]["unknown_count"], 0)
-        self.assertEqual(batch[0]["new_lexemas"], [])
+        assert len(batch) == 1
+        assert batch[0]["id"] == self.s1["id"]
+        assert batch[0]["unknown_count"] == 0
+        assert batch[0]["new_lexemas"] == []
 
-        # Scoring engine integration with mode='transcription'
         batch_se = self.scoring.get_batch_sentences(
             all_sentences=self.dm.get_all_sentences(),
-            target_score=1.2,
+            target_level="A1",
             count=1,
             data_manager=self.dm,
             user_id="test_user",
             mode="transcription"
         )
-        self.assertEqual(len(batch_se), 1)
-        self.assertEqual(batch_se[0]["id"], self.s1["id"])
-        self.assertEqual(batch_se[0]["unknown_count"], 0)
-        self.assertEqual(batch_se[0]["new_lexemas"], [])
+        assert len(batch_se) == 1
+        assert batch_se[0]["id"] == self.s1["id"]
+        assert batch_se[0]["unknown_count"] == 0
+        assert batch_se[0]["new_lexemas"] == []
 
     def test_transcription_mode_never_falls_back_to_new_words(self):
-        # Even if the familiar sentence is in exclude_ids, transcription must recycle familiar words
-        # and NEVER pick sentences with new words (s2, s3, s4, s5)
         batch = self.dm.get_progressive_sentences(
             user_id="test_user",
-            target_score=1.2,
+            target_level="A1",
             count=1,
             exclude_ids=[self.s1["id"]],
             mode="transcription"
         )
-        self.assertEqual(len(batch), 1)
-        self.assertEqual(batch[0]["id"], self.s1["id"])
-        self.assertEqual(batch[0]["unknown_count"], 0)
-        self.assertEqual(batch[0]["new_lexemas"], [])
+        assert len(batch) == 1
+        assert batch[0]["id"] == self.s1["id"]
+        assert batch[0]["unknown_count"] == 0
+        assert batch[0]["new_lexemas"] == []
 
     def test_irregular_word_derivation_matching(self):
-        # Test irregular verb forms like 'vais' (aller) and 'sommes' (être)
         l_aller = self.dm.upsert_lexema(lemma="aller", pos="VERB", level="A1", is_base=False)
         s_aller = self.dm.add_sentence(es="Voy a la playa", fr="Je vais à la plage", level="A1", score=1.2)
         self.dm.link_sentence_lexemas(s_aller["id"], [l_aller])
 
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=1.2, count=5)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="A1", count=5)
         matched_s = next((s for s in batch if s["id"] == s_aller["id"]), None)
-        self.assertIsNotNone(matched_s)
-        self.assertIn("first_time_pairs", matched_s)
+        assert matched_s is not None
+        assert "first_time_pairs" in matched_s
         aller_pair = next((p for p in matched_s["first_time_pairs"] if p["lemma"] == "aller"), None)
-        self.assertIsNotNone(aller_pair)
-        self.assertEqual(aller_pair["word"], "vais")
+        assert aller_pair is not None
+        assert aller_pair["word"] == "vais"
 
     def test_regular_word_derivation_matching(self):
-        # Test regular words like 'chat' (chat)
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=1.2, count=5)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="A1", count=5)
         matched_s = next((s for s in batch if s["id"] == self.s2["id"]), None)
-        self.assertIsNotNone(matched_s)
-        self.assertIn("first_time_pairs", matched_s)
+        assert matched_s is not None
+        assert "first_time_pairs" in matched_s
         chat_pair = next((p for p in matched_s["first_time_pairs"] if p["lemma"] == "chat"), None)
-        self.assertIsNotNone(chat_pair)
-        self.assertEqual(chat_pair["word"], "chat")
+        assert chat_pair is not None
+        assert chat_pair["word"] == "chat"
 
     def test_contraction_and_elision_derivation_matching(self):
-        # Test elided words like l'obstinée (obstiner) or j'habite (habiter)
         l_obstiner = self.dm.upsert_lexema(lemma="obstiner", pos="VERB", level="B2", is_base=False)
         s_obst = self.dm.add_sentence(es="Ella es obstinada", fr="Elle est l'obstinée de la classe", level="B2", score=4.5)
         self.dm.link_sentence_lexemas(s_obst["id"], [l_obstiner])
 
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=4.5, count=5)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="B2", count=5)
         matched_s = next((s for s in batch if s["id"] == s_obst["id"]), None)
-        self.assertIsNotNone(matched_s)
-        self.assertIn("first_time_pairs", matched_s)
+        assert matched_s is not None
+        assert "first_time_pairs" in matched_s
         pair = next((p for p in matched_s["first_time_pairs"] if p["lemma"] == "obstiner"), None)
-        self.assertIsNotNone(pair)
-        self.assertEqual(pair["word"], "obstinée")
+        assert pair is not None
+        assert pair["word"] == "obstinée"
 
     def test_reflexive_verb_derivation_matching(self):
-        # Test reflexive dictionary lemma like s'obstiner matching sentence word obstinée
         l_refl = self.dm.upsert_lexema(lemma="s'obstiner", pos="VERB", level="B2", is_base=False)
         s_refl = self.dm.add_sentence(es="Ella es obstinada", fr="Elle s'obstine toujours", level="B2", score=4.5)
         self.dm.link_sentence_lexemas(s_refl["id"], [l_refl])
 
-        batch = self.dm.get_progressive_sentences(user_id="test_user", target_score=4.5, count=5)
+        batch = self.dm.get_progressive_sentences(user_id="test_user", target_level="B2", count=5)
         matched_s = next((s for s in batch if s["id"] == s_refl["id"]), None)
-        self.assertIsNotNone(matched_s)
-        self.assertIn("first_time_pairs", matched_s)
+        assert matched_s is not None
+        assert "first_time_pairs" in matched_s
         pair = next((p for p in matched_s["first_time_pairs"] if "obstin" in p["lemma"]), None)
-        self.assertIsNotNone(pair)
-        self.assertEqual(pair["word"], "obstine")
+        assert pair is not None
+        assert pair["word"] == "obstine"
 
     def test_manual_level_lowering_relocks_unpracticed_vocab(self):
         # 1. Reset user to B2 -> unlocks A1, A2, B1 lexemas
-        self.scoring.reset_profile(start_score=4.20, mode="translation", user_id="relock_user")
+        self.scoring.reset_profile(level="B2", mode="translation", user_id="relock_user")
         known_b2 = self.dm.get_user_known_lexema_ids("relock_user")
-        self.assertIn(self.l3, known_b2)  # A1 non-base word was auto-unlocked
+        assert self.l3 in known_b2
         
         # 2. Simulate practicing a specific A1 word (l3: 'chat')
         self.dm.record_lexema_appearances("relock_user", self.s2["id"], is_success=True)
 
         # 3. Lower level manually to A1
-        self.scoring.reset_profile(start_score=1.20, mode="translation", user_id="relock_user")
+        self.scoring.reset_profile(level="A1", mode="translation", user_id="relock_user")
         known_a1 = self.dm.get_user_known_lexema_ids("relock_user")
 
         # Base words are still known
-        self.assertIn(self.l1, known_a1)
-        self.assertIn(self.l2, known_a1)
+        assert self.l1 in known_a1
+        assert self.l2 in known_a1
 
         # Practiced word 'chat' (l3) remains known because it was actually practiced
-        self.assertIn(self.l3, known_a1)
+        assert self.l3 in known_a1
 
         # Unpracticed non-base word 'noir' (l4) is relocked and no longer known
-        self.assertNotIn(self.l4, known_a1)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert self.l4 not in known_a1
